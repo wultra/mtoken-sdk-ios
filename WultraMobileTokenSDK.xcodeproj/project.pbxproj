@@ -1,0 +1,499 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 50;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		DC059A3E244DDC0900B24878 /* WMTConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC059A3D244DDC0900B24878 /* WMTConfig.swift */; };
+		DC81D1C9244F38DB00F80CD6 /* WMTPushEndpoints.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC81D1C8244F38DB00F80CD6 /* WMTPushEndpoints.swift */; };
+		DC81D1CB244F451E00F80CD6 /* WMTPushImpl.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC81D1CA244F451E00F80CD6 /* WMTPushImpl.swift */; };
+		DC81D1CD244F640600F80CD6 /* WMTPush.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC81D1CC244F640600F80CD6 /* WMTPush.swift */; };
+		DC8CB202244DCBE2009DDAA3 /* WMTOperations.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC8CB201244DCBE2009DDAA3 /* WMTOperations.swift */; };
+		DC8CB206244DD007009DDAA3 /* WMTAllowedOperationSignature.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC8CB205244DD007009DDAA3 /* WMTAllowedOperationSignature.swift */; };
+		DCC5CC9F2449EE21004679AC /* MobileTokenSDK.h in Headers */ = {isa = PBXBuildFile; fileRef = DCC5CC9D2449EE21004679AC /* MobileTokenSDK.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		DCC5CCAC2449F765004679AC /* WMTOperationsImpl.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCC5CCAB2449F765004679AC /* WMTOperationsImpl.swift */; };
+		DCC5CCAE2449F7AC004679AC /* WMTUserOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCC5CCAD2449F7AC004679AC /* WMTUserOperation.swift */; };
+		DCC5CCB12449F81C004679AC /* WMTOperationFormData.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCC5CCB02449F81C004679AC /* WMTOperationFormData.swift */; };
+		DCC5CCB32449F8CD004679AC /* WMTOperationAttribute.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCC5CCB22449F8CD004679AC /* WMTOperationAttribute.swift */; };
+		DCC5CCB52449F8E9004679AC /* WMTOperationAttributeAmount.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCC5CCB42449F8E9004679AC /* WMTOperationAttributeAmount.swift */; };
+		DCC5CCB72449F90E004679AC /* WMTOpertionParameter.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCC5CCB62449F90E004679AC /* WMTOpertionParameter.swift */; };
+		DCC5CCB92449F93C004679AC /* WMTOperationAttributeKeyValue.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCC5CCB82449F93C004679AC /* WMTOperationAttributeKeyValue.swift */; };
+		DCC5CCBB2449F952004679AC /* WMTOperationAttributeNote.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCC5CCBA2449F952004679AC /* WMTOperationAttributeNote.swift */; };
+		DCC5CCBD2449F965004679AC /* WMTOperationAttributeHeading.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCC5CCBC2449F965004679AC /* WMTOperationAttributeHeading.swift */; };
+		DCC5CCBF2449F981004679AC /* WMTOperationAttributePartyInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCC5CCBE2449F981004679AC /* WMTOperationAttributePartyInfo.swift */; };
+		DCC5CCC12449FA4E004679AC /* WMTError.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCC5CCC02449FA4E004679AC /* WMTError.swift */; };
+		DCC5CCC32449FAF8004679AC /* WMTNetworkingService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCC5CCC22449FAF8004679AC /* WMTNetworkingService.swift */; };
+		DCC5CCC62449FB2A004679AC /* WMTHttpClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCC5CCC52449FB2A004679AC /* WMTHttpClient.swift */; };
+		DCC5CCC82449FC66004679AC /* WMTSSLValidationStrategy.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCC5CCC72449FC66004679AC /* WMTSSLValidationStrategy.swift */; };
+		DCC5CCCA2449FD23004679AC /* WMTHttpRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCC5CCC92449FD23004679AC /* WMTHttpRequest.swift */; };
+		DCC5CCCC2449FD4E004679AC /* WMTBaseNetworkingObjects.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCC5CCCB2449FD4E004679AC /* WMTBaseNetworkingObjects.swift */; };
+		DCC5CCCE244DB0AD004679AC /* WMTLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCC5CCCD244DB0AD004679AC /* WMTLogger.swift */; };
+		DCC5CCD0244DB233004679AC /* WMTAsyncOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCC5CCCF244DB233004679AC /* WMTAsyncOperation.swift */; };
+		DCC5CCD4244DBA1C004679AC /* WMTOperationEndpoints.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCC5CCD3244DBA1C004679AC /* WMTOperationEndpoints.swift */; };
+		DCC5CCD6244DBB7F004679AC /* WMTPushRegistrationData.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCC5CCD5244DBB7F004679AC /* WMTPushRegistrationData.swift */; };
+		DCC5CCD8244DBBBD004679AC /* WMTAuthorizationData.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCC5CCD7244DBBBD004679AC /* WMTAuthorizationData.swift */; };
+		DCC5CCDA244DBBE2004679AC /* WMTRejectionData.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCC5CCD9244DBBE2004679AC /* WMTRejectionData.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		DC059A3D244DDC0900B24878 /* WMTConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTConfig.swift; sourceTree = "<group>"; };
+		DC81D1C8244F38DB00F80CD6 /* WMTPushEndpoints.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTPushEndpoints.swift; sourceTree = "<group>"; };
+		DC81D1CA244F451E00F80CD6 /* WMTPushImpl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTPushImpl.swift; sourceTree = "<group>"; };
+		DC81D1CC244F640600F80CD6 /* WMTPush.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTPush.swift; sourceTree = "<group>"; };
+		DC8CB201244DCBE2009DDAA3 /* WMTOperations.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTOperations.swift; sourceTree = "<group>"; };
+		DC8CB205244DD007009DDAA3 /* WMTAllowedOperationSignature.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTAllowedOperationSignature.swift; sourceTree = "<group>"; };
+		DCC5CC9A2449EE21004679AC /* WultraMobileTokenSDK.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = WultraMobileTokenSDK.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		DCC5CC9D2449EE21004679AC /* MobileTokenSDK.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MobileTokenSDK.h; sourceTree = "<group>"; };
+		DCC5CC9E2449EE21004679AC /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		DCC5CCA82449F2B1004679AC /* Config.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Config.xcconfig; sourceTree = "<group>"; };
+		DCC5CCA92449F2E1004679AC /* Debug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Debug.xcconfig; sourceTree = "<group>"; };
+		DCC5CCAA2449F2ED004679AC /* Release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Release.xcconfig; sourceTree = "<group>"; };
+		DCC5CCAB2449F765004679AC /* WMTOperationsImpl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTOperationsImpl.swift; sourceTree = "<group>"; };
+		DCC5CCAD2449F7AC004679AC /* WMTUserOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTUserOperation.swift; sourceTree = "<group>"; };
+		DCC5CCB02449F81C004679AC /* WMTOperationFormData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTOperationFormData.swift; sourceTree = "<group>"; };
+		DCC5CCB22449F8CD004679AC /* WMTOperationAttribute.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTOperationAttribute.swift; sourceTree = "<group>"; };
+		DCC5CCB42449F8E9004679AC /* WMTOperationAttributeAmount.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTOperationAttributeAmount.swift; sourceTree = "<group>"; };
+		DCC5CCB62449F90E004679AC /* WMTOpertionParameter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTOpertionParameter.swift; sourceTree = "<group>"; };
+		DCC5CCB82449F93C004679AC /* WMTOperationAttributeKeyValue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTOperationAttributeKeyValue.swift; sourceTree = "<group>"; };
+		DCC5CCBA2449F952004679AC /* WMTOperationAttributeNote.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTOperationAttributeNote.swift; sourceTree = "<group>"; };
+		DCC5CCBC2449F965004679AC /* WMTOperationAttributeHeading.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTOperationAttributeHeading.swift; sourceTree = "<group>"; };
+		DCC5CCBE2449F981004679AC /* WMTOperationAttributePartyInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTOperationAttributePartyInfo.swift; sourceTree = "<group>"; };
+		DCC5CCC02449FA4E004679AC /* WMTError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTError.swift; sourceTree = "<group>"; };
+		DCC5CCC22449FAF8004679AC /* WMTNetworkingService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTNetworkingService.swift; sourceTree = "<group>"; };
+		DCC5CCC52449FB2A004679AC /* WMTHttpClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTHttpClient.swift; sourceTree = "<group>"; };
+		DCC5CCC72449FC66004679AC /* WMTSSLValidationStrategy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTSSLValidationStrategy.swift; sourceTree = "<group>"; };
+		DCC5CCC92449FD23004679AC /* WMTHttpRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTHttpRequest.swift; sourceTree = "<group>"; };
+		DCC5CCCB2449FD4E004679AC /* WMTBaseNetworkingObjects.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTBaseNetworkingObjects.swift; sourceTree = "<group>"; };
+		DCC5CCCD244DB0AD004679AC /* WMTLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTLogger.swift; sourceTree = "<group>"; };
+		DCC5CCCF244DB233004679AC /* WMTAsyncOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTAsyncOperation.swift; sourceTree = "<group>"; };
+		DCC5CCD3244DBA1C004679AC /* WMTOperationEndpoints.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTOperationEndpoints.swift; sourceTree = "<group>"; };
+		DCC5CCD5244DBB7F004679AC /* WMTPushRegistrationData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTPushRegistrationData.swift; sourceTree = "<group>"; };
+		DCC5CCD7244DBBBD004679AC /* WMTAuthorizationData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTAuthorizationData.swift; sourceTree = "<group>"; };
+		DCC5CCD9244DBBE2004679AC /* WMTRejectionData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTRejectionData.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		DCC5CC972449EE21004679AC /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		DC059A3C244DD30900B24878 /* Attributes */ = {
+			isa = PBXGroup;
+			children = (
+				DCC5CCB22449F8CD004679AC /* WMTOperationAttribute.swift */,
+				DCC5CCB42449F8E9004679AC /* WMTOperationAttributeAmount.swift */,
+				DCC5CCB62449F90E004679AC /* WMTOpertionParameter.swift */,
+				DCC5CCB82449F93C004679AC /* WMTOperationAttributeKeyValue.swift */,
+				DCC5CCBA2449F952004679AC /* WMTOperationAttributeNote.swift */,
+				DCC5CCBC2449F965004679AC /* WMTOperationAttributeHeading.swift */,
+				DCC5CCBE2449F981004679AC /* WMTOperationAttributePartyInfo.swift */,
+			);
+			path = Attributes;
+			sourceTree = "<group>";
+		};
+		DC76D01A2452E92D009F2DFC /* Service */ = {
+			isa = PBXGroup;
+			children = (
+				DCC5CCAB2449F765004679AC /* WMTOperationsImpl.swift */,
+				DCC5CCD3244DBA1C004679AC /* WMTOperationEndpoints.swift */,
+			);
+			path = Service;
+			sourceTree = "<group>";
+		};
+		DC76D01B24531413009F2DFC /* Service */ = {
+			isa = PBXGroup;
+			children = (
+				DC81D1CA244F451E00F80CD6 /* WMTPushImpl.swift */,
+				DC81D1C8244F38DB00F80CD6 /* WMTPushEndpoints.swift */,
+			);
+			path = Service;
+			sourceTree = "<group>";
+		};
+		DC81D1C5244F302300F80CD6 /* Operations */ = {
+			isa = PBXGroup;
+			children = (
+				DC8CB201244DCBE2009DDAA3 /* WMTOperations.swift */,
+				DC76D01A2452E92D009F2DFC /* Service */,
+				DCC5CCAF2449F7FA004679AC /* Model */,
+			);
+			path = Operations;
+			sourceTree = "<group>";
+		};
+		DC81D1C6244F357900F80CD6 /* Push */ = {
+			isa = PBXGroup;
+			children = (
+				DC81D1CC244F640600F80CD6 /* WMTPush.swift */,
+				DC76D01B24531413009F2DFC /* Service */,
+				DC81D1C7244F382800F80CD6 /* Model */,
+			);
+			path = Push;
+			sourceTree = "<group>";
+		};
+		DC81D1C7244F382800F80CD6 /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				DCC5CCD5244DBB7F004679AC /* WMTPushRegistrationData.swift */,
+			);
+			path = Model;
+			sourceTree = "<group>";
+		};
+		DC81D1CE24502E0300F80CD6 /* Common */ = {
+			isa = PBXGroup;
+			children = (
+				DC059A3D244DDC0900B24878 /* WMTConfig.swift */,
+				DCC5CCCD244DB0AD004679AC /* WMTLogger.swift */,
+				DCC5CCC02449FA4E004679AC /* WMTError.swift */,
+				DCC5CCC42449FB04004679AC /* Networking */,
+			);
+			path = Common;
+			sourceTree = "<group>";
+		};
+		DCC5CC902449EE21004679AC = {
+			isa = PBXGroup;
+			children = (
+				DCC5CC9C2449EE21004679AC /* WultraMobileTokenSDK */,
+				DCC5CC9B2449EE21004679AC /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		DCC5CC9B2449EE21004679AC /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				DCC5CC9A2449EE21004679AC /* WultraMobileTokenSDK.framework */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		DCC5CC9C2449EE21004679AC /* WultraMobileTokenSDK */ = {
+			isa = PBXGroup;
+			children = (
+				DC81D1CE24502E0300F80CD6 /* Common */,
+				DC81D1C5244F302300F80CD6 /* Operations */,
+				DC81D1C6244F357900F80CD6 /* Push */,
+				DCC5CC9D2449EE21004679AC /* MobileTokenSDK.h */,
+				DCC5CC9E2449EE21004679AC /* Info.plist */,
+				DCC5CCA72449F27B004679AC /* ConfigFiles */,
+			);
+			path = WultraMobileTokenSDK;
+			sourceTree = "<group>";
+		};
+		DCC5CCA72449F27B004679AC /* ConfigFiles */ = {
+			isa = PBXGroup;
+			children = (
+				DCC5CCA82449F2B1004679AC /* Config.xcconfig */,
+				DCC5CCA92449F2E1004679AC /* Debug.xcconfig */,
+				DCC5CCAA2449F2ED004679AC /* Release.xcconfig */,
+			);
+			path = ConfigFiles;
+			sourceTree = "<group>";
+		};
+		DCC5CCAF2449F7FA004679AC /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				DC059A3C244DD30900B24878 /* Attributes */,
+				DCC5CCAD2449F7AC004679AC /* WMTUserOperation.swift */,
+				DCC5CCB02449F81C004679AC /* WMTOperationFormData.swift */,
+				DCC5CCD7244DBBBD004679AC /* WMTAuthorizationData.swift */,
+				DCC5CCD9244DBBE2004679AC /* WMTRejectionData.swift */,
+				DC8CB205244DD007009DDAA3 /* WMTAllowedOperationSignature.swift */,
+			);
+			path = Model;
+			sourceTree = "<group>";
+		};
+		DCC5CCC42449FB04004679AC /* Networking */ = {
+			isa = PBXGroup;
+			children = (
+				DCC5CCC72449FC66004679AC /* WMTSSLValidationStrategy.swift */,
+				DCC5CCC22449FAF8004679AC /* WMTNetworkingService.swift */,
+				DCC5CCC52449FB2A004679AC /* WMTHttpClient.swift */,
+				DCC5CCC92449FD23004679AC /* WMTHttpRequest.swift */,
+				DCC5CCCB2449FD4E004679AC /* WMTBaseNetworkingObjects.swift */,
+				DCC5CCCF244DB233004679AC /* WMTAsyncOperation.swift */,
+			);
+			path = Networking;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXHeadersBuildPhase section */
+		DCC5CC952449EE21004679AC /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				DCC5CC9F2449EE21004679AC /* MobileTokenSDK.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
+
+/* Begin PBXNativeTarget section */
+		DCC5CC992449EE21004679AC /* WultraMobileTokenSDK */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = DCC5CCA22449EE21004679AC /* Build configuration list for PBXNativeTarget "WultraMobileTokenSDK" */;
+			buildPhases = (
+				DCC5CC952449EE21004679AC /* Headers */,
+				DCC5CC962449EE21004679AC /* Sources */,
+				DCC5CC972449EE21004679AC /* Frameworks */,
+				DCC5CC982449EE21004679AC /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = WultraMobileTokenSDK;
+			productName = MobileTokenSDK;
+			productReference = DCC5CC9A2449EE21004679AC /* WultraMobileTokenSDK.framework */;
+			productType = "com.apple.product-type.framework";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		DCC5CC912449EE21004679AC /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 1140;
+				ORGANIZATIONNAME = Wultra;
+				TargetAttributes = {
+					DCC5CC992449EE21004679AC = {
+						CreatedOnToolsVersion = 11.4;
+						LastSwiftMigration = 1140;
+					};
+				};
+			};
+			buildConfigurationList = DCC5CC942449EE21004679AC /* Build configuration list for PBXProject "WultraMobileTokenSDK" */;
+			compatibilityVersion = "Xcode 9.3";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = DCC5CC902449EE21004679AC;
+			productRefGroup = DCC5CC9B2449EE21004679AC /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				DCC5CC992449EE21004679AC /* WultraMobileTokenSDK */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		DCC5CC982449EE21004679AC /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		DCC5CC962449EE21004679AC /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				DC81D1C9244F38DB00F80CD6 /* WMTPushEndpoints.swift in Sources */,
+				DC8CB202244DCBE2009DDAA3 /* WMTOperations.swift in Sources */,
+				DCC5CCB52449F8E9004679AC /* WMTOperationAttributeAmount.swift in Sources */,
+				DCC5CCB72449F90E004679AC /* WMTOpertionParameter.swift in Sources */,
+				DCC5CCD6244DBB7F004679AC /* WMTPushRegistrationData.swift in Sources */,
+				DCC5CCC12449FA4E004679AC /* WMTError.swift in Sources */,
+				DCC5CCD0244DB233004679AC /* WMTAsyncOperation.swift in Sources */,
+				DCC5CCC82449FC66004679AC /* WMTSSLValidationStrategy.swift in Sources */,
+				DC059A3E244DDC0900B24878 /* WMTConfig.swift in Sources */,
+				DCC5CCCA2449FD23004679AC /* WMTHttpRequest.swift in Sources */,
+				DCC5CCC62449FB2A004679AC /* WMTHttpClient.swift in Sources */,
+				DCC5CCD8244DBBBD004679AC /* WMTAuthorizationData.swift in Sources */,
+				DC81D1CD244F640600F80CD6 /* WMTPush.swift in Sources */,
+				DCC5CCDA244DBBE2004679AC /* WMTRejectionData.swift in Sources */,
+				DCC5CCB12449F81C004679AC /* WMTOperationFormData.swift in Sources */,
+				DCC5CCD4244DBA1C004679AC /* WMTOperationEndpoints.swift in Sources */,
+				DCC5CCB92449F93C004679AC /* WMTOperationAttributeKeyValue.swift in Sources */,
+				DCC5CCBB2449F952004679AC /* WMTOperationAttributeNote.swift in Sources */,
+				DCC5CCB32449F8CD004679AC /* WMTOperationAttribute.swift in Sources */,
+				DCC5CCCC2449FD4E004679AC /* WMTBaseNetworkingObjects.swift in Sources */,
+				DCC5CCAC2449F765004679AC /* WMTOperationsImpl.swift in Sources */,
+				DCC5CCCE244DB0AD004679AC /* WMTLogger.swift in Sources */,
+				DCC5CCAE2449F7AC004679AC /* WMTUserOperation.swift in Sources */,
+				DCC5CCBD2449F965004679AC /* WMTOperationAttributeHeading.swift in Sources */,
+				DC8CB206244DD007009DDAA3 /* WMTAllowedOperationSignature.swift in Sources */,
+				DCC5CCC32449FAF8004679AC /* WMTNetworkingService.swift in Sources */,
+				DCC5CCBF2449F981004679AC /* WMTOperationAttributePartyInfo.swift in Sources */,
+				DC81D1CB244F451E00F80CD6 /* WMTPushImpl.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		DCC5CCA02449EE21004679AC /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = DCC5CCA92449F2E1004679AC /* Debug.xcconfig */;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.4;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Debug;
+		};
+		DCC5CCA12449EE21004679AC /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = DCC5CCAA2449F2ED004679AC /* Release.xcconfig */;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.4;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				VALIDATE_PRODUCT = YES;
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Release;
+		};
+		DCC5CCA32449EE21004679AC /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = WultraMobileTokenSDK;
+			};
+			name = Debug;
+		};
+		DCC5CCA42449EE21004679AC /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = WultraMobileTokenSDK;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		DCC5CC942449EE21004679AC /* Build configuration list for PBXProject "WultraMobileTokenSDK" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				DCC5CCA02449EE21004679AC /* Debug */,
+				DCC5CCA12449EE21004679AC /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		DCC5CCA22449EE21004679AC /* Build configuration list for PBXNativeTarget "WultraMobileTokenSDK" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				DCC5CCA32449EE21004679AC /* Debug */,
+				DCC5CCA42449EE21004679AC /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = DCC5CC912449EE21004679AC /* Project object */;
+}
