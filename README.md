@@ -21,11 +21,11 @@ This SDK contains Push subspec that handles registration to the Wultra Push serv
 
 Integration is now supported only via CocoaPods.
 
-Operation `podfile` config:
-`pod 'WultraMobileTokenSDK/Operations', :git => 'https://github.com/wultra/mtoken-sdk-ios.git', :branch => 'develop'`
+Operation `podfile` config:  
+`pod 'WultraMobileTokenSDK/Operations', :git => 'https://github.com/wultra/mtoken-sdk-ios.git', :branch => 'master'`
 
-Push `podfile` config:
-`pod 'WultraMobileTokenSDK/Push', :git => 'https://github.com/wultra/mtoken-sdk-ios.git', :branch => 'develop'`
+Push `podfile` config:   
+`pod 'WultraMobileTokenSDK/Push', :git => 'https://github.com/wultra/mtoken-sdk-ios.git', :branch => 'master'`
 
 ### Code usage
 
