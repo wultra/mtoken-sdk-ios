@@ -9,10 +9,10 @@ Wultra Mobile Token SDK (WMT) is a high-level SDK written in `swift` for strong 
 This SDK is an addon to `PowerAuth2 Mobile SDK`.
 
 **OPERATIONS**  
-This SDK contains Operations subspec that handles operation retrieving, approving and rejecting.
+This SDK contains an Operations subspec that handles operation retrieving, approving, and rejecting.
 
 **PUSH**  
-This SDK contains Push subspec that handles registration to the Wultra Push server.
+This SDK contains a Push subspec that handles registration to the Wultra Push server.
 
 
 ## Basic usage
