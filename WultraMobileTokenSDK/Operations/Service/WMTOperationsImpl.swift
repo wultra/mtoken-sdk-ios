@@ -216,7 +216,6 @@ class WMTOperationsImpl: WMTOperations {
                 let nonce  = qrOperation.nonceForOfflineSigning
                 let signature = try self.powerAuth.offlineSignature(with: authentication, uriId: uriId, body: body, nonce: nonce)
                 completion(.success(signature))
-                //self.stats.record(event: .offline_generated)
 
             } catch let error {
                 completion(.failure(WMTError(reason: .operations_QROperationFailed, error: error)))
