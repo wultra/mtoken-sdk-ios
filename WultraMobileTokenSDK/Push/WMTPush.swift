@@ -26,6 +26,13 @@ public protocol WMTPush {
     /// Configuration for the service
     var config: WMTConfig { get }
     
+    /// Accept language for the outgoing requests headers.
+    /// Default value is "en".
+    ///
+    /// Response texts are based on this setting. For example when "de" is set, server
+    /// will sent notifications in german.
+    var acceptLanguage: String { get set }
+    
     /// Registers the current powerauth activation for push notifications
     ///
     /// - Parameters:

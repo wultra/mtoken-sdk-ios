@@ -17,7 +17,7 @@
 import Foundation
 
 /// Configuration class used for configuring WultraMobileTokenSDK services.
-public class WMTConfig {
+public struct WMTConfig {
     
     /// Base URL for service requests.
     public let baseUrl: URL
@@ -25,13 +25,9 @@ public class WMTConfig {
     /// SSL validation strategy for the request.
     public let sslValidation: WMTSSLValidationStrategy
     
-    /// Accept language for the outgoing requests headers
-    public var acceptLanguage: String
-    
-    public init(baseUrl: URL, sslValidation: WMTSSLValidationStrategy, acceptLanguage: String) {
+    public init(baseUrl: URL, sslValidation: WMTSSLValidationStrategy) {
         self.baseUrl = baseUrl
         self.sslValidation = sslValidation
-        self.acceptLanguage = acceptLanguage
     }
     
     internal func buildURL(_ endpoint: String) -> URL {

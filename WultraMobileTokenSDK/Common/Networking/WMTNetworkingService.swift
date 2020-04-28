@@ -36,13 +36,11 @@ class WMTNetworkingService {
     
     private let powerAuth: PowerAuthSDK
     private let httpClient: WMTHttpClient
-    private let config: WMTConfig
-    
     private let queue = OperationQueue()
+    internal var acceptLanguage = "en"
     
     init(powerAuth: PowerAuthSDK, config: WMTConfig, serviceName: String) {
         self.powerAuth = powerAuth
-        self.config = config
         self.httpClient = WMTHttpClient(sslValidation: config.sslValidation)
         queue.name = serviceName
     }
@@ -113,7 +111,7 @@ class WMTNetworkingService {
     // MARK: - Private functions
     
     private func getDefaultHeaders() -> [String:String] {
-        return ["Accept-Language": config.acceptLanguage]
+        return ["Accept-Language": acceptLanguage]
     }
     
     /// Calculates a signature for request. The function must be called on background thread.

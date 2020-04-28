@@ -38,6 +38,11 @@ class WMTPushImpl: WMTPush {
     private(set) var pushNotificationsRegisteredOnServer = false // Contains true if push notifications were already registered
     private var pendingRegistrationForRemotePushNotifications = false // Contains true if there's pending registration for push notifications
     
+    var acceptLanguage: String {
+        get { networking.acceptLanguage }
+        set { networking.acceptLanguage = newValue }
+    }
+    
     init(powerAuth: PowerAuthSDK, config: WMTConfig) {
         self.powerAuth = powerAuth
         self.networking = WMTNetworkingService(powerAuth: powerAuth, config: config, serviceName: "WMTPush")

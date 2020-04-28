@@ -27,6 +27,13 @@ public protocol WMTOperations: class {
     /// Configuration for the service
     var config: WMTConfig { get }
     
+    /// Accept language for the outgoing requests headers.
+    /// Default value is "en".
+    ///
+    /// Response texts are based on this setting. For example when "de" is set, server
+    /// will return operation texts in german.
+    var acceptLanguage: String { get set }
+    
     /// Last cached operation result for easy access
     var lastFetchResult: GetOperationsResult? { get }
     

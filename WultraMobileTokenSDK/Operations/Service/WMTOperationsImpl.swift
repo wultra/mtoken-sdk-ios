@@ -65,6 +65,11 @@ class WMTOperationsImpl: WMTOperations {
     
     var isPollingOperations: Bool { return pollingTimer != nil }
     
+    var acceptLanguage: String {
+        get { networking.acceptLanguage }
+        set { networking.acceptLanguage = newValue }
+    }
+    
     private var tasks = [GetOperationsTask]() // Task that are waiting for operation fetch
     private var pollingTimer: Timer? // Timer that manages operations polling when requested
     
