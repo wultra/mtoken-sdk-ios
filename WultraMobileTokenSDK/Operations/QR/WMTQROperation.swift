@@ -20,42 +20,42 @@ import Foundation
 public struct WMTQROperation {
     
     /// Operation's identifier
-    let operationId: String
+    public let operationId: String
     
     /// Title associated with the operation.
-    let title: String
+    public let title: String
     
     /// Message associated with the operation
-    let message: String
+    public let message: String
     
     /// Significant data fields associated with the operation
-    let operationData: WMTQROperationData
+    public let operationData: WMTQROperationData
     
     /// Nonce for offline signature calculation, in Base64 format
-    let nonce: String
+    public let nonce: String
     
     /// Flags associated with the operation
-    let flags: QROperationFlags
+    public let flags: QROperationFlags
     
     /// Data for signature validation
-    let signedData: Data
+    public let signedData: Data
     
     /// ECDSA signature calculated from `signedData`. String is in Base64 format
-    let signature: WMTQROperationSignature
+    public let signature: WMTQROperationSignature
     
     /// QR code uses a string in newer format that this class implements.
     /// This flag may be used as warning, presented in UI
-    let isNewerFormat: Bool
+    public let isNewerFormat: Bool
     
-    var nonceForOfflineSigning: String {
+    internal var nonceForOfflineSigning: String {
         return nonce
     }
     
-    var uriIdForOfflineSigning: String {
+    internal var uriIdForOfflineSigning: String {
         return "/operation/authorize/offline"
     }
     
-    var dataForOfflineSigning: Data {
+    internal var dataForOfflineSigning: Data {
         return "\(operationId)&\(operationData.sourceString)".data(using: .utf8)!
     }
 }
@@ -70,10 +70,10 @@ public struct WMTQROperationSignature {
     }
     
     /// Defines which key has been used for ECDSA signature calculation.
-    let signingKey: SigningKey
+    public let signingKey: SigningKey
     
     /// Signature in Base64 format
-    let signature: String
+    public let signature: String
 }
 
 
@@ -81,14 +81,14 @@ public struct WMTQROperationSignature {
 public struct QROperationFlags {
     
     /// If true, then 2FA signature with biometry factor can be used for operation confirmation.
-    let allowBiometryFactor: Bool
+    public let allowBiometryFactor: Bool
 }
 
 
 /// The `WMTQROperationData` structure defines operation data in QR operation.
 public struct WMTQROperationData {
     
-    enum Version: Character {
+    public enum Version: Character {
         /// First version of operation data
         case v1 = "A"
         /// Type representing all newer versions of operation data
@@ -97,7 +97,7 @@ public struct WMTQROperationData {
     }
     
     /// The `Field` enumeration defines field types available in operation data.
-    enum Field {
+    public enum Field {
         
         /// Amount with currency
         case amount(amount: Decimal, currency: String)
@@ -130,14 +130,14 @@ public struct WMTQROperationData {
     }
     
     /// Version of form data
-    let version: Version
+    public let version: Version
     
     /// Template identifier (0 .. 99 in v1)
-    let templateId: Int
+    public let templateId: Int
     
     /// Array with form fields. Version v1 supports up to 5 fields.
-    let fields: [Field]
+    public let fields: [Field]
     
     /// A whole line from which was this structure constructed.
-    let sourceString: String
+    public let sourceString: String
 }
