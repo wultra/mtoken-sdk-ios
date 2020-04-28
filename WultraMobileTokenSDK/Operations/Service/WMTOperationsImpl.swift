@@ -38,6 +38,9 @@ public extension WMTErrorReason {
     static let operations_authExpired = WMTErrorReason(rawValue: "operations_authExpired")
     /// Operation has expired when trying to reject the operation
     static let operations_rejectExpired = WMTErrorReason(rawValue: "operations_rejectExpired")
+    
+    /// Couldn't sign QR operation
+    static let operations_QROperationFailed = WMTErrorReason(rawValue: "operations_QRFailed")
 }
 
 class WMTOperationsImpl: WMTOperations {
@@ -45,6 +48,11 @@ class WMTOperationsImpl: WMTOperations {
     // Dependencies
     private let powerAuth: PowerAuthSDK
     private let networking: WMTNetworkingService
+    private let qrQueue: OperationQueue = {
+        let q = OperationQueue()
+        q.name = "WMTOperationsQRQueue"
+        return q
+    }()
     let config: WMTConfig
     
     /// If operation loading is currently in progress
@@ -181,6 +189,36 @@ class WMTOperationsImpl: WMTOperations {
             }
             completion(self.adjustOperationError(error, auth: false))
         }
+    }
+    
+    
+    /// Will sign the given QR operation with authentication object.
+    ///
+    /// Note that the operation will be signed even if the authentication object is
+    /// not valid as it cannot be verified on the server.
+    ///
+    /// - Parameters:
+    ///   - qrOperation: QR operation data
+    ///   - authentication: authentication object for signing
+    ///   - completion: result completion
+    /// - Returns: operation for state observation
+    func authorize(qrOperation: WMTQROperation, authentication: PowerAuthAuthentication, completion: @escaping (Result<String, WMTError>) -> Void) -> Operation {
+        
+        let op = BlockOperation {
+            do {
+                let uriId  = qrOperation.uriIdForOfflineSigning
+                let body   = qrOperation.dataForOfflineSigning
+                let nonce  = qrOperation.nonceForOfflineSigning
+                let signature = try self.powerAuth.offlineSignature(with: authentication, uriId: uriId, body: body, nonce: nonce)
+                completion(.success(signature))
+                //self.stats.record(event: .offline_generated)
+
+            } catch let error {
+                completion(.failure(WMTError(reason: .operations_QROperationFailed, error: error)))
+            }
+        }
+        qrQueue.addOperation(op)
+        return op
     }
     
     /// Start operations polling

@@ -54,6 +54,19 @@ public protocol WMTOperations: class {
     @discardableResult
     func authorize(operation: WMTUserOperation, authentication: PowerAuthAuthentication, completion: @escaping(WMTError?)->Void) -> Operation?
     
+    /// Will sign the given QR operation with authentication object.
+    ///
+    /// Note that the operation will be signed even if the authentication object is
+    /// not valid as it cannot be verified on the server.
+    ///
+    /// - Parameters:
+    ///   - qrOperation: QR operation data
+    ///   - authentication: authentication object for signing
+    ///   - completion: result completion
+    /// - Returns: operation for state observation
+    @discardableResult
+    func authorize(qrOperation: WMTQROperation, authentication: PowerAuthAuthentication, completion: @escaping(Result<String, WMTError>) -> Void) -> Operation
+    
     /// Reject operation with a reason.
     ///
     /// - Parameters:

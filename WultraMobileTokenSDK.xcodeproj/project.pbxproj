@@ -13,6 +13,8 @@
 		DC81D1CD244F640600F80CD6 /* WMTPush.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC81D1CC244F640600F80CD6 /* WMTPush.swift */; };
 		DC8CB202244DCBE2009DDAA3 /* WMTOperations.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC8CB201244DCBE2009DDAA3 /* WMTOperations.swift */; };
 		DC8CB206244DD007009DDAA3 /* WMTAllowedOperationSignature.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC8CB205244DD007009DDAA3 /* WMTAllowedOperationSignature.swift */; };
+		DCAB7BC824580B4C0006989D /* WMTQROperationParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCAB7BC724580B4C0006989D /* WMTQROperationParser.swift */; };
+		DCAB7BCA24580BAC0006989D /* WMTQROperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCAB7BC924580BAC0006989D /* WMTQROperation.swift */; };
 		DCC5CC9F2449EE21004679AC /* MobileTokenSDK.h in Headers */ = {isa = PBXBuildFile; fileRef = DCC5CC9D2449EE21004679AC /* MobileTokenSDK.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		DCC5CCAC2449F765004679AC /* WMTOperationsImpl.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCC5CCAB2449F765004679AC /* WMTOperationsImpl.swift */; };
 		DCC5CCAE2449F7AC004679AC /* WMTUserOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCC5CCAD2449F7AC004679AC /* WMTUserOperation.swift */; };
@@ -45,6 +47,8 @@
 		DC81D1CC244F640600F80CD6 /* WMTPush.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTPush.swift; sourceTree = "<group>"; };
 		DC8CB201244DCBE2009DDAA3 /* WMTOperations.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTOperations.swift; sourceTree = "<group>"; };
 		DC8CB205244DD007009DDAA3 /* WMTAllowedOperationSignature.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTAllowedOperationSignature.swift; sourceTree = "<group>"; };
+		DCAB7BC724580B4C0006989D /* WMTQROperationParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTQROperationParser.swift; sourceTree = "<group>"; };
+		DCAB7BC924580BAC0006989D /* WMTQROperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTQROperation.swift; sourceTree = "<group>"; };
 		DCC5CC9A2449EE21004679AC /* WultraMobileTokenSDK.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = WultraMobileTokenSDK.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		DCC5CC9D2449EE21004679AC /* MobileTokenSDK.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MobileTokenSDK.h; sourceTree = "<group>"; };
 		DCC5CC9E2449EE21004679AC /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -122,6 +126,7 @@
 			isa = PBXGroup;
 			children = (
 				DC8CB201244DCBE2009DDAA3 /* WMTOperations.swift */,
+				DCAB7BC624580B2B0006989D /* QR */,
 				DC76D01A2452E92D009F2DFC /* Service */,
 				DCC5CCAF2449F7FA004679AC /* Model */,
 			);
@@ -155,6 +160,15 @@
 				DCC5CCC42449FB04004679AC /* Networking */,
 			);
 			path = Common;
+			sourceTree = "<group>";
+		};
+		DCAB7BC624580B2B0006989D /* QR */ = {
+			isa = PBXGroup;
+			children = (
+				DCAB7BC724580B4C0006989D /* WMTQROperationParser.swift */,
+				DCAB7BC924580BAC0006989D /* WMTQROperation.swift */,
+			);
+			path = QR;
 			sourceTree = "<group>";
 		};
 		DCC5CC902449EE21004679AC = {
@@ -316,6 +330,7 @@
 				DCC5CCD8244DBBBD004679AC /* WMTAuthorizationData.swift in Sources */,
 				DC81D1CD244F640600F80CD6 /* WMTPush.swift in Sources */,
 				DCC5CCDA244DBBE2004679AC /* WMTRejectionData.swift in Sources */,
+				DCAB7BC824580B4C0006989D /* WMTQROperationParser.swift in Sources */,
 				DCC5CCB12449F81C004679AC /* WMTOperationFormData.swift in Sources */,
 				DCC5CCD4244DBA1C004679AC /* WMTOperationEndpoints.swift in Sources */,
 				DCC5CCB92449F93C004679AC /* WMTOperationAttributeKeyValue.swift in Sources */,
@@ -328,6 +343,7 @@
 				DCC5CCBD2449F965004679AC /* WMTOperationAttributeHeading.swift in Sources */,
 				DC8CB206244DD007009DDAA3 /* WMTAllowedOperationSignature.swift in Sources */,
 				DCC5CCC32449FAF8004679AC /* WMTNetworkingService.swift in Sources */,
+				DCAB7BCA24580BAC0006989D /* WMTQROperation.swift in Sources */,
 				DCC5CCBF2449F981004679AC /* WMTOperationAttributePartyInfo.swift in Sources */,
 				DC81D1CB244F451E00F80CD6 /* WMTPushImpl.swift in Sources */,
 			);
