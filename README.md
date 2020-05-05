@@ -64,6 +64,8 @@ This part of the SDK communicates with [Mobile Token API endpoints](https://gith
 To create an instance for operations service, use following snippet:
 
 ```swift
+import WultraMobileTokenSDK
+
 let opsConfig = WMTConfig(
             baseUrl: URL(string: "https://myservice.com/mtoken/operations/api/")!,
             sslValidation: .default
@@ -105,6 +107,8 @@ For more details on the API, visit [`WMTOperations` code documentation](https://
 When implementing offline (QR) operation scanner, you'll need to process the scanned string to `WMTQROperation`. For this, you can use `WMTQROperationParser.parse` static function.
 
 ```swift
+import WultraMobileTokenSDK
+
 guard let parsedQROp = WMTQROperationParser.parse(string: decodedQrValue) else {
     return
 }
@@ -120,6 +124,8 @@ This part of the SDK communicates with [Mobile Push Registration API](https://gi
 To create an instance for push service, use following snippet:
 
 ```swift
+import WultraMobileTokenSDK
+
 let opsConfig = WMTConfig(
             baseUrl: URL(string: "https://myservice.com/mtoken/push/api/")!,
             sslValidation: .default
