@@ -103,7 +103,7 @@ import WultraMobileTokenSDK
 
 // fetch new operations every 7 seconds periodically
 if (!operationsService.isPollingOperations) {
-    operationsService.startPollingOperations(interval: 7_000)
+    operationsService.startPollingOperations(interval: 7)
 }
 ```
 
