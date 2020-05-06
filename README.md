@@ -170,7 +170,7 @@ After that, you can produce an off-line signature using the following code:
 ```swift
 import WultraMobileTokenSDK
 
-fun approveQROperation(operation: QROperation, password: String) {
+func approveQROperation(operation: QROperation, password: String) {
 
     let authentication = PowerAuthAuthentication()
     authentication.usePossession = true
@@ -193,7 +193,7 @@ All available methods and attributes of `WMTOperations` API are:
 
 - `delegate` - Delegate object that receives info about operation loading.
 - `config` - Config object, that was used for initialization.
-- `acceptLanguage` - Language settings, that will be sent along with each request.
+- `acceptLanguage` - Language settings, that will be sent along with each request. The server will return properly localized content based on this value.
 - `lastFetchResult()` - Cached last operations result.
 - `isLoadingOperations` - Indicates if the service is loading pending operations.
 - `refreshOperations` - Async "fire and forget" request to refresh pending operations.
