@@ -154,9 +154,9 @@ import WultraMobileTokenSDK
 let qrPayload = "..." // scanned QR value
 let parser = WMTQROperationParser()
 switch parser.parse(string: code) {
-case .success(let operation):
-    let isMasterKey = qrOp.signature.signingKey == .master
-    guard powerAuth.verifyServerSignedData(qrOp.signedData, signature: qrOp.signature.signature, masterKey: isMasterKey) else {
+case .success(let op):
+    let isMasterKey = op.signature.signingKey == .master
+    guard powerAuth.verifyServerSignedData(op.signedData, signature: op.signature.signature, masterKey: isMasterKey) else {
         // failed to verify signature
         return
     }
