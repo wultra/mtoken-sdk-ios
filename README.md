@@ -43,10 +43,11 @@ _Note: We also provide an [Android version of this library](https://github.com/w
 To use **WMT** in you iOS app, add the following dependencies:
 
 ```rb
-pod 'WultraMobileTokenSDK/Operations', :git => 'https://github.com/wultra/mtoken-sdk-ios.git', :branch => 'master'
-pod 'WultraMobileTokenSDK/Push', :git => 'https://github.com/wultra/mtoken-sdk-ios.git', :branch => 'master
+pod 'WultraMobileTokenSDK/Operations', :git => 'https://github.com/wultra/mtoken-sdk-ios.git', :tag => '1.0.1'
+pod 'WultraMobileTokenSDK/Push', :git => 'https://github.com/wultra/mtoken-sdk-ios.git', :tag => '1.0.1'
 ```
 
+_Note: This documentation is using version `1.0.1` as an example. You can find the latest version at [github's release](https://github.com/wultra/mtoken-sdk-ios/releases#docucheck-keep-link) page._
 _Note: If you want to use only operations, you can omit the Push dependency._
 
 ## Usage
@@ -79,49 +80,111 @@ let opsService = powerAuth.createWMTOperations(config: config)
 To fetch the list with pending operations, can call the `WMTOperations` API:
 
 ```swift
-// TBD
+import WultraMobileTokenSDK
+
+operationsService.getOperations { result in
+    switch result {
+    case .success(let ops):
+        // render success UI
+    case .failure(let err):
+        // render error UI
+    }
+}
 ```
 
-After you retrieve the pending operations, you can render them in the UI, for example, as a list of items with a detail of operation shown after a tap:
-
-```swift
-// TBD
-```
+After you retrieve the pending operations, you can render them in the UI, for example, as a list of items with a detail of operation shown after a tap.
 
 #### Start Periodic Polling
 
 Mobile token API is highly asynchronous - to simplify the work for you, we added a convenience operation list polling feature:
 
 ```swift
-// TBD
+import WultraMobileTokenSDK
+
+// fetch new operations every 7 seconds periodically
+if (!operationsService.isPollingOperations) {
+    operationsService.startPollingOperations(interval: 7_000)
+}
 ```
+
+Polling results are reported to `WMTOperations.delegate`.
 
 #### Approve or Reject Operation
 
 Approve or reject a given operation, simply hook these actions to the approve or reject buttons:
 
 ```swift
-// TBD
+import WultraMobileTokenSDK
+
+func approve(operation: WMTUserOperation, password: String) {
+
+    let authentication = PowerAuthAuthentication()
+    authentication.usePossession = true
+    authentication.usePassword = password
+
+    operationService.authorize(operation: operation, authentication: authentication) { error in 
+        if let error = error {
+            // show error UI
+        } else {
+            // show success UI
+        }
+    }
+}
+
+func reject(operation: WMTUserOperatio, reason: WMTRejectionReason) {
+    operationService.reject(operation: operation, reason: reason) { error in 
+        if let error = error {
+            // show error UI
+        } else {
+            // show success UI
+        }
+    }
+}
 ```
 
 #### Off-line Authorization
 
 In case the user is not online, you can use off-line authorizations. In this operation mode, the user needs to scan a QR code, enter PIN code or use biometry, and rewrite the resulting code. Wultra provides a special format for [the operation QR codes](https://github.com/wultra/powerauth-webflow/blob/develop/docs/Off-line-Signatures-QR-Code.md), that is automatically processed with the SDK.
 
-To process the operation QR code string and obtain `WMTQROperation`, simply call the `WMTQROperationParser.parse` static function:
+To process the operation QR code string and obtain `WMTQROperation`, simply call the `WMTQROperationParser.parse` function:
 
 ```swift
 import WultraMobileTokenSDK
 
-guard let parsedQROperation = WMTQROperationParser.parse(string: decodedQrValue) else {
+let qrPayload = "..." // scanned QR value
+let parser = WMTQROperationParser()
+guard let qrOp = parser.parse(string: qrPayload) else {
+    // failed to parse
     return
 }
-// use parsed QR operation...
+let isMasterKey = qrOp.signature.signingKey == .master
+guard powerAuth.verifyServerSignedData(qrOp.signedData, signature: qrOp.signature.signature, masterKey: isMasterKey) else {
+    // failed to verify signature
+    return
+}
+// use pqrsed and verified operation
 ```
 
 After that, you can produce an off-line signature using the following code:
 
-```kotlin
+```swift
+import WultraMobileTokenSDK
+
+fun approveQROperation(operation: QROperation, password: String) {
+
+    let authentication = PowerAuthAuthentication()
+    authentication.usePossession = true
+    authentication.usePassword = password
+
+    return operationsService.authorize(qrOperation: operation, authentication: authentication) { result in 
+        switch result {
+        case .success(let code):
+            // show success UI
+        case .failure(let error):
+            // show error UI
+        }
+    }
+}
 ```
 
 #### Operations API Reference
@@ -178,6 +241,14 @@ let pushService = powerAuth.createWMTPush(config: config)
 To register an app to push notifications, you can simply call the register method:
 
 ```swift
+// AppDelegate method
+func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
+    pushService.registerDeviceTokenForPushNotifications(token: deviceToken) { success, error in
+        if !success {
+            // do something with theerror
+        }
+    }
+}
 ```
 
 #### Push Message API Reference
