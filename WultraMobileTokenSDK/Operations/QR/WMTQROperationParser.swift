@@ -16,21 +16,12 @@
 
 import Foundation
 
+/// Parser for QR operation
 public class WMTQROperationParser {
     
     public init() {
         dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "yyyyMMdd"
-    }
-    
-    /// Parses input data into `WMTQROperationData` structure. The data at input must contain
-    /// UTF8 encoded string with encoded operation data. If nil is returned, then the input
-    /// data is not in required format.
-    public func parse(data: Data) -> WMTQROperation? {
-        guard let s = String(bytes: data, encoding: .utf8) else {
-            return nil
-        }
-        return parse(string: s)
     }
     
 
@@ -42,14 +33,12 @@ public class WMTQROperationParser {
     
     /// Maximum number of operation data fields supported in this version.
     private static let maximumDataFields = 5
-    
-    // TODO: make it throw!
-    /// Parses input string into `WMTQROperationData` structure. If nil is returned, then the input
-    /// string is not in required format.
-    public func parse(string: String) -> WMTQROperation? {
+
+    /// Parses input string into `WMTQROperationData` structure.
+    public func parse(string: String) -> Result<WMTQROperation, WMTQROperationParserError> {
         // Split string by newline
         let attributes = string.split(separator: "\n", omittingEmptySubsequences: false)
-        guard attributes.count >= WMTQROperationParser.minimumAttributeFields else { return nil }
+        guard attributes.count >= WMTQROperationParser.minimumAttributeFields else { return .failure(.minimumAttributeFieldsRequired) }
         
         // Acquire all attributes
         let operationId     = String(attributes[0])
@@ -62,26 +51,32 @@ public class WMTQROperationParser {
         let signatureString = attributes[attributes.count - 1]
 
         // Validate operationId
-        guard !operationId.isEmpty else { return nil }
+        guard !operationId.isEmpty else { return .failure(.noOperationId) }
         
         // Validate signature
-        guard let signature = parseSignature(signatureString) else { return nil }
+        guard let signature = parseSignature(signatureString) else { return .failure(.invalidSignature) }
         
         // Validate Nonce
-        guard validateBase64String(nonce, min: 16, max: 16) else { return nil }
+        guard validateBase64String(nonce, min: 16, max: 16) else { return .failure(.invalidNonce) }
         
         // Parse operation data fields
-        guard let formData = parseOperationData(string: dataString) else { return nil }
+        let formData: WMTQROperationData
+        switch parseOperationData(string: dataString) {
+        case .success(let result):
+            formData = result
+        case .failure(let error):
+            return .failure(error)
+        }
 
         // Rebuild signed data, without pure signature string
-        guard let signedData = string.prefix(string.count - signature.signature.count).data(using: .utf8) else { return nil }
+        guard let signedData = string.prefix(string.count - signature.signature.count).data(using: .utf8) else { return .failure(.signatureFormatError) }
         
         // Parse flags
         let flags = parseOperationFlags(string: flagsString)
         let isNewerFormat   = attributes.count > WMTQROperationParser.currentAttributeFields
 
         // Build final structure
-        return WMTQROperation(
+        return .success(WMTQROperation(
             operationId: operationId,
             title: title,
             message: message,
@@ -91,50 +86,52 @@ public class WMTQROperationParser {
             signedData: signedData,
             signature: signature,
             isNewerFormat: isNewerFormat)
+        )
     }
     
     
     /// Parses and translates input string into `QROperationFormData` structure. If nil is returned,
     /// then the input string is not recognized as form data.
-    private func parseOperationData(string: String) -> WMTQROperationData? {
+    private func parseOperationData(string: String) -> Result<WMTQROperationData, WMTQROperationParserError> {
         let stringFields = splitOperationData(string: string)
         if stringFields.isEmpty {
             // No fields at all
-            return nil
+            return .failure(.noOperationData)
         }
         
         // Get and check version
         let versionString = stringFields.first!
         guard let versionChar = versionString.first else {
             // First fields is empty string
-            return nil
+            return .failure(.invalidVersionString)
         }
         if versionChar < "A" || versionChar > "Z" {
             // Version has to be an one capital letter
-            return nil
+            return .failure(.invalidVersionString)
         }
         let version = WMTQROperationData.Version(rawValue: versionChar) ?? .vX
         
         // Get a template identifier
         guard let templateId = Int(versionString.suffix(versionString.count - 1)) else {
             // TemplateID is not an integer
-            return nil
+            return .failure(.invalidTemplateId)
         }
         if templateId < 0 || templateId > 99 {
-            return nil
+            return .failure(.invalidTemplateId)
         }
         
         // Parse operation data fields
         guard let fields = parseDataFields(fields: stringFields) else {
-            return nil;
+            return .failure(.tooManyDataFields)
         }
         
         // Everything looks good, so build a final structure now...
-        return WMTQROperationData(
+        return .success(WMTQROperationData(
             version: version,
             templateId: templateId,
             fields: fields,
             sourceString: string)
+        )
     }
     
     
@@ -228,8 +225,6 @@ public class WMTQROperationParser {
                 result.append(.fallback(text: parseFieldText(from: stringField), fieldType: typeId))
                 continue
             }
-            // Something went wrong...
-            return nil
         }
         if result.count > WMTQROperationParser.maximumDataFields {
             return nil
@@ -362,4 +357,34 @@ public class WMTQROperationParser {
         }
         return string
     }
+}
+
+/// Errors during QR operation parsing
+public enum WMTQROperationParserError: Error {
+    /// There is not enough fields in this operation. Minimum is 7
+    case minimumAttributeFieldsRequired
+    
+    /// Operation ID is missing
+    case noOperationId
+    
+    /// Operation has invalid signature
+    case invalidSignature
+    
+    /// When signature cannot be converted to Data
+    case signatureFormatError
+    
+    /// Operation has invalid nonce
+    case invalidNonce
+    
+    /// Operation does not have any operation data
+    case noOperationData
+    
+    /// Version character is not valid
+    case invalidVersionString
+    
+    /// Template id must be an integer between 0 and 99
+    case invalidTemplateId
+    
+    /// Operation has too many data fields. Maximum is 5
+    case tooManyDataFields
 }
