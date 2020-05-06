@@ -153,16 +153,17 @@ import WultraMobileTokenSDK
 
 let qrPayload = "..." // scanned QR value
 let parser = WMTQROperationParser()
-guard let qrOp = parser.parse(string: qrPayload) else {
-    // failed to parse
-    return
+switch parser.parse(string: code) {
+case .success(let op):
+    let isMasterKey = op.signature.signingKey == .master
+    guard powerAuth.verifyServerSignedData(op.signedData, signature: op.signature.signature, masterKey: isMasterKey) else {
+        // failed to verify signature
+        return
+    }
+    // opeartion is parsed and verify
+case .failure(let error):
+    // failed to parse. See error for more info.
 }
-let isMasterKey = qrOp.signature.signingKey == .master
-guard powerAuth.verifyServerSignedData(qrOp.signedData, signature: qrOp.signature.signature, masterKey: isMasterKey) else {
-    // failed to verify signature
-    return
-}
-// use pqrsed and verified operation
 ```
 
 After that, you can produce an off-line signature using the following code:
