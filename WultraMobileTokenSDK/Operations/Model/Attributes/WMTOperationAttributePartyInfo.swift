@@ -16,15 +16,23 @@
 
 import Foundation
 
+/// Third party info is for providing structured information about third party data.
+///
+/// This can be used for example when you're approving payment in some retail eshop,
+/// in such case, information about the eshop will be filled here.
 public class WMTOperationAttributePartyInfo: WMTOperationAttribute {
     
+    /// Information about the 3rd party info
     public let partyInfo: WMTPartyInfo
+    
+    
+    // MARK: - INTERNALS
     
     private enum Keys: CodingKey {
         case partyInfo
     }
     
-    public init(label: WMTOperationParameter, partyInfo: WMTPartyInfo) {
+    public init(label: AttributeLabel, partyInfo: WMTPartyInfo) {
         self.partyInfo = partyInfo
         super.init(type: .partyInfo, label: label)
     }
@@ -38,9 +46,18 @@ public class WMTOperationAttributePartyInfo: WMTOperationAttribute {
     }
 }
 
+/// 3rd party retailer information
 public class WMTPartyInfo: Codable {
+    
+    /// URL address to the logo image
     public let logoUrl: URL
+    
+    /// Name of the retailer
     public let name: String
+    
+    /// Description of the retailer
     public let description: String
+    
+    /// Retailer website
     public let websiteUrl: URL?
 }

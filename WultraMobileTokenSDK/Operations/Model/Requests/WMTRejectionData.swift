@@ -16,13 +16,15 @@
 
 import Foundation
 
-class WMTAuthorizationData: Codable {
-    
-    let data: String
+/// Backend payload
+class WMTRejectionData: Codable {
+    /// Operation id
     let id: String
+    /// Rejection reason
+    let reason: WMTRejectionReason
     
-    init(operationId: String, operationData: String) {
-        self.data = operationData
-        self.id   = operationId
+    init(operationId: String, reason: WMTRejectionReason) {
+        self.id     = operationId
+        self.reason = reason
     }
 }

@@ -16,6 +16,7 @@
 
 import Foundation
 
+/// Heading. This attribute has no value. It only acts as a "section separator"
 public class WMTOperationAttributeHeading: WMTOperationAttribute {
     
     public required init(from decoder: Decoder) throws {
