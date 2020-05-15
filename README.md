@@ -94,7 +94,7 @@ operationsService.getOperations { result in
 
 After you retrieve the pending operations, you can render them in the UI, for example, as a list of items with a detail of operation shown after a tap.
 
-*Note: Language of the UI data inside the operations depends on the cofiguration of the `WMTOperation.acceptLanguage`.*
+*Note: Language of the UI data inside the operation depends on the cofiguration of the `WMTOperation.acceptLanguage`.*
 
 #### Start Periodic Polling
 
