@@ -18,8 +18,10 @@ import Foundation
 
 /// Backend payload
 class WMTRejectionData: Codable {
+    
     /// Operation id
     let id: String
+    
     /// Rejection reason
     let reason: WMTRejectionReason
     

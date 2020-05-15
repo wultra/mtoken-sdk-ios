@@ -40,13 +40,17 @@ public class WMTOperationAttribute: Codable {
         case partyInfo  = "PARTY_INFO"  // for displaying third party information
     }
     
+    /// Attribute label serves as a UI heading for the attribute.
     public class AttributeLabel: Codable {
         
+        /// ID (type) of the label. This is highly depended on the backend
+        /// and can be used to change the appearance of the label
         public let id: String
+        
+        /// Label value
         public let value: String
         
         public init(id: String, value: String) {
-            
             self.id = id
             self.value = value
         }
