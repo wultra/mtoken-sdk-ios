@@ -232,7 +232,7 @@ Under this abstract name, you can imagine for example "Login operation", which i
 
 Visually, the operation should be displayed as an info page with all the attributes (rows) of such operation, where the user can decide if he wants to approve or reject it.
 
-Properties of the `WMTUserOperations`:
+Definition of the `WMTUserOperation`:
 
 ```swift
 class WMTUserOperation {
@@ -240,7 +240,12 @@ class WMTUserOperation {
 	/// Unique operation identifier
 	public let id: String
 	    
-	/// System name of the operation (for example login).
+	/// System name of the operation.
+	///
+	/// This property lets you adjust the UI for various operation types. 
+	/// For example, the "login" operation may display a specialized interface with 
+	/// an icon or an illustration, instead of an empty list of attributes, 
+	/// "payment" operation can include a special icon that denotes payments, etc.
 	public let name: String
 	    
 	/// Actual data that will be signed.
@@ -256,9 +261,39 @@ class WMTUserOperation {
 	public let formData: WMTOperationFormData
 	    
 	/// Allowed signature types.
+	///
+	/// This hints if the operation needs a 2nd factor or can be approved simply by 
+	/// tapping an approve button. If the operation requires 2FA, this value also hints if 
+	/// the user may use the biometry, or if a password is required.
 	public let allowedSignatureType: WMTAllowedOperationSignature
 }
 ```
+
+Definition of `WMTOperationFormData`: 
+
+```swift
+public class WMTOperationFormData {
+    
+    /// Title of the operation
+    public let title: String
+    
+    /// Message for the user
+    public let message: String
+    
+    /// Other attributes.
+    ///
+    /// Each attribute presents one line in the UI. Attributes are differentiated by type property
+    /// and specific classes such as WMTOperationAttributeNote or WMTOperationAttributeAmount.
+    public let attributes: [WMTOperationAttribute]
+}
+```
+
+Attributes types:  
+- `amount` like "100.00 CZK"  
+- `keyValue` any key value pair  
+- `note` just like keyValue, emphasizing that the value is a note or message  
+- `heading` single highlighted text, written in a larger font, used as a section heading  
+- `partyInfo` providing structured information about third party data (for example known eshop)
 
 ### Push Messages
 

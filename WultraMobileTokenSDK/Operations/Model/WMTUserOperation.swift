@@ -49,6 +49,8 @@ public class WMTUserOperation: Codable {
     
     /// Allowed signature types.
     ///
-    /// For example in some cases, biometric authentication might not available for security reasons.
+    /// This hints if the operation needs a 2nd factor or can be approved simply by
+    /// tapping an approve button. If the operation requires 2FA, this value also hints if
+    /// the user may use the biometry, or if a password is required.
     public let allowedSignatureType: WMTAllowedOperationSignature
 }
