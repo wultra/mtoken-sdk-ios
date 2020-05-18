@@ -16,22 +16,48 @@
 
 import Foundation
 
-public enum WMTOperationAttributeType: String, Codable {
-    case amount     = "AMOUNT"      // amount, like "100.00 CZK"
-    case keyValue   = "KEY_VALUE"   // any key value pair
-    case note       = "NOTE"        // just like KEY_VALUE, emphasising that the value is a note, or message
-    case heading    = "HEADING"     // single highlighted text, written in a larger font, used as a section heading
-    case partyInfo  = "PARTY_INFO"  // for displaying third party information
-}
-
-public enum WMTOperationAttributeError: Error {
-    case unknownType
-}
-
+/// Operation Attribute can be visualized as "1 row in operation screen"
+///
+/// `WMTOperationAttribute` is considered to be "abstract".
+/// Every type of the attribute has it's own strongly typed implementation
 public class WMTOperationAttribute: Codable {
     
-    public let type: WMTOperationAttributeType
-    public let label: WMTOperationParameter
+    /// Type of the operation.
+    public let type: AttributeType
+    
+    /// Label for the value.
+    public let label: AttributeLabel
+    
+    
+    // MARK: - INNER CLASSES
+    
+    /// Attribute type. Based on this type, proper class will be chosen for "deserialization".
+    public enum AttributeType: String, Codable {
+        case amount     = "AMOUNT"      // amount, like "100.00 CZK"
+        case keyValue   = "KEY_VALUE"   // any key value pair
+        case note       = "NOTE"        // just like KEY_VALUE, emphasizing that the value is a note or message
+        case heading    = "HEADING"     // single highlighted text, written in a larger font, used as a section heading
+        case partyInfo  = "PARTY_INFO"  // for displaying third party information
+    }
+    
+    /// Attribute label serves as a UI heading for the attribute.
+    public class AttributeLabel: Codable {
+        
+        /// ID (type) of the label. This is highly depended on the backend
+        /// and can be used to change the appearance of the label
+        public let id: String
+        
+        /// Label value
+        public let value: String
+        
+        public init(id: String, value: String) {
+            self.id = id
+            self.value = value
+        }
+    }
+    
+    
+    // MARK: - INTERNALS
     
     private enum Keys: String, CodingKey {
         case id = "id"
@@ -39,7 +65,7 @@ public class WMTOperationAttribute: Codable {
         case operationType = "type"
     }
     
-    public init(type: WMTOperationAttributeType, label: WMTOperationParameter) {
+    public init(type: AttributeType, label: AttributeLabel) {
         self.type = type
         self.label = label
     }
@@ -51,11 +77,11 @@ public class WMTOperationAttribute: Codable {
         let value = try c.decode(String.self, forKey: .value)
         let t = try c.decode(String.self, forKey: .operationType)
         
-        guard let opType = WMTOperationAttributeType(rawValue: t) else {
+        guard let opType = AttributeType(rawValue: t) else {
             throw WMTOperationAttributeError.unknownType
         }
         
-        label = WMTOperationParameter(id: id, value: value)
+        label = AttributeLabel(id: id, value: value)
         type = opType
     }
     
@@ -64,7 +90,7 @@ public class WMTOperationAttribute: Codable {
         
         let c = try decoder.container(keyedBy: Keys.self)
         let t = try c.decode(String.self, forKey: .operationType)
-        guard let opType = WMTOperationAttributeType(rawValue: t) else {
+        guard let opType = AttributeType(rawValue: t) else {
             throw WMTOperationAttributeError.unknownType
         }
         
@@ -76,4 +102,8 @@ public class WMTOperationAttribute: Codable {
         case .partyInfo: return try WMTOperationAttributePartyInfo(from: decoder)
         }
     }
+}
+
+public enum WMTOperationAttributeError: Error {
+    case unknownType
 }

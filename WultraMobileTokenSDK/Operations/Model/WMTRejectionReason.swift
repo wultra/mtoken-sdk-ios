@@ -16,19 +16,12 @@
 
 import Foundation
 
+/// Reason why the operation will be rejected
 public enum WMTRejectionReason: String, Codable {
+    /// User don't want to provide the reason.
     case unknown = "UNKNOWN"
+    /// Operation data does not match (for example when user found a typo or other mistake)
     case incorrectData = "INCORRECT_DATA"
+    /// User didn't started this operation
     case unexpectedOperation = "UNEXPECTED_OPERATION"
-}
-
-class WMTRejectionData: Codable {
-    
-    let id: String
-    let reason: WMTRejectionReason
-    
-    init(operationId: String, reason: WMTRejectionReason) {
-        self.id     = operationId
-        self.reason = reason
-    }
 }

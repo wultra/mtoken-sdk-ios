@@ -94,6 +94,8 @@ operationsService.getOperations { result in
 
 After you retrieve the pending operations, you can render them in the UI, for example, as a list of items with a detail of operation shown after a tap.
 
+*Note: Language of the UI data inside the operation depends on the cofiguration of the `WMTOperation.acceptLanguage`.*
+
 #### Start Periodic Polling
 
 Mobile token API is highly asynchronous - to simplify the work for you, we added a convenience operation list polling feature:
@@ -171,16 +173,19 @@ After that, you can produce an off-line signature using the following code:
 ```swift
 import WultraMobileTokenSDK
 
-func approveQROperation(operation: QROperation, password: String) {
+func approveQROperation(operation: WMTQROperation, password: String) {
 
     let authentication = PowerAuthAuthentication()
     authentication.usePossession = true
     authentication.usePassword = password
+    authentication.useBiometry = false
 
-    return operationsService.authorize(qrOperation: operation, authentication: authentication) { result in 
+    operationsService.authorize(qrOperation: operation, authentication: authentication) { result in 
         switch result {
         case .success(let code):
-            // show success UI
+            // show success UI - display the code to the user
+            // note that operation will be successful even with a wrong
+            // password as it cannot be verified on the server
         case .failure(let error):
             // show error UI
         }
@@ -194,7 +199,7 @@ All available methods and attributes of `WMTOperations` API are:
 
 - `delegate` - Delegate object that receives info about operation loading.
 - `config` - Config object, that was used for initialization.
-- `acceptLanguage` - Language settings, that will be sent along with each request. The server will return properly localized content based on this value.
+- `acceptLanguage` - Language settings, that will be sent along with each request. The server will return properly localized content based on this value. Value follows standard RFC [Accept-Language](https://tools.ietf.org/html/rfc7231#section-5.3.5)
 - `lastFetchResult()` - Cached last operations result.
 - `isLoadingOperations` - Indicates if the service is loading pending operations.
 - `refreshOperations` - Async "fire and forget" request to refresh pending operations.
@@ -218,6 +223,77 @@ All available methods and attributes of `WMTOperations` API are:
     - `completion` - Called when authentication finishes.
 
 For more details on the API, visit [`WMTOperations` code documentation](https://github.com/wultra/mtoken-sdk-ios/blob/develop/WultraMobileTokenSDK/Operations/WMTOperations.swift).
+
+#### WMTUserOperation
+
+Operations objects retrieved through the online API (like `getOperations` method in `WMTOperations`) are called "user operations".
+
+Under this abstract name, you can imagine for example "Login operation", which is a request for signing in to the online account in a web browser on another device. **In general, it can be any operation that can be either approved or rejected by the user.**
+
+Visually, the operation should be displayed as an info page with all the attributes (rows) of such operation, where the user can decide if he wants to approve or reject it.
+
+Definition of the `WMTUserOperation`:
+
+```swift
+class WMTUserOperation {
+
+	/// Unique operation identifier
+	public let id: String
+	    
+	/// System name of the operation.
+	///
+	/// This property lets you adjust the UI for various operation types. 
+	/// For example, the "login" operation may display a specialized interface with 
+	/// an icon or an illustration, instead of an empty list of attributes, 
+	/// "payment" operation can include a special icon that denotes payments, etc.
+	public let name: String
+	    
+	/// Actual data that will be signed.
+	public let data: String
+	    
+	/// Date and time when the operation was created.
+	public let operationCreated: Date
+	    
+	/// Date and time when the operation will expire.
+	public let operationExpires: Date
+	    
+	/// Data that should be presented to the user.
+	public let formData: WMTOperationFormData
+	    
+	/// Allowed signature types.
+	///
+	/// This hints if the operation needs a 2nd factor or can be approved simply by 
+	/// tapping an approve button. If the operation requires 2FA, this value also hints if 
+	/// the user may use the biometry, or if a password is required.
+	public let allowedSignatureType: WMTAllowedOperationSignature
+}
+```
+
+Definition of `WMTOperationFormData`: 
+
+```swift
+public class WMTOperationFormData {
+    
+    /// Title of the operation
+    public let title: String
+    
+    /// Message for the user
+    public let message: String
+    
+    /// Other attributes.
+    ///
+    /// Each attribute presents one line in the UI. Attributes are differentiated by type property
+    /// and specific classes such as WMTOperationAttributeNote or WMTOperationAttributeAmount.
+    public let attributes: [WMTOperationAttribute]
+}
+```
+
+Attributes types:  
+- `amount` like "100.00 CZK"  
+- `keyValue` any key value pair  
+- `note` just like keyValue, emphasizing that the value is a note or message  
+- `heading` single highlighted text, written in a larger font, used as a section heading  
+- `partyInfo` providing structured information about third party data (for example known eshop)
 
 ### Push Messages
 

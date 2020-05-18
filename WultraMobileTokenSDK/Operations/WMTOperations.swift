@@ -30,8 +30,9 @@ public protocol WMTOperations: class {
     /// Accept language for the outgoing requests headers.
     /// Default value is "en".
     ///
+    /// Standard RFC "Accept-Language" https://tools.ietf.org/html/rfc7231#section-5.3.5
     /// Response texts are based on this setting. For example when "de" is set, server
-    /// will return operation texts in german.
+    /// will return operation texts in german (if available).
     var acceptLanguage: String { get set }
     
     /// Last cached operation result for easy access
@@ -106,7 +107,6 @@ public protocol Cancellable: class {
 /// Delegate for WMTOperations service
 public protocol WMTOperationsDelegate: class {
     
-    
     /// When operations has changed
     ///
     /// - Parameters:
@@ -119,7 +119,6 @@ public protocol WMTOperationsDelegate: class {
     ///
     /// - Parameter error: error with more details
     func operationsFailed(error: WMTError)
-    
     
     /// Called when operation loading is started or stopped
     ///
