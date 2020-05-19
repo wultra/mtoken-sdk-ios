@@ -21,7 +21,7 @@
  
 With Wultra Mobile Token (WMT) SDK, you can integrate an out-of-band operation approval into an existing mobile app, instead of using a standalone mobile token application. WMT is built on top of [PowerAuth Mobile SDK](https://github.com/wultra/powerauth-mobile-sdk). It communicates with the "Mobile Token REST API" and "Mobile Push Registration API". Individual endpoints are described in the [PowerAuth Webflow documentation](https://github.com/wultra/powerauth-webflow/).
 
-To understand Wultra Mobile Token SDK purpose on a business level better, you can visit our own [Mobile Token application](https://www.wultra.com/mobile-token#docucheck-keep-link). We use Wultra Mobile Token SDK in our mobile token application as well.
+To understand Wultra Mobile Token SDK purpose on a business level better, you can visit our own [Mobile Token application](https://www.wultra.com/mobile-token). We use Wultra Mobile Token SDK in our mobile token application as well.
 
 Wultra Mobile Token SDK library does precisely this:
 
@@ -47,7 +47,7 @@ pod 'WultraMobileTokenSDK/Operations', :git => 'https://github.com/wultra/mtoken
 pod 'WultraMobileTokenSDK/Push', :git => 'https://github.com/wultra/mtoken-sdk-ios.git', :tag => '1.0.1'
 ```
 
-_Note: This documentation is using version `1.0.1` as an example. You can find the latest version at [github's release](https://github.com/wultra/mtoken-sdk-ios/releases#docucheck-keep-link) page._
+_Note: This documentation is using version `1.0.1` as an example. You can find the latest version at [github's release](https://github.com/wultra/mtoken-sdk-ios/releases) page._
 _Note: If you want to use only operations, you can omit the Push dependency._
 
 ## Usage
