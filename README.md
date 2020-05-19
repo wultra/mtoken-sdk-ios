@@ -19,7 +19,7 @@
 
 ## Introduction
  
-With Wultra Mobile Token (WMT) SDK, you can integrate an out-of-band operation approval into an existing mobile app, instead of using a standalone mobile token application. WMT is built on top of [PowerAuth Mobile SDK](https://github.com/wultra/powerauth-mobile-sdk#docucheck-keep-link). It communicates with the "Mobile Token REST API" and "Mobile Push Registration API". Individual endpoints are described in the [PowerAuth Webflow documentation](https://developers.wultra.com/docs/2019.11/powerauth-webflow/).
+With Wultra Mobile Token (WMT) SDK, you can integrate an out-of-band operation approval into an existing mobile app, instead of using a standalone mobile token application. WMT is built on top of [PowerAuth Mobile SDK](https://github.com/wultra/powerauth-mobile-sdk). It communicates with the "Mobile Token REST API" and "Mobile Push Registration API". Individual endpoints are described in the [PowerAuth Webflow documentation](https://github.com/wultra/powerauth-webflow/).
 
 To understand Wultra Mobile Token SDK purpose on a business level better, you can visit our own [Mobile Token application](https://www.wultra.com/mobile-token#docucheck-keep-link). We use Wultra Mobile Token SDK in our mobile token application as well.
 
@@ -29,14 +29,14 @@ Wultra Mobile Token SDK library does precisely this:
 - Retrieving list of operations that are pending for approval for given user.
 - Approving and rejecting operations with PowerAuth transaction signing.
 
-_Note: We also provide an [Android version of this library](https://github.com/wultra/mtoken-sdk-android#docucheck-keep-link)._
+_Note: We also provide an [Android version of this library](https://github.com/wultra/mtoken-sdk-android)._
 
 ## Installation
 
 ### Requirements
 
 - iOS 10.0+
-- [PowerAuth Mobile SDK](https://github.com/wultra/powerauth-mobile-sdk#docucheck-keep-link) needs to be available in your project 
+- [PowerAuth Mobile SDK](https://github.com/wultra/powerauth-mobile-sdk) needs to be available in your project 
 
 ### Cocoapods
 
@@ -222,7 +222,7 @@ All available methods and attributes of `WMTOperations` API are:
     - `authentication` - PowerAuth authentication object for operation signing.
     - `completion` - Called when authentication finishes.
 
-For more details on the API, visit [`WMTOperations` code documentation](https://github.com/wultra/mtoken-sdk-ios/blob/develop/WultraMobileTokenSDK/Operations/WMTOperations.swift).
+For more details on the API, visit [`WMTOperations` code documentation](https://github.com/wultra/mtoken-sdk-ios/blob/develop/WultraMobileTokenSDK/Operations/WMTOperations.swift#docucheck-keep-link).
 
 #### WMTUserOperation
 
@@ -339,7 +339,7 @@ All available methods of the `WMTPush` API are:
     - `token` - token data retrieved from APNS.
     - `completionHandler` - Called when request finishes.
 
-For more details on the API, visit [`WMTPush` code documentation](https://github.com/wultra/mtoken-sdk-ios/blob/develop/WultraMobileTokenSDK/Push/WMTPush.swift).
+For more details on the API, visit [`WMTPush` code documentation](https://github.com/wultra/mtoken-sdk-ios/blob/develop/WultraMobileTokenSDK/Push/WMTPush.swift#docucheck-keep-link).
 
 ### Error Handling
 
