@@ -16,15 +16,20 @@
 
 import Foundation
 
+/// Attribute that describes note, that should be handled as "long text message"
 public class WMTOperationAttributeNote: WMTOperationAttribute {
     
+    /// Note value
     public let note: String
+    
+    
+    // MARK: - INTERNALS
     
     private enum Keys: CodingKey {
         case note
     }
     
-    public init(label: WMTOperationParameter, note: String) {
+    public init(label: AttributeLabel, note: String) {
         self.note = note
         super.init(type: .note, label: label)
     }

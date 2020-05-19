@@ -16,21 +16,38 @@
 
 import Foundation
 
+/// Amount attribute is 1 row in operation, that represents "Payment Amount"
 public class WMTOperationAttributeAmount: WMTOperationAttribute {
 
-    /// amount might not be precise (due to floating point conversion during deserialization from json)
+    /// Payment amount
+    ///
+    /// Amount might not be precise (due to floating point conversion during deserialization from json)
     /// use amountFormatted property instead when available
     public let amount: Decimal
+    
+    /// Currency
     public let currency: String
-    // optional variables for backend compatibility (this feature was introduced in 2018.12)
+    
+    /// Formatted amount for presentation.
+    ///
+    /// This property will be properly formatted based on the response language.
+    /// For example when amount is 100 and the acceptLanguage is "cs" for czech,
+    /// the amountFormatted will be "100,00".
     public let amountFormatted: String?
+    
+    /// Formatted currency to the locale based on acceptLanguage
+    ///
+    /// For example when the currency is CZK, this property will be "Kč"
     public let currencyFormatted: String?
+    
+    
+    // MARK: - INTERNALS
     
     private enum Keys: CodingKey {
         case amount, amountFormatted, currency, currencyFormatted
     }
     
-    public init(label: WMTOperationParameter, amount: Decimal, currency: String, amountFormatted: String?, currencyFormatted: String?) {
+    public init(label: AttributeLabel, amount: Decimal, currency: String, amountFormatted: String?, currencyFormatted: String?) {
         self.amount = amount
         self.currency = currency
         self.amountFormatted = amountFormatted

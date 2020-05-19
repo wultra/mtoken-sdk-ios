@@ -16,11 +16,16 @@
 
 import Foundation
 
+/// Attribute that describes generic key-value row to display
 public class WMTOperationAttributeKeyValue: WMTOperationAttribute {
     
+    /// Value of the attribute
     public let value: String
     
-    public init(label: WMTOperationParameter, value: String) {
+    
+    // MARK: - INTERNALS
+    
+    public init(label: AttributeLabel, value: String) {
         self.value = value
         super.init(type: .keyValue, label: label)
     }

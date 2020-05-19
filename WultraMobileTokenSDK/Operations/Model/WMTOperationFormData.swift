@@ -16,15 +16,24 @@
 
 import Foundation
 
+/// Operation data, that should be visible to the user.
+///
+/// Note that the data returned from the server are localized based on the `WMTOperations.acceptLanguage` property.
 public class WMTOperationFormData: Codable {
     
+    /// Title of the operation
     public let title: String
+    
+    /// Message for the user
     public let message: String
+    
+    /// Other attributes.
+    ///
+    /// Note that attributes can be presented with different classes (Starting with `WMTOperationAttribute*`) based on the attribute type.
     public let attributes: [WMTOperationAttribute]
     
-    private enum Keys: CodingKey {
-        case title, message, attributes
-    }
+    
+    // MARK: - INTERNALS
     
     public required init(from decoder: Decoder) throws {
         
@@ -39,6 +48,10 @@ public class WMTOperationFormData: Codable {
         self.title = title
         self.message = message
         self.attributes = attributes
+    }
+    
+    private enum Keys: CodingKey {
+        case title, message, attributes
     }
 }
 

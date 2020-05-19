@@ -16,14 +16,17 @@
 
 import Foundation
 
-public class WMTOperationParameter: Codable {
+/// Data for operation approval request.
+class WMTAuthorizationData: Codable {
     
-    public let id: String
-    public let value: String
+    /// Signed data
+    let data: String
     
-    public init(id: String, value: String) {
-        
-        self.id = id
-        self.value = value
+    /// Operation id
+    let id: String
+    
+    init(operationId: String, operationData: String) {
+        self.data = operationData
+        self.id   = operationId
     }
 }
