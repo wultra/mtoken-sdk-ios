@@ -485,6 +485,7 @@
 		DCC5CCA32449EE21004679AC /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				MARKETING_VERSION = 1.1.0;
 				PRODUCT_NAME = WultraMobileTokenSDK;
 			};
 			name = Debug;
@@ -492,6 +493,7 @@
 		DCC5CCA42449EE21004679AC /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				MARKETING_VERSION = 1.1.0;
 				PRODUCT_NAME = WultraMobileTokenSDK;
 			};
 			name = Release;
