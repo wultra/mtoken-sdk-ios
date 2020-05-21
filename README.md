@@ -43,11 +43,10 @@ _Note: We also provide an [Android version of this library](https://github.com/w
 To use **WMT** in you iOS app, add the following dependencies:
 
 ```rb
-pod 'WultraMobileTokenSDK/Operations', '1.1.0'
-pod 'WultraMobileTokenSDK/Push', '1.1.0'
+pod 'WultraMobileTokenSDK/Operations'
+pod 'WultraMobileTokenSDK/Push'
 ```
 
-_Note: This documentation is using version `1.1.0` as an example. You can find the latest version at [github's release](https://github.com/wultra/mtoken-sdk-ios/releases) page._
 _Note: If you want to use only operations, you can omit the Push dependency._
 
 ## Usage
