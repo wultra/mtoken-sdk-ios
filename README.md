@@ -296,7 +296,7 @@ Attributes types:
 
 #### Creating a custom operation
 
-In some specific scenarios, you might need to approve or reject an operation that you received through a different channel than `getOperations`. In such cases, you can implement the `WMTOperation` protocol in your custom class and then feed created objects to both `approve` and `reject` methods.
+In some specific scenarios, you might need to approve or reject an operation that you received through a different channel than `getOperations`. In such cases, you can implement the `WMTOperation` protocol in your custom class and then feed created objects to both `authorize` and `reject` methods.
 
 _Note: For such cases, you can use concrete convenient class `WMTLocalOperation`, that implements this protocol._
 
