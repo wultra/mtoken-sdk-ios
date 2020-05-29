@@ -13,7 +13,7 @@ popd
 pushd "${SCRIPT_FOLDER}/.."
 
 xcrun xcodebuild \
-    -workspace "WultraMobileTokenSDK.xcworkspace" \
+    -project "WultraMobileTokenSDK.xcodeproj" \
     -scheme "WultraMobileTokenSDK" \
     -configuration "Release" \
     -sdk "iphonesimulator" \
