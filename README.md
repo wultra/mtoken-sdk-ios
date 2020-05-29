@@ -1,7 +1,9 @@
 # Wultra Mobile Token SDK for iOS
 
 <!-- begin remove -->
-`Wultra Mobile Token SDK` is a high-level SDK for operation approval.
+![build](https://github.com/wultra/mtoken-sdk-ios/workflows/build/badge.svg)  
+
+`Wultra Mobile Token SDK` is a high-level SDK for operation approval.  
 <!-- end -->
 <!-- begin TOC -->
 - [Introduction](#introduction)
