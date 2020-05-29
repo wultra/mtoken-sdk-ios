@@ -11,4 +11,5 @@ jobs:
   build:
     runs-on: macos-latest
     steps:
-    - run: ./scripts/build.sh
+      - uses: actions/checkout@v2
+      - run: ./scripts/build.sh
