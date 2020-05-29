@@ -17,7 +17,6 @@ xcrun xcodebuild \
     -scheme "WultraMobileTokenSDK" \
     -configuration "Release" \
     -sdk "iphonesimulator" \
-    -parallelizeTargets \
-    -showBuildTimingSummary
+    build
 
 popd
