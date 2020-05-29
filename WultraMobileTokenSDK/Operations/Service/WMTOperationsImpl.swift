@@ -147,7 +147,7 @@ class WMTOperationsImpl: WMTOperations {
     ///   - operation: operation that should  be authorized
     ///   - authentication: authentication object for signing
     ///   - completion: result callback (nil on success)
-    func authorize(operation: WMTUserOperation, authentication: PowerAuthAuthentication, completion: @escaping(WMTError?)->Void) -> Operation? {
+    func authorize(operation: WMTOperation, authentication: PowerAuthAuthentication, completion: @escaping(WMTError?)->Void) -> Operation? {
         
         guard powerAuth.hasValidActivation() else {
             completion(WMTError(reason: .missingActivation))
@@ -171,9 +171,9 @@ class WMTOperationsImpl: WMTOperations {
     ///
     /// - Parameters:
     ///   - operation: operation that should be rejected
-    ///   - reason: reason  for rejection
+    ///   - reason: reason for rejection
     ///   - completion: result callback (nil on success)
-    func reject(operation: WMTUserOperation, reason: WMTRejectionReason, completion: @escaping(WMTError?)->Void) -> Operation? {
+    func reject(operation: WMTOperation, reason: WMTRejectionReason, completion: @escaping(WMTError?)->Void) -> Operation? {
         
         guard powerAuth.hasValidActivation() else {
             completion(WMTError(reason: .missingActivation))
@@ -402,13 +402,13 @@ fileprivate class OperationsRegister {
     }
     
     /// Removes an operation from register
-    func remove(operation: WMTUserOperation) {
+    func remove(operation: WMTOperation) {
         if let index = self.currentOperationsSet.firstIndex(of: operation.id) {
-            self.currentOperationsSet.remove(at: index)
+            currentOperationsSet.remove(at: index)
         }
         if let index = self.currentOperations.firstIndex(where: { $0.id == operation.id }) {
-            self.currentOperations.remove(at: index)
-            onChangeCallback(currentOperations, [], [operation])
+            let removedOperation = currentOperations.remove(at: index)
+            onChangeCallback(currentOperations, [], [removedOperation])
         }
     }
 }

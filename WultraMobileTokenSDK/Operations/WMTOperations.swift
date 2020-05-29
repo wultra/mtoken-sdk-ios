@@ -60,7 +60,7 @@ public protocol WMTOperations: class {
     ///   - authentication: authentication object for signing
     ///   - completion: result callback (nil on success)
     @discardableResult
-    func authorize(operation: WMTUserOperation, authentication: PowerAuthAuthentication, completion: @escaping(WMTError?)->Void) -> Operation?
+    func authorize(operation: WMTOperation, authentication: PowerAuthAuthentication, completion: @escaping(WMTError?)->Void) -> Operation?
     
     /// Will sign the given QR operation with authentication object.
     ///
@@ -79,10 +79,10 @@ public protocol WMTOperations: class {
     ///
     /// - Parameters:
     ///   - operation: operation that should be rejected
-    ///   - reason: reason  for rejection
+    ///   - reason: reason for rejection
     ///   - completion: result callback (nil on success)
     @discardableResult
-    func reject(operation: WMTUserOperation, reason: WMTRejectionReason, completion: @escaping(WMTError?)->Void) -> Operation?
+    func reject(operation: WMTOperation, reason: WMTRejectionReason, completion: @escaping(WMTError?)->Void) -> Operation?
     
     /// If the service is polling operations
     var isPollingOperations: Bool { get }
