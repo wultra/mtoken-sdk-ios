@@ -16,6 +16,8 @@
 
 import Foundation
 
+public typealias WMTQROperationParseResult = Result<WMTQROperation, WMTQROperationParserError>
+
 /// Parser for QR operation
 public class WMTQROperationParser {
     
@@ -35,7 +37,7 @@ public class WMTQROperationParser {
     private static let maximumDataFields = 5
 
     /// Parses input string into `WMTQROperationData` structure.
-    public func parse(string: String) -> Result<WMTQROperation, WMTQROperationParserError> {
+    public func parse(string: String) -> WMTQROperationParseResult {
         // Split string by newline
         let attributes = string.split(separator: "\n", omittingEmptySubsequences: false)
         guard attributes.count >= WMTQROperationParser.minimumAttributeFields else { return .failure(.minimumAttributeFieldsRequired) }
@@ -225,6 +227,8 @@ public class WMTQROperationParser {
                 result.append(.fallback(text: parseFieldText(from: stringField), fieldType: typeId))
                 continue
             }
+            // Something went wrong (invalid input)
+            return nil
         }
         if result.count > WMTQROperationParser.maximumDataFields {
             return nil
@@ -387,4 +391,15 @@ public enum WMTQROperationParserError: Error {
     
     /// Operation has too many data fields. Maximum is 5
     case tooManyDataFields
+}
+
+public extension WMTQROperationParseResult {
+    
+    /// Convenience helper method for fast-checking if the result was success
+    var isSuccess: Bool {
+        switch self {
+        case .success: return true
+        case .failure: return false
+        }
+    }
 }

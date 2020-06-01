@@ -6,6 +6,24 @@ set -u # stop when undefined variable is used
 
 SCRIPT_FOLDER=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 
+DESTINATION="platform=iOS Simulator,OS=13.4.1,name=iPhone 11"
+
+# Parse parameters of this script
+while [[ $# -gt 0 ]]
+do
+	case "$1" in
+		-destination)
+			DESTINATION="$2"
+			shift
+			shift
+			;;
+		*)
+			echo "Unknown parameter ${1}"
+			exit 1
+			;;
+	esac
+done
+
 pushd "${SCRIPT_FOLDER}"
 sh cart-update.sh
 popd
@@ -14,9 +32,9 @@ pushd "${SCRIPT_FOLDER}/.."
 
 xcrun xcodebuild \
     -project "WultraMobileTokenSDK.xcodeproj" \
-    -scheme "WultraMobileTokenSDK" \
+    -scheme "WultraMobileTokenSDKTests" \
     -configuration "Release" \
-    -sdk "iphonesimulator" \
-    build | xcpretty
+    -destination "${DESTINATION}" \
+    test | xcpretty
 
 popd
