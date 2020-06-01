@@ -1,7 +1,7 @@
 # Wultra Mobile Token SDK for iOS
 
 <!-- begin remove -->
-![build](https://github.com/wultra/mtoken-sdk-ios/workflows/build/badge.svg) ![tests](https://github.com/wultra/mtoken-sdk-ios/workflows/tests/badge.svg)   
+![build](https://github.com/wultra/mtoken-sdk-ios/workflows/build/badge.svg) ![tests](https://github.com/wultra/mtoken-sdk-ios/workflows/tests/badge.svg) [![pod](https://img.shields.io/cocoapods/v/WultraMobileTokenSDK)](https://cocoapods.org/pods/WultraMobileTokenSDK) ![date](https://img.shields.io/github/release-date/wultra/mtoken-sdk-ios) ![platform](https://img.shields.io/cocoapods/p/WultraMobileTokenSDK) [![license](https://img.shields.io/github/license/wultra/mtoken-sdk-ios)](LICENSE)  
 
 `Wultra Mobile Token SDK` is a high-level SDK for operation approval.  
 <!-- end -->
