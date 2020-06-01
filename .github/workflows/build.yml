@@ -9,7 +9,10 @@ on:
 
 jobs:
   build:
+    name: Build
     runs-on: macos-latest
     steps:
-      - uses: actions/checkout@v2
-      - run: ./scripts/build.sh
+      - name: Checkout the repo
+        uses: actions/checkout@v2
+      - name: Building
+        run: ./scripts/build.sh
