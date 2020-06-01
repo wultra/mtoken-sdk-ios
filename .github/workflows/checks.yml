@@ -1,4 +1,4 @@
-name: build
+name: checks
 
 on:
   push:
@@ -8,6 +8,14 @@ on:
   pull_request:
 
 jobs:
+  build:
+    name: Building the SDK
+    runs-on: macos-latest
+    steps:
+      - name: Checkout the repo
+        uses: actions/checkout@v2
+      - name: Building
+        run: ./scripts/build.sh
   test:
     name: Test the SDK
     runs-on: macos-latest
