@@ -1,7 +1,9 @@
 # Wultra Mobile Token SDK for iOS
 
 <!-- begin remove -->
-`Wultra Mobile Token SDK` is a high-level SDK for operation approval.
+![build](https://github.com/wultra/mtoken-sdk-ios/workflows/build/badge.svg)  
+
+`Wultra Mobile Token SDK` is a high-level SDK for operation approval.  
 <!-- end -->
 <!-- begin TOC -->
 - [Introduction](#introduction)
@@ -43,11 +45,10 @@ _Note: We also provide an [Android version of this library](https://github.com/w
 To use **WMT** in you iOS app, add the following dependencies:
 
 ```rb
-pod 'WultraMobileTokenSDK/Operations', :git => 'https://github.com/wultra/mtoken-sdk-ios.git', :tag => '1.0.1'
-pod 'WultraMobileTokenSDK/Push', :git => 'https://github.com/wultra/mtoken-sdk-ios.git', :tag => '1.0.1'
+pod 'WultraMobileTokenSDK/Operations'
+pod 'WultraMobileTokenSDK/Push'
 ```
 
-_Note: This documentation is using version `1.0.1` as an example. You can find the latest version at [github's release](https://github.com/wultra/mtoken-sdk-ios/releases) page._
 _Note: If you want to use only operations, you can omit the Push dependency._
 
 ## Usage
@@ -118,7 +119,7 @@ Approve or reject a given operation, simply hook these actions to the approve or
 ```swift
 import WultraMobileTokenSDK
 
-func approve(operation: WMTUserOperation, password: String) {
+func approve(operation: WMTOperation, password: String) {
 
     let authentication = PowerAuthAuthentication()
     authentication.usePossession = true
@@ -133,7 +134,7 @@ func approve(operation: WMTUserOperation, password: String) {
     }
 }
 
-func reject(operation: WMTUserOperatio, reason: WMTRejectionReason) {
+func reject(operation: WMTOperation, reason: WMTRejectionReason) {
     operationService.reject(operation: operation, reason: reason) { error in 
         if let error = error {
             // show error UI
@@ -209,14 +210,14 @@ All available methods and attributes of `WMTOperations` API are:
 - `startPollingOperations(interval: TimeInterval)` - Starts the periodic operation polling.
     - `interval` - How often should operations be refreshed.
 - `stopPollingOperations()` - Stops the periodic operation polling.
-- `authorize(operation: WMTUserOperation, authentication: PowerAuthAuthentication, completion: @escaping(WMTError?)->Void)` - Authorize provided operation.
-    - `operation` - Operation to approve, retrieved from `getOperations` call.
+- `authorize(operation: WMTOperation, authentication: PowerAuthAuthentication, completion: @escaping(WMTError?)->Void)` - Authorize provided operation.
+    - `operation` - An operation to approve, retrieved from `getOperations` call or [created locally](#creating-a-custom-operation).
     - `authentication` - PowerAuth authentication object for operation signing.
     - `completion` - Called when authorization request finishes.
-- `reject(operation: WMTUserOperation, reason: WMTRejectionReason, completion: @escaping(WMTError?)->Void)` - Reject provided operation.
-    - `operation` - Operation to reject, retrieved from `getOperations` call
+- `reject(operation: WMTOperation, reason: WMTRejectionReason, completion: @escaping(WMTError?)->Void)` - Reject provided operation.
+    - `operation` - An operation to reject, retrieved from `getOperations` call or [created locally](#creating-a-custom-operation).
     - `reason` - Rejection reason
-    - `completion` - Called when rejection request finishes
+    - `completion` - Called when rejection request finishes.
 - `authorize(qrOperation: WMTQROperation, authentication: PowerAuthAuthentication, completion: @escaping(Result<String, WMTError>) -> Void)` - Sign offline (QR) operation.
     - `operation` - Offline operation that can be retrieved via `WMTQROperationParser.parse` method.
     - `authentication` - PowerAuth authentication object for operation signing.
@@ -235,7 +236,7 @@ Visually, the operation should be displayed as an info page with all the attribu
 Definition of the `WMTUserOperation`:
 
 ```swift
-class WMTUserOperation {
+class WMTUserOperation: WMTOperation {
 
 	/// Unique operation identifier
 	public let id: String
@@ -294,6 +295,25 @@ Attributes types:
 - `note` just like keyValue, emphasizing that the value is a note or message  
 - `heading` single highlighted text, written in a larger font, used as a section heading  
 - `partyInfo` providing structured information about third party data (for example known eshop)
+
+#### Creating a custom operation
+
+In some specific scenarios, you might need to approve or reject an operation that you received through a different channel than `getOperations`. In such cases, you can implement the `WMTOperation` protocol in your custom class and then feed created objects to both `authorize` and `reject` methods.
+
+_Note: For such cases, you can use concrete convenient class `WMTLocalOperation`, that implements this protocol._
+
+Definition of the `WMTOperation`:
+
+```swift
+public protocol WMTOperation {
+    
+    /// Operation identifier
+    var id: String { get }
+    
+    /// Data for signing
+    var data: String { get }
+}
+```
 
 ### Push Messages
 
