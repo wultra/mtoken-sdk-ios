@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		DC059A3E244DDC0900B24878 /* WMTConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC059A3D244DDC0900B24878 /* WMTConfig.swift */; };
+		DC3D0B372480F3C7000DC4D9 /* WMTOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC3D0B362480F3C7000DC4D9 /* WMTOperation.swift */; };
+		DC3D0B392480F886000DC4D9 /* WMTLocalOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC3D0B382480F886000DC4D9 /* WMTLocalOperation.swift */; };
 		DC81D1C9244F38DB00F80CD6 /* WMTPushEndpoints.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC81D1C8244F38DB00F80CD6 /* WMTPushEndpoints.swift */; };
 		DC81D1CB244F451E00F80CD6 /* WMTPushImpl.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC81D1CA244F451E00F80CD6 /* WMTPushImpl.swift */; };
 		DC81D1CD244F640600F80CD6 /* WMTPush.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC81D1CC244F640600F80CD6 /* WMTPush.swift */; };
@@ -42,6 +44,8 @@
 
 /* Begin PBXFileReference section */
 		DC059A3D244DDC0900B24878 /* WMTConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTConfig.swift; sourceTree = "<group>"; };
+		DC3D0B362480F3C7000DC4D9 /* WMTOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTOperation.swift; sourceTree = "<group>"; };
+		DC3D0B382480F886000DC4D9 /* WMTLocalOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTLocalOperation.swift; sourceTree = "<group>"; };
 		DC81D1C8244F38DB00F80CD6 /* WMTPushEndpoints.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTPushEndpoints.swift; sourceTree = "<group>"; };
 		DC81D1CA244F451E00F80CD6 /* WMTPushImpl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTPushImpl.swift; sourceTree = "<group>"; };
 		DC81D1CC244F640600F80CD6 /* WMTPush.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTPush.swift; sourceTree = "<group>"; };
@@ -101,6 +105,17 @@
 				DCC5CCBE2449F981004679AC /* WMTOperationAttributePartyInfo.swift */,
 			);
 			path = Attributes;
+			sourceTree = "<group>";
+		};
+		DC3D0B352480F368000DC4D9 /* UserOperation */ = {
+			isa = PBXGroup;
+			children = (
+				DC059A3C244DD30900B24878 /* Attributes */,
+				DCC5CCAD2449F7AC004679AC /* WMTUserOperation.swift */,
+				DCC5CCB02449F81C004679AC /* WMTOperationFormData.swift */,
+				DC8CB205244DD007009DDAA3 /* WMTAllowedOperationSignature.swift */,
+			);
+			path = UserOperation;
 			sourceTree = "<group>";
 		};
 		DC76D01A2452E92D009F2DFC /* Service */ = {
@@ -212,12 +227,11 @@
 		DCC5CCAF2449F7FA004679AC /* Model */ = {
 			isa = PBXGroup;
 			children = (
-				DC059A3C244DD30900B24878 /* Attributes */,
+				DC3D0B352480F368000DC4D9 /* UserOperation */,
 				DCD8B337246C1BD800385F02 /* Requests */,
-				DCC5CCAD2449F7AC004679AC /* WMTUserOperation.swift */,
-				DCC5CCB02449F81C004679AC /* WMTOperationFormData.swift */,
-				DC8CB205244DD007009DDAA3 /* WMTAllowedOperationSignature.swift */,
 				DCD8B335246C1BAF00385F02 /* WMTRejectionReason.swift */,
+				DC3D0B362480F3C7000DC4D9 /* WMTOperation.swift */,
+				DC3D0B382480F886000DC4D9 /* WMTLocalOperation.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -330,12 +344,14 @@
 				DCC5CCD6244DBB7F004679AC /* WMTPushRegistrationData.swift in Sources */,
 				DCC5CCC12449FA4E004679AC /* WMTError.swift in Sources */,
 				DCC5CCD0244DB233004679AC /* WMTAsyncOperation.swift in Sources */,
+				DC3D0B392480F886000DC4D9 /* WMTLocalOperation.swift in Sources */,
 				DCC5CCC82449FC66004679AC /* WMTSSLValidationStrategy.swift in Sources */,
 				DC059A3E244DDC0900B24878 /* WMTConfig.swift in Sources */,
 				DCC5CCCA2449FD23004679AC /* WMTHttpRequest.swift in Sources */,
 				DCD8B336246C1BAF00385F02 /* WMTRejectionReason.swift in Sources */,
 				DCC5CCC62449FB2A004679AC /* WMTHttpClient.swift in Sources */,
 				DCC5CCD8244DBBBD004679AC /* WMTAuthorizationData.swift in Sources */,
+				DC3D0B372480F3C7000DC4D9 /* WMTOperation.swift in Sources */,
 				DC81D1CD244F640600F80CD6 /* WMTPush.swift in Sources */,
 				DCC5CCDA244DBBE2004679AC /* WMTRejectionData.swift in Sources */,
 				DCAB7BC824580B4C0006989D /* WMTQROperationParser.swift in Sources */,
