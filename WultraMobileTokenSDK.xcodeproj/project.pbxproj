@@ -10,6 +10,10 @@
 		DC059A3E244DDC0900B24878 /* WMTConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC059A3D244DDC0900B24878 /* WMTConfig.swift */; };
 		DC3D0B372480F3C7000DC4D9 /* WMTOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC3D0B362480F3C7000DC4D9 /* WMTOperation.swift */; };
 		DC3D0B392480F886000DC4D9 /* WMTLocalOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC3D0B382480F886000DC4D9 /* WMTLocalOperation.swift */; };
+		DC616236248508F8000DED17 /* QROperationParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC616235248508F8000DED17 /* QROperationParserTests.swift */; };
+		DC616238248508F8000DED17 /* WultraMobileTokenSDK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DCC5CC9A2449EE21004679AC /* WultraMobileTokenSDK.framework */; };
+		DC61624024850F09000DED17 /* PowerAuth2.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DC61623F24850F09000DED17 /* PowerAuth2.framework */; };
+		DC61624224852B6D000DED17 /* NetworkingObjectsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC61624124852B6D000DED17 /* NetworkingObjectsTests.swift */; };
 		DC81D1C9244F38DB00F80CD6 /* WMTPushEndpoints.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC81D1C8244F38DB00F80CD6 /* WMTPushEndpoints.swift */; };
 		DC81D1CB244F451E00F80CD6 /* WMTPushImpl.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC81D1CA244F451E00F80CD6 /* WMTPushImpl.swift */; };
 		DC81D1CD244F640600F80CD6 /* WMTPush.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC81D1CC244F640600F80CD6 /* WMTPush.swift */; };
@@ -42,10 +46,25 @@
 		DCD8B336246C1BAF00385F02 /* WMTRejectionReason.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCD8B335246C1BAF00385F02 /* WMTRejectionReason.swift */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		DC616239248508F8000DED17 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = DCC5CC912449EE21004679AC /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = DCC5CC992449EE21004679AC;
+			remoteInfo = WultraMobileTokenSDK;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
 		DC059A3D244DDC0900B24878 /* WMTConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTConfig.swift; sourceTree = "<group>"; };
 		DC3D0B362480F3C7000DC4D9 /* WMTOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTOperation.swift; sourceTree = "<group>"; };
 		DC3D0B382480F886000DC4D9 /* WMTLocalOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTLocalOperation.swift; sourceTree = "<group>"; };
+		DC616233248508F8000DED17 /* WultraMobileTokenSDKTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = WultraMobileTokenSDKTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		DC616235248508F8000DED17 /* QROperationParserTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QROperationParserTests.swift; sourceTree = "<group>"; };
+		DC616237248508F8000DED17 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		DC61623F24850F09000DED17 /* PowerAuth2.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = PowerAuth2.framework; path = Carthage/Build/iOS/PowerAuth2.framework; sourceTree = "<group>"; };
+		DC61624124852B6D000DED17 /* NetworkingObjectsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkingObjectsTests.swift; sourceTree = "<group>"; };
 		DC81D1C8244F38DB00F80CD6 /* WMTPushEndpoints.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTPushEndpoints.swift; sourceTree = "<group>"; };
 		DC81D1CA244F451E00F80CD6 /* WMTPushImpl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTPushImpl.swift; sourceTree = "<group>"; };
 		DC81D1CC244F640600F80CD6 /* WMTPush.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTPush.swift; sourceTree = "<group>"; };
@@ -84,6 +103,15 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		DC616230248508F8000DED17 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				DC61624024850F09000DED17 /* PowerAuth2.framework in Frameworks */,
+				DC616238248508F8000DED17 /* WultraMobileTokenSDK.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		DCC5CC972449EE21004679AC /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -116,6 +144,24 @@
 				DC8CB205244DD007009DDAA3 /* WMTAllowedOperationSignature.swift */,
 			);
 			path = UserOperation;
+			sourceTree = "<group>";
+		};
+		DC616234248508F8000DED17 /* WultraMobileTokenSDKTests */ = {
+			isa = PBXGroup;
+			children = (
+				DC616235248508F8000DED17 /* QROperationParserTests.swift */,
+				DC616237248508F8000DED17 /* Info.plist */,
+				DC61624124852B6D000DED17 /* NetworkingObjectsTests.swift */,
+			);
+			path = WultraMobileTokenSDKTests;
+			sourceTree = "<group>";
+		};
+		DC61623E24850F09000DED17 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				DC61623F24850F09000DED17 /* PowerAuth2.framework */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 		DC76D01A2452E92D009F2DFC /* Service */ = {
@@ -189,7 +235,9 @@
 			isa = PBXGroup;
 			children = (
 				DCC5CC9C2449EE21004679AC /* WultraMobileTokenSDK */,
+				DC616234248508F8000DED17 /* WultraMobileTokenSDKTests */,
 				DCC5CC9B2449EE21004679AC /* Products */,
+				DC61623E24850F09000DED17 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -197,6 +245,7 @@
 			isa = PBXGroup;
 			children = (
 				DCC5CC9A2449EE21004679AC /* WultraMobileTokenSDK.framework */,
+				DC616233248508F8000DED17 /* WultraMobileTokenSDKTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -272,6 +321,24 @@
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
+		DC616232248508F8000DED17 /* WultraMobileTokenSDKTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = DC61623D248508F8000DED17 /* Build configuration list for PBXNativeTarget "WultraMobileTokenSDKTests" */;
+			buildPhases = (
+				DC61622F248508F8000DED17 /* Sources */,
+				DC616230248508F8000DED17 /* Frameworks */,
+				DC616231248508F8000DED17 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				DC61623A248508F8000DED17 /* PBXTargetDependency */,
+			);
+			name = WultraMobileTokenSDKTests;
+			productName = WultraMobileTokenSDKTests;
+			productReference = DC616233248508F8000DED17 /* WultraMobileTokenSDKTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 		DCC5CC992449EE21004679AC /* WultraMobileTokenSDK */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = DCC5CCA22449EE21004679AC /* Build configuration list for PBXNativeTarget "WultraMobileTokenSDK" */;
@@ -296,9 +363,13 @@
 		DCC5CC912449EE21004679AC /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
+				LastSwiftUpdateCheck = 1140;
 				LastUpgradeCheck = 1140;
 				ORGANIZATIONNAME = Wultra;
 				TargetAttributes = {
+					DC616232248508F8000DED17 = {
+						CreatedOnToolsVersion = 11.4.1;
+					};
 					DCC5CC992449EE21004679AC = {
 						CreatedOnToolsVersion = 11.4;
 						LastSwiftMigration = 1140;
@@ -319,11 +390,19 @@
 			projectRoot = "";
 			targets = (
 				DCC5CC992449EE21004679AC /* WultraMobileTokenSDK */,
+				DC616232248508F8000DED17 /* WultraMobileTokenSDKTests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		DC616231248508F8000DED17 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		DCC5CC982449EE21004679AC /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -334,6 +413,15 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		DC61622F248508F8000DED17 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				DC61624224852B6D000DED17 /* NetworkingObjectsTests.swift in Sources */,
+				DC616236248508F8000DED17 /* QROperationParserTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		DCC5CC962449EE21004679AC /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -375,7 +463,53 @@
 		};
 /* End PBXSourcesBuildPhase section */
 
+/* Begin PBXTargetDependency section */
+		DC61623A248508F8000DED17 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = DCC5CC992449EE21004679AC /* WultraMobileTokenSDK */;
+			targetProxy = DC616239248508F8000DED17 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
 /* Begin XCBuildConfiguration section */
+		DC61623B248508F8000DED17 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = KTT9G859MR;
+				INFOPLIST_FILE = WultraMobileTokenSDKTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+					"$(PROJECT_DIR)/Carthage/Build/iOS",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.wultra.WultraMobileTokenSDKTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		DC61623C248508F8000DED17 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = KTT9G859MR;
+				INFOPLIST_FILE = WultraMobileTokenSDKTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+					"$(PROJECT_DIR)/Carthage/Build/iOS",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.wultra.WultraMobileTokenSDKTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 		DCC5CCA02449EE21004679AC /* Debug */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = DCC5CCA92449F2E1004679AC /* Debug.xcconfig */;
@@ -517,6 +651,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		DC61623D248508F8000DED17 /* Build configuration list for PBXNativeTarget "WultraMobileTokenSDKTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				DC61623B248508F8000DED17 /* Debug */,
+				DC61623C248508F8000DED17 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		DCC5CC942449EE21004679AC /* Build configuration list for PBXProject "WultraMobileTokenSDK" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
