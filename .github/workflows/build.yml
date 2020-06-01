@@ -1,0 +1,28 @@
+name: checks
+
+on:
+  push:
+    branches:
+      - develop
+      - master
+  pull_request:
+
+jobs:
+  build:
+    name: Build
+    runs-on: macos-latest
+    steps:
+      - name: Checkout the repo
+        uses: actions/checkout@v2
+      - name: Building
+        run: ./scripts/build.sh
+  test:
+    name: Test
+    runs-on: macos-latest
+    steps:
+      - name: Checkout the repo
+        uses: actions/checkout@v2
+      - name: Force Xcode 11.3
+        run: sudo xcode-select -switch /Applications/Xcode_11.3.app
+      - name: Runing Tests
+        run: ./scripts/test.sh -destination "platform=iOS Simulator,OS=13.4,name=iPhone 11"
