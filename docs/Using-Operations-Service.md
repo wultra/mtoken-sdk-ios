@@ -9,7 +9,6 @@
 - [Reject an Operation](#reject-an-operation)
 - [Off-line Authorization](#off-line-authorization)
 - [Operations API Reference](#operations-api-reference)
-- [UserOperation](#useroperation)
 - [Creating a Custom Operation](#creating-a-custom-operation)
 <!-- end -->
 
@@ -300,8 +299,6 @@ Attributes types:
 - `PARTY_INFO` providing structured information about third-party data (for example known eshop)
 
 ## Creating a Custom Operation
-
-#### Creating a custom operation
 
 In some specific scenarios, you might need to approve or reject an operation that you received through a different channel than `getOperations`. In such cases, you can implement the `WMTOperation` protocol in your custom class and then feed created objects to both `authorize` and `reject` methods.
 
