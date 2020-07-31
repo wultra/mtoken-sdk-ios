@@ -44,6 +44,8 @@
 		DCC5CCD8244DBBBD004679AC /* WMTAuthorizationData.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCC5CCD7244DBBBD004679AC /* WMTAuthorizationData.swift */; };
 		DCC5CCDA244DBBE2004679AC /* WMTRejectionData.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCC5CCD9244DBBE2004679AC /* WMTRejectionData.swift */; };
 		DCD8B336246C1BAF00385F02 /* WMTRejectionReason.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCD8B335246C1BAF00385F02 /* WMTRejectionReason.swift */; };
+		DCE660D124CEBECA00870E53 /* IntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCE660D024CEBECA00870E53 /* IntegrationTests.swift */; };
+		DCE660D324CEF56400870E53 /* IntegrationUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCE660D224CEF56400870E53 /* IntegrationUtils.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -100,6 +102,8 @@
 		DCC5CCD7244DBBBD004679AC /* WMTAuthorizationData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTAuthorizationData.swift; sourceTree = "<group>"; };
 		DCC5CCD9244DBBE2004679AC /* WMTRejectionData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTRejectionData.swift; sourceTree = "<group>"; };
 		DCD8B335246C1BAF00385F02 /* WMTRejectionReason.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTRejectionReason.swift; sourceTree = "<group>"; };
+		DCE660D024CEBECA00870E53 /* IntegrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntegrationTests.swift; sourceTree = "<group>"; };
+		DCE660D224CEF56400870E53 /* IntegrationUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntegrationUtils.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -152,6 +156,8 @@
 				DC616235248508F8000DED17 /* QROperationParserTests.swift */,
 				DC616237248508F8000DED17 /* Info.plist */,
 				DC61624124852B6D000DED17 /* NetworkingObjectsTests.swift */,
+				DCE660D024CEBECA00870E53 /* IntegrationTests.swift */,
+				DCE660D224CEF56400870E53 /* IntegrationUtils.swift */,
 			);
 			path = WultraMobileTokenSDKTests;
 			sourceTree = "<group>";
@@ -419,6 +425,8 @@
 			files = (
 				DC61624224852B6D000DED17 /* NetworkingObjectsTests.swift in Sources */,
 				DC616236248508F8000DED17 /* QROperationParserTests.swift in Sources */,
+				DCE660D124CEBECA00870E53 /* IntegrationTests.swift in Sources */,
+				DCE660D324CEF56400870E53 /* IntegrationUtils.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

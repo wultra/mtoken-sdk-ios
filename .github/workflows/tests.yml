@@ -17,4 +17,10 @@ jobs:
       - name: Force Xcode 11.3
         run: sudo xcode-select -switch /Applications/Xcode_11.3.app
       - name: Runing Tests
-        run: ./scripts/test.sh -destination "platform=iOS Simulator,OS=13.4,name=iPhone 11"
+        env:
+          APP_ID: ${{ secrets.TESTS_APP_ID }}
+          APP_KEY: ${{ secrets.TESTS_APP_KEY }}
+          APP_SECRET: ${{ secrets.TESTS_APP_SECRET }}
+          MASTER_SERVER_PUBLIC_KEY : ${{ secrets.TESTS_MASTER_SERVER_PUBLIC_KEY }}
+          SERVER_IP: ${{ secrets.TESTS_SERVER_IP }}
+        run: ./scripts/test.sh -destination "platform=iOS Simulator,OS=13.4,name=iPhone 11" -appid "$APP_ID" -appkey "$APP_KEY" -appsecret "$APP_SECRET" -masterspk "$MASTER_SERVER_PUBLIC_KEY" -server "$SERVER_IP"
