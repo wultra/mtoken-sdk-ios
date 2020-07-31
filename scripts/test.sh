@@ -64,7 +64,7 @@ rm -rf "build"
 
 xcrun xcodebuild \
 	-derivedDataPath "build" \
-    -workspace "WultraMobileTokenSDK.xcworkspace" \
+    -project "WultraMobileTokenSDK.xcodeproj" \
     -scheme "WultraMobileTokenSDKTests" \
     -destination "${DESTINATION}" \
     -parallel-testing-enabled NO \
