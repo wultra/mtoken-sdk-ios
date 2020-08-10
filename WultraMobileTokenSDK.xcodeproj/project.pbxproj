@@ -10,6 +10,7 @@
 		DC059A3E244DDC0900B24878 /* WMTConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC059A3D244DDC0900B24878 /* WMTConfig.swift */; };
 		DC3D0B372480F3C7000DC4D9 /* WMTOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC3D0B362480F3C7000DC4D9 /* WMTOperation.swift */; };
 		DC3D0B392480F886000DC4D9 /* WMTLocalOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC3D0B382480F886000DC4D9 /* WMTLocalOperation.swift */; };
+		DC5F6DE824E14FA100D351D3 /* Configs in Resources */ = {isa = PBXBuildFile; fileRef = DC5F6DE724E14FA100D351D3 /* Configs */; };
 		DC616236248508F8000DED17 /* QROperationParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC616235248508F8000DED17 /* QROperationParserTests.swift */; };
 		DC616238248508F8000DED17 /* WultraMobileTokenSDK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DCC5CC9A2449EE21004679AC /* WultraMobileTokenSDK.framework */; };
 		DC61624024850F09000DED17 /* PowerAuth2.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DC61623F24850F09000DED17 /* PowerAuth2.framework */; };
@@ -62,6 +63,7 @@
 		DC059A3D244DDC0900B24878 /* WMTConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTConfig.swift; sourceTree = "<group>"; };
 		DC3D0B362480F3C7000DC4D9 /* WMTOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTOperation.swift; sourceTree = "<group>"; };
 		DC3D0B382480F886000DC4D9 /* WMTLocalOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTLocalOperation.swift; sourceTree = "<group>"; };
+		DC5F6DE724E14FA100D351D3 /* Configs */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Configs; sourceTree = "<group>"; };
 		DC616233248508F8000DED17 /* WultraMobileTokenSDKTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = WultraMobileTokenSDKTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		DC616235248508F8000DED17 /* QROperationParserTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QROperationParserTests.swift; sourceTree = "<group>"; };
 		DC616237248508F8000DED17 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -153,6 +155,7 @@
 		DC616234248508F8000DED17 /* WultraMobileTokenSDKTests */ = {
 			isa = PBXGroup;
 			children = (
+				DC5F6DE724E14FA100D351D3 /* Configs */,
 				DC616235248508F8000DED17 /* QROperationParserTests.swift */,
 				DC616237248508F8000DED17 /* Info.plist */,
 				DC61624124852B6D000DED17 /* NetworkingObjectsTests.swift */,
@@ -406,6 +409,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				DC5F6DE824E14FA100D351D3 /* Configs in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

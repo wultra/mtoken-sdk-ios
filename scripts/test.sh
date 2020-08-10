@@ -7,7 +7,10 @@ set -u # stop when undefined variable is used
 SCRIPT_FOLDER=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 
 DESTINATION="platform=iOS Simulator,OS=13.5,name=iPhone SE (2nd generation)"
-SERVER=""
+PA_URL=""
+ER_URL=""
+OP_URL=""
+NS_URL=""
 APPKEY=""
 APPSECRET=""
 MASTERSPK=""
@@ -22,8 +25,23 @@ do
 			shift
 			shift
 			;;
-		-server)
-			SERVER="$2"
+		-pa)
+			PA_URL="$2"
+			shift
+			shift
+			;;
+		-er)
+			ER_URL="$2"
+			shift
+			shift
+			;;
+		-op)
+			OP_URL="$2"
+			shift
+			shift
+			;;
+		-ns)
+			NS_URL="$2"
 			shift
 			shift
 			;;
@@ -60,7 +78,18 @@ popd
 
 pushd "${SCRIPT_FOLDER}/.."
 
-rm -rf "build"
+rm -rf "build" # clear build folder
+
+echo """{
+    \"paServerUrl\"           : \"${PA_URL}\",
+    \"nextStepServerUrl\"     : \"${NS_URL}\",
+    \"enrollmentServerUrl\"   : \"${ER_URL}\",
+    \"operationsServerUrl\"   : \"${OP_URL}\",
+    \"appKey\"                : \"${APPKEY}\",
+    \"appSecret\"             : \"${APPSECRET}\",
+    \"masterServerPublicKey\" : \"${MASTERSPK}\",
+    \"appId\"                 : \"${APPID}\"
+}""" > "WultraMobileTokenSDKTests/Configs/config.json"
 
 xcrun xcodebuild \
 	-derivedDataPath "build" \
@@ -69,20 +98,6 @@ xcrun xcodebuild \
     -destination "${DESTINATION}" \
     -parallel-testing-enabled NO \
     -configuration "Debug" \
-    build-for-testing | xcpretty
-
-xctestrunfile=$(find build/Build/Products -name '*.xctestrun')
-
-eval "/usr/libexec/PlistBuddy -c 'Add :WultraMobileTokenSDKTests:EnvironmentVariables:SERVER_IP string ${SERVER}' ${xctestrunfile}"
-eval "/usr/libexec/PlistBuddy -c 'Add :WultraMobileTokenSDKTests:EnvironmentVariables:APP_KEY string ${APPKEY}' ${xctestrunfile}"
-eval "/usr/libexec/PlistBuddy -c 'Add :WultraMobileTokenSDKTests:EnvironmentVariables:APP_SECRET string ${APPSECRET}' ${xctestrunfile}"
-eval "/usr/libexec/PlistBuddy -c 'Add :WultraMobileTokenSDKTests:EnvironmentVariables:MASTER_SERVER_PUBLIC_KEY string ${MASTERSPK}' ${xctestrunfile}"
-eval "/usr/libexec/PlistBuddy -c 'Add :WultraMobileTokenSDKTests:EnvironmentVariables:APP_ID string ${APPID}' ${xctestrunfile}"
-
-xcrun xcodebuild \
-	-configuration "Debug" \
-    -destination "${DESTINATION}" \
-    -xctestrun "${xctestrunfile}" \
-    test-without-building | xcpretty
+    test | xcpretty
 
 popd

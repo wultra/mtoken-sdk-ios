@@ -19,27 +19,33 @@ import WultraMobileTokenSDK
 
 class IntegrationUtils {
     
-    private static let serverAddress = ProcessInfo.processInfo.environment["SERVER_IP"] ?? "limeserver.pub"
-    private static let paUrl = "http://\(serverAddress):8081/powerauth-java-server"
-    private static let nextStepUrl = "http://\(serverAddress):13010/powerauth-nextstep"
-    private static let enrollmentUrl = "http://\(serverAddress):8080/powerauth-webflow"
-    private static let operationsUrl = "http://\(serverAddress ):8080/powerauth-webflow"
-    private static let nextstepUrl = "http://\(serverAddress):13010/powerauth-nextstep"
+    private static var config: IntegrationConfig!
+    private static let paUrl = config.paServerUrl
     private static let activationName = "mtokenSdkIosTests"
-    private static let appKey = ProcessInfo.processInfo.environment["APP_KEY"] ?? ""
-    private static let appSecret = ProcessInfo.processInfo.environment["APP_SECRET"] ?? ""
-    private static let masterKey = ProcessInfo.processInfo.environment["MASTER_SERVER_PUBLIC_KEY"] ?? ""
-    private static let appId = ProcessInfo.processInfo.environment["APP_ID"] ?? ""
     
     typealias Callback = (_ instances: (PowerAuthSDK, WMTOperations)?, _ error: String?) -> Void
     
     class func prepareActivation(pin: String, callback: @escaping Callback) {
+        
+        guard let configPath = Bundle.init(for: IntegrationUtils.self).path(forResource: "config", ofType: "json", inDirectory: "Configs") else {
+            callback(nil, "Config file config.json is not present.")
+            return
+        }
+        
+        do {
+            let configContent = try String(contentsOfFile: configPath)
+            config = try JSONDecoder().decode(IntegrationConfig.self, from: configContent.data(using: .utf8)!)
+        } catch _ {
+            callback(nil, "Config file config.json cannot be parsed.")
+            return
+        }
+        
         let pa = preparePAInstance()
         enrollPAInstance(pa: pa, pin: pin) { error in
             if let error = error {
                 callback(nil, error)
             } else {
-                let wmtconf = WMTConfig(baseUrl: URL(string: operationsUrl)!, sslValidation: .noValidation)
+                let wmtconf = WMTConfig(baseUrl: URL(string: config.operationsServerUrl)!, sslValidation: .noValidation)
                 callback((pa,pa.createWMTOperations(config: wmtconf)), nil)
             }
         }
@@ -127,7 +133,7 @@ class IntegrationUtils {
             }
             
             // step1: create an operation on the nextstep server
-            guard let op: PAObject<PAOperationCreateObject> = self.makeRequest(url: URL(string: "\(nextStepUrl)/operation")!, body: opBody) else {
+            guard let op: PAObject<PAOperationCreateObject> = self.makeRequest(url: URL(string: "\(config.nextStepServerUrl)/operation")!, body: opBody) else {
                 completion("Failed to create operation on the server.")
                 return
             }
@@ -144,7 +150,7 @@ class IntegrationUtils {
             """
             
             // step2: assign the operation to the user
-            guard let _: PASimpleObject = self.makeRequest(url: URL(string: "\(nextStepUrl)/operation/user/update")!, body: assignBody) else {
+            guard let _: PASimpleObject = self.makeRequest(url: URL(string: "\(config.nextStepServerUrl)/operation/user/update")!, body: assignBody) else {
                 
                 completion("Failed to assign the operation to the user.")
                 return
@@ -166,14 +172,14 @@ class IntegrationUtils {
                   }
                 }
                 """
-                guard let _: PASimpleObject = self.makeRequest(url: URL(string: "\(nextStepUrl)/operation/update")!, body: b) else {
+                guard let _: PASimpleObject = self.makeRequest(url: URL(string: "\(config.nextStepServerUrl)/operation/update")!, body: b) else {
                     completion("Failed to update operation to the next state")
                     return
                 }
             }
             
             // step4: make the op "approvable" by the mobile token
-            guard let _: PASimpleObject = self.makeRequest(url: URL(string: "\(nextStepUrl)/operation/mobileToken/status/update")!, body:
+            guard let _: PASimpleObject = self.makeRequest(url: URL(string: "\(config.nextStepServerUrl)/operation/mobileToken/status/update")!, body:
                 """
                 {
                   "requestObject": {
@@ -187,7 +193,7 @@ class IntegrationUtils {
             }
             
             // step5: step auth method to the operation
-            guard let _: PASimpleObject = self.makeRequest(url: URL(string: "\(nextStepUrl)/operation/chosenAuthMethod/update")!, body: """
+            guard let _: PASimpleObject = self.makeRequest(url: URL(string: "\(config.nextStepServerUrl)/operation/chosenAuthMethod/update")!, body: """
                 {
                   "requestObject": {
                     "operationId": "\(op.responseObject.operationId)",
@@ -225,10 +231,10 @@ class IntegrationUtils {
         
         let cfg = PowerAuthConfiguration()
         cfg.instanceId = "tests"
-        cfg.baseEndpointUrl = enrollmentUrl
-        cfg.appKey = appKey
-        cfg.appSecret = appSecret
-        cfg.masterServerPublicKey = masterKey
+        cfg.baseEndpointUrl = config.enrollmentServerUrl
+        cfg.appKey = config.appKey
+        cfg.appSecret = config.appSecret
+        cfg.masterServerPublicKey = config.masterServerPublicKey
         cfg.keychainKey_Biometry = "testsBiometry"
         
         return PowerAuthSDK(configuration: cfg)!
@@ -267,7 +273,7 @@ class IntegrationUtils {
         {
             "requestObject": {
                 "activationOtpValidation": "NONE",
-                "applicationId": \(appId),
+                "applicationId": \(config.appId),
                 "maxFailureCount": 5,
                 "userId": "\(activationName)"
             }
@@ -301,7 +307,7 @@ class IntegrationUtils {
             }
         }
         """
-        let resp: PASimpleObject? = makeRequest(url: URL(string: "\(nextStepUrl)/user/auth-method")!, body: body)
+        let resp: PASimpleObject? = makeRequest(url: URL(string: "\(config.nextStepServerUrl)/user/auth-method")!, body: body)
         return resp
     }
 }
@@ -330,4 +336,15 @@ private struct PACommitObject: Codable {
 
 private struct PAOperationCreateObject: Codable {
     let operationId: String
+}
+
+private struct IntegrationConfig: Codable {
+    let paServerUrl: String
+    let nextStepServerUrl: String
+    let enrollmentServerUrl: String
+    let operationsServerUrl: String
+    let appKey: String
+    let appSecret: String
+    let masterServerPublicKey: String
+    let appId: String
 }
