@@ -21,7 +21,7 @@ class IntegrationUtils {
     
     private static var config: IntegrationConfig!
     private static let paUrl = config.paServerUrl
-    private static let activationName = "mtokenSdkIosTests"
+    private static let activationName = UUID().uuidString
     
     typealias Callback = (_ instances: (PowerAuthSDK, WMTOperations)?, _ error: String?) -> Void
     
