@@ -17,13 +17,13 @@
 import Foundation
 import UserNotifications
 
-/// Helper class that can translate incoming notifications from APNS to WMT push message.s
+/// Helper class that can translate incoming notifications from APNS to WMTPushMessage.
 public class WMTPushParser {
     
     /// When you receive a push notification, you can test it here if it's a "WMT" notification.
     ///
     /// - Parameter notification: notification obtained via UNUserNotificationCenter
-    /// - Returns: returns a parsed known WMT message or nil
+    /// - Returns: returns a parsed known WMTPushMessage or nil
     public static func parseNotification(_ notification: UNNotification) -> WMTPushMessage? {
         return parseNotification(notification.request.content.userInfo)
     }
@@ -31,7 +31,7 @@ public class WMTPushParser {
     /// When you receive a push notification, you can test it here if it's a "WMT" notification.
     ///
     /// - Parameter userInfo: user info of received notification
-    /// - Returns: returns a parsed known WMT message or nil
+    /// - Returns: returns a parsed known WMTPushMessage or nil
     public static func parseNotification(_ userInfo: [AnyHashable: Any]) -> WMTPushMessage? {
         
         guard let messageType = userInfo["messageType"] as? String,
@@ -64,7 +64,7 @@ public class WMTPushParser {
             case "operation.timeout": opResult = .timeout
             case "operation.canceled": opResult = .canceled
             case "operation.methodNotAvailable": opResult = .methodNotAvailable
-            default: opResult = .unknown
+            default: opResult = .unknown // to be forward compatible
             }
             return .operationFinished(id: operationId, name: operationName, result: opResult)
         default:
