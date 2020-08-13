@@ -63,27 +63,11 @@ func application(_ application: UIApplication, didRegisterForRemoteNotifications
 }
 ```
 
-_Note that to make the above method called, you need to register the app to receive push notifications in the first place. This can be achieved by the following steps:_
-
-1. Implementing protocol `UIApplicationDelegate` (and its method `func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data)`) in your main application class (usualy `AppDelegate`).
-- Make sure that user allowed notifications via `UNUserNotificationCenter.current().requestAuthorization` method.
-- Request the device token via `UIApplication.shared.registerForRemoteNotifications()`
+_To make the above method called, you need to register the app to receive push notifications in the first place. For more information visit [official documentation](https://developer.apple.com/documentation/usernotifications/handling_notifications_and_notification-related_actions)._
 
 ## Receiving WMT Push Notifications
 
-### Setup your app to receive notifications
-
-To recieve notifications in general, you need to implement following delegates and methods:
-
-- `UIApplicationDelegate` in your main application class (usualy `AppDelegate`).
-  - `func application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable: Any], fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void)`.
-- `UNUserNotificationCenterDelegate` that needs to be set to `UNUserNotificationCenter.current().delegate`
-  - `func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void)`
-  - `func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void)`
-
-### Process notifications with WMTPushParser
-
-To process the raw notification obtained via one of the above-mentioned delegates, you can use `WMTPushParser` helper class that will parse the notification into a `WMTPushMessage` result.
+To process the raw notification obtained from Apple Push Notification service (APNs), you can use `WMTPushParser` helper class that will parse the notification into a `WMTPushMessage` result.
 
 The `WMTPushMessage` can be following values
 
