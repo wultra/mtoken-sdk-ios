@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		DC059A3E244DDC0900B24878 /* WMTConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC059A3D244DDC0900B24878 /* WMTConfig.swift */; };
+		DC395C0A24E55B9B0007C36E /* PushParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC395C0924E55B9B0007C36E /* PushParserTests.swift */; };
 		DC3D0B372480F3C7000DC4D9 /* WMTOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC3D0B362480F3C7000DC4D9 /* WMTOperation.swift */; };
 		DC3D0B392480F886000DC4D9 /* WMTLocalOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC3D0B382480F886000DC4D9 /* WMTLocalOperation.swift */; };
 		DC5F6DE824E14FA100D351D3 /* Configs in Resources */ = {isa = PBXBuildFile; fileRef = DC5F6DE724E14FA100D351D3 /* Configs */; };
@@ -62,6 +63,7 @@
 
 /* Begin PBXFileReference section */
 		DC059A3D244DDC0900B24878 /* WMTConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTConfig.swift; sourceTree = "<group>"; };
+		DC395C0924E55B9B0007C36E /* PushParserTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushParserTests.swift; sourceTree = "<group>"; };
 		DC3D0B362480F3C7000DC4D9 /* WMTOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTOperation.swift; sourceTree = "<group>"; };
 		DC3D0B382480F886000DC4D9 /* WMTLocalOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTLocalOperation.swift; sourceTree = "<group>"; };
 		DC5F6DE724E14FA100D351D3 /* Configs */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Configs; sourceTree = "<group>"; };
@@ -163,6 +165,7 @@
 				DC61624124852B6D000DED17 /* NetworkingObjectsTests.swift */,
 				DCE660D024CEBECA00870E53 /* IntegrationTests.swift */,
 				DCE660D224CEF56400870E53 /* IntegrationUtils.swift */,
+				DC395C0924E55B9B0007C36E /* PushParserTests.swift */,
 			);
 			path = WultraMobileTokenSDKTests;
 			sourceTree = "<group>";
@@ -431,6 +434,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				DC61624224852B6D000DED17 /* NetworkingObjectsTests.swift in Sources */,
+				DC395C0A24E55B9B0007C36E /* PushParserTests.swift in Sources */,
 				DC616236248508F8000DED17 /* QROperationParserTests.swift in Sources */,
 				DCE660D124CEBECA00870E53 /* IntegrationTests.swift in Sources */,
 				DCE660D324CEF56400870E53 /* IntegrationUtils.swift in Sources */,
