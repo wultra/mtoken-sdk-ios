@@ -3,8 +3,9 @@
 <!-- begin TOC -->
 - [Introduction](#introduction)
 - [Creating an Instance](#creating-an-instance)
-- [Registering to Push Notifications](#registering-to-push-notifications)
 - [Push Service API Reference](#push-service-api-reference)
+- [Registering to WMT Push Notifications](#registering-to-wmt-push-notifications)
+- [Receiving WMT Push Notifications](#receiving-wmt-push-notifications)
 <!-- end -->
 
 ## Introduction
@@ -35,22 +36,6 @@ let pushService = powerAuth.createWMTPush(config: config)
 - `WMTSSLValidationStrategy.noValidation`
 - `WMTSSLValidationStrategy.sslPinning` 
 
-## Registering to Push Notifications
-
-To register an app to push notifications, you can simply call the register method:
-
-```swift
-// AppDelegate method
-func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
-    pushService.registerDeviceTokenForPushNotifications(token: deviceToken) { success, error in
-        guard success else {
-            // push registration failed
-            return
-        }
-    }
-}
-```
-
 ## Push Service API Reference
 
 All available methods of the `WMTPush` API are:
@@ -61,3 +46,48 @@ All available methods of the `WMTPush` API are:
 - `registerDeviceTokenForPushNotifications(token: Data, completionHandler: @escaping (_ success: Bool, _ error: WMTError?) -> Void)` - Registers push token on the backend.
     - `token` - token data retrieved from APNS.
     - `completionHandler` - Called when request finishes.
+
+## Registering to WMT Push Notifications
+
+To register your app to push notifications regarding the operations, you can simply call the `registerDeviceTokenForPushNotifications` method:
+
+```swift
+// UIApplicationDelegate method
+func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
+    pushService.registerDeviceTokenForPushNotifications(token: deviceToken) { success, error in
+        guard success else {
+            // push registration failed
+            return
+        }
+    }
+}
+```
+
+_To make the above method called, you need to register the app to receive push notifications in the first place. For more information visit [official documentation](https://developer.apple.com/documentation/usernotifications/handling_notifications_and_notification-related_actions)._
+
+## Receiving WMT Push Notifications
+
+To process the raw notification obtained from Apple Push Notification service (APNs), you can use `WMTPushParser` helper class that will parse the notification into a `WMTPushMessage` result.
+
+The `WMTPushMessage` can be following values
+
+- `operationCreated` - a new operation was triggered with the following parameters
+  -  `id` of the operation
+  -  `name` of the operation
+  -  optional `content` of the message presented to the user.
+- `operationFinished` - an operation was finished, successfully or non-successfully with following parameters
+  -  `id` of the operation
+  -  `name` of the operation
+  -  `result` of the operation (for example that the operation was canceled by the user).
+
+
+_Example push notification processing:_
+
+```swift
+// MARK: - UNUserNotificationCenterDelegate
+func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
+    if let wmtnf = WMTPushParser.parseNotification(notification) {
+        // process the notification and react to it in the UI
+    }
+}
+```
