@@ -74,11 +74,13 @@ The `WMTPushMessage` can be following values
 - `operationCreated` - a new operation was triggered with the following parameters
   -  `id` of the operation
   -  `name` of the operation
-  -  optional `content` of the message presented to the user.
+  -  `content` _(optional)_ of the message presented to the user.
+  -  `originalData` - data on which was the push message constructed
 - `operationFinished` - an operation was finished, successfully or non-successfully with following parameters
   -  `id` of the operation
   -  `name` of the operation
   -  `result` of the operation (for example that the operation was canceled by the user).
+  -  `originalData` - data on which was the push message constructed
 
 
 _Example push notification processing:_
@@ -87,7 +89,9 @@ _Example push notification processing:_
 // MARK: - UNUserNotificationCenterDelegate
 func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
     if let wmtnf = WMTPushParser.parseNotification(notification) {
-        // process the notification and react to it in the UI
+        // process the mtoken notification and react to it in the UI
+    }  else {
+       // process all the other notification types using your own logic
     }
 }
 ```

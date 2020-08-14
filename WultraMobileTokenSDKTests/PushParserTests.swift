@@ -29,7 +29,7 @@ class PushParserTests: XCTestCase {
             XCTFail("Failed to parse valid push.")
             return
         }
-        guard case .operationCreated(let id, let name, let content) = push else {
+        guard case .operationCreated(let id, let name, let content, _) = push else {
             XCTFail("Expected operation created push.")
             return
         }
@@ -46,7 +46,7 @@ class PushParserTests: XCTestCase {
             XCTFail("Failed to parse valid push.")
             return
         }
-        guard case .operationCreated(let id, let name, let content) = push else {
+        guard case .operationCreated(let id, let name, let content, _) = push else {
             XCTFail("Expected operation created push.")
             return
         }
@@ -62,7 +62,7 @@ class PushParserTests: XCTestCase {
             XCTFail("Failed to parse valid push.")
             return
         }
-        guard case .operationCreated(let id, let name, let content) = push else {
+        guard case .operationCreated(let id, let name, let content, _) = push else {
             XCTFail("Expected operation created push.")
             return
         }
@@ -95,7 +95,7 @@ class PushParserTests: XCTestCase {
                 XCTFail("Failed to parse valid push.")
                 return
             }
-            guard case .operationFinished(let id, let name, let result) = push else {
+            guard case .operationFinished(let id, let name, let result, _) = push else {
                 XCTFail("Expected operation finished push.")
                 return
             }

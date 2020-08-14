@@ -52,7 +52,7 @@ public class WMTPushParser {
                 content = (title, body)
             }
             
-            return .operationCreated(id: operationId, name: operationName, content: content)
+            return .operationCreated(id: operationId, name: operationName, content: content, originalData: userInfo)
         case "mtoken.operationFinished":
             guard let result = userInfo["mtokenOperationResult"] as? String else {
                 return nil
@@ -66,7 +66,7 @@ public class WMTPushParser {
             case "operation.methodNotAvailable": opResult = .methodNotAvailable
             default: opResult = .unknown // to be forward compatible
             }
-            return .operationFinished(id: operationId, name: operationName, result: opResult)
+            return .operationFinished(id: operationId, name: operationName, result: opResult, originalData: userInfo)
         default:
             return nil
         }
@@ -76,10 +76,10 @@ public class WMTPushParser {
 /// Known push message.
 public enum WMTPushMessage {
     /// A new operation was triggered.
-    case operationCreated(id: String, name: String, content: WMTPushContent?)
+    case operationCreated(id: String, name: String, content: WMTPushContent?, originalData: [AnyHashable: Any])
     
     /// An operation was finished, successfully or non-successfully.
-    case operationFinished(id: String, name: String, result: WMTPushOperationFinishedResult)
+    case operationFinished(id: String, name: String, result: WMTPushOperationFinishedResult, originalData: [AnyHashable: Any])
 }
 
 /// Action which finished the operation.
