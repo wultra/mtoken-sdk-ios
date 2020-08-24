@@ -55,3 +55,6 @@ Library/
 Carthage/Build
 
 *.jar
+
+# test config file
+WultraMobileTokenSDKTests/Configs/*.json
