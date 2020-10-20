@@ -62,7 +62,9 @@ class WMTNetworkingService {
                     var errorReason = WMTErrorReason.network_generic
                     var errorResponse: RestApiError?
                     
-                    if let receivedData = data {
+                    if let resp = urlResponse, resp.statusCode != 200 {
+                        errorReason = .network_errorStatusCode
+                    } else if let receivedData = data {
                         // We have a data
                         if let responseEnvelope = request.processResult(data: receivedData) {
                             // Valid envelope
@@ -165,6 +167,8 @@ public extension WMTErrorReason {
     static let network_badServerResponse = WMTErrorReason(rawValue: "network_badServerResponse")
     /// SSL error. For detailed information, see attached error object when available.
     static let network_sslError = WMTErrorReason(rawValue: "network_sslErrror")
+    /// HTTP response code was different than 200 (success).
+    static let network_errorStatusCode = WMTErrorReason(rawValue: "network_errorStatusCode")
     
     fileprivate static func resolve(error: Error?) -> WMTErrorReason? {
         guard let nse = error as NSError? else {
