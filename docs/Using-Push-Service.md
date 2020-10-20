@@ -6,6 +6,7 @@
 - [Push Service API Reference](#push-service-api-reference)
 - [Registering to WMT Push Notifications](#registering-to-wmt-push-notifications)
 - [Receiving WMT Push Notifications](#receiving-wmt-push-notifications)
+- [Error handling](#error-handling)
 <!-- end -->
 
 ## Introduction
@@ -95,3 +96,7 @@ func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent noti
     }
 }
 ```
+
+## Error handling
+
+Every error produced by the Push Service is of a `WMTError` type. For more information see detailed [error handling documentation](Error-Handling.md).

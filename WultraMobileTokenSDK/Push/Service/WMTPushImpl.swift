@@ -24,7 +24,7 @@ public extension PowerAuthSDK {
 }
 
 public extension WMTErrorReason {
-    /// Push registration is already in progress
+    /// Push registration is already in progress.
     static let push_alreadyRegistering = WMTErrorReason(rawValue: "push_alreadyRegistering")
 }
 
