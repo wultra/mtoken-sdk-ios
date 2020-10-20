@@ -27,7 +27,7 @@ Every error produced by this library is of a `WMTError` type. This error contain
 
 ## WMTErrorReason
 
-Each `WMTError` has a `reason` property why the error was created. Such reason can be useful when you're creating for example a general error handling or reporting. or debugging your code
+Each `WMTError` has a `reason` property why the error was created. Such reason can be useful when you're creating for example a general error handling or reporting, or when you're debugging the code.
 
 ### Known WMTErrorReason options
 
