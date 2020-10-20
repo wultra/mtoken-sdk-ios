@@ -77,7 +77,7 @@ class WMTNetworkingService {
                                 // Keep an error object received from the server
                                 errorResponse = responseEnvelope.responseError
                             }
-                                
+                            
                         } else {
                             errorReason = .network_invalidResponseObject
                         }
