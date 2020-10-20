@@ -46,7 +46,7 @@ Each `WMTError` has a `reason` property why the error was created. Such reason c
 |`network_generic`|When generic networking error happened.|
 |`network_invalidResponseObject`|An unexpected response from the server.|
 |`network_invalidRequestObject`|Request is not valid. Such an object is not sent to the server.|
-|`network_signError`|Whenthe signing of the request failed.|
+|`network_signError`|When the signing of the request failed.|
 |`network_timeOut`|Request timed out|
 |`network_noInternetConnection`|Not connected to the internet.|
 |`network_badServerResponse`|Bad (malformed) HTTP server response. Probably an unexpected HTTP server error.|
