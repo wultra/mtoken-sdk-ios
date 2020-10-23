@@ -17,20 +17,6 @@
 import Foundation
 import PowerAuth2
 
-/// WMT errors for networking
-public extension WMTErrorReason {
-    /// When unknown (usually logic error) happened inside the SDK.
-    static let network_unknown = WMTErrorReason(rawValue: "network_unknown")
-    /// When generic networking error happened.
-    static let network_generic = WMTErrorReason(rawValue: "network_generic")
-    /// Server didn't accept the request.
-    static let network_wrongRequestObject = WMTErrorReason(rawValue: "network_wrongRequestObject")
-    /// Request is not valid. Such object is not sent to the server.
-    static let network_invalidRequestObject = WMTErrorReason(rawValue: "network_invalidRequestObject")
-    /// When signing of the request failed.
-    static let network_signError = WMTErrorReason(rawValue: "network_signError")
-}
-
 /// Internal networking service for dispatching powerauth signed requests
 class WMTNetworkingService {
     
@@ -76,7 +62,9 @@ class WMTNetworkingService {
                     var errorReason = WMTErrorReason.network_generic
                     var errorResponse: RestApiError?
                     
-                    if let receivedData = data {
+                    if let resp = urlResponse, resp.statusCode != 200 {
+                        errorReason = .network_errorStatusCode
+                    } else if let receivedData = data {
                         // We have a data
                         if let responseEnvelope = request.processResult(data: receivedData) {
                             // Valid envelope
@@ -91,8 +79,10 @@ class WMTNetworkingService {
                             }
                             
                         } else {
-                            errorReason = .network_wrongRequestObject
+                            errorReason = .network_invalidResponseObject
                         }
+                    } else if let resolved = WMTErrorReason.resolve(error: error) {
+                        errorReason = resolved
                     }
                     
                     // Failure exit from block
@@ -153,6 +143,46 @@ class WMTNetworkingService {
         } catch let error {
             let wmtError = WMTError(reason: .network_signError, error: error)
             completion(wmtError)
+        }
+    }
+}
+
+/// WMT errors for networking
+public extension WMTErrorReason {
+    /// When unknown (usually logic error) happened during networking.
+    static let network_unknown = WMTErrorReason(rawValue: "network_unknown")
+    /// When generic networking error happened.
+    static let network_generic = WMTErrorReason(rawValue: "network_generic")
+    /// An unexpected response from the server.
+    static let network_invalidResponseObject = WMTErrorReason(rawValue: "network_invalidResponseObject")
+    /// Request is not valid. Such an object is not sent to the server.
+    static let network_invalidRequestObject = WMTErrorReason(rawValue: "network_invalidRequestObject")
+    /// When the signing of the request failed.
+    static let network_signError = WMTErrorReason(rawValue: "network_signError")
+    /// Request timed out.
+    static let network_timeOut = WMTErrorReason(rawValue: "network_timeOut")
+    /// Not connected to the internet.
+    static let network_noInternetConnection = WMTErrorReason(rawValue: "network_noInternetConnection")
+    /// Bad (malformed) HTTP server response. Probably an unexpected HTTP server error.
+    static let network_badServerResponse = WMTErrorReason(rawValue: "network_badServerResponse")
+    /// SSL error. For detailed information, see attached error object when available.
+    static let network_sslError = WMTErrorReason(rawValue: "network_sslErrror")
+    /// HTTP response code was different than 200 (success).
+    static let network_errorStatusCode = WMTErrorReason(rawValue: "network_errorStatusCode")
+    
+    fileprivate static func resolve(error: Error?) -> WMTErrorReason? {
+        guard let nse = error as NSError? else {
+            return nil
+        }
+        switch nse.code {
+        case NSURLErrorTimedOut: return .network_timeOut
+        case NSURLErrorNotConnectedToInternet: return .network_noInternetConnection
+        case NSURLErrorBadServerResponse: return .network_badServerResponse
+        case NSURLErrorSecureConnectionFailed, NSURLErrorServerCertificateHasBadDate, NSURLErrorServerCertificateUntrusted,
+             NSURLErrorServerCertificateHasUnknownRoot, NSURLErrorServerCertificateNotYetValid, NSURLErrorClientCertificateRejected,
+             NSURLErrorClientCertificateRequired, NSURLErrorCannotLoadFromNetwork:
+            return .network_sslError
+        default: return nil
         }
     }
 }

@@ -10,6 +10,7 @@
 - [Off-line Authorization](#off-line-authorization)
 - [Operations API Reference](#operations-api-reference)
 - [Creating a Custom Operation](#creating-a-custom-operation)
+- [Error handling](#error-handling)
 <!-- end -->
 
 ## Introduction
@@ -316,3 +317,7 @@ public protocol WMTOperation {
     var data: String { get }
 }
 ```
+
+## Error handling
+
+Every error produced by the Operations Service is of a `WMTError` type. For more information see detailed [error handling documentation](Error-Handling.md).
