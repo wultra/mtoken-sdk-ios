@@ -22,9 +22,10 @@ import PowerAuth2
 public protocol WMTOperations: class {
     
     /// Delegate gets notified about changes in operations loading.
+    /// Methods of the delegate are always called on the main thread.
     var delegate: WMTOperationsDelegate? { get set }
     
-    /// Configuration for the service
+    /// Configuration for the service.
     var config: WMTConfig { get }
     
     /// Accept language for the outgoing requests headers.
@@ -35,10 +36,10 @@ public protocol WMTOperations: class {
     /// will return operation texts in german (if available).
     var acceptLanguage: String { get set }
     
-    /// Last cached operation result for easy access
+    /// Last cached operation result for easy access.
     var lastFetchResult: GetOperationsResult? { get }
     
-    /// If operation loading is currently in progress
+    /// If operation loading is currently in progress.
     var isLoadingOperations: Bool { get }
     
     /// Refreshes operations, but does not return any result. For the result, you can
@@ -46,19 +47,23 @@ public protocol WMTOperations: class {
     /// If operations are already loading, the function does nothing.
     func refreshOperations()
     
-    /// Retrieves user operations and calls task when finished
+    /// Retrieves user operations and calls task when finished.
     ///
-    /// - Parameter completion: to be called when operations are loaded
+    /// - Parameter completion: To be called when operations are loaded.
+    ///                         This completion is always called on the main thread.
+    /// - Returns: Control object in case the operations needs to be canceled.
     ///
-    /// Note: be sure to call this method on Main Thread!
+    /// Note: be sure to call this method on the main thread!
     func getOperations(completion: @escaping GetOperationsCompletion) -> Cancellable
     
     /// Authorize operation with given PowerAuth authentication object.
     ///
     /// - Parameters:
-    ///   - operation: operation that should  be authorized
-    ///   - authentication: authentication object for signing
-    ///   - completion: result callback (nil on success)
+    ///   - operation: Operation that should  be authorized.
+    ///   - authentication: Authentication object for signing.
+    ///   - completion: Result callback (nil on success).
+    ///                 This completion is always called on the main thread.
+    /// - Returns: Operation object for its state observation.
     @discardableResult
     func authorize(operation: WMTOperation, authentication: PowerAuthAuthentication, completion: @escaping(WMTError?)->Void) -> Operation?
     
@@ -69,18 +74,21 @@ public protocol WMTOperations: class {
     ///
     /// - Parameters:
     ///   - qrOperation: QR operation data
-    ///   - authentication: authentication object for signing
-    ///   - completion: result completion
-    /// - Returns: operation for state observation
+    ///   - authentication: Authentication object for signing.
+    ///   - completion: Result completion.
+    ///                 This completion is always called on the main thread.
+    /// - Returns: Operation object for its state observation.
     @discardableResult
     func authorize(qrOperation: WMTQROperation, authentication: PowerAuthAuthentication, completion: @escaping(Result<String, WMTError>) -> Void) -> Operation
     
     /// Reject operation with a reason.
     ///
     /// - Parameters:
-    ///   - operation: operation that should be rejected
-    ///   - reason: reason for rejection
-    ///   - completion: result callback (nil on success)
+    ///   - operation: Operation that should be rejected.
+    ///   - reason: Reason for the rejection.
+    ///   - completion: Result callback (nil on success).
+    ///                 This completion is always called on the main thread.
+    /// - Returns: Operation object for its state observation.
     @discardableResult
     func reject(operation: WMTOperation, reason: WMTRejectionReason, completion: @escaping(WMTError?)->Void) -> Operation?
     

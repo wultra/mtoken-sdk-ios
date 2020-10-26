@@ -18,23 +18,25 @@ import Foundation
 import PowerAuth2
 
 /// Protocol for service, that communicates with Mobile Token API that handles registration for
-/// push notifications
+/// push notifications.
 public protocol WMTPush: class {
-    /// If there was already made an successful request
+    /// If there was already made an successful request.
     var pushNotificationsRegisteredOnServer: Bool { get }
     
-    /// Configuration for the service
+    /// Configuration for the service.
     var config: WMTConfig { get }
     
     /// Accept language for the outgoing requests headers.
     /// Default value is "en".
     var acceptLanguage: String { get set }
     
-    /// Registers the current powerauth activation for push notifications
+    /// Registers the current powerauth activation for push notifications.
     ///
     /// - Parameters:
-    ///   - token: push token
-    ///   - completionHandler: completion handler
+    ///   - token: Push token.
+    ///   - completionHandler: Completion handler.
+    ///                        This completion is always called on the main thread.
+    /// - Returns: Control object in case the operations needs to be canceled.
     @discardableResult
     func registerDeviceTokenForPushNotifications(token: Data, completionHandler: @escaping (_ success: Bool, _ error: WMTError?) -> Void) -> Operation?
 }
