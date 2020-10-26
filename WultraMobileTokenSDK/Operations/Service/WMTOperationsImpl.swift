@@ -81,7 +81,8 @@ class WMTOperationsImpl: WMTOperations {
     /// Last result of operation fetch.
     private(set) var lastFetchResult: GetOperationsResult?
     
-    /// Delegate is being reported about operations loading state
+    /// Delegate gets notified about changes in operations loading.
+    /// Methods of the delegate are always called on the main thread.
     weak var delegate: WMTOperationsDelegate?
     
     init(powerAuth: PowerAuthSDK, config: WMTConfig) {
@@ -104,11 +105,13 @@ class WMTOperationsImpl: WMTOperations {
         }
     }
     
-    /// Retrieves user operations and calls task when finished
+    /// Retrieves user operations and calls task when finished.
     ///
-    /// - Parameter completion: to be called when operations are loaded
+    /// - Parameter completion: To be called when operations are loaded.
+    ///                         This completion is always called on the main thread.
+    /// - Returns: Control object in case the operations needs to be canceled.
     ///
-    /// Note: be sure to call this method on Main Thread!
+    /// Note: be sure to call this method on the main thread!
     @discardableResult
     func getOperations(completion: @escaping GetOperationsCompletion) -> Cancellable {
         
@@ -144,13 +147,17 @@ class WMTOperationsImpl: WMTOperations {
     /// Authorize operation with given PowerAuth authentication object.
     ///
     /// - Parameters:
-    ///   - operation: operation that should  be authorized
-    ///   - authentication: authentication object for signing
-    ///   - completion: result callback (nil on success)
+    ///   - operation: Operation that should  be authorized.
+    ///   - authentication: Authentication object for signing.
+    ///   - completion: Result callback (nil on success).
+    ///                 This completion is always called on the main thread.
+    /// - Returns: Operation object for its state observation.
     func authorize(operation: WMTOperation, authentication: PowerAuthAuthentication, completion: @escaping(WMTError?)->Void) -> Operation? {
         
         guard powerAuth.hasValidActivation() else {
-            completion(WMTError(reason: .missingActivation))
+            DispatchQueue.main.async {
+                completion(WMTError(reason: .missingActivation))
+            }
             return nil
         }
         
@@ -160,6 +167,7 @@ class WMTOperationsImpl: WMTOperations {
         let request     = WMTOperationEndpoints.AuthorizeOperation.Request(url, uriId: uriId, auth: authentication, requestData: requestData)
         
         return networking.post(request, completion: { response, error in
+            assert(Thread.isMainThread)
             if error == nil {
                 self.operationsRegister.remove(operation: operation)
             }
@@ -170,13 +178,17 @@ class WMTOperationsImpl: WMTOperations {
     /// Reject operation with a reason.
     ///
     /// - Parameters:
-    ///   - operation: operation that should be rejected
-    ///   - reason: reason for rejection
-    ///   - completion: result callback (nil on success)
+    ///   - operation: Operation that should be rejected.
+    ///   - reason: Reason for the rejection.
+    ///   - completion: Result callback (nil on success).
+    ///                 This completion is always called on the main thread.
+    /// - Returns: Operation object for its state observation.
     func reject(operation: WMTOperation, reason: WMTRejectionReason, completion: @escaping(WMTError?)->Void) -> Operation? {
         
         guard powerAuth.hasValidActivation() else {
-            completion(WMTError(reason: .missingActivation))
+            DispatchQueue.main.async {
+                completion(WMTError(reason: .missingActivation))
+            }
             return nil
         }
         
@@ -204,23 +216,29 @@ class WMTOperationsImpl: WMTOperations {
     ///
     /// - Parameters:
     ///   - qrOperation: QR operation data
-    ///   - authentication: authentication object for signing
-    ///   - completion: result completion
-    /// - Returns: operation for state observation
+    ///   - authentication: Authentication object for signing.
+    ///   - completion: Result completion.
+    ///                 This completion is always called on the main thread.
+    /// - Returns: Operation object for its state observation.
     func authorize(qrOperation: WMTQROperation, authentication: PowerAuthAuthentication, completion: @escaping (Result<String, WMTError>) -> Void) -> Operation {
         
-        let op = BlockOperation {
+        let op = WMTAsyncBlockOperation { op, markFinished in 
             do {
                 let uriId  = qrOperation.uriIdForOfflineSigning
                 let body   = qrOperation.dataForOfflineSigning
                 let nonce  = qrOperation.nonceForOfflineSigning
                 let signature = try self.powerAuth.offlineSignature(with: authentication, uriId: uriId, body: body, nonce: nonce)
-                completion(.success(signature))
+                markFinished {
+                    completion(.success(signature))
+                }
 
             } catch let error {
-                completion(.failure(WMTError(reason: .operations_QROperationFailed, error: error)))
+                markFinished {
+                    completion(.failure(WMTError(reason: .operations_QROperationFailed, error: error)))
+                }
             }
         }
+        op.completionQueue = .main
         qrQueue.addOperation(op)
         return op
     }
@@ -365,6 +383,7 @@ fileprivate class OperationsRegister {
     /// Returns list of added and removed operations.
     @discardableResult
     func replace(with operations: [WMTUserOperation]) -> (added: [WMTUserOperation], removed: [WMTUserOperation]) {
+        assert(Thread.isMainThread)
         // Process received list of operations to build an array of added objects
         var addedOperations = [WMTUserOperation]()
         var addedOperationsSet = Set<String>()
@@ -403,6 +422,7 @@ fileprivate class OperationsRegister {
     
     /// Removes an operation from register
     func remove(operation: WMTOperation) {
+        assert(Thread.isMainThread)
         if let index = self.currentOperationsSet.firstIndex(of: operation.id) {
             currentOperationsSet.remove(at: index)
         }

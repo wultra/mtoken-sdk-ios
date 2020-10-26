@@ -50,12 +50,15 @@ To fetch the list with pending operations, can call the `WMTOperations` API:
 ```swift
 import WultraMobileTokenSDK
 
-operationsService.getOperations { result in
-    switch result {
-    case .success(let ops):
-        // render success UI
-    case .failure(let err):
-        // render error UI
+DispatchQueue.main.async {
+    // This method needs to be called on the main thread.
+    operationsService.getOperations { result in
+        switch result {
+        case .success(let ops):
+            // render success UI
+        case .failure(let err):
+            // render error UI
+        }
     }
 }
 ```
@@ -203,14 +206,14 @@ func approveQROperation(operation: WMTQROperation, password: String) {
 
 All available methods and attributes of `WMTOperations` API are:
 
-- `delegate` - Delegate object that receives info about operation loading.
+- `delegate` - Delegate object that receives info about operation loading. Methods of the delegate are always called on the main thread.
 - `config` - Config object, that was used for initialization.
 - `acceptLanguage` - Language settings, that will be sent along with each request. The server will return properly localized content based on this value. Value follows standard RFC [Accept-Language](https://tools.ietf.org/html/rfc7231#section-5.3.5)
 - `lastFetchResult()` - Cached last operations result.
 - `isLoadingOperations` - Indicates if the service is loading pending operations.
 - `refreshOperations` - Async "fire and forget" request to refresh pending operations.
 - `getOperations(completion: @escaping GetOperationsCompletion)` - Retrieves pending operations from the server.
-    - `completion` - Called when operation finishes.
+    - `completion` - Called when operation finishes. Always called on the main thread.
 - `isPollingOperations` - If the app is periodically polling for the operations from the server.
 - `startPollingOperations(interval: TimeInterval)` - Starts the periodic operation polling.
     - `interval` - How often should operations be refreshed.
@@ -218,15 +221,15 @@ All available methods and attributes of `WMTOperations` API are:
 - `authorize(operation: WMTOperation, authentication: PowerAuthAuthentication, completion: @escaping(WMTError?)->Void)` - Authorize provided operation.
     - `operation` - An operation to approve, retrieved from `getOperations` call or [created locally](#creating-a-custom-operation).
     - `authentication` - PowerAuth authentication object for operation signing.
-    - `completion` - Called when authorization request finishes.
+    - `completion` - Called when authorization request finishes. Always called on the main thread.
 - `reject(operation: WMTOperation, reason: WMTRejectionReason, completion: @escaping(WMTError?)->Void)` - Reject provided operation.
     - `operation` - An operation to reject, retrieved from `getOperations` call or [created locally](#creating-a-custom-operation).
     - `reason` - Rejection reason
-    - `completion` - Called when rejection request finishes.
+    - `completion` - Called when rejection request finishes. Always called on the main thread.
 - `authorize(qrOperation: WMTQROperation, authentication: PowerAuthAuthentication, completion: @escaping(Result<String, WMTError>) -> Void)` - Sign offline (QR) operation.
     - `operation` - Offline operation that can be retrieved via `WMTQROperationParser.parse` method.
     - `authentication` - PowerAuth authentication object for operation signing.
-    - `completion` - Called when authentication finishes.
+    - `completion` - Called when authentication finishes. Always called on the main thread.
 
 ## WMTUserOperation
 

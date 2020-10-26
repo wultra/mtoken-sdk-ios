@@ -46,7 +46,7 @@ All available methods of the `WMTPush` API are:
 - `acceptLanguage` - Language settings, that will be sent along with each request.
 - `registerDeviceTokenForPushNotifications(token: Data, completionHandler: @escaping (_ success: Bool, _ error: WMTError?) -> Void)` - Registers push token on the backend.
     - `token` - token data retrieved from APNS.
-    - `completionHandler` - Called when request finishes.
+    - `completionHandler` - Called when request finishes. Always called on the main thread.
 
 ## Registering to WMT Push Notifications
 

@@ -94,6 +94,7 @@ class WMTNetworkingService {
                 
             }
         }
+        op.assignCompletionDispatchQueue(.main)
         queue.addOperation(op)
         return op
     }
