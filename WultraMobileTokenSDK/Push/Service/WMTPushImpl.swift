@@ -24,7 +24,7 @@ public extension PowerAuthSDK {
 }
 
 public extension WMTErrorReason {
-    /// Push registration is already in progress
+    /// Push registration is already in progress.
     static let push_alreadyRegistering = WMTErrorReason(rawValue: "push_alreadyRegistering")
 }
 
@@ -53,11 +53,15 @@ class WMTPushImpl: WMTPush {
     func registerDeviceTokenForPushNotifications(token: Data, completionHandler: @escaping (_ success: Bool, _ error: WMTError?) -> Void) -> Operation? {
         
         guard powerAuth.hasValidActivation() else {
-            completionHandler(false, WMTError(reason: .missingActivation))
+            DispatchQueue.main.async {
+                completionHandler(false, WMTError(reason: .missingActivation))
+            }
             return nil
         }
         guard pendingRegistrationForRemotePushNotifications == false else {
-            completionHandler(false, WMTError(reason: .push_alreadyRegistering))
+            DispatchQueue.main.async {
+                completionHandler(false, WMTError(reason: .push_alreadyRegistering))
+            }
             return nil
         }
         

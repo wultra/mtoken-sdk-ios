@@ -6,6 +6,7 @@
 - [Push Service API Reference](#push-service-api-reference)
 - [Registering to WMT Push Notifications](#registering-to-wmt-push-notifications)
 - [Receiving WMT Push Notifications](#receiving-wmt-push-notifications)
+- [Error handling](#error-handling)
 <!-- end -->
 
 ## Introduction
@@ -45,7 +46,7 @@ All available methods of the `WMTPush` API are:
 - `acceptLanguage` - Language settings, that will be sent along with each request.
 - `registerDeviceTokenForPushNotifications(token: Data, completionHandler: @escaping (_ success: Bool, _ error: WMTError?) -> Void)` - Registers push token on the backend.
     - `token` - token data retrieved from APNS.
-    - `completionHandler` - Called when request finishes.
+    - `completionHandler` - Called when request finishes. Always called on the main thread.
 
 ## Registering to WMT Push Notifications
 
@@ -95,3 +96,7 @@ func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent noti
     }
 }
 ```
+
+## Error handling
+
+Every error produced by the Push Service is of a `WMTError` type. For more information see detailed [error handling documentation](Error-Handling.md).
