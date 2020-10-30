@@ -62,9 +62,7 @@ class WMTNetworkingService {
                     var errorReason = WMTErrorReason.network_generic
                     var errorResponse: RestApiError?
                     
-                    if let resp = urlResponse, resp.statusCode != 200 {
-                        errorReason = .network_errorStatusCode
-                    } else if let receivedData = data {
+                    if let receivedData = data {
                         // We have a data
                         if let responseEnvelope = request.processResult(data: receivedData) {
                             // Valid envelope
@@ -77,9 +75,14 @@ class WMTNetworkingService {
                                 // Keep an error object received from the server
                                 errorResponse = responseEnvelope.responseError
                             }
-                            
                         } else {
-                            errorReason = .network_invalidResponseObject
+                            // if the error cannot be parsed and has non success code
+                            // report is as error status code (most likely 5xx errors)
+                            if let resp = urlResponse, resp.statusCode != 200 {
+                                errorReason = .network_errorStatusCode
+                            } else { // if the code is 200 and cannot be parsed, the object is "unexpected"
+                                errorReason = .network_invalidResponseObject
+                            }
                         }
                     } else if let resolved = WMTErrorReason.resolve(error: error) {
                         errorReason = resolved
