@@ -16,6 +16,7 @@
 		DC616238248508F8000DED17 /* WultraMobileTokenSDK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DCC5CC9A2449EE21004679AC /* WultraMobileTokenSDK.framework */; };
 		DC61624024850F09000DED17 /* PowerAuth2.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DC61623F24850F09000DED17 /* PowerAuth2.framework */; };
 		DC61624224852B6D000DED17 /* NetworkingObjectsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC61624124852B6D000DED17 /* NetworkingObjectsTests.swift */; };
+		DC6E52D6259C964600FC25BE /* WMTOperationExpirationWatcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC6E52D5259C964600FC25BE /* WMTOperationExpirationWatcher.swift */; };
 		DC81D1C9244F38DB00F80CD6 /* WMTPushEndpoints.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC81D1C8244F38DB00F80CD6 /* WMTPushEndpoints.swift */; };
 		DC81D1CB244F451E00F80CD6 /* WMTPushImpl.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC81D1CA244F451E00F80CD6 /* WMTPushImpl.swift */; };
 		DC81D1CD244F640600F80CD6 /* WMTPush.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC81D1CC244F640600F80CD6 /* WMTPush.swift */; };
@@ -72,6 +73,7 @@
 		DC616237248508F8000DED17 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		DC61623F24850F09000DED17 /* PowerAuth2.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = PowerAuth2.framework; path = Carthage/Build/iOS/PowerAuth2.framework; sourceTree = "<group>"; };
 		DC61624124852B6D000DED17 /* NetworkingObjectsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkingObjectsTests.swift; sourceTree = "<group>"; };
+		DC6E52D5259C964600FC25BE /* WMTOperationExpirationWatcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTOperationExpirationWatcher.swift; sourceTree = "<group>"; };
 		DC81D1C8244F38DB00F80CD6 /* WMTPushEndpoints.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTPushEndpoints.swift; sourceTree = "<group>"; };
 		DC81D1CA244F451E00F80CD6 /* WMTPushImpl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTPushImpl.swift; sourceTree = "<group>"; };
 		DC81D1CC244F640600F80CD6 /* WMTPush.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTPush.swift; sourceTree = "<group>"; };
@@ -178,6 +180,14 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		DC6E52D4259C959900FC25BE /* Utils */ = {
+			isa = PBXGroup;
+			children = (
+				DC6E52D5259C964600FC25BE /* WMTOperationExpirationWatcher.swift */,
+			);
+			path = Utils;
+			sourceTree = "<group>";
+		};
 		DC76D01A2452E92D009F2DFC /* Service */ = {
 			isa = PBXGroup;
 			children = (
@@ -203,6 +213,7 @@
 				DCAB7BC624580B2B0006989D /* QR */,
 				DC76D01A2452E92D009F2DFC /* Service */,
 				DCC5CCAF2449F7FA004679AC /* Model */,
+				DC6E52D4259C959900FC25BE /* Utils */,
 			);
 			path = Operations;
 			sourceTree = "<group>";
@@ -460,6 +471,7 @@
 				DCC5CCD8244DBBBD004679AC /* WMTAuthorizationData.swift in Sources */,
 				DC3D0B372480F3C7000DC4D9 /* WMTOperation.swift in Sources */,
 				DC81D1CD244F640600F80CD6 /* WMTPush.swift in Sources */,
+				DC6E52D6259C964600FC25BE /* WMTOperationExpirationWatcher.swift in Sources */,
 				DCC5CCDA244DBBE2004679AC /* WMTRejectionData.swift in Sources */,
 				DCAB7BC824580B4C0006989D /* WMTQROperationParser.swift in Sources */,
 				DCC5CCB12449F81C004679AC /* WMTOperationFormData.swift in Sources */,
