@@ -29,7 +29,7 @@ _Note: We also provide an [Android version of this library](https://github.com/w
 - [SDK Integration](docs/SDK-Integration.md)
 - [Using Operations Service](docs/Using-Operations-Service.md)
 - [Using Push Service](docs/Using-Push-Service.md)
-- [Operation Expiration Handling](Operation-Expiration.md)
+- [Operation Expiration Handling](docs/Operation-Expiration.md)
 - [Error Handling](docs/Error-Handling.md)
 - [Language Configuration](docs/Language-Configuration.md)
 - [Logging](docs/Logging.md)
