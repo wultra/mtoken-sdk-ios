@@ -1,6 +1,6 @@
 # Operation Expiration Handling
 
-Every operation should have an expiration time. The expired operation cannot be confirmed nor rejected - the server will return an error with the appropriate error (see [Operation errors](Error-Handling.md#operation-errors)). 
+Every operation should have an expiration time. An expired operation cannot be confirmed nor rejected - the server will return an error with the appropriate error (see [Operation errors](Error-Handling.md#operation-errors)). 
 
 ## Retrieving expiration time 
 
@@ -12,11 +12,10 @@ If you're creating your own custom operation by implementing the `WMTOperation` 
 
 ## Handling via push notifications
 
-If the device is [registered to receive push notifications]([Using Push Service](Using-Push-Service.md)), it will receive an [`operationFinished`](../blob/develop/WultraMobileTokenSDK/Push/WMTPushParser.swift#L77) notification with the [`timeout`](../blob/develop/WultraMobileTokenSDK/Push/WMTPushParser.swift#L86) result when the operation expires.
+If the device is [registered to receive push notifications](Using-Push-Service.md), it will receive an [`operationFinished`](https://github.com/wultra/mtoken-sdk-ios/blob/develop/WultraMobileTokenSDK/Push/WMTPushParser.swift#L77#keepLink) notification with the [`timeout`](https://github.com/wultra/mtoken-sdk-ios/blob/develop/WultraMobileTokenSDK/Push/WMTPushParser.swift#L86#keepLink) result when the operation expires.
 
 __Operation list should be refreshed on such notification.__
 
----
 
 _Please be aware that push notifications are not guaranteed to be received. There are several scenarios where push notification delivery will fail, such as:_
 
