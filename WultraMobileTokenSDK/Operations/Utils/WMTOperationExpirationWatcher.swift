@@ -16,9 +16,11 @@
 
 import Foundation
 
+// MARK: - Public protocols used by the watcher
+
 /// Protocol defining an operation for the WMTOperationExpirationWatcher.
 public protocol WMTExpirableOperation {
-    /// When the operationn expires
+    /// When the operation expires
     var operationExpires: Date { get }
     
     /// Comparing method
@@ -39,50 +41,74 @@ public protocol WMTCurrentDateProvider {
 public protocol WMTOperationExpirationWatcherDelegate: class {
     
     /// Called when operation(s) expire(s).
+    /// The method is called on the main thread by the `WMTOperationExpirationWatcher`.
     /// - Parameter expiredOperations: array of operations that expired
     func operationsExpired(_ expiredOperations: [WMTExpirableOperation])
 }
 
+// MARK: - The main class
+
 /// Expiration Watcher is a utility class that can notify you when an operation expires.
-/// In the happy token scenario, in case of expiration, a notification is sent to the phone,
-/// but in some cases, this might fail (as push messages are not guaranteed to be delivered.
-/// In such case, it comes very handy to be notified internally and act upon it.
+/// In the happy scenario when the operation expires, a notification is sent to the phone.
+/// In some cases this might fail (as push messages are not guaranteed to be delivered) and then
+/// it comes very handy to be notified internally and act upon it.
 ///
-/// Note that the default behavior of the expiration is based on the system Date and Time (by using `Date()`).
-/// So if user choses to change it, it might not work. If you have for example a server time, you can provide
+/// The default behavior of the expiration is based on the system date and time (by using `Date()`).
+/// So if the user chooses to change it, it might not work. If you have for example your server time, you can provide
 /// it via `currentDateProvider` property.
+///
+/// Since expiration checking is implemented in the best-effort way, the primary way
+/// of operation expiration verification is reloading the operation from the server.
 ///
 /// To prevent spamming of the utility by the wrong configuration of the time or desynchronization of the
 /// server and the client, minimum report time between 2 reports is 5 seconds.
 public class WMTOperationExpirationWatcher {
+    
+    // MARK: - Public properties
     
     /// Provider of the current date and time provider. Default implementation returns new `Date()` instance.
     public var currentDateProvider: WMTCurrentDateProvider = WMTOffsetDateProvider()
     /// Delegate that will be notified about the expiration.
     public weak var delegate: WMTOperationExpirationWatcherDelegate?
     
-    private var operationsToWatch = [WMTExpirableOperation]() // source of "truth" of what is being observed
+    // MARK: - Private properties
+    
+    private var operationsToWatch = [WMTExpirableOperation]() // source of "truth" of what is being watched
     private var timer: Timer? // timer for scheduling
-    private var queue: OperationQueue = { // queue for all operations operation to prevent race conditions
+    private var queue: OperationQueue = { // serial queue for all operations to prevent race conditions
         let q = OperationQueue()
         q.name = "WMTOperationExpirationWatcherQueue"
         q.maxConcurrentOperationCount = 1
         return q
     }()
     
+    // MARK: - Public interface
+    
+    /// Creates the instance of the watcher
     public init() {
         
     }
     
+    /// Asynchronously provides currently watched operations.
+    /// - Parameter callback: callback with watched operations (called on the **main thread**)
+    public func getWatchedOperations(callback: @escaping (([WMTExpirableOperation]) -> ())) {
+        queue.addOperation {
+            let ops = self.operationsToWatch
+            DispatchQueue.main.async {
+                callback(ops)
+            }
+        }
+    }
+    
     /// Add operation for watching
     /// - Parameter operation: Operation to watch
-    public func watch(_ operation: WMTExpirableOperation) {
-        watch([operation])
+    public func add(_ operation: WMTExpirableOperation) {
+        add([operation])
     }
     
     /// Add operations for watching
     /// - Parameter operations: Operations to watch
-    public func watch(_ operations: [WMTExpirableOperation]) {
+    public func add(_ operations: [WMTExpirableOperation]) {
         
         guard operations.isEmpty == false else {
             D.warning("WMTOperationExpirationWatcher: Cannot watch empty array of operations")
@@ -127,20 +153,22 @@ public class WMTOperationExpirationWatcher {
     
     /// Stop watching operations for expiration.
     /// - Parameter operations: operations to watch
-    public func stopWatching(_ operations: [WMTExpirableOperation]) {
+    public func remove(_ operations: [WMTExpirableOperation]) {
         stop(operations)
     }
     
     /// Stop watching an operation for expiration.
     /// - Parameter operation: operation to watch
-    public func stopWatching(_ operation: WMTExpirableOperation) {
+    public func remove(_ operation: WMTExpirableOperation) {
         stop([operation])
     }
     
     /// Stop watching all operation
-    public func stopWatchingAll() {
+    public func removeAll() {
         stop(nil)
     }
+    
+    // MARK: - Private methods
     
     private func stop(_ operations: [WMTExpirableOperation]?) {
         queue.addOperation { [weak self] in
@@ -214,6 +242,8 @@ public class WMTOperationExpirationWatcher {
     }
 }
 
+// MARK: - Public utilities
+
 /// Default implementation of a date provider.
 /// You can customize this provider by the `TimeInterval` offset that is added to the new `Date()` instance
 /// that is returned for `currentDate` property
@@ -239,14 +269,15 @@ extension WMTExpirableOperation where Self: AnyObject {
         if let this = self as? WMTOperation, let that = other as? WMTOperation {
             return this.id == that.id && this.data == that.data && self.operationExpires == other.operationExpires
         } else {
-            D.warning("WMTExpirableOperation: Fallbacked to comparing of WMTExpirableOperation by reference.")
+            D.warning("WMTExpirableOperation: Fallbacked to comparing `WMTExpirableOperation`s by reference.")
             return self === (other as? AnyClass)
         }
         
     }
 }
 
-// Local utility
+// MARK: - Private utilities
+
 private extension WMTExpirableOperation {
     func isExpired(_ currentDate: Date = Date()) -> Bool {
         return operationExpires.timeIntervalSince1970 - currentDate.timeIntervalSince1970 < 0
