@@ -24,7 +24,6 @@ WMT SDK library does precisely this:
 - Approves or rejects operations with PowerAuth transaction signing.
 - Registers an existing PowerAuth activation to receive push notifications.
 
----
 Remarks:
 
 - This library does not contain any UI.
