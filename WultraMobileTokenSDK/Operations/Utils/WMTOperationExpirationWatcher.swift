@@ -100,20 +100,17 @@ public class WMTOperationExpirationWatcher {
         }
     }
     
-    /// Add operation for watching
+    /// Add operation for watching (asynchronously).
     /// - Parameter operation: Operation to watch
-    public func add(_ operation: WMTExpirableOperation) {
-        add([operation])
+    /// - Parameter completion: Called when finished (on main thread). The parameter is the currently watched operation.
+    public func add(_ operation: WMTExpirableOperation, completion: (([WMTExpirableOperation]) -> ())? = nil) {
+        add([operation], completion: completion)
     }
     
-    /// Add operations for watching
+    /// Add operations for watching (asynchronously).
     /// - Parameter operations: Operations to watch
-    public func add(_ operations: [WMTExpirableOperation]) {
-        
-        guard operations.isEmpty == false else {
-            D.warning("WMTOperationExpirationWatcher: Cannot watch empty array of operations")
-            return
-        }
+    /// - Parameter completion: Called when finished (on main thread). The parameter is the currently watched operation.
+    public func add(_ operations: [WMTExpirableOperation], completion: (([WMTExpirableOperation]) -> ())? = nil) {
         
         let currentDate = currentDateProvider.currentDate
         for op in operations {
@@ -126,6 +123,17 @@ public class WMTOperationExpirationWatcher {
         }
         
         queue.addOperation { [weak self] in
+            
+            defer {
+                DispatchQueue.main.async {
+                    completion?(self?.operationsToWatch ?? [])
+                }
+            }
+            
+            guard operations.isEmpty == false else {
+                D.warning("WMTOperationExpirationWatcher: Cannot watch empty array of operations")
+                return
+            }
             
             guard let self = self else {
                 return
@@ -153,25 +161,31 @@ public class WMTOperationExpirationWatcher {
     
     /// Stop watching operations for expiration.
     /// - Parameter operations: operations to watch
-    public func remove(_ operations: [WMTExpirableOperation]) {
-        stop(operations)
+    /// - Parameter completion: Called when finished (on main thread). The parameter is the currently watched operation.
+    public func remove(_ operations: [WMTExpirableOperation], completion: (([WMTExpirableOperation]) -> ())? = nil) {
+        stop(operations, completion: completion)
     }
     
     /// Stop watching an operation for expiration.
     /// - Parameter operation: operation to watch
-    public func remove(_ operation: WMTExpirableOperation) {
-        stop([operation])
+    /// - Parameter completion: Called when finished (on main thread). The parameter is the currently watched operation.
+    public func remove(_ operation: WMTExpirableOperation, completion: (([WMTExpirableOperation]) -> ())? = nil) {
+        stop([operation], completion: completion)
     }
     
     /// Stop watching all operation
-    public func removeAll() {
-        stop(nil)
+    /// - Parameter completion: Called when finished (on main thread). The parameter is the currently watched operation.
+    public func removeAll(completion: (([WMTExpirableOperation]) -> ())? = nil) {
+        stop(nil, completion: completion)
     }
     
     // MARK: - Private methods
     
-    private func stop(_ operations: [WMTExpirableOperation]?) {
+    private func stop(_ operations: [WMTExpirableOperation]?, completion: (([WMTExpirableOperation]) -> ())? = nil) {
         queue.addOperation { [weak self] in
+            defer {
+                completion?(self?.operationsToWatch ?? [])
+            }
             // is there anything to stop?
             guard self?.operationsToWatch.isEmpty == false else {
                 return
@@ -270,7 +284,7 @@ extension WMTExpirableOperation where Self: AnyObject {
             return this.id == that.id && this.data == that.data && self.operationExpires == other.operationExpires
         } else {
             D.warning("WMTExpirableOperation: Fallbacked to comparing `WMTExpirableOperation`s by reference.")
-            return self === (other as? AnyClass)
+            return self === (other as AnyObject)
         }
         
     }
