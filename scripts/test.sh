@@ -98,6 +98,6 @@ xcrun xcodebuild \
     -destination "${DESTINATION}" \
     -parallel-testing-enabled NO \
     -configuration "Debug" \
-    test | xcpretty
+    test
 
 popd
