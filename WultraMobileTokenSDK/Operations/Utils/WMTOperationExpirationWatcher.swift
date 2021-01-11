@@ -95,14 +95,14 @@ public class WMTOperationExpirationWatcher {
         }
     }
     
-    /// Add operation for watching (asynchronously).
+    /// Add operation for watching.
     /// - Parameter operation: Operation to watch
     /// - Parameter completion: Called when finished (on main thread). The parameter is the currently watched operation.
     public func add(_ operation: WMTExpirableOperation, completion: (([WMTExpirableOperation]) -> ())? = nil) {
         add([operation], completion: completion)
     }
     
-    /// Add operations for watching (asynchronously).
+    /// Add operations for watching.
     /// - Parameter operations: Operations to watch
     /// - Parameter completion: Called when finished (on main thread). The parameter is the currently watched operation.
     public func add(_ operations: [WMTExpirableOperation], completion: (([WMTExpirableOperation]) -> ())? = nil) {
@@ -220,28 +220,26 @@ public class WMTOperationExpirationWatcher {
         
         D.print("WMTOperationExpirationWatcher: Scheduling operation expire check in \(Int(interval)) seconds.")
         
-        DispatchQueue.main.async {
-            self.timer = Timer.scheduledTimer(withTimeInterval: interval, repeats: false) { [weak self] _ in
+        self.timer = Timer.scheduledTimer(withTimeInterval: interval, repeats: false) { [weak self] _ in
+            
+            guard let self = self else {
+                return
+            }
+            
+            self.lock.synchronized {
                 
-                guard let self = self else {
+                let currentDate = self.currentDateProvider.currentDate
+                let expiredOps = self.operationsToWatch.filter { $0.isExpired(currentDate) }
+                
+                guard expiredOps.isEmpty == false else {
                     return
                 }
                 
-                self.lock.synchronized {
-                    
-                    let currentDate = self.currentDateProvider.currentDate
-                    let expiredOps = self.operationsToWatch.filter { $0.isExpired(currentDate) }
-                    
-                    guard expiredOps.isEmpty == false else {
-                        return
-                    }
-                    
-                    self.operationsToWatch.removeAll(where: { $0.isExpired(currentDate) })
-                    self.prepareTimer()
-                    DispatchQueue.main.async {
-                        D.print("WMTOperationExpirationWatcher: Reporting \(expiredOps.count) expired operations.")
-                        self.delegate?.operationsExpired(expiredOps)
-                    }
+                self.operationsToWatch.removeAll(where: { $0.isExpired(currentDate) })
+                self.prepareTimer()
+                DispatchQueue.main.async {
+                    D.print("WMTOperationExpirationWatcher: Reporting \(expiredOps.count) expired operations.")
+                    self.delegate?.operationsExpired(expiredOps)
                 }
             }
         }
