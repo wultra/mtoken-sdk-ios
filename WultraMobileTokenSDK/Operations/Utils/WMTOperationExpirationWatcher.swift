@@ -75,12 +75,7 @@ public class WMTOperationExpirationWatcher {
     
     private var operationsToWatch = [WMTExpirableOperation]() // source of "truth" of what is being watched
     private var timer: Timer? // timer for scheduling
-    private var queue: OperationQueue = { // serial queue for all operations to prevent race conditions
-        let q = OperationQueue()
-        q.name = "WMTOperationExpirationWatcherQueue"
-        q.maxConcurrentOperationCount = 1
-        return q
-    }()
+    private let lock = WMTLock()
     
     // MARK: - Public interface
     
@@ -92,7 +87,7 @@ public class WMTOperationExpirationWatcher {
     /// Asynchronously provides currently watched operations.
     /// - Parameter callback: callback with watched operations (called on the **main thread**)
     public func getWatchedOperations(callback: @escaping (([WMTExpirableOperation]) -> ())) {
-        queue.addOperation {
+        lock.synchronized {
             let ops = self.operationsToWatch
             DispatchQueue.main.async {
                 callback(ops)
@@ -122,7 +117,7 @@ public class WMTOperationExpirationWatcher {
             }
         }
         
-        queue.addOperation { [weak self] in
+        lock.synchronized { [weak self] in
             
             defer {
                 DispatchQueue.main.async {
@@ -182,7 +177,7 @@ public class WMTOperationExpirationWatcher {
     // MARK: - Private methods
     
     private func stop(_ operations: [WMTExpirableOperation]?, completion: (([WMTExpirableOperation]) -> ())? = nil) {
-        queue.addOperation { [weak self] in
+        lock.synchronized { [weak self] in
             defer {
                 completion?(self?.operationsToWatch ?? [])
             }
@@ -203,9 +198,6 @@ public class WMTOperationExpirationWatcher {
     }
     
     private func prepareTimer() {
-        
-        // This operations needs to run on the serial queue
-        assert(OperationQueue.current == queue)
         
         // stop the previous timer
         timer?.invalidate()
@@ -235,7 +227,7 @@ public class WMTOperationExpirationWatcher {
                     return
                 }
                 
-                self.queue.addOperation {
+                self.lock.synchronized {
                     
                     let currentDate = self.currentDateProvider.currentDate
                     let expiredOps = self.operationsToWatch.filter { $0.isExpired(currentDate) }

@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		DC059A3E244DDC0900B24878 /* WMTConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC059A3D244DDC0900B24878 /* WMTConfig.swift */; };
+		DC06D01F25AC74E400F2EA69 /* WMTLock.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC06D01E25AC74E400F2EA69 /* WMTLock.swift */; };
 		DC395C0A24E55B9B0007C36E /* PushParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC395C0924E55B9B0007C36E /* PushParserTests.swift */; };
 		DC3D0B372480F3C7000DC4D9 /* WMTOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC3D0B362480F3C7000DC4D9 /* WMTOperation.swift */; };
 		DC3D0B392480F886000DC4D9 /* WMTLocalOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC3D0B382480F886000DC4D9 /* WMTLocalOperation.swift */; };
@@ -65,6 +66,7 @@
 
 /* Begin PBXFileReference section */
 		DC059A3D244DDC0900B24878 /* WMTConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTConfig.swift; sourceTree = "<group>"; };
+		DC06D01E25AC74E400F2EA69 /* WMTLock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTLock.swift; sourceTree = "<group>"; };
 		DC395C0924E55B9B0007C36E /* PushParserTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushParserTests.swift; sourceTree = "<group>"; };
 		DC3D0B362480F3C7000DC4D9 /* WMTOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTOperation.swift; sourceTree = "<group>"; };
 		DC3D0B382480F886000DC4D9 /* WMTLocalOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTLocalOperation.swift; sourceTree = "<group>"; };
@@ -247,6 +249,7 @@
 				DCC5CCCD244DB0AD004679AC /* WMTLogger.swift */,
 				DCC5CCC02449FA4E004679AC /* WMTError.swift */,
 				DCC5CCC42449FB04004679AC /* Networking */,
+				DC06D01E25AC74E400F2EA69 /* WMTLock.swift */,
 			);
 			path = Common;
 			sourceTree = "<group>";
@@ -485,6 +488,7 @@
 				DCC5CCB32449F8CD004679AC /* WMTOperationAttribute.swift in Sources */,
 				DCC5CCCC2449FD4E004679AC /* WMTBaseNetworkingObjects.swift in Sources */,
 				DCC5CCAC2449F765004679AC /* WMTOperationsImpl.swift in Sources */,
+				DC06D01F25AC74E400F2EA69 /* WMTLock.swift in Sources */,
 				DCC5CCCE244DB0AD004679AC /* WMTLogger.swift in Sources */,
 				DCC5CCAE2449F7AC004679AC /* WMTUserOperation.swift in Sources */,
 				DCC5CCBD2449F965004679AC /* WMTOperationAttributeHeading.swift in Sources */,
