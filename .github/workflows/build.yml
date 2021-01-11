@@ -10,9 +10,12 @@ on:
 jobs:
   build:
     name: Build
-    runs-on: macos-latest
+    runs-on: macos-11.0
     steps:
       - name: Checkout the repo
         uses: actions/checkout@v2
+        # Xcode 11.7 until carrthage is fixed (0.37+)
+      - name: Force Xcode 11.7
+        run: sudo xcode-select -switch /Applications/Xcode_11.7.app
       - name: Building
         run: ./scripts/build.sh
