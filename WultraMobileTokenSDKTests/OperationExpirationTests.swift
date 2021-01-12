@@ -36,88 +36,56 @@ class OperationExpirationTests: XCTestCase {
     }
     
     func testAddOperation() {
-        let exp = expectation(description: "Operation added")
         let op = Operation()
         watcher.add(op)
-        watcher.getWatchedOperations { ops in
-            XCTAssert(ops.count == 1 && ops.first!.equals(other: op))
-            exp.fulfill()
-        }
-        waitForExpectations(timeout: 2, handler: nil)
+        let ops = watcher.getWatchedOperations()
+        XCTAssert(ops.count == 1 && ops.first!.equals(other: op))
     }
     
     func testAddSameOperationTwice() {
-        let exp = expectation(description: "Operation added only once")
         let op = Operation()
         watcher.add(op)
-        watcher.add(op) { ops in
-            XCTAssert(ops.count == 1 && ops.first!.equals(other: op))
-            exp.fulfill()
-        }
-        waitForExpectations(timeout: 2, handler: nil)
+        let ops = watcher.add(op)
+        XCTAssert(ops.count == 1 && ops.first!.equals(other: op))
     }
     
     func testAddOperations() {
-        let exp = expectation(description: "Add operations")
-        watcher.add([Operation(), Operation()]) { ops in
-            XCTAssert(ops.count == 2)
-            exp.fulfill()
-        }
-        waitForExpectations(timeout: 2, handler: nil)
+        let ops = watcher.add([Operation(), Operation()])
+        XCTAssert(ops.count == 2)
     }
     
     func testRemoveOperation() {
-        let exp = expectation(description: "Operation remove")
         let op = Operation()
-        watcher.add(op) { ops in
-            XCTAssert(ops.count == 1 && ops.first!.equals(other: op))
-            self.watcher.remove(op) { opsAfterRemoved in
-                XCTAssert(opsAfterRemoved.isEmpty)
-                exp.fulfill()
-            }
-        }
-        waitForExpectations(timeout: 2, handler: nil)
+        let ops = watcher.add(op)
+        XCTAssert(ops.count == 1 && ops.first!.equals(other: op))
+        let opsAfterRemoved = watcher.remove(op)
+        XCTAssert(opsAfterRemoved.isEmpty)
     }
     
     func testRemoveNonAddedOperation() {
-        let exp = expectation(description: "Operation remove non added")
         let op = Operation()
-        watcher.add(op) { ops in
-            XCTAssert(ops.count == 1 && ops.first!.equals(other: op))
-            self.watcher.remove(Operation()) { opsAfterRemoved in
-                XCTAssert(opsAfterRemoved.count == 1)
-                exp.fulfill()
-            }
-        }
-        waitForExpectations(timeout: 2, handler: nil)
+        let ops = watcher.add(op)
+        XCTAssert(ops.count == 1 && ops.first!.equals(other: op))
+        let opsAfterRemoved = watcher.remove(Operation())
+        XCTAssert(opsAfterRemoved.count == 1)
     }
     
     func testRemoveOperations() {
-        let exp = expectation(description: "Operations remove")
         let op = Operation()
         let op2 = Operation()
         watcher.add(op)
-        watcher.add(op2) { ops in
-            XCTAssert(ops.count == 2)
-            self.watcher.remove([op, op2]) { opsAfterRemoved in
-                XCTAssert(opsAfterRemoved.isEmpty)
-                exp.fulfill()
-            }
-        }
-        waitForExpectations(timeout: 2, handler: nil)
+        let ops = watcher.add(op2)
+        XCTAssert(ops.count == 2)
+        let opsAfterRemoved = watcher.remove([op, op2])
+        XCTAssert(opsAfterRemoved.isEmpty)
     }
     
     func testRemoveAllOperations() {
-        let exp = expectation(description: "Operations remove all")
         watcher.add(Operation())
-        watcher.add([Operation(), Operation()]) { ops in
-            XCTAssert(ops.count == 3)
-            self.watcher.removeAll { opsAfterRemoved in
-                XCTAssert(opsAfterRemoved.isEmpty)
-                exp.fulfill()
-            }
-        }
-        waitForExpectations(timeout: 2, handler: nil)
+        let ops = watcher.add([Operation(), Operation()])
+        XCTAssert(ops.count == 3)
+        let opsAfterRemoved = watcher.removeAll()
+        XCTAssert(opsAfterRemoved.isEmpty)
     }
     
     func testExpiring() {
@@ -125,10 +93,9 @@ class OperationExpirationTests: XCTestCase {
         let op = Operation()
         delegate = WatcherDelegate { ops in
             XCTAssert(ops.count == 1 && ops.first!.equals(other: op))
-            self.watcher.getWatchedOperations { curOps in
-                XCTAssert(curOps.isEmpty)
-                exp.fulfill()
-            }
+            let curOps = self.watcher.getWatchedOperations()
+            XCTAssert(curOps.isEmpty)
+            exp.fulfill()
         }
         watcher.add(op)
         // we need to wait longer, because minimum report time is 5 seconds
@@ -139,10 +106,9 @@ class OperationExpirationTests: XCTestCase {
         let exp = expectation(description: "Operation will expire")
         delegate = WatcherDelegate { ops in
             XCTAssert(ops.count == 1)
-            self.watcher.getWatchedOperations { curOps in
-                XCTAssert(curOps.count == 1)
-                exp.fulfill()
-            }
+            let curOps = self.watcher.getWatchedOperations()
+            XCTAssert(curOps.count == 1)
+            exp.fulfill()
         }
         watcher.add([Operation(), Operation(Date().addingTimeInterval(20))])
         // we need to wait longer, because minimum report time is 5 seconds
