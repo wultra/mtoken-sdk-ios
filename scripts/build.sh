@@ -17,6 +17,6 @@ xcrun xcodebuild \
     -scheme "WultraMobileTokenSDK" \
     -configuration "Release" \
     -sdk "iphonesimulator" \
-    build | xcpretty
+    build
 
 popd

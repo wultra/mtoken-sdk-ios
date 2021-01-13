@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		DC059A3E244DDC0900B24878 /* WMTConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC059A3D244DDC0900B24878 /* WMTConfig.swift */; };
+		DC06D01F25AC74E400F2EA69 /* WMTLock.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC06D01E25AC74E400F2EA69 /* WMTLock.swift */; };
 		DC395C0A24E55B9B0007C36E /* PushParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC395C0924E55B9B0007C36E /* PushParserTests.swift */; };
 		DC3D0B372480F3C7000DC4D9 /* WMTOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC3D0B362480F3C7000DC4D9 /* WMTOperation.swift */; };
 		DC3D0B392480F886000DC4D9 /* WMTLocalOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC3D0B382480F886000DC4D9 /* WMTLocalOperation.swift */; };
@@ -16,6 +17,8 @@
 		DC616238248508F8000DED17 /* WultraMobileTokenSDK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DCC5CC9A2449EE21004679AC /* WultraMobileTokenSDK.framework */; };
 		DC61624024850F09000DED17 /* PowerAuth2.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DC61623F24850F09000DED17 /* PowerAuth2.framework */; };
 		DC61624224852B6D000DED17 /* NetworkingObjectsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC61624124852B6D000DED17 /* NetworkingObjectsTests.swift */; };
+		DC6E52D6259C964600FC25BE /* WMTOperationExpirationWatcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC6E52D5259C964600FC25BE /* WMTOperationExpirationWatcher.swift */; };
+		DC6EDB7925A49ED900A229E4 /* OperationExpirationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC6EDB7825A49ED900A229E4 /* OperationExpirationTests.swift */; };
 		DC81D1C9244F38DB00F80CD6 /* WMTPushEndpoints.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC81D1C8244F38DB00F80CD6 /* WMTPushEndpoints.swift */; };
 		DC81D1CB244F451E00F80CD6 /* WMTPushImpl.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC81D1CA244F451E00F80CD6 /* WMTPushImpl.swift */; };
 		DC81D1CD244F640600F80CD6 /* WMTPush.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC81D1CC244F640600F80CD6 /* WMTPush.swift */; };
@@ -63,6 +66,7 @@
 
 /* Begin PBXFileReference section */
 		DC059A3D244DDC0900B24878 /* WMTConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTConfig.swift; sourceTree = "<group>"; };
+		DC06D01E25AC74E400F2EA69 /* WMTLock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTLock.swift; sourceTree = "<group>"; };
 		DC395C0924E55B9B0007C36E /* PushParserTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushParserTests.swift; sourceTree = "<group>"; };
 		DC3D0B362480F3C7000DC4D9 /* WMTOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTOperation.swift; sourceTree = "<group>"; };
 		DC3D0B382480F886000DC4D9 /* WMTLocalOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTLocalOperation.swift; sourceTree = "<group>"; };
@@ -72,6 +76,8 @@
 		DC616237248508F8000DED17 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		DC61623F24850F09000DED17 /* PowerAuth2.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = PowerAuth2.framework; path = Carthage/Build/iOS/PowerAuth2.framework; sourceTree = "<group>"; };
 		DC61624124852B6D000DED17 /* NetworkingObjectsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkingObjectsTests.swift; sourceTree = "<group>"; };
+		DC6E52D5259C964600FC25BE /* WMTOperationExpirationWatcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTOperationExpirationWatcher.swift; sourceTree = "<group>"; };
+		DC6EDB7825A49ED900A229E4 /* OperationExpirationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OperationExpirationTests.swift; sourceTree = "<group>"; };
 		DC81D1C8244F38DB00F80CD6 /* WMTPushEndpoints.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTPushEndpoints.swift; sourceTree = "<group>"; };
 		DC81D1CA244F451E00F80CD6 /* WMTPushImpl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTPushImpl.swift; sourceTree = "<group>"; };
 		DC81D1CC244F640600F80CD6 /* WMTPush.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTPush.swift; sourceTree = "<group>"; };
@@ -166,6 +172,7 @@
 				DCE660D024CEBECA00870E53 /* IntegrationTests.swift */,
 				DCE660D224CEF56400870E53 /* IntegrationUtils.swift */,
 				DC395C0924E55B9B0007C36E /* PushParserTests.swift */,
+				DC6EDB7825A49ED900A229E4 /* OperationExpirationTests.swift */,
 			);
 			path = WultraMobileTokenSDKTests;
 			sourceTree = "<group>";
@@ -176,6 +183,14 @@
 				DC61623F24850F09000DED17 /* PowerAuth2.framework */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		DC6E52D4259C959900FC25BE /* Utils */ = {
+			isa = PBXGroup;
+			children = (
+				DC6E52D5259C964600FC25BE /* WMTOperationExpirationWatcher.swift */,
+			);
+			path = Utils;
 			sourceTree = "<group>";
 		};
 		DC76D01A2452E92D009F2DFC /* Service */ = {
@@ -203,6 +218,7 @@
 				DCAB7BC624580B2B0006989D /* QR */,
 				DC76D01A2452E92D009F2DFC /* Service */,
 				DCC5CCAF2449F7FA004679AC /* Model */,
+				DC6E52D4259C959900FC25BE /* Utils */,
 			);
 			path = Operations;
 			sourceTree = "<group>";
@@ -233,6 +249,7 @@
 				DCC5CCCD244DB0AD004679AC /* WMTLogger.swift */,
 				DCC5CCC02449FA4E004679AC /* WMTError.swift */,
 				DCC5CCC42449FB04004679AC /* Networking */,
+				DC06D01E25AC74E400F2EA69 /* WMTLock.swift */,
 			);
 			path = Common;
 			sourceTree = "<group>";
@@ -435,6 +452,7 @@
 			files = (
 				DC61624224852B6D000DED17 /* NetworkingObjectsTests.swift in Sources */,
 				DC395C0A24E55B9B0007C36E /* PushParserTests.swift in Sources */,
+				DC6EDB7925A49ED900A229E4 /* OperationExpirationTests.swift in Sources */,
 				DC616236248508F8000DED17 /* QROperationParserTests.swift in Sources */,
 				DCE660D124CEBECA00870E53 /* IntegrationTests.swift in Sources */,
 				DCE660D324CEF56400870E53 /* IntegrationUtils.swift in Sources */,
@@ -460,6 +478,7 @@
 				DCC5CCD8244DBBBD004679AC /* WMTAuthorizationData.swift in Sources */,
 				DC3D0B372480F3C7000DC4D9 /* WMTOperation.swift in Sources */,
 				DC81D1CD244F640600F80CD6 /* WMTPush.swift in Sources */,
+				DC6E52D6259C964600FC25BE /* WMTOperationExpirationWatcher.swift in Sources */,
 				DCC5CCDA244DBBE2004679AC /* WMTRejectionData.swift in Sources */,
 				DCAB7BC824580B4C0006989D /* WMTQROperationParser.swift in Sources */,
 				DCC5CCB12449F81C004679AC /* WMTOperationFormData.swift in Sources */,
@@ -469,6 +488,7 @@
 				DCC5CCB32449F8CD004679AC /* WMTOperationAttribute.swift in Sources */,
 				DCC5CCCC2449FD4E004679AC /* WMTBaseNetworkingObjects.swift in Sources */,
 				DCC5CCAC2449F765004679AC /* WMTOperationsImpl.swift in Sources */,
+				DC06D01F25AC74E400F2EA69 /* WMTLock.swift in Sources */,
 				DCC5CCCE244DB0AD004679AC /* WMTLogger.swift in Sources */,
 				DCC5CCAE2449F7AC004679AC /* WMTUserOperation.swift in Sources */,
 				DCC5CCBD2449F965004679AC /* WMTOperationAttributeHeading.swift in Sources */,

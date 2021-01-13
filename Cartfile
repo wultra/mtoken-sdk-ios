@@ -1,1 +1,3 @@
-github "wultra/powerauth-mobile-sdk" "feature/carthage-build"
+#github "wultra/powerauth-mobile-sdk" "feature/carthage-build"
+# using old version until carthage is fixed (0.37+)
+github "wultra/powerauth-mobile-sdk" "7a2ae987918ea8c2311ed193d2bbd7a0620fedac"
