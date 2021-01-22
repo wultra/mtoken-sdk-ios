@@ -12,7 +12,7 @@ If you're creating your own custom operation by implementing the `WMTOperation` 
 
 ## Handling via push notifications
 
-If the device is [registered to receive push notifications](Using-Push-Service.md), it will receive an [`operationFinished`](https://github.com/wultra/mtoken-sdk-ios/blob/develop/WultraMobileTokenSDK/Push/WMTPushParser.swift#L77#keepLink) notification with the [`timeout`](https://github.com/wultra/mtoken-sdk-ios/blob/develop/WultraMobileTokenSDK/Push/WMTPushParser.swift#L86#keepLink) result when the operation expires.
+If the device is [registered to receive push notifications](Using-Push-Service.md), it will receive an [`operationFinished`](https://github.com/wultra/mtoken-sdk-ios/blob/develop/WultraMobileTokenSDK/Push/WMTPushParser.swift#L77#docucheck-keep-link) notification with the [`timeout`](https://github.com/wultra/mtoken-sdk-ios/blob/develop/WultraMobileTokenSDK/Push/WMTPushParser.swift#L86#docucheck-keep-link) result when the operation expires.
 
 __Operation list should be refreshed on such notification.__
 
