@@ -29,16 +29,14 @@ Every error produced by this library is of a `WMTError` type. This error contain
 
 Each `WMTError` has a `reason` property why the error was created. Such reason can be useful when you're creating for example a general error handling or reporting, or when you're debugging the code.
 
-### Library defined options
-
-#### General errors  
+### General errors  
 
 | Option Name | Description |
 |---|---|
 |`unknown`|Unknown fallback reason|
 |`missingActivation`|PowerAuth instance is missing an activation.|
 
-#### Network errors
+### Network errors
 
 | Option Name | Description |
 |---|---|
@@ -53,7 +51,7 @@ Each `WMTError` has a `reason` property why the error was created. Such reason c
 |`network_badServerResponse`|Bad (malformed) HTTP server response. Probably an unexpected HTTP server error.|
 |`network_sslError`|SSL error. For detailed information, see the attached error object when available.|
 
-#### Operation errors
+### Operation errors
 
 | Option Name | Description |
 |---|---|
@@ -66,7 +64,7 @@ Each `WMTError` has a `reason` property why the error was created. Such reason c
 |`operations_rejectExpired`|Operation has expired when trying to reject the operation.|
 |`operations_QROperationFailed`|Couldn't sign QR operation.|
 
-#### Push errors
+### Push errors
 
 | Option Name | Description |
 |---|---|
