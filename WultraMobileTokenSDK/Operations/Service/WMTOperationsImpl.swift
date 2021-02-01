@@ -244,10 +244,17 @@ class WMTOperationsImpl: WMTOperations {
     }
     
     /// Start operations polling
-    func startPollingOperations(interval: TimeInterval) {
+    func startPollingOperations(interval: TimeInterval, delayStart: Bool) {
         guard pollingTimer == nil else {
             D.warning("Polling already in progress")
             return
+        }
+        
+        // When user doesn't want to wait for the first result, just refresh the operations
+        // outside of the timer. This may lead to the first "timed call" earlier than the interval, but it's
+        // acceptable for the sake of the simpler implementation.
+        if delayStart == false {
+            refreshOperations()
         }
         
         D.print("Operations polling started with \(interval) seconds interval")
