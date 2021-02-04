@@ -24,12 +24,16 @@ WMT SDK library does precisely this:
 - Approves or rejects operations with PowerAuth transaction signing.
 - Registers an existing PowerAuth activation to receive push notifications.
 
-_Note: We also provide an [Android version of this library](https://github.com/wultra/mtoken-sdk-android)._
+Remarks:
+
+- This library does not contain any UI.
+- We also provide an [Android version of this library](https://github.com/wultra/mtoken-sdk-android). 
 
 ## Integration Tutorials
 - [SDK Integration](SDK-Integration.md)
 - [Using Operations Service](Using-Operations-Service.md)
 - [Using Push Service](Using-Push-Service.md)
+- [Operation Expiration Handling](Operation-Expiration.md)
 - [Error Handling](Error-Handling.md)
 - [Language Configuration](Language-Configuration.md)
 - [Logging](Logging.md)

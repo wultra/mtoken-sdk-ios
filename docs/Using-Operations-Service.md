@@ -76,7 +76,7 @@ import WultraMobileTokenSDK
 
 // fetch new operations every 7 seconds periodically
 if (!operationsService.isPollingOperations) {
-    operationsService.startPollingOperations(interval: 7)
+    operationsService.startPollingOperations(interval: 7, delayStart: false)
 }
 ```
 
@@ -215,8 +215,9 @@ All available methods and attributes of `WMTOperations` API are:
 - `getOperations(completion: @escaping GetOperationsCompletion)` - Retrieves pending operations from the server.
     - `completion` - Called when operation finishes. Always called on the main thread.
 - `isPollingOperations` - If the app is periodically polling for the operations from the server.
-- `startPollingOperations(interval: TimeInterval)` - Starts the periodic operation polling.
+- `startPollingOperations(interval: TimeInterval, delayStart: Bool)` - Starts the periodic operation polling.
     - `interval` - How often should operations be refreshed.
+    - `delayStart` - When true, polling starts after the first `interval` time passes.
 - `stopPollingOperations()` - Stops the periodic operation polling.
 - `authorize(operation: WMTOperation, authentication: PowerAuthAuthentication, completion: @escaping(WMTError?)->Void)` - Authorize provided operation.
     - `operation` - An operation to approve, retrieved from `getOperations` call or [created locally](#creating-a-custom-operation).

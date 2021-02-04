@@ -267,7 +267,7 @@ class IntegrationTests: XCTestCase {
             }
         }
         ops.delegate = delegate
-        ops.startPollingOperations(interval: 1)
+        ops.startPollingOperations(interval: 1, delayStart: false)
         XCTAssertTrue(ops.isPollingOperations)
 
         waitForExpectations(timeout: 20, handler: nil)

@@ -95,12 +95,16 @@ public protocol WMTOperations: class {
     /// If the service is polling operations
     var isPollingOperations: Bool { get }
     
-    /// Start the operations polling.
-    /// Note that if operations are already polling, this call is ignored and
+    /// Starts the operations polling.
+    ///
+    /// If operations are already polling this call is ignored and
     /// polling interval won't be changed.
-    func startPollingOperations(interval: TimeInterval)
+    /// - Parameter interval: Polling interval
+    /// - Parameter delayStart: When true, polling starts after
+    ///                         the first `interval` time passes
+    func startPollingOperations(interval: TimeInterval, delayStart: Bool)
     
-    /// Stops the operations polling
+    /// Stops the operations polling.
     func stopPollingOperations()
 }
 
