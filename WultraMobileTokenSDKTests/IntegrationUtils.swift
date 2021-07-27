@@ -20,7 +20,6 @@ import WultraMobileTokenSDK
 class IntegrationUtils {
     
     private static var config: IntegrationConfig!
-    private static let paUrl = config.paServerUrl
     private static let activationName = UUID().uuidString
     
     typealias Callback = (_ instances: (PowerAuthSDK, WMTOperations)?, _ error: String?) -> Void
@@ -51,158 +50,35 @@ class IntegrationUtils {
         }
     }
     
-    class func createOperation(knowledge: Bool, completion: @escaping (String?) -> Void) {
+    enum Factors {
+        // TODO: temp unsupported
+        //case OF_1FA
+        case F_2FA
+    }
+    
+    class func createOperation(_ factors: Factors = .F_2FA, completion: @escaping (String?) -> Void) {
         DispatchQueue.global().async {
             let opBody: String
-            if !knowledge {
+            switch factors {
+            case .F_2FA:
                 opBody = """
                 {
-                    "requestObject": {
-                        "operationName": "login_sca",
-                        "operationData": "A2",
-                        "formData": {
-                          "title": {
-                            "id": "login.title"
-                          },
-                          "greeting": {
-                            "id": "login.greeting"
-                          },
-                          "summary": {
-                            "id": "login.summary"
-                          }
-                        }
-                    }
-                }
-                """
-            } else {
-                opBody = """
-                {
-                  "requestObject": {
-                    "operationName": "authorize_payment",
-                    "operationId": null,
-                    "operationData": "A1*A100CZK*Q238400856/0300**D20170629*NUtility Bill Payment - 05/2017",
-                    "params": [],
-                    "formData": {
-                      "title": {
-                        "id": "operation.title",
-                        "value": "Charge karta"
-                      },
-                      "greeting": {
-                        "id": "operation.greeting",
-                        "value": "Hello"
-                      },
-                      "summary": {
-                        "id": "operation.summary",
-                        "value": "Potvrďte platbu."
-                      },
-                      "config": [],
-                      "parameters": [
-                        {
-                          "type": "AMOUNT",
-                          "id": "operation.amount",
-                          "label": null,
-                          "valueFormatType": "AMOUNT",
-                          "formattedValue": null,
-                          "amount": 10000000000.99,
-                          "currency": "EUR",
-                          "currencyId": "operation.currency"
-                        },
-                        {
-                          "type": "HEADING",
-                          "id": "operation.heading",
-                          "label": "Nadpis",
-                          "valueFormatType": "TEXT",
-                          "formattedValue": null,
-                          "value": "000000-25000377732500037773037773/5800"
-                        },
-                        {
-                          "type": "KEY_VALUE",
-                          "id": "operation.account",
-                          "label": null,
-                          "valueFormatType": "ACCOUNT",
-                          "formattedValue": null,
-                          "value": "test test test"
-                        }
-                      ],
-                      "dynamicDataLoaded": false,
-                      "userInput": {}
-                    }
-                  }
+                  "userId": "\(activationName)",
+                  "template": "login-tpp",
+                   "parameters": {
+                     "party.id": "666",
+                     "party.name": "Datová schránka",
+                         "session.id": "123",
+                         "session.ip-address": "192.168.0.1"
+                   }
                 }
                 """
             }
             
             // step1: create an operation on the nextstep server
-            guard let op: PAObject<PAOperationCreateObject> = self.makeRequest(url: URL(string: "\(config.nextStepServerUrl)/operation")!, body: opBody) else {
+            guard let _: OperationObject = self.makeRequest(url: URL(string: "\(config.cloudServerURL)/operations")!, body: opBody) else {
                 completion("Failed to create operation on the server.")
                 return
-            }
-            
-            let assignBody = """
-            {
-              "requestObject": {
-                "operationId": "\(op.responseObject.operationId)",
-                "userId": "\(activationName)",
-                "organizationId": "RETAIL",
-                "accountStatus": "ACTIVE"
-              }
-            }
-            """
-            
-            // step2: assign the operation to the user
-            guard let _: PASimpleObject = self.makeRequest(url: URL(string: "\(config.nextStepServerUrl)/operation/user/update")!, body: assignBody) else {
-                
-                completion("Failed to assign the operation to the user.")
-                return
-            }
-            
-            // step3: if the operation needs to be authorized with
-            // a knowledge, move it to the "confirmed" state
-            if knowledge {
-                let b = """
-                {
-                  "requestObject": {
-                    "operationId": "\(op.responseObject.operationId)",
-                    "userId": "\(activationName)",
-                    "organizationId": "RETAIL",
-                    "authMethod": "USER_ID_ASSIGN",
-                    "authStepResult": "CONFIRMED",
-                    "authStepResultDescription": null,
-                    "params": []
-                  }
-                }
-                """
-                guard let _: PASimpleObject = self.makeRequest(url: URL(string: "\(config.nextStepServerUrl)/operation/update")!, body: b) else {
-                    completion("Failed to update operation to the next state")
-                    return
-                }
-            }
-            
-            // step4: make the op "approvable" by the mobile token
-            guard let _: PASimpleObject = self.makeRequest(url: URL(string: "\(config.nextStepServerUrl)/operation/mobileToken/status/update")!, body:
-                """
-                {
-                  "requestObject": {
-                    "operationId": "\(op.responseObject.operationId)",
-                    "mobileTokenActive": true
-                  }
-                }
-                """) else {
-                    completion("Failed to set mobileTokenActive.")
-                    return
-            }
-            
-            // step5: step auth method to the operation
-            guard let _: PASimpleObject = self.makeRequest(url: URL(string: "\(config.nextStepServerUrl)/operation/chosenAuthMethod/update")!, body: """
-                {
-                  "requestObject": {
-                    "operationId": "\(op.responseObject.operationId)",
-                    "chosenAuthMethod": "\(knowledge ? "POWERAUTH_TOKEN" : "LOGIN_SCA")"
-                  }
-                }
-                """) else {
-                    completion("Failed to update auth method.")
-                    return
             }
             
             // if everything went OK, return with empty error
@@ -210,10 +86,12 @@ class IntegrationUtils {
         }
     }
     
-    private class func makeRequest<T: Codable>(url: URL, body: String) -> T? {
+    private class func makeRequest<T: Codable>(url: URL, body: String, httpMethod: String = "POST") -> T? {
         var r = URLRequest(url: url)
-        r.httpMethod = "POST"
+        let creds = "\(config.cloudServerLogin):\(config.cloudServerPassword)".data(using: .utf8)?.base64EncodedString() ?? ""
+        r.httpMethod = httpMethod
         r.addValue("application/json", forHTTPHeaderField: "Content-Type")
+        r.addValue("Basic \(creds)", forHTTPHeaderField: "authorization")
         r.httpBody = body.data(using: .utf8)!
         var result: T? = nil
         let semaphore = DispatchSemaphore(value: 0)
@@ -245,7 +123,7 @@ class IntegrationUtils {
             callback("Create activation on server failed.")
             return
         }
-        pa.createActivation(withName: "tests", activationCode: act.responseObject.activationCode) { result, error in
+        pa.createActivation(withName: "tests", activationCode: act.activationCode()!) { result, error in
             guard let _ = result else {
                 callback("Create activation failed.")
                 return
@@ -256,95 +134,64 @@ class IntegrationUtils {
                 callback("Commit activation locally failed.")
                 return
             }
-            guard let _ = commitActivationOnServer(activationId: act.responseObject.activationId) else {
+            guard let _ = commitActivationOnServer() else {
                 callback("Commit on server failed.")
-                return
-            }
-            guard let _ = makeActivationPrimary(activationId: act.responseObject.activationId) else {
-                callback("Make activation primary failed.")
                 return
             }
             callback(nil)
         }
     }
     
-    private class func createActivation() -> PAObject<PAInitResponseObject>? {
+    private class func createActivation() -> RegistrationObject? {
         let body = """
         {
-            "requestObject": {
-                "activationOtpValidation": "NONE",
-                "applicationId": \(config.appId),
-                "maxFailureCount": 5,
-                "userId": "\(activationName)"
-            }
+          "userId": "\(activationName)"
         }
         """
-        let resp: PAObject<PAInitResponseObject>? = makeRequest(url: URL(string: "\(paUrl)/rest/v3/activation/init")!, body: body)
+        let resp: RegistrationObject? = makeRequest(url: URL(string: "\(config.cloudServerURL)/registration")!, body: body)
         return resp
     }
     
-    private class func commitActivationOnServer(activationId: String) -> PAObject<PACommitObject>? {
+    private class func commitActivationOnServer() -> CommitObject? {
         let body = """
         {
-          "requestObject": {
-            "activationId": "\(activationId)"
-          }
+          "userId": "\(activationName)"
         }
         """
-        let resp: PAObject<PACommitObject>? = makeRequest(url: URL(string: "\(paUrl)/rest/v3/activation/commit")!, body: body)
+        let resp: CommitObject? = makeRequest(url: URL(string: "\(config.cloudServerURL)/registration/commit")!, body: body)
         return resp
     }
+}
+
+private struct RegistrationObject: Codable {
+    let activationQrCodeData: String
     
-    private class func makeActivationPrimary(activationId: String) -> PASimpleObject? {
-        let body = """
-        {
-            "requestObject": {
-                "userId": "\(activationName)",
-                "authMethod": "POWERAUTH_TOKEN",
-                "config": {
-                    "activationId": "\(activationId)"
-                }
-            }
-        }
-        """
-        let resp: PASimpleObject? = makeRequest(url: URL(string: "\(config.nextStepServerUrl)/user/auth-method")!, body: body)
-        return resp
-    }
+    func activationCode() -> String? { return PA2OtpUtil.parse(fromActivationCode: activationQrCodeData)?.activationCode }
 }
 
-private struct PASimpleObject: Codable {
+private struct CommitObject: Codable {
     let status: String
 }
 
-private struct PAObject<T: Codable>: Codable {
-    let responseObject: T
-    let status: String
-}
-
-private struct PAInitResponseObject: Codable {
-    let activationId: String
-    let activationCode: String
-    let activationSignature: String
-    let userId: String
-    let applicationId: Int
-}
-
-private struct PACommitObject: Codable {
-    let activated: Bool
-    let activationId: String
-}
-
-private struct PAOperationCreateObject: Codable {
+private struct OperationObject: Codable {
     let operationId: String
+    let userId: String
+    let status: String
+    let operationType: String
+    //let parameters: [] // not needed for test right now
+    let failureCount: Int
+    let maxFailureCount: Int
+    let timestampCreated: Int
+    let timestampExpires: Int
 }
 
 private struct IntegrationConfig: Codable {
-    let paServerUrl: String
-    let nextStepServerUrl: String
+    let cloudServerURL: String
+    let cloudServerLogin: String
+    let cloudServerPassword: String
     let enrollmentServerUrl: String
     let operationsServerUrl: String
     let appKey: String
     let appSecret: String
     let masterServerPublicKey: String
-    let appId: String
 }
