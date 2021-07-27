@@ -18,6 +18,14 @@ import XCTest
 import PowerAuth2
 @testable import WultraMobileTokenSDK
 
+
+/**
+ 
+ For integration test to be successfully executed, you need to provide
+ configuration json file. To more information, visit `WultraMobileTokenSDKTests/Configs/Readme.md`.
+ 
+ */
+
 class IntegrationTests: XCTestCase {
     
     private var pa: PowerAuthSDK { IntegrationTests.pa }
