@@ -67,9 +67,6 @@ public class WMTError: Error {
     /// So if you get the value before URL response is set, then the returned value will be incorrect.
     /// You can still later override the calculated value by setting a new one.
     public var httpStatusCode: Int {
-        set {
-            _httpStatusCode = newValue
-        }
         get {
             if _httpStatusCode >= 0 {
                 return _httpStatusCode
@@ -81,6 +78,9 @@ public class WMTError: Error {
                 _httpStatusCode = 0
             }
             return _httpStatusCode
+        }
+        set {
+            _httpStatusCode = newValue
         }
     }
     
