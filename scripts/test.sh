@@ -7,14 +7,14 @@ set -u # stop when undefined variable is used
 SCRIPT_FOLDER=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 
 DESTINATION="platform=iOS Simulator,OS=13.5,name=iPhone SE (2nd generation)"
-PA_URL=""
+CL_URL=""
+CL_LGN=""
+CL_PWD=""
 ER_URL=""
 OP_URL=""
-NS_URL=""
 APPKEY=""
 APPSECRET=""
 MASTERSPK=""
-APPID=""
 
 # Parse parameters of this script
 while [[ $# -gt 0 ]]
@@ -25,8 +25,18 @@ do
 			shift
 			shift
 			;;
-		-pa)
-			PA_URL="$2"
+		-cl)
+			CL_URL="$2"
+			shift
+			shift
+			;;
+		-clu)
+			CL_LGN="$2"
+			shift
+			shift
+			;;
+		-clp)
+			CL_PWD="$2"
 			shift
 			shift
 			;;
@@ -37,11 +47,6 @@ do
 			;;
 		-op)
 			OP_URL="$2"
-			shift
-			shift
-			;;
-		-ns)
-			NS_URL="$2"
 			shift
 			shift
 			;;
@@ -57,11 +62,6 @@ do
 			;;
 		-masterspk)
 			MASTERSPK="$2"
-			shift
-			shift
-			;;
-		-appid)
-			APPID="$2"
 			shift
 			shift
 			;;
@@ -81,14 +81,14 @@ pushd "${SCRIPT_FOLDER}/.."
 rm -rf "build" # clear build folder
 
 echo """{
-    \"paServerUrl\"           : \"${PA_URL}\",
-    \"nextStepServerUrl\"     : \"${NS_URL}\",
+    \"cloudServerUrl\"        : \"${CL_URL}\",
+    \"cloudServerLogin\"      : \"${CL_LGN}\",
+    \"cloudServerPassword\"   : \"${CL_PWD}\",
     \"enrollmentServerUrl\"   : \"${ER_URL}\",
     \"operationsServerUrl\"   : \"${OP_URL}\",
     \"appKey\"                : \"${APPKEY}\",
     \"appSecret\"             : \"${APPSECRET}\",
-    \"masterServerPublicKey\" : \"${MASTERSPK}\",
-    \"appId\"                 : \"${APPID}\"
+    \"masterServerPublicKey\" : \"${MASTERSPK}\"
 }""" > "WultraMobileTokenSDKTests/Configs/config.json"
 
 xcrun xcodebuild \
