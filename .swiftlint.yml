@@ -9,6 +9,7 @@ disabled_rules:
   - file_length
   - type_body_length
   - nesting
+  - inclusive_language
 excluded:
   - Carthage
   - WultraMobileTokenSDKTests
