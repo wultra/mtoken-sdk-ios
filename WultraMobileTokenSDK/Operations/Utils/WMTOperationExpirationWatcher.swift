@@ -126,7 +126,7 @@ public class WMTOperationExpirationWatcher {
             var opsToWatch = [WMTExpirableOperation]()
             for op in operations {
                 // filter already added operations
-                if self.operationsToWatch.contains(where: { $0.equals(other: op)} ) {
+                if self.operationsToWatch.contains(where: { $0.equals(other: op)}) {
                     D.warning("WMTOperationExpirationWatcher: Operation cannot be watched - already there.")
                 } else {
                     opsToWatch.append(op)

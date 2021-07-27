@@ -23,7 +23,9 @@ class WMTHttpClient: NSObject, URLSessionDelegate {
     private let sslValidation: WMTSSLValidationStrategy
     
     private lazy var urlSession: URLSession = {
-        let configuration = URLSessionConfiguration.ephemeral.copy() as! URLSessionConfiguration
+        guard let configuration = URLSessionConfiguration.ephemeral.copy() as? URLSessionConfiguration else {
+            D.fatalError("Cannot create URLSessionConfiguration")
+        }
         configuration.urlCache = nil
         configuration.requestCachePolicy = .reloadIgnoringLocalCacheData
         configuration.timeoutIntervalForRequest = defaultTimeout
@@ -35,7 +37,7 @@ class WMTHttpClient: NSObject, URLSessionDelegate {
         super.init()
     }
     
-    func post<TReq,TResp>(request: WMTHttpRequest<TReq,TResp>, completion: @escaping (Data?, HTTPURLResponse?, Error?) -> Void) {
+    func post<TReq, TResp>(request: WMTHttpRequest<TReq, TResp>, completion: @escaping (Data?, HTTPURLResponse?, Error?) -> Void) {
         
         let urlRequest = request.buildUrlRequest()
         

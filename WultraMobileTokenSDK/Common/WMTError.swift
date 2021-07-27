@@ -49,7 +49,6 @@ public class WMTError: Error {
     }
     #endif
     
-    
     // MARK: - Properties
     
     /// Reason why the error was created
@@ -128,12 +127,10 @@ public struct WMTErrorReason: RawRepresentable, Equatable, Hashable {
     
     public typealias RawValue = String
     public var rawValue: RawValue
-    public var hashValue: Int { return rawValue.hashValue }
     
     public init(rawValue: RawValue) {
         self.rawValue = rawValue
     }
-    
 }
 
 // MARK: - Computed properties
@@ -143,7 +140,6 @@ public extension WMTError {
     /// A fallback domain identifier which is returned in situations, when the nested error
     /// is not set, or if it's not kind of NSError object.
     static let domain = "WMTError"
-    
     
     /// If nestedError is valid, then returns its code
     var code: Int {
@@ -163,7 +159,7 @@ public extension WMTError {
     }
     
     /// If nestedError is valid, then returns its user info.
-    var userInfo: [String:Any] {
+    var userInfo: [String: Any] {
         guard let e = nestedError as NSError? else {
             return [:]
         }
@@ -208,7 +204,6 @@ public extension WMTError {
         return nil
     }
     
-    
     var powerAuthRestApiErrorCode: String? {
         if let response = restApiError {
             return response.code
@@ -244,8 +239,7 @@ extension WMTError: CustomStringConvertible {
 }
 
 extension D {
-    static func error(_ error: @autoclosure ()->WMTError) {
+    static func error(_ error: @autoclosure () -> WMTError) {
         D.error(error().description)
     }
 }
-

@@ -25,7 +25,6 @@ public class WMTLocalOperation: WMTOperation {
     /// Data for signing
     public let data: String
     
-    
     /// Creates an instance of WMTLocalOperation
     ///
     /// - Parameters:
