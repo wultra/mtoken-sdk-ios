@@ -182,12 +182,19 @@ After that, you can produce an off-line signature using the following code:
 ```swift
 import WultraMobileTokenSDK
 
-func approveQROperation(operation: WMTQROperation, password: String) {
+func approveQROperation(operation: WMTQROperation, password: String?) {
 
     let authentication = PowerAuthAuthentication()
     authentication.usePossession = true
-    authentication.usePassword = password
-    authentication.useBiometry = false
+    if let password = password {
+        // if a password is passed, use it as the second factor
+        authentication.usePassword = password
+    } else if operation.flags.allowBiometryFactor {
+        // if no password was passed and operation supports biometry factor...
+        authentication.useBiometry = true
+    } else {
+        // logical error, 2nd factor needs to be used
+    }
 
     operationsService.authorize(qrOperation: operation, authentication: authentication) { result in 
         switch result {
@@ -201,6 +208,10 @@ func approveQROperation(operation: WMTQROperation, password: String) {
     }
 }
 ```
+
+<!-- begin box info -->
+An offline operation needs to be __always__ approved with __ 2-factor scheme__ (password or biometry). If biometry is allowed for offline operation can be found in the property `WMTQROperation.flags.allowBiometryFactor`.
+<!-- end -->
 
 ## Operations API Reference
 
