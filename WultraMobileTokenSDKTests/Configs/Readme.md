@@ -4,14 +4,13 @@ _Example config:_
 
 ```
 {
-    "paServerUrl"           : "http://localhost:8081/powerauth-java-server",
-    "nextStepServerUrl"     : "http://localhost:13010/powerauth-nextstep",
-    "enrollmentServerUrl"   : "http://localhost:8080/powerauth-webflow",
-    "operationsServerUrl"   : "http://localhost:8080/powerauth-webflow",
-    "appKey"                : "5RzV7TPG2LjDBB1lSfGaCX==",
-    "appSecret"             : "2pD9GToC6C52YP5TGJXSig==",
-    "masterServerPublicKey" : "Bar5CjT0SHbWW4oIOU7u+ewzZLXHBTgejmJepyCrA3TfPAVHxb5bW9xBwilwh1IqAxdS/+2WcXS5aQZpgIKIbcQ=",
-    "appId"                 : "1"
+    "cloudServerUrl"        : "https://url-to-my-cloud.com/powerauth-cloud",
+    "cloudServerLogin"      : "admin",
+    "cloudServerPassword"   : "admin",
+    "enrollmentServerUrl"   : "https://url-to-my-cloud.com/enrollment-server",
+    "operationsServerUrl"   : "https://url-to-my-cloud.com/enrollment-server",
+    "appKey"                : "14w+JmBGbhluACWuJMAzXp==",
+    "appSecret"             : "yBfog274wr3EJdcMLzVikq==",
+    "masterServerPublicKey" : "PB5YVmaON739UFGJMKOoPz+O11+45YGIPq+2z8L0p43LC/IVKrViJ+v1SHc1/PwPrtCsCQ5FX4fOFOJEFZZPLFs=",
 }
-
 ```

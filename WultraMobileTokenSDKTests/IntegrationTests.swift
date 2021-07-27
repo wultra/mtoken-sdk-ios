@@ -18,6 +18,14 @@ import XCTest
 import PowerAuth2
 @testable import WultraMobileTokenSDK
 
+
+/**
+ 
+ For integration test to be successfully executed, you need to provide
+ configuration json file. To more information, visit `WultraMobileTokenSDKTests/Configs/Readme.md`.
+ 
+ */
+
 class IntegrationTests: XCTestCase {
     
     private var pa: PowerAuthSDK { IntegrationTests.pa }
@@ -90,89 +98,91 @@ class IntegrationTests: XCTestCase {
     }
     
     /// Test of Login operation approval (1FA)
-    func testApproveLogin() {
-        
-        let exp = expectation(description: "Approve login")
-        
-        IntegrationUtils.createOperation(knowledge: false) { error in
-            guard error == nil else {
-                XCTFail(error!)
-                exp.fulfill()
-                return
-            }
-            
-            DispatchQueue.main.async {
-                _  = self.ops.getOperations { opResult in
-                    switch opResult {
-                    case .success(let ops):
-                        guard ops.count == 1 else {
-                            XCTFail("1 operation expected. Actual: \(ops.count)")
-                            exp.fulfill()
-                            return
-                        }
-                        let auth = PowerAuthAuthentication()
-                        auth.usePossession = true
-                        self.ops.authorize(operation: ops.first!, authentication: auth) { error in
-                            if let error = error {
-                                XCTFail("Failed to authorize op: \(error.description)")
-                            }
-                            exp.fulfill()
-                        }
-                    case .failure(let error):
-                        XCTFail("Failed to retrieve operations: \(error.description)")
-                        exp.fulfill()
-                    }
-                }
-            }
-        }
-        
-        waitForExpectations(timeout: 20, handler: nil)
-    }
+    /// TODO: prepare 1FA op
+//    func testApproveLogin() {
+//
+//        let exp = expectation(description: "Approve login")
+//
+//        IntegrationUtils.createOperation { error in
+//            guard error == nil else {
+//                XCTFail(error!)
+//                exp.fulfill()
+//                return
+//            }
+//
+//            DispatchQueue.main.async {
+//                _  = self.ops.getOperations { opResult in
+//                    switch opResult {
+//                    case .success(let ops):
+//                        guard ops.count == 1 else {
+//                            XCTFail("1 operation expected. Actual: \(ops.count)")
+//                            exp.fulfill()
+//                            return
+//                        }
+//                        let auth = PowerAuthAuthentication()
+//                        auth.usePossession = true
+//                        self.ops.authorize(operation: ops.first!, authentication: auth) { error in
+//                            if let error = error {
+//                                XCTFail("Failed to authorize op: \(error.description)")
+//                            }
+//                            exp.fulfill()
+//                        }
+//                    case .failure(let error):
+//                        XCTFail("Failed to retrieve operations: \(error.description)")
+//                        exp.fulfill()
+//                    }
+//                }
+//            }
+//        }
+//
+//        waitForExpectations(timeout: 20, handler: nil)
+//    }
     
+    // TODO: prepare 1FA op
     /// Test of rejecting login operation (1FA)
-    func testRejectLogin() {
-        
-        let exp = expectation(description: "Reject login")
-        
-        IntegrationUtils.createOperation(knowledge: false) { error in
-            guard error == nil else {
-                XCTFail(error!)
-                exp.fulfill()
-                return
-            }
-            
-            DispatchQueue.main.async {
-                _  = self.ops.getOperations { opResult in
-                    switch opResult {
-                    case .success(let ops):
-                        guard ops.count == 1 else {
-                            XCTFail("1 operation expected. Actual: \(ops.count)")
-                            exp.fulfill()
-                            return
-                        }
-                        self.ops.reject(operation: ops.first!, reason: .unexpectedOperation) { error in
-                            if let error = error {
-                                XCTFail("Failed to reject op: \(error.description)")
-                            }
-                            exp.fulfill()
-                        }
-                    case .failure(let error):
-                        XCTFail("Failed to retrieve operations: \(error.description)")
-                        exp.fulfill()
-                    }
-                }
-            }
-        }
-        
-        waitForExpectations(timeout: 20, handler: nil)
-    }
+//    func testRejectLogin() {
+//
+//        let exp = expectation(description: "Reject login")
+//
+//        IntegrationUtils.createOperation { error in
+//            guard error == nil else {
+//                XCTFail(error!)
+//                exp.fulfill()
+//                return
+//            }
+//
+//            DispatchQueue.main.async {
+//                _  = self.ops.getOperations { opResult in
+//                    switch opResult {
+//                    case .success(let ops):
+//                        guard ops.count == 1 else {
+//                            XCTFail("1 operation expected. Actual: \(ops.count)")
+//                            exp.fulfill()
+//                            return
+//                        }
+//                        self.ops.reject(operation: ops.first!, reason: .unexpectedOperation) { error in
+//                            if let error = error {
+//                                XCTFail("Failed to reject op: \(error.description)")
+//                            }
+//                            exp.fulfill()
+//                        }
+//                    case .failure(let error):
+//                        XCTFail("Failed to retrieve operations: \(error.description)")
+//                        exp.fulfill()
+//                    }
+//                }
+//            }
+//        }
+//
+//        waitForExpectations(timeout: 20, handler: nil)
+//    }
     
     /// Test of Payment approval (2FA)
     func testApprovePayment() {
         
         let exp = expectation(description: "Approve payment")
         
-        IntegrationUtils.createOperation(knowledge: true) { error in
+        IntegrationUtils.createOperation { error in
             guard error == nil else {
                 XCTFail(error!)
                 exp.fulfill()
@@ -223,7 +233,7 @@ class IntegrationTests: XCTestCase {
         
         let exp = expectation(description: "Reject payment")
         
-        IntegrationUtils.createOperation(knowledge: true) { error in
+        IntegrationUtils.createOperation { error in
             guard error == nil else {
                 XCTFail(error!)
                 exp.fulfill()
