@@ -4,7 +4,7 @@ _Example config:_
 
 ```
 {
-    "cloudServerURL"        : "https://url-to-my-cloud.com/powerauth-cloud",
+    "cloudServerUrl"        : "https://url-to-my-cloud.com/powerauth-cloud",
     "cloudServerLogin"      : "admin",
     "cloudServerPassword"   : "admin",
     "enrollmentServerUrl"   : "https://url-to-my-cloud.com/enrollment-server",

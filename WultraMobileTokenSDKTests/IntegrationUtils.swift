@@ -76,7 +76,7 @@ class IntegrationUtils {
             }
             
             // step1: create an operation on the nextstep server
-            guard let _: OperationObject = self.makeRequest(url: URL(string: "\(config.cloudServerURL)/operations")!, body: opBody) else {
+            guard let _: OperationObject = self.makeRequest(url: URL(string: "\(config.cloudServerUrl)/operations")!, body: opBody) else {
                 completion("Failed to create operation on the server.")
                 return
             }
@@ -148,7 +148,7 @@ class IntegrationUtils {
           "userId": "\(activationName)"
         }
         """
-        let resp: RegistrationObject? = makeRequest(url: URL(string: "\(config.cloudServerURL)/registration")!, body: body)
+        let resp: RegistrationObject? = makeRequest(url: URL(string: "\(config.cloudServerUrl)/registration")!, body: body)
         return resp
     }
     
@@ -158,7 +158,7 @@ class IntegrationUtils {
           "userId": "\(activationName)"
         }
         """
-        let resp: CommitObject? = makeRequest(url: URL(string: "\(config.cloudServerURL)/registration/commit")!, body: body)
+        let resp: CommitObject? = makeRequest(url: URL(string: "\(config.cloudServerUrl)/registration/commit")!, body: body)
         return resp
     }
 }
@@ -186,7 +186,7 @@ private struct OperationObject: Codable {
 }
 
 private struct IntegrationConfig: Codable {
-    let cloudServerURL: String
+    let cloudServerUrl: String
     let cloudServerLogin: String
     let cloudServerPassword: String
     let enrollmentServerUrl: String
