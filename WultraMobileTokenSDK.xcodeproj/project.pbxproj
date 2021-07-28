@@ -22,6 +22,8 @@
 		DC81D1CB244F451E00F80CD6 /* WMTPushImpl.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC81D1CA244F451E00F80CD6 /* WMTPushImpl.swift */; };
 		DC81D1CD244F640600F80CD6 /* WMTPush.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC81D1CC244F640600F80CD6 /* WMTPush.swift */; };
 		DC848E2126B16C2400EBFA6C /* PowerAuth2.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = DC848E2026B16C2400EBFA6C /* PowerAuth2.xcframework */; };
+		DC848E2226B1782900EBFA6C /* PowerAuth2.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = DC848E2026B16C2400EBFA6C /* PowerAuth2.xcframework */; };
+		DC848E2426B1782900EBFA6C /* PowerAuthCore.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = DC848E2326B1782900EBFA6C /* PowerAuthCore.xcframework */; };
 		DC8CB202244DCBE2009DDAA3 /* WMTOperations.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC8CB201244DCBE2009DDAA3 /* WMTOperations.swift */; };
 		DC8CB206244DD007009DDAA3 /* WMTAllowedOperationSignature.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC8CB205244DD007009DDAA3 /* WMTAllowedOperationSignature.swift */; };
 		DCAB7BC824580B4C0006989D /* WMTQROperationParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCAB7BC724580B4C0006989D /* WMTQROperationParser.swift */; };
@@ -81,6 +83,7 @@
 		DC81D1CA244F451E00F80CD6 /* WMTPushImpl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTPushImpl.swift; sourceTree = "<group>"; };
 		DC81D1CC244F640600F80CD6 /* WMTPush.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTPush.swift; sourceTree = "<group>"; };
 		DC848E2026B16C2400EBFA6C /* PowerAuth2.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = PowerAuth2.xcframework; path = Carthage/Build/PowerAuth2.xcframework; sourceTree = "<group>"; };
+		DC848E2326B1782900EBFA6C /* PowerAuthCore.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = PowerAuthCore.xcframework; path = Carthage/Build/PowerAuthCore.xcframework; sourceTree = "<group>"; };
 		DC8CB201244DCBE2009DDAA3 /* WMTOperations.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTOperations.swift; sourceTree = "<group>"; };
 		DC8CB205244DD007009DDAA3 /* WMTAllowedOperationSignature.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTAllowedOperationSignature.swift; sourceTree = "<group>"; };
 		DCAB7BC724580B4C0006989D /* WMTQROperationParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTQROperationParser.swift; sourceTree = "<group>"; };
@@ -123,6 +126,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				DC848E2426B1782900EBFA6C /* PowerAuthCore.xcframework in Frameworks */,
+				DC848E2226B1782900EBFA6C /* PowerAuth2.xcframework in Frameworks */,
 				DC616238248508F8000DED17 /* WultraMobileTokenSDK.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -180,6 +185,7 @@
 		DC61623E24850F09000DED17 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				DC848E2326B1782900EBFA6C /* PowerAuthCore.xcframework */,
 				DC848E2026B16C2400EBFA6C /* PowerAuth2.xcframework */,
 			);
 			name = Frameworks;
