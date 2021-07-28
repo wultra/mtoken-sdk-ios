@@ -32,16 +32,21 @@ import WultraMobileTokenSDK
 
 let opsConfig = WMTConfig(
     baseUrl: URL(string: "https://myservice.com/mtoken/operations/api/")!,
-    sslValidation: .default
+    sslValidation: .default,
+    pollingOptions: [.pauseWhenOnBackground]
 )
 let opsService = powerAuth.createWMTOperations(config: config)
 ```
 
-`sslValidation` property is used when validating HTTPS requests. Following strategies can be used.  
+The `sslValidation` parameter is used when validating HTTPS requests. Following strategies can be used.  
 
 - `WMTSSLValidationStrategy.default` 
 - `WMTSSLValidationStrategy.noValidation`
 - `WMTSSLValidationStrategy.sslPinning` 
+
+The `pollingOptions` parameter is used for polling feature configuration. The default value is empty `[]`. Possible options are:
+
+- `WMTOperationsPollingOptions.pauseWhenOnBackground `
 
 ## Retrieve Pending Operations
 
@@ -112,6 +117,9 @@ class MyOperationsManager: WMTOperationsDelegate {
     }
 }
 ```
+<!-- begin box info -->
+Polling behavior can be adjusted by the `pollingOptions` parameter when [creating an instance](#creating-an-instance) of the service.
+<!-- end -->
 
 ## Approve an Operation
 
@@ -215,6 +223,8 @@ All available methods and attributes of `WMTOperations` API are:
 - `getOperations(completion: @escaping GetOperationsCompletion)` - Retrieves pending operations from the server.
     - `completion` - Called when operation finishes. Always called on the main thread.
 - `isPollingOperations` - If the app is periodically polling for the operations from the server.
+- `pollingOptions` - Configuration of the polling feature
+    - `pauseWhenOnBackground` - Polling will be paused when your app is on the background.
 - `startPollingOperations(interval: TimeInterval, delayStart: Bool)` - Starts the periodic operation polling.
     - `interval` - How often should operations be refreshed.
     - `delayStart` - When true, polling starts after the first `interval` time passes.

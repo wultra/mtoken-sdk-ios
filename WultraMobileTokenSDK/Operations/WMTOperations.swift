@@ -28,6 +28,9 @@ public protocol WMTOperations: class {
     /// Configuration for the service.
     var config: WMTConfig { get }
     
+    /// Configuration of the polling feature
+    var pollingOptions: WMTOperationsPollingOptions { get }
+    
     /// Accept language for the outgoing requests headers.
     /// Default value is "en".
     ///
@@ -136,4 +139,20 @@ public protocol WMTOperationsDelegate: class {
     ///
     /// - Parameter loading: if the get operation request is in progress
     func operationsLoading(loading: Bool)
+}
+
+/// Configuration of the polling feature
+public struct WMTOperationsPollingOptions: OptionSet {
+    
+    /// Pause polling when the app goes to the background.
+    ///
+    /// The polling is paused on `willResignActiveNotification`.
+    /// The polling is unpaused on `didBecomeActiveNotification`.
+    @available(iOS 10, *) // due to the dependency on UIKit (iOS 10 is minimum target).
+    public static let pauseWhenOnBackground = WMTOperationsPollingOptions(rawValue: 1 << 0)
+    
+    public let rawValue: Int
+    public init(rawValue: Int) {
+        self.rawValue = rawValue
+    }
 }

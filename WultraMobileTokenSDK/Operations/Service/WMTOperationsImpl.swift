@@ -16,10 +16,19 @@
 
 import Foundation
 import PowerAuth2
+#if os(iOS)
+import UIKit
+#endif
 
 public extension PowerAuthSDK {
-    func createWMTOperations(config: WMTConfig) -> WMTOperations {
-        return WMTOperationsImpl(powerAuth: self, config: config)
+    
+    /// Creates instance of the `WMTOperations` on top of the PowerAuth instance.
+    /// - Parameters:
+    ///   - config: Operations service config
+    ///   - pollingOptions: Polling feature configuration
+    /// - Returns: Operations service
+    func createWMTOperations(config: WMTConfig, pollingOptions: WMTOperationsPollingOptions = []) -> WMTOperations {
+        return WMTOperationsImpl(powerAuth: self, config: config, pollingOptions: pollingOptions)
     }
 }
 
@@ -63,7 +72,10 @@ class WMTOperationsImpl: WMTOperations {
         }
     }
     
-    var isPollingOperations: Bool { return pollingTimer != nil }
+    var isPollingOperations: Bool { return pollingLock.synchronized { self.isPollingOperationsInternal } }
+    private var isPollingOperationsInternal: Bool { pollingTimer != nil }
+    
+    let pollingOptions: WMTOperationsPollingOptions
     
     var acceptLanguage: String {
         get { networking.acceptLanguage }
@@ -72,6 +84,9 @@ class WMTOperationsImpl: WMTOperations {
     
     private var tasks = [GetOperationsTask]() // Task that are waiting for operation fetch
     private var pollingTimer: Timer? // Timer that manages operations polling when requested
+    private var isPollingPaused: Bool { return pollingTimer?.isValid == false }
+    private let pollingLock = WMTLock()
+    private var notificationObservers = [NSObjectProtocol]()
     
     /// Operation register holds operations in order
     private lazy var operationsRegister = OperationsRegister { [weak self] ops, added, removed in
@@ -85,10 +100,45 @@ class WMTOperationsImpl: WMTOperations {
     /// Methods of the delegate are always called on the main thread.
     weak var delegate: WMTOperationsDelegate?
     
-    init(powerAuth: PowerAuthSDK, config: WMTConfig) {
+    init(powerAuth: PowerAuthSDK, config: WMTConfig, pollingOptions: WMTOperationsPollingOptions = []) {
         self.powerAuth = powerAuth
         self.networking = WMTNetworkingService(powerAuth: powerAuth, config: config, serviceName: "WMTOperations")
         self.config = config
+        self.pollingOptions = pollingOptions
+        
+        #if os(iOS)
+        if pollingOptions.contains(.pauseWhenOnBackground) {
+            notificationObservers.append(NotificationCenter.default.addObserver(forName: UIApplication.willResignActiveNotification, object: nil, queue: nil) { [weak self] _ in
+                guard let `self` = self else {
+                    return
+                }
+                self.pollingLock.synchronized {
+                    if self.isPollingOperationsInternal {
+                        self.pollingTimer?.invalidate()
+                    }
+                }
+            })
+            notificationObservers.append(NotificationCenter.default.addObserver(forName: UIApplication.didBecomeActiveNotification, object: nil, queue: nil) { [weak self] _ in
+                guard let `self` = self else {
+                    return
+                }
+                self.pollingLock.synchronized {
+                    if self.isPollingPaused {
+                        guard let timer = self.pollingTimer else {
+                            D.error("This is a logical error, timer shouldn't be deallocated when paused")
+                            return
+                        }
+                        self.pollingTimer = nil
+                        self.startPollingOperationsInternal(interval: timer.timeInterval, delayStart: false)
+                    }
+                }
+            })
+        }
+        #endif
+    }
+    
+    deinit {
+        notificationObservers.forEach(NotificationCenter.default.removeObserver)
     }
     
     // MARK: - service API
@@ -245,6 +295,16 @@ class WMTOperationsImpl: WMTOperations {
     
     /// Start operations polling
     func startPollingOperations(interval: TimeInterval, delayStart: Bool) {
+        pollingLock.synchronized {
+            self.startPollingOperationsInternal(interval: interval, delayStart: delayStart)
+        }
+    }
+    
+    private func startPollingOperationsInternal(interval: TimeInterval, delayStart: Bool) {
+        guard isPollingPaused == false else {
+            D.warning("Polling is paused")
+            return
+        }
         guard pollingTimer == nil else {
             D.warning("Polling already in progress")
             return
@@ -265,6 +325,12 @@ class WMTOperationsImpl: WMTOperations {
     
     /// Stops operations polling
     func stopPollingOperations() {
+        pollingLock.synchronized {
+            self.stopPollingOperationsInternal()
+        }
+    }
+    
+    private func stopPollingOperationsInternal() {
         guard let timer = pollingTimer else {
             return
         }
