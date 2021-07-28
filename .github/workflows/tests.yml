@@ -14,9 +14,6 @@ jobs:
     steps:
       - name: Checkout the repo
         uses: actions/checkout@v2
-        # Xcode 11.7 until carthage is fixed (0.37+) 
-      - name: Force Xcode 11.7
-        run: sudo xcode-select -switch /Applications/Xcode_11.7.app
       - name: Runing Tests
         env:
           APP_KEY: ${{ secrets.TESTS_APP_KEY }}
