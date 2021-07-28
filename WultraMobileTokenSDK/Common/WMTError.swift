@@ -201,8 +201,8 @@ public extension WMTError {
     
     /// Returns `PA2ErrorResponse` if such object is embedded in nested error. This is typically useful
     /// for getting response created in the PowerAuth2 library.
-    var powerAuthErrorResponse: PA2ErrorResponse? {
-        if let responseObject = self.userInfo[PA2ErrorDomain] as? PA2ErrorResponse {
+    var powerAuthErrorResponse: PowerAuthRestApiErrorResponse? {
+        if let responseObject = self.userInfo[PowerAuthErrorDomain] as? PowerAuthRestApiErrorResponse {
             return responseObject
         }
         return nil
