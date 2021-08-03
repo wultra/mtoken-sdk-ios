@@ -19,7 +19,7 @@ import PowerAuth2
 
 /// Protocol for service, that communicates with Mobile Token API that handles operation approving
 /// via powerauth protocol.
-public protocol WMTOperations: class {
+public protocol WMTOperations: AnyObject {
     
     /// Delegate gets notified about changes in operations loading.
     /// Methods of the delegate are always called on the main thread.
@@ -111,13 +111,13 @@ public protocol WMTOperations: class {
 public typealias GetOperationsResult = Result<[WMTUserOperation], WMTError>
 public typealias GetOperationsCompletion = (GetOperationsResult) -> Void
 
-public protocol Cancellable: class {
+public protocol Cancellable: AnyObject {
     var isCanceled: Bool { get }
     func cancel()
 }
 
 /// Delegate for WMTOperations service
-public protocol WMTOperationsDelegate: class {
+public protocol WMTOperationsDelegate: AnyObject {
     
     /// When operations has changed
     ///

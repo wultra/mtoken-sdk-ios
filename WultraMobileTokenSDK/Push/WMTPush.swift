@@ -19,7 +19,7 @@ import PowerAuth2
 
 /// Protocol for service, that communicates with Mobile Token API that handles registration for
 /// push notifications.
-public protocol WMTPush: class {
+public protocol WMTPush: AnyObject {
     /// If there was already made an successful request.
     var pushNotificationsRegisteredOnServer: Bool { get }
     

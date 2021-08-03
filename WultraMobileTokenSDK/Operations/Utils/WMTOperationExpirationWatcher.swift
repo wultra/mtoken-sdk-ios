@@ -38,7 +38,7 @@ public protocol WMTCurrentDateProvider {
 }
 
 /// Protocol for delegate which gets called when operation expires
-public protocol WMTOperationExpirationWatcherDelegate: class {
+public protocol WMTOperationExpirationWatcherDelegate: AnyObject {
     
     /// Called when operation(s) expire(s).
     /// The method is called on the main thread by the `WMTOperationExpirationWatcher`.
