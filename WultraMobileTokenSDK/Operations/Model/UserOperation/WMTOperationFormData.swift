@@ -32,7 +32,6 @@ public class WMTOperationFormData: Codable {
     /// Note that attributes can be presented with different classes (Starting with `WMTOperationAttribute*`) based on the attribute type.
     public let attributes: [WMTOperationAttribute]
     
-    
     // MARK: - INTERNALS
     
     public required init(from decoder: Decoder) throws {
@@ -65,4 +64,3 @@ private class WMTOperationAttributeDecodable: Decodable {
         attrObject = try WMTOperationAttribute.decode(decoder: decoder)
     }
 }
-

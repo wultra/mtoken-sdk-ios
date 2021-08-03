@@ -58,7 +58,7 @@ public enum WMTSSLValidationStrategy {
 }
 
 // PowerAuth compatible wrapper for ssl strategy
-fileprivate class PA2ValidationStrategy: NSObject, PowerAuthClientSslValidationStrategy {
+private class PA2ValidationStrategy: NSObject, PowerAuthClientSslValidationStrategy {
     
     private let strategy: WMTSSLValidationStrategy
     

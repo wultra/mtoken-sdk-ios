@@ -25,7 +25,7 @@ class WMTOperationEndpoints {
         typealias RequestData   = WMTRequestBase
         typealias ResponseData  = WMTResponseArray<WMTUserOperation>
         
-        typealias Request       = WMTHttpRequest<RequestData,ResponseData>
+        typealias Request       = WMTHttpRequest<RequestData, ResponseData>
     }
     
     class AuthorizeOperation {
@@ -35,7 +35,7 @@ class WMTOperationEndpoints {
         typealias RequestData   = WMTRequest<WMTAuthorizationData>
         typealias ResponseData  = WMTResponseBase
         
-        typealias Request       = WMTHttpRequest<RequestData,ResponseData>
+        typealias Request       = WMTHttpRequest<RequestData, ResponseData>
     }
     
     class RejectOperation {
@@ -45,6 +45,6 @@ class WMTOperationEndpoints {
         typealias RequestData   = WMTRequest<WMTRejectionData>
         typealias ResponseData  = WMTResponseBase
         
-        typealias Request       = WMTHttpRequest<RequestData,ResponseData>
+        typealias Request       = WMTHttpRequest<RequestData, ResponseData>
     }
 }
