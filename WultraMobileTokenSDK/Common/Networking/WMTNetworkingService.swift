@@ -33,13 +33,13 @@ class WMTNetworkingService {
     
     /// Adds a HTTP post request to the request queue.
     @discardableResult
-    func post<TReq,TResp>(_ request: WMTHttpRequest<TReq,TResp>, completion: @escaping WMTHttpRequest<TReq,TResp>.Completion) -> Operation {
+    func post<TReq, TResp>(_ request: WMTHttpRequest<TReq, TResp>, completion: @escaping WMTHttpRequest<TReq, TResp>.Completion) -> Operation {
         
         // Setup default headers
         request.addHeaders(getDefaultHeaders())
         let op = WMTAsyncBlockOperation { operation, markFinished in
             
-            let completion: WMTHttpRequest<TReq,TResp>.Completion = { resp, error in
+            let completion: WMTHttpRequest<TReq, TResp>.Completion = { resp, error in
                 markFinished {
                     completion(resp, error)
                 }
@@ -68,7 +68,7 @@ class WMTNetworkingService {
                             // Valid envelope
                             if responseEnvelope.status == .Ok {
                                 // Success exit from block
-                                completion(responseEnvelope , nil)
+                                completion(responseEnvelope, nil)
                                 return
                                 //
                             } else {
@@ -104,12 +104,12 @@ class WMTNetworkingService {
     
     // MARK: - Private functions
     
-    private func getDefaultHeaders() -> [String:String] {
+    private func getDefaultHeaders() -> [String: String] {
         return ["Accept-Language": acceptLanguage]
     }
     
     /// Calculates a signature for request. The function must be called on background thread.
-    private func bgCalculateSignature<TReq,TResp>(_ request: WMTHttpRequest<TReq,TResp>, completion: @escaping (WMTError?)->Void) {
+    private func bgCalculateSignature<TReq, TResp>(_ request: WMTHttpRequest<TReq, TResp>, completion: @escaping (WMTError?) -> Void) {
         do {
             guard let data = request.requestData else {
                 completion(WMTError(reason: .network_invalidRequestObject))
@@ -118,7 +118,7 @@ class WMTNetworkingService {
             
             if request.needsTokenSignature {
                 // authenticate with token
-                let _ = powerAuth.tokenStore.requestAccessToken(withName: request.tokenName!, authentication: request.auth!) { (token, error) in
+                _ = powerAuth.tokenStore.requestAccessToken(withName: request.tokenName!, authentication: request.auth!) { (token, error) in
                     //
                     var reportError: WMTError? = error != nil ? WMTError(reason: .network_generic, error: error) : nil
                     if let token = token {

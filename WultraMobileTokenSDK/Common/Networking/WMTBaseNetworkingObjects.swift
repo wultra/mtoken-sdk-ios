@@ -118,7 +118,6 @@ class WMTResponseArray<T: Decodable>: WMTResponseBase {
     }
 }
 
-
 /// Known values of rest api errors
 public enum KnownRestApiError: String, Decodable {
     

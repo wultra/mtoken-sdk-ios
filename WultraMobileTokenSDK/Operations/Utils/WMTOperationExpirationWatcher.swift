@@ -38,7 +38,7 @@ public protocol WMTCurrentDateProvider {
 }
 
 /// Protocol for delegate which gets called when operation expires
-public protocol WMTOperationExpirationWatcherDelegate: class {
+public protocol WMTOperationExpirationWatcherDelegate: AnyObject {
     
     /// Called when operation(s) expire(s).
     /// The method is called on the main thread by the `WMTOperationExpirationWatcher`.
@@ -126,7 +126,7 @@ public class WMTOperationExpirationWatcher {
             var opsToWatch = [WMTExpirableOperation]()
             for op in operations {
                 // filter already added operations
-                if self.operationsToWatch.contains(where: { $0.equals(other: op)} ) {
+                if self.operationsToWatch.contains(where: { $0.equals(other: op)}) {
                     D.warning("WMTOperationExpirationWatcher: Operation cannot be watched - already there.")
                 } else {
                     opsToWatch.append(op)
@@ -210,7 +210,8 @@ public class WMTOperationExpirationWatcher {
             // This is a precaution when you'll receive an expired operation from the backend over and over again
             // and it would lead to infinite refresh time. This also helps when device and backend time is out of sync heavily.
             // This leads to a minimal "expire report time" of 5 seconds.
-            let interval = max(5, firstOp.operationExpires.timeIntervalSince1970 - self.currentDateProvider.currentDate.timeIntervalSince1970)
+            // The 0.1 addition is a correction of the Timer class which can fire slightly (in order of 0.000x seconds) earlier than scheduled.
+            let interval = max(5, firstOp.operationExpires.timeIntervalSince1970 - self.currentDateProvider.currentDate.timeIntervalSince1970) + 0.1
             
             D.print("WMTOperationExpirationWatcher: Scheduling operation expire check in \(Int(interval)) seconds.")
             self.timer = Timer.scheduledTimer(withTimeInterval: interval, repeats: false) { [weak self] _ in
