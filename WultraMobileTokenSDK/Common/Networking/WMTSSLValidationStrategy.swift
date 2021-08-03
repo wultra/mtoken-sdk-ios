@@ -52,13 +52,13 @@ public enum WMTSSLValidationStrategy {
     }
     
     /// Returns PowerAuth2 compatible object for SSL validation
-    internal func createPA2ValidationStrategy() -> PA2ClientSslValidationStrategy {
+    internal func createPA2ValidationStrategy() -> PowerAuthClientSslValidationStrategy {
         return PA2ValidationStrategy(strategy: self)
     }
 }
 
 // PowerAuth compatible wrapper for ssl strategy
-fileprivate class PA2ValidationStrategy: NSObject, PA2ClientSslValidationStrategy {
+private class PA2ValidationStrategy: NSObject, PowerAuthClientSslValidationStrategy {
     
     private let strategy: WMTSSLValidationStrategy
     

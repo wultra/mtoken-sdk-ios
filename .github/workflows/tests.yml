@@ -14,9 +14,6 @@ jobs:
     steps:
       - name: Checkout the repo
         uses: actions/checkout@v2
-        # Xcode 11.7 until carthage is fixed (0.37+) 
-      - name: Force Xcode 11.7
-        run: sudo xcode-select -switch /Applications/Xcode_11.7.app
       - name: Runing Tests
         env:
           APP_KEY: ${{ secrets.TESTS_APP_KEY }}
@@ -27,4 +24,4 @@ jobs:
           CL_PWD: ${{ secrets.TESTS_CL_PWD }}
           OP_URL: ${{ secrets.TESTS_OP_URL }}
           ER_URL: ${{ secrets.TESTS_ER_URL }}
-        run: ./scripts/test.sh -destination "platform=iOS Simulator,OS=13.7,name=iPhone 11" -appkey "$APP_KEY" -appsecret "$APP_SECRET" -masterspk "$MASTER_SERVER_PUBLIC_KEY" -er "$ER_URL" -op "$OP_URL" -cl "$CL_URL" -clu "$CL_LGN" -clp "$CL_PWD"
+        run: ./scripts/test.sh -destination "platform=iOS Simulator,OS=14.5,name=iPhone 11" -appkey "$APP_KEY" -appsecret "$APP_SECRET" -masterspk "$MASTER_SERVER_PUBLIC_KEY" -er "$ER_URL" -op "$OP_URL" -cl "$CL_URL" -clu "$CL_LGN" -clp "$CL_PWD"

@@ -38,7 +38,7 @@ public protocol WMTCurrentDateProvider {
 }
 
 /// Protocol for delegate which gets called when operation expires
-public protocol WMTOperationExpirationWatcherDelegate: class {
+public protocol WMTOperationExpirationWatcherDelegate: AnyObject {
     
     /// Called when operation(s) expire(s).
     /// The method is called on the main thread by the `WMTOperationExpirationWatcher`.
@@ -126,7 +126,7 @@ public class WMTOperationExpirationWatcher {
             var opsToWatch = [WMTExpirableOperation]()
             for op in operations {
                 // filter already added operations
-                if self.operationsToWatch.contains(where: { $0.equals(other: op)} ) {
+                if self.operationsToWatch.contains(where: { $0.equals(other: op)}) {
                     D.warning("WMTOperationExpirationWatcher: Operation cannot be watched - already there.")
                 } else {
                     opsToWatch.append(op)

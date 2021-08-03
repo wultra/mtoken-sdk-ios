@@ -22,7 +22,6 @@ public class WMTOperationAttributeKeyValue: WMTOperationAttribute {
     /// Value of the attribute
     public let value: String
     
-    
     // MARK: - INTERNALS
     
     public init(label: AttributeLabel, value: String) {
