@@ -22,7 +22,6 @@ public class WMTOperationAttributeNote: WMTOperationAttribute {
     /// Note value
     public let note: String
     
-    
     // MARK: - INTERNALS
     
     private enum Keys: CodingKey {

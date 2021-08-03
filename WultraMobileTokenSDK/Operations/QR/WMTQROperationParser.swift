@@ -25,7 +25,6 @@ public class WMTQROperationParser {
         dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "yyyyMMdd"
     }
-    
 
     /// Minimum lines in input string supported by this parser
     private static let minimumAttributeFields = 7
@@ -91,7 +90,6 @@ public class WMTQROperationParser {
         )
     }
     
-    
     /// Parses and translates input string into `QROperationFormData` structure. If nil is returned,
     /// then the input string is not recognized as form data.
     private func parseOperationData(string: String) -> Result<WMTQROperationData, WMTQROperationParserError> {
@@ -136,7 +134,6 @@ public class WMTQROperationParser {
         )
     }
     
-    
     /// Splits input string into array of strings, representing array of form fields.
     /// It's expected that input string contains asterisk separated list of fields.
     private func splitOperationData(string: String) -> [String] {
@@ -167,7 +164,6 @@ public class WMTQROperationParser {
         }
         return fields
     }
-    
     
     /// Parses input string into array of Field enumerations. Returns nil if some
     /// field has
@@ -242,7 +238,6 @@ public class WMTQROperationParser {
             allowBiometryFactor: string.contains("B"))
     }
     
-    
     /// Returns true if provided string is in Base64 format and encoded data's length
     /// is within provided min & max limits.
     private func validateBase64String(_ string: String, min: Int, max: Int) -> Bool {
@@ -273,7 +268,6 @@ public class WMTQROperationParser {
         return WMTQROperationSignature(signingKey: signingKey, signature: signature)
     }
     
-    
     /// Parses amount field into field enumeration.
     private func parseAmount(from string: String) -> WMTQROperationData.Field? {
         let value = string.suffix(string.count - 1)
@@ -289,7 +283,6 @@ public class WMTQROperationParser {
         }
         return .amount(amount: amount, currency: currency)
     }
-    
     
     /// Parses IBAN[,BIC] into account field enumeration.
     private func parseIban(from string: String) -> WMTQROperationData.Field? {
@@ -327,7 +320,6 @@ public class WMTQROperationParser {
         return .account(iban: iban, bic: bic)
     }
     
-    
     /// A private date formatter used for D{DATE} parsing
     private let dateFormatter: DateFormatter
     
@@ -342,7 +334,6 @@ public class WMTQROperationParser {
         }
         return .date(date: date)
     }
-    
     
     /// Returns parsed generic string. The input string may contain an escaped "\n" and "\\" characters.
     private func parseFieldText(from string: String) -> String {

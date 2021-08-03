@@ -35,14 +35,14 @@ class WMTHttpRequest<TRequest: WMTRequestBase, TResponse: WMTResponseBase> {
     /// Default value is `.json`
     var responseType = BodyType.json
     
-    typealias Completion = (TResponse?, WMTError?)->Void
+    typealias Completion = (TResponse?, WMTError?) -> Void
     
     private(set) var url: URL
     private(set) var uriIdentifier: String?
     private(set) var tokenName: String?
     private(set) var auth: PowerAuthAuthentication?
 
-    private var headers = [String:String]()
+    private var headers = [String: String]()
     private(set) var method: String = "POST"
     
     private(set) var requestData: Data?
@@ -77,8 +77,8 @@ class WMTHttpRequest<TRequest: WMTRequestBase, TResponse: WMTResponseBase> {
         self.buildRequestData(requestData)
     }
     
-    func addHeaders(_ headers: [String:String]) {
-        for (k,v) in headers {
+    func addHeaders(_ headers: [String: String]) {
+        for (k, v) in headers {
             self.headers[k] = v
         }
     }
@@ -91,9 +91,9 @@ class WMTHttpRequest<TRequest: WMTRequestBase, TResponse: WMTResponseBase> {
         
         var request = URLRequest(url: url)
         
-        let requestHeaders = headers.merging(["Accept": responseType.rawValue, "Content-Type": requestType.rawValue], uniquingKeysWith: { f,_ in f })
+        let requestHeaders = headers.merging(["Accept": responseType.rawValue, "Content-Type": requestType.rawValue], uniquingKeysWith: { f, _ in f })
         
-        for (k,v) in requestHeaders {
+        for (k, v) in requestHeaders {
             request.addValue(v, forHTTPHeaderField: k)
         }
         

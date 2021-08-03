@@ -28,7 +28,6 @@ public class WMTOperationAttribute: Codable {
     /// Label for the value.
     public let label: AttributeLabel
     
-    
     // MARK: - INNER CLASSES
     
     /// Attribute type. Based on this type, proper class will be chosen for "deserialization".
@@ -55,7 +54,6 @@ public class WMTOperationAttribute: Codable {
             self.value = value
         }
     }
-    
     
     // MARK: - INTERNALS
     
