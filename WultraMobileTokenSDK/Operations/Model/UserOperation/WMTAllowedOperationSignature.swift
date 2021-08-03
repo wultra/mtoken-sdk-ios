@@ -28,7 +28,6 @@ public class WMTAllowedOperationSignature: Codable {
     /// Helper getter if biometry factor is allowed.
     public var isBiometryAllowed: Bool { return signatureFactors.contains(.possessionBiometry) }
     
-    
     // MARK: - INNER CLASSES
     
     public enum SignatureType: String, Codable {
@@ -40,7 +39,6 @@ public class WMTAllowedOperationSignature: Codable {
         case possessionKnowledge = "possession_knowledge"
         case possessionBiometry = "possession_biometry"
     }
-    
     
     // MARK: - INTERNALS
     

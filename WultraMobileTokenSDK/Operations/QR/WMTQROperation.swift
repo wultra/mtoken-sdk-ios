@@ -76,14 +76,12 @@ public struct WMTQROperationSignature {
     public let signature: String
 }
 
-
 /// The `WMTQROperationFlags` structure defines flags associated with the operation
 public struct QROperationFlags {
     
     /// If true, then 2FA signature with biometry factor can be used for operation confirmation.
     public let allowBiometryFactor: Bool
 }
-
 
 /// The `WMTQROperationData` structure defines operation data in QR operation.
 public struct WMTQROperationData {
