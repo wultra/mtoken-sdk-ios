@@ -166,7 +166,7 @@ class IntegrationUtils {
 private struct RegistrationObject: Codable {
     let activationQrCodeData: String
     
-    func activationCode() -> String? { return PA2OtpUtil.parse(fromActivationCode: activationQrCodeData)?.activationCode }
+    func activationCode() -> String? { return PowerAuthActivationCodeUtil.parse(fromActivationCode: activationQrCodeData)?.activationCode }
 }
 
 private struct CommitObject: Codable {
