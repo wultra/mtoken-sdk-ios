@@ -8,14 +8,14 @@ on:
   pull_request:
 
 jobs:
-  podspec:
-    name: Podspec Lint
+  pod:
+    name: Pod Lib Lint
     runs-on: macos-11.0
     steps:
       - name: Checkout the repo
         uses: actions/checkout@v2
       - name: Lint
-        run: pod spec lint --allow-warnings
+        run: pod lib lint --allow-warnings
   swift:
     name: Swift Lint
     runs-on: macos-11.0
