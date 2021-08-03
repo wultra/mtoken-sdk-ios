@@ -210,7 +210,8 @@ public class WMTOperationExpirationWatcher {
             // This is a precaution when you'll receive an expired operation from the backend over and over again
             // and it would lead to infinite refresh time. This also helps when device and backend time is out of sync heavily.
             // This leads to a minimal "expire report time" of 5 seconds.
-            let interval = max(5, firstOp.operationExpires.timeIntervalSince1970 - self.currentDateProvider.currentDate.timeIntervalSince1970)
+            // The 0.1 addition is a correction of the Timer class which can fire slightly (in order of 0.000x seconds) earlier than scheduled.
+            let interval = max(5, firstOp.operationExpires.timeIntervalSince1970 - self.currentDateProvider.currentDate.timeIntervalSince1970) + 0.1
             
             D.print("WMTOperationExpirationWatcher: Scheduling operation expire check in \(Int(interval)) seconds.")
             self.timer = Timer.scheduledTimer(withTimeInterval: interval, repeats: false) { [weak self] _ in
