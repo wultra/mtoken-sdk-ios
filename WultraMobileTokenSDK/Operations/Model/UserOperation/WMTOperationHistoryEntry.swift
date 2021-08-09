@@ -16,7 +16,7 @@ import Foundation
 public class WMTOperationHistoryEntry: Decodable {
     
     /// Processing status of the operation
-    public enum Status: String, Decodable {
+    public enum Status: String, Decodable, CaseIterable {
         /// Operation was approved
         case approved = "APPROVED"
         /// Operation was rejected
