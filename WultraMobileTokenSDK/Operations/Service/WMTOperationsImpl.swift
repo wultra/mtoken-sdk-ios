@@ -169,7 +169,7 @@ class WMTOperationsImpl: WMTOperations {
                 if let result = response?.responseObject {
                     completion(.success(result))
                 } else {
-                    completion(.failure(error ?? WMTError(reason: .network_unknown)))
+                    completion(.failure(error ?? WMTError(reason: .unknown)))
                 }
             }
         })
