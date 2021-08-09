@@ -86,6 +86,7 @@ _Note that the listener is called for all "fetch operations" requests (not just 
 
 ```swift
 import WultraMobileTokenSDK
+import PowerAuth2
 
 class MyOperationsManager: WMTOperationsDelegate {
 
@@ -119,6 +120,7 @@ To approve an operation use `WMTOperations.authorize`. You can simply use it wit
 
 ```swift
 import WultraMobileTokenSDK
+import PowerAuth2
 
 func approve(operation: WMTOperation, password: String) {
 
@@ -141,6 +143,9 @@ func approve(operation: WMTOperation, password: String) {
 To reject an operation use `WMTOperations.reject`. Operation rejection is confirmed by possession factor so there is no need for creating  `PowerAuthAuthentication` object. You can simply use it with the following example.
 
 ```swift
+import WultraMobileTokenSDK
+import PowerAuth2
+
 // Reject operation with some reason
 func reject(operation: WMTOperation, reason: WMTRejectionReason) {
     operationService.reject(operation: operation, reason: reason) { error in 
@@ -152,6 +157,34 @@ func reject(operation: WMTOperation, reason: WMTRejectionReason) {
     }
 }
 ```
+
+## Operation History
+
+You can retrieve an operation history via the `WMTOperations.getHistory` method. The returned result is operations and their current status.
+
+```swift
+import WultraMobileTokenSDK
+import PowerAuth2
+
+// Retrieve operation history with password
+func history(password: String) {
+    let auth = PowerAuthAuthentication()
+    auth.usePossession = true
+    auth.usePassword = password
+    operationService.getHistory(authentication: auth) { result in 
+        switch result {
+        case .success(let operations):
+            // process operation history
+            break
+        case .failure(let error):
+            // process error
+            break
+        }
+    }
+}
+```
+
+_Note that the operation history availability depends on the backend implementation and might not be available. Please consult this with your backend developers._
 
 ## Off-line Authorization
 
@@ -181,6 +214,7 @@ After that, you can produce an off-line signature using the following code:
 
 ```swift
 import WultraMobileTokenSDK
+import PowerAuth2
 
 func approveQROperation(operation: WMTQROperation, password: String) {
 
@@ -227,6 +261,9 @@ All available methods and attributes of `WMTOperations` API are:
     - `operation` - An operation to reject, retrieved from `getOperations` call or [created locally](#creating-a-custom-operation).
     - `reason` - Rejection reason
     - `completion` - Called when rejection request finishes. Always called on the main thread.
+- `getHistory(authentication: PowerAuthAuthentication, completion: @escaping(Result<[WMTOperationHistoryEntry],WMTError>) -> Void) -> Operation?`
+  - `authentication` - PowerAuth authentication object for operation signing.
+  - `completion` - Called when rejection request finishes. Always called on the main thread.
 - `authorize(qrOperation: WMTQROperation, authentication: PowerAuthAuthentication, completion: @escaping(Result<String, WMTError>) -> Void)` - Sign offline (QR) operation.
     - `operation` - Offline operation that can be retrieved via `WMTQROperationParser.parse` method.
     - `authentication` - PowerAuth authentication object for operation signing.
