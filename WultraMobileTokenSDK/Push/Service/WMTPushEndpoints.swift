@@ -25,6 +25,6 @@ class WMTPushEndpoints {
         typealias RequestData   = WMTRequest<WMTPushRegistrationData>
         typealias ResponseData  = WMTResponseBase
         
-        typealias Request       = WMTHttpRequest<RequestData,ResponseData>
+        typealias Request       = WMTHttpRequest<RequestData, ResponseData>
     }
 }

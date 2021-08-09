@@ -25,7 +25,6 @@ public class WMTOperationAttributePartyInfo: WMTOperationAttribute {
     /// Information about the 3rd party info
     public let partyInfo: WMTPartyInfo
     
-    
     // MARK: - INTERNALS
     
     private enum Keys: CodingKey {
