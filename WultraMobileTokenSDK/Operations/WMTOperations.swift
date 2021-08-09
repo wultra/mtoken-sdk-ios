@@ -54,7 +54,17 @@ public protocol WMTOperations: AnyObject {
     /// - Returns: Control object in case the operations needs to be canceled.
     ///
     /// Note: be sure to call this method on the main thread!
+    @discardableResult
     func getOperations(completion: @escaping GetOperationsCompletion) -> Cancellable
+    
+    /// Retrieves history of the user operations with its status.
+    /// - Parameters:
+    ///   - authentication: Authentication object for signing.
+    ///   - completion: Result completion.
+    ///                 This completion is always called on the main thread.
+    /// - Returns: Operation object for its state observation.
+    @discardableResult
+    func getHistory(authentication: PowerAuthAuthentication, completion: @escaping(Result<[WMTOperationHistoryEntry],WMTError>) -> Void) -> Operation?
     
     /// Authorize operation with given PowerAuth authentication object.
     ///

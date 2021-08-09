@@ -41,7 +41,7 @@ class NetworkingObjectsTests: XCTestCase {
         let response = """
                        {"status":"OK","responseObject":[{"id":"930febe7-f350-419a-8bc0-c8883e7f71e3","name":"authorize_payment","data":"A1*A100CZK*Q238400856/0300**D20170629*NUtility Bill Payment - 05/2017","operationCreated":"2018-08-08T12:30:42+0000","operationExpires":"2018-08-08T12:35:43+0000","allowedSignatureType":{"type":"2FA","variants":["possession_knowledge", "possession_biometry"]},"formData":{"title":"Potvrzení platby","message":"Dobrý den,prosíme o potvrzení následující platby:","attributes":[{"type":"AMOUNT","id":"operation.amount","label":"Částka","amount":965165234082.23,"currency":"CZK"},{"type":"KEY_VALUE","id":"operation.account","label":"Na účet","value":"238400856/0300"},{"type":"KEY_VALUE","id":"operation.dueDate","label":"Datum splatnosti","value":"29.6.2017"},{"type":"NOTE","id":"operation.note","label":"Poznámka","note":"Utility Bill Payment - 05/2017"},{"type":"PARTY_INFO","id":"operation.partyInfo","label":"Application","partyInfo":{"logoUrl":"http://whywander.com/wp-content/uploads/2017/05/prague_hero-100x100.jpg","name":"Tesco","description":"Objevte více příběhů psaných s chutí","websiteUrl":"https://itesco.cz/hello/vse-o-jidle/pribehy-psane-s-chuti/clanek/tomovy-burgery-pro-zapalene-fanousky/15012"}}]}},{"id":"930febe7-f350-419a-8bc0-c8883e7f71e3","name":"authorize_payment","data":"A1*A100CZK*Q238400856/0300**D20170629*NUtility Bill Payment - 05/2017","operationCreated":"2018-08-08T12:30:42+0000","operationExpires":"2018-08-08T12:35:43+0000","allowedSignatureType":{"type":"1FA","variants":["possession_knowledge"]},"formData":{"title":"Potvrzení platby","message":"Dobrý den,prosíme o potvrzení následující platby:","attributes":[{"type":"AMOUNT","id":"operation.amount","label":"Částka","amount":100,"currency":"CZK"},{"type":"KEY_VALUE","id":"operation.account","label":"Na účet","value":"238400856/0300"},{"type":"KEY_VALUE","id":"operation.dueDate","label":"Datum splatnosti","value":"29.6.2017"},{"type":"NOTE","id":"operation.note","label":"Poznámka","note":"Utility Bill Payment - 05/2017"}]}}]}
                        """
-        let request: WMTOperationEndpoints.GetOperations.Request = WMTHttpRequest(URL(string: "https://www.wultra.com")!, requestData: WMTRequestBase())
+        let request: WMTOperationEndpoints.List.Request = WMTHttpRequest(URL(string: "https://www.wultra.com")!, requestData: WMTRequestBase())
         
         guard let result = request.processResult(data: response.data(using: .utf8)!) else {
             XCTFail("Failed to parse JSON data")
@@ -127,7 +127,7 @@ class NetworkingObjectsTests: XCTestCase {
                        {"status":"ERROR","responseObject":{"code":"INVALID_ACTIVATION","message":"Invalid activation found in Mobile Token API component."}}
                        """
         
-        let request: WMTOperationEndpoints.GetOperations.Request = WMTHttpRequest(URL(string: "https://www.wultra.com")!, requestData: WMTRequestBase())
+        let request: WMTOperationEndpoints.List.Request = WMTHttpRequest(URL(string: "https://www.wultra.com")!, requestData: WMTRequestBase())
         
         guard let result = request.processResult(data: response.data(using: .utf8)!) else {
             XCTFail("Failed to parse JSON data")
@@ -152,8 +152,8 @@ class NetworkingObjectsTests: XCTestCase {
                           {"requestObject":{"id":"95e51995-fa60-4018-bd87-43a58f098570","data":"RANDOMDATA"}}
                           """
         let data = WMTAuthorizationData(operationId: "95e51995-fa60-4018-bd87-43a58f098570", operationData: "RANDOMDATA")
-        let r = WMTOperationEndpoints.AuthorizeOperation.RequestData(data)
-        let request: WMTOperationEndpoints.AuthorizeOperation.Request = WMTHttpRequest(URL(string: "https://www.wultra.com")!, requestData: r)
+        let r = WMTOperationEndpoints.Authorize.RequestData(data)
+        let request: WMTOperationEndpoints.Authorize.Request = WMTHttpRequest(URL(string: "https://www.wultra.com")!, requestData: r)
         
         request.testSerialization(expectation: expectation)
     }
@@ -165,8 +165,8 @@ class NetworkingObjectsTests: XCTestCase {
                           """
         
         let data = WMTRejectionData(operationId: "95e51995-fa60-4018-bd87-43a58f098570", reason: .unexpectedOperation)
-        let r = WMTOperationEndpoints.RejectOperation.RequestData(data)
-        let request: WMTOperationEndpoints.RejectOperation.Request = WMTHttpRequest(URL(string: "https://www.wultra.com")!, requestData: r)
+        let r = WMTOperationEndpoints.Reject.RequestData(data)
+        let request: WMTOperationEndpoints.Reject.Request = WMTHttpRequest(URL(string: "https://www.wultra.com")!, requestData: r)
         
         request.testSerialization(expectation: expectation)
     }

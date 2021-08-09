@@ -28,13 +28,16 @@ import PowerAuth2
 
 class IntegrationTests: XCTestCase {
     
-    private var pa: PowerAuthSDK { IntegrationTests.pa }
+    private var pa: PowerAuthSDK { Self.pa }
     private static var pa: PowerAuthSDK!
     
-    private var ops: WMTOperations { IntegrationTests.ops }
+    private var ops: WMTOperations { Self.ops }
     private static var ops: WMTOperations!
     
     private static let pin = "1234"
+    
+    private static var operationsApproved = 0
+    private static var operationsRejected = 0
     
     override class func setUp() {
         super.setUp()
@@ -70,7 +73,7 @@ class IntegrationTests: XCTestCase {
                 exp.fulfill()
             }
         } else {
-            XCTFail("Failed to setup power auth and operation service")
+            XCTFail("Failed to remove activation")
             exp.fulfill()
         }
         
@@ -205,10 +208,12 @@ class IntegrationTests: XCTestCase {
                             if error != nil {
                                 let auth = PowerAuthAuthentication()
                                 auth.usePossession = true
-                                auth.usePassword = IntegrationTests.pin
+                                auth.usePassword = Self.pin
                                 self.ops.authorize(operation: ops.first!, authentication: auth) { error in
                                     if let error = error {
                                         XCTFail("Failed to authorize op: \(error.description)")
+                                    } else {
+                                        Self.operationsApproved += 1
                                     }
                                     exp.fulfill()
                                 }
@@ -252,6 +257,8 @@ class IntegrationTests: XCTestCase {
                         self.ops.reject(operation: ops.first!, reason: .unexpectedOperation) { error in
                             if let error = error {
                                 XCTFail("Failed to reject op: \(error.description)")
+                            } else {
+                                Self.operationsRejected += 1
                             }
                             exp.fulfill()
                         }
@@ -283,6 +290,39 @@ class IntegrationTests: XCTestCase {
         waitForExpectations(timeout: 20, handler: nil)
         
         XCTAssertFalse(ops.isPollingOperations)
+    }
+    
+    // the Z ensures that the test runs last
+    func testZOperationHistory() {
+        let exp = expectation(description: "history expectation")
+        
+        // lets create 1 operation and leave it in the state of "pending"
+        IntegrationUtils.createOperation { error in
+            
+            guard error == nil else {
+                XCTFail(error!)
+                exp.fulfill()
+                return
+            }
+            
+            let auth = PowerAuthAuthentication()
+            auth.usePossession = true
+            auth.usePassword = Self.pin
+            self.ops.getHistory(authentication: auth) { result in
+                switch result {
+                case .success(let ops):
+                    XCTAssertEqual(ops.count, 1 + Self.operationsApproved + Self.operationsRejected)
+                    XCTAssertEqual(ops.filter { $0.status == .approved }.count, Self.operationsApproved)
+                    XCTAssertEqual(ops.filter { $0.status == .rejected }.count, Self.operationsRejected)
+                    XCTAssertEqual(ops.filter { $0.status == .pending }.count, 1)
+                case .failure:
+                    XCTFail("History was not retrieved")
+                }
+                exp.fulfill()
+            }
+        }
+        
+        waitForExpectations(timeout: 20, handler: nil)
     }
 }
 
