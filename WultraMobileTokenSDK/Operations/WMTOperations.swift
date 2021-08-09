@@ -57,7 +57,7 @@ public protocol WMTOperations: AnyObject {
     @discardableResult
     func getOperations(completion: @escaping GetOperationsCompletion) -> Cancellable
     
-    /// Retrieves history of the user operations with its status.
+    /// Retrieves the history of user operations with its current status.
     /// - Parameters:
     ///   - authentication: Authentication object for signing.
     ///   - completion: Result completion.
