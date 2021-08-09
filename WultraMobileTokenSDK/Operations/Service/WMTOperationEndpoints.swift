@@ -31,7 +31,7 @@ class WMTOperationEndpoints {
     class History {
         
         static let url          = "/api/auth/token/app/operation/history"
-        static let uriId    = "/operation/history"
+        static let uriId        = "/operation/history"
         typealias RequestData   = WMTRequestBase
         typealias ResponseData  = WMTResponseArray<WMTOperationHistoryEntry>
         
