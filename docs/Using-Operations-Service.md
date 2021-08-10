@@ -123,18 +123,44 @@ Polling behavior can be adjusted by the `pollingOptions` parameter when [creatin
 
 ## Approve an Operation
 
-To approve an operation use `WMTOperations.authorize`. You can simply use it with the following example:
+To approve an operation use `WMTOperations.authorize`. You can simply use it with following examples:
 
 ```swift
 import WultraMobileTokenSDK
+import PowerAuth2
 
+// Approve operation with password
 func approve(operation: WMTOperation, password: String) {
 
-    let authentication = PowerAuthAuthentication()
-    authentication.usePossession = true
-    authentication.usePassword = password
+    let auth = PowerAuthAuthentication()
+    auth.usePossession = true
+    auth.usePassword = password
 
-    operationService.authorize(operation: operation, authentication: authentication) { error in 
+    operationService.authorize(operation: operation, authentication: auth) { error in 
+        if let error = error {
+            // show error UI
+        } else {
+            // show success UI
+        }
+    }
+}
+```
+
+_To approve offline operations with biometry, your PowerAuth instance [need to be configured with biometry factor](https://github.com/wultra/powerauth-mobile-sdk/blob/develop/docs/PowerAuth-SDK-for-iOS.md#biometry-setup)._
+
+```swift
+import WultraMobileTokenSDK
+import PowerAuth2
+
+// Approve operation with password
+func approveWithBiometry(operation: WMTOperation) {
+
+    let auth = PowerAuthAuthentication()
+    auth.usePossession = true
+    auth.useBiometry = true
+    auth.biometryPrompt = "Confirm operation."
+
+    operationService.authorize(operation: operation, authentication: auth) { error in 
         if let error = error {
             // show error UI
         } else {
@@ -165,7 +191,7 @@ func reject(operation: WMTOperation, reason: WMTRejectionReason) {
 
 In case the user is not online, you can use off-line authorizations. In this operation mode, the user needs to scan a QR code, enter PIN code or use biometry, and rewrite the resulting code. Wultra provides a special format for [the operation QR codes](https://github.com/wultra/powerauth-webflow/blob/develop/docs/Off-line-Signatures-QR-Code.md), that is automatically processed with the SDK.
 
-To process the operation QR code string and obtain `WMTQROperation`, simply call the `WMTQROperationParser.parse` function:
+### Processing scanned QR operation
 
 ```swift
 import WultraMobileTokenSDK
@@ -185,30 +211,72 @@ case .failure(let error):
 }
 ```
 
-After that, you can produce an off-line signature using the following code:
+### Authorizing scanned QR operation
+
+<!-- begin box info -->
+An offline operation needs to be __always__ approved with __2-factor scheme__ (password or biometry).
+<!-- end -->
+
+#### With password
 
 ```swift
 import WultraMobileTokenSDK
+import PowerAuth2
 
 func approveQROperation(operation: WMTQROperation, password: String) {
 
-    let authentication = PowerAuthAuthentication()
-    authentication.usePossession = true
-    authentication.usePassword = password
-    authentication.useBiometry = false
+    let auth = PowerAuthAuthentication()
+    auth.usePossession = true
+    auth.usePassword = password
 
-    operationsService.authorize(qrOperation: operation, authentication: authentication) { result in 
+    operationsService.authorize(qrOperation: operation, authentication: auth) { result in 
         switch result {
         case .success(let code):
-            // show success UI - display the code to the user
-            // note that operation will be successful even with a wrong
-            // password as it cannot be verified on the server
+            // Display the signature to the user so it can be manually rewritten.
+            // Note that the operation will be signed even with the wrong password!
         case .failure(let error):
-            // show error UI
+            // Failed to sign the operation
         }
     }
 }
 ```
+
+<!-- warning box info -->
+An offline operation can and will be signed even with an incorrect password. The signature cannot be used for manual approval in such a case. This behavior cannot be detected, so you should warn the user that an incorrect password will result in an incorrect "approval code".
+<!-- end -->
+
+#### With biometry
+
+_To approve offline operations with biometry, your PowerAuth instance [need to be configured with biometry factor](https://github.com/wultra/powerauth-mobile-sdk/blob/develop/docs/PowerAuth-SDK-for-iOS.md#biometry-setup)._
+
+```swift
+import WultraMobileTokenSDK
+import PowerAuth2
+
+// Approves QR operation with biometry
+func approveQROperationWithBiometry(operation: WMTQROperation) {
+
+    guard operation.flags.allowBiometryFactor else {
+        // biometry usage is not allowed on this operation
+        return
+    }
+
+    let auth = PowerAuthAuthentication()
+    auth.usePossession = true
+    auth.useBiometry = true
+    auth.biometryPrompt = "Confirm operation."
+
+    operationsService.authorize(qrOperation: operation, authentication: auth) { result in 
+        switch result {
+        case .success(let code):
+            // Display the signature to the user so it can be manually rewritten.
+        case .failure(let error):
+            // Failed to sign the operation
+        }
+    }
+}
+```
+
 
 ## Operations API Reference
 
