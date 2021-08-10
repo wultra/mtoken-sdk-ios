@@ -261,7 +261,7 @@ All available methods and attributes of `WMTOperations` API are:
     - `operation` - An operation to reject, retrieved from `getOperations` call or [created locally](#creating-a-custom-operation).
     - `reason` - Rejection reason
     - `completion` - Called when rejection request finishes. Always called on the main thread.
-- `getHistory(authentication: PowerAuthAuthentication, completion: @escaping(Result<[WMTOperationHistoryEntry],WMTError>) -> Void) -> Operation?`
+- `getHistory(authentication: PowerAuthAuthentication, completion: @escaping(Result<[WMTOperationHistoryEntry],WMTError>) -> Void)` - Retrieves operation history
   - `authentication` - PowerAuth authentication object for operation signing.
   - `completion` - Called when rejection request finishes. Always called on the main thread.
 - `authorize(qrOperation: WMTQROperation, authentication: PowerAuthAuthentication, completion: @escaping(Result<String, WMTError>) -> Void)` - Sign offline (QR) operation.
