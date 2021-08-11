@@ -18,12 +18,9 @@ import XCTest
 import PowerAuth2
 @testable import WultraMobileTokenSDK
 
-
 /**
- 
  For integration test to be successfully executed, you need to provide
  configuration json file. To more information, visit `WultraMobileTokenSDKTests/Configs/Readme.md`.
- 
  */
 
 class IntegrationTests: XCTestCase {
@@ -35,9 +32,6 @@ class IntegrationTests: XCTestCase {
     private static var ops: WMTOperations!
     
     private static let pin = "1234"
-    
-    private static var operationsApproved = 0
-    private static var operationsRejected = 0
     
     override class func setUp() {
         super.setUp()
@@ -82,14 +76,14 @@ class IntegrationTests: XCTestCase {
     }
     
     /// By default, operation list should be empty
-    func testEmptyOpList() {
+    func testList() {
         let exp = expectation(description: "Empty list of operations")
         
         _ = ops.getOperations { result in
             
             switch result {
-            case .success(let ops):
-                XCTAssert(ops.isEmpty)
+            case .success:
+                break // nothing to do here
             case .failure(let err):
                 XCTFail(err.description)
             }
@@ -185,9 +179,9 @@ class IntegrationTests: XCTestCase {
         
         let exp = expectation(description: "Approve payment")
         
-        IntegrationUtils.createOperation { error in
-            guard error == nil else {
-                XCTFail(error!)
+        IntegrationUtils.createOperation { op in
+            guard op != nil else {
+                XCTFail("Failed to create operation")
                 exp.fulfill()
                 return
             }
@@ -212,8 +206,6 @@ class IntegrationTests: XCTestCase {
                                 self.ops.authorize(operation: ops.first!, authentication: auth) { error in
                                     if let error = error {
                                         XCTFail("Failed to authorize op: \(error.description)")
-                                    } else {
-                                        Self.operationsApproved += 1
                                     }
                                     exp.fulfill()
                                 }
@@ -238,9 +230,9 @@ class IntegrationTests: XCTestCase {
         
         let exp = expectation(description: "Reject payment")
         
-        IntegrationUtils.createOperation { error in
-            guard error == nil else {
-                XCTFail(error!)
+        IntegrationUtils.createOperation { op in
+            guard let op = op else {
+                XCTFail("Failed to create operation")
                 exp.fulfill()
                 return
             }
@@ -249,16 +241,14 @@ class IntegrationTests: XCTestCase {
                 _  = self.ops.getOperations { opResult in
                     switch opResult {
                     case .success(let ops):
-                        guard ops.count == 1 else {
-                            XCTFail("1 operation expected. Actual: \(ops.count)")
+                        guard let opToReject = ops.first(where: { $0.id == op.operationId }) else {
+                            XCTFail("Operation was not in the oiperation list")
                             exp.fulfill()
                             return
                         }
-                        self.ops.reject(operation: ops.first!, reason: .unexpectedOperation) { error in
+                        self.ops.reject(operation: opToReject, reason: .unexpectedOperation) { error in
                             if let error = error {
                                 XCTFail("Failed to reject op: \(error.description)")
-                            } else {
-                                Self.operationsRejected += 1
                             }
                             exp.fulfill()
                         }
@@ -292,15 +282,14 @@ class IntegrationTests: XCTestCase {
         XCTAssertFalse(ops.isPollingOperations)
     }
     
-    // the Z ensures that the test runs last
-    func testZOperationHistory() {
+    func testHistory() {
         let exp = expectation(description: "history expectation")
         
         // lets create 1 operation and leave it in the state of "pending"
-        IntegrationUtils.createOperation { error in
+        IntegrationUtils.createOperation { op in
             
-            guard error == nil else {
-                XCTFail(error!)
+            guard let op = op else {
+                XCTFail("Failed to create operation")
                 exp.fulfill()
                 return
             }
@@ -311,10 +300,11 @@ class IntegrationTests: XCTestCase {
             self.ops.getHistory(authentication: auth) { result in
                 switch result {
                 case .success(let ops):
-                    XCTAssertEqual(ops.count, 1 + Self.operationsApproved + Self.operationsRejected)
-                    XCTAssertEqual(ops.filter { $0.status == .approved }.count, Self.operationsApproved)
-                    XCTAssertEqual(ops.filter { $0.status == .rejected }.count, Self.operationsRejected)
-                    XCTAssertEqual(ops.filter { $0.status == .pending }.count, 1)
+                    if let opFromList = ops.first(where: { $0.operation.id == op.operationId }) {
+                        XCTAssertEqual(opFromList.status, .pending)
+                    } else {
+                        XCTFail("Created operation was not in the history")
+                    }
                 case .failure:
                     XCTFail("History was not retrieved")
                 }
@@ -349,5 +339,4 @@ private class OpDelegate: WMTOperationsDelegate {
     func operationsFailed(error: WMTError) {
         
     }
-    
 }

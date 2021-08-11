@@ -56,7 +56,7 @@ class IntegrationUtils {
         case F_2FA
     }
     
-    class func createOperation(_ factors: Factors = .F_2FA, completion: @escaping (String?) -> Void) {
+    class func createOperation(_ factors: Factors = .F_2FA, completion: @escaping (OperationObject?) -> Void) {
         DispatchQueue.global().async {
             let opBody: String
             switch factors {
@@ -75,14 +75,7 @@ class IntegrationUtils {
                 """
             }
             
-            // step1: create an operation on the nextstep server
-            guard let _: OperationObject = self.makeRequest(url: URL(string: "\(config.cloudServerUrl)/operations")!, body: opBody) else {
-                completion("Failed to create operation on the server.")
-                return
-            }
-            
-            // if everything went OK, return with empty error
-            completion(nil)
+            completion(self.makeRequest(url: URL(string: "\(config.cloudServerUrl)/operations")!, body: opBody))
         }
     }
     
@@ -173,7 +166,7 @@ private struct CommitObject: Codable {
     let status: String
 }
 
-private struct OperationObject: Codable {
+struct OperationObject: Codable {
     let operationId: String
     let userId: String
     let status: String
