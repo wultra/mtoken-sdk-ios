@@ -194,6 +194,37 @@ class WMTOperationsImpl: WMTOperations {
         return task
     }
     
+    /// Retrieves the history of user operations with its current status.
+    /// - Parameters:
+    ///   - authentication: Authentication object for signing.
+    ///   - completion: Result completion.
+    ///                 This completion is always called on the main thread.
+    /// - Returns: Operation object for its state observation.
+    func getHistory(authentication: PowerAuthAuthentication, completion: @escaping (Result<[WMTOperationHistoryEntry], WMTError>) -> Void) -> Operation? {
+        
+        if !powerAuth.hasValidActivation() {
+            DispatchQueue.main.async {
+                completion(.failure(WMTError(reason: .missingActivation)))
+            }
+            return nil
+        }
+        
+        let url         = config.buildURL(WMTOperationEndpoints.History.url)
+        let uriId       = WMTOperationEndpoints.History.uriId
+        let requestData = WMTOperationEndpoints.History.RequestData()
+        let request     = WMTOperationEndpoints.History.Request(url, uriId: uriId, auth: authentication, requestData: requestData)
+        
+        return networking.post(request, completion: { response, error in
+            DispatchQueue.main.async {
+                if let result = response?.responseObject {
+                    completion(.success(result))
+                } else {
+                    completion(.failure(error ?? WMTError(reason: .unknown)))
+                }
+            }
+        })
+    }
+    
     /// Authorize operation with given PowerAuth authentication object.
     ///
     /// - Parameters:
@@ -211,10 +242,10 @@ class WMTOperationsImpl: WMTOperations {
             return nil
         }
         
-        let url         = config.buildURL(WMTOperationEndpoints.AuthorizeOperation.url)
-        let uriId       = WMTOperationEndpoints.AuthorizeOperation.uriId
-        let requestData = WMTOperationEndpoints.AuthorizeOperation.RequestData(WMTAuthorizationData(operationId: operation.id, operationData: operation.data))
-        let request     = WMTOperationEndpoints.AuthorizeOperation.Request(url, uriId: uriId, auth: authentication, requestData: requestData)
+        let url         = config.buildURL(WMTOperationEndpoints.Authorize.url)
+        let uriId       = WMTOperationEndpoints.Authorize.uriId
+        let requestData = WMTOperationEndpoints.Authorize.RequestData(WMTAuthorizationData(operationId: operation.id, operationData: operation.data))
+        let request     = WMTOperationEndpoints.Authorize.Request(url, uriId: uriId, auth: authentication, requestData: requestData)
         
         return networking.post(request, completion: { _, error in
             assert(Thread.isMainThread)
@@ -245,10 +276,10 @@ class WMTOperationsImpl: WMTOperations {
         let auth = PowerAuthAuthentication()
         auth.usePossession = true
         
-        let url         = config.buildURL(WMTOperationEndpoints.RejectOperation.url)
-        let uriId       = WMTOperationEndpoints.RejectOperation.uriId
-        let requestData = WMTOperationEndpoints.RejectOperation.RequestData(WMTRejectionData(operationId: operation.id, reason: reason))
-        let request     = WMTOperationEndpoints.RejectOperation.Request(url, uriId: uriId, auth: auth, requestData: requestData)
+        let url         = config.buildURL(WMTOperationEndpoints.Reject.url)
+        let uriId       = WMTOperationEndpoints.Reject.uriId
+        let requestData = WMTOperationEndpoints.Reject.RequestData(WMTRejectionData(operationId: operation.id, reason: reason))
+        let request     = WMTOperationEndpoints.Reject.Request(url, uriId: uriId, auth: auth, requestData: requestData)
         
         return networking.post(request) { (_, error) in
             if error == nil {
@@ -350,10 +381,10 @@ class WMTOperationsImpl: WMTOperations {
         let auth = PowerAuthAuthentication()
         auth.usePossession = true
         
-        let url         = config.buildURL(WMTOperationEndpoints.GetOperations.url)
-        let tokenName   = WMTOperationEndpoints.GetOperations.tokenName
-        let requestData = WMTOperationEndpoints.GetOperations.RequestData()
-        let request     = WMTOperationEndpoints.GetOperations.Request(url, tokenName: tokenName, auth: auth, requestData: requestData)
+        let url         = config.buildURL(WMTOperationEndpoints.List.url)
+        let tokenName   = WMTOperationEndpoints.List.tokenName
+        let requestData = WMTOperationEndpoints.List.RequestData()
+        let request     = WMTOperationEndpoints.List.Request(url, tokenName: tokenName, auth: auth, requestData: requestData)
         
         networking.post(request, completion: { (response, error) in
             completion(response?.responseObject, error)
