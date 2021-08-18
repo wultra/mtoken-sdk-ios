@@ -18,7 +18,7 @@ import Foundation
 
 class WMTOperationEndpoints {
 
-    class GetOperations {
+    class List {
         
         static let url          = "/api/auth/token/app/operation/list"
         static let tokenName    = "possession_universal"
@@ -28,7 +28,17 @@ class WMTOperationEndpoints {
         typealias Request       = WMTHttpRequest<RequestData, ResponseData>
     }
     
-    class AuthorizeOperation {
+    class History {
+        
+        static let url          = "/api/auth/token/app/operation/history"
+        static let uriId        = "/operation/history"
+        typealias RequestData   = WMTRequestBase
+        typealias ResponseData  = WMTResponseArray<WMTOperationHistoryEntry>
+        
+        typealias Request       = WMTHttpRequest<RequestData, ResponseData>
+    }
+    
+    class Authorize {
         
         static let url          = "/api/auth/token/app/operation/authorize"
         static let uriId        = "/operation/authorize"
@@ -38,7 +48,7 @@ class WMTOperationEndpoints {
         typealias Request       = WMTHttpRequest<RequestData, ResponseData>
     }
     
-    class RejectOperation {
+    class Reject {
         
         static let url          = "/api/auth/token/app/operation/cancel"
         static let uriId        = "/operation/cancel"
