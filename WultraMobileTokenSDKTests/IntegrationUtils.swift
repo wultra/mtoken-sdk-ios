@@ -45,7 +45,7 @@ class IntegrationUtils {
                 callback(nil, error)
             } else {
                 let wmtconf = WMTConfig(baseUrl: URL(string: config.operationsServerUrl)!, sslValidation: .noValidation)
-                callback((pa,pa.createWMTOperations(config: wmtconf)), nil)
+                callback((pa,pa.createWMTOperations(config: wmtconf, pollingOptions: [.pauseWhenOnBackground])), nil)
             }
         }
     }
