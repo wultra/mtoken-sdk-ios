@@ -46,7 +46,7 @@ The `sslValidation` parameter is used when validating HTTPS requests. Following 
 
 The `pollingOptions` parameter is used for polling feature configuration. The default value is empty `[]`. Possible options are:
 
-- `WMTOperationsPollingOptions.pauseWhenOnBackground `
+- `WMTOperationsPollingOptions.pauseWhenOnBackground`
 
 ## Retrieve Pending Operations
 
