@@ -16,10 +16,19 @@
 
 import Foundation
 import PowerAuth2
+#if os(iOS)
+import UIKit
+#endif
 
 public extension PowerAuthSDK {
-    func createWMTOperations(config: WMTConfig) -> WMTOperations {
-        return WMTOperationsImpl(powerAuth: self, config: config)
+    
+    /// Creates instance of the `WMTOperations` on top of the PowerAuth instance.
+    /// - Parameters:
+    ///   - config: Operations service config
+    ///   - pollingOptions: Polling feature configuration
+    /// - Returns: Operations service
+    func createWMTOperations(config: WMTConfig, pollingOptions: WMTOperationsPollingOptions = []) -> WMTOperations {
+        return WMTOperationsImpl(powerAuth: self, config: config, pollingOptions: pollingOptions)
     }
 }
 
@@ -63,7 +72,10 @@ class WMTOperationsImpl: WMTOperations {
         }
     }
     
-    var isPollingOperations: Bool { return pollingTimer != nil }
+    var isPollingOperations: Bool { return pollingLock.synchronized { self.isPollingOperationsInternal } }
+    private var isPollingOperationsInternal: Bool { pollingTimer != nil }
+    
+    let pollingOptions: WMTOperationsPollingOptions
     
     var acceptLanguage: String {
         get { networking.acceptLanguage }
@@ -72,6 +84,9 @@ class WMTOperationsImpl: WMTOperations {
     
     private var tasks = [GetOperationsTask]() // Task that are waiting for operation fetch
     private var pollingTimer: Timer? // Timer that manages operations polling when requested
+    private var isPollingPaused: Bool { return pollingTimer?.isValid == false }
+    private let pollingLock = WMTLock()
+    private var notificationObservers = [NSObjectProtocol]()
     
     /// Operation register holds operations in order
     private lazy var operationsRegister = OperationsRegister { [weak self] ops, added, removed in
@@ -85,10 +100,45 @@ class WMTOperationsImpl: WMTOperations {
     /// Methods of the delegate are always called on the main thread.
     weak var delegate: WMTOperationsDelegate?
     
-    init(powerAuth: PowerAuthSDK, config: WMTConfig) {
+    init(powerAuth: PowerAuthSDK, config: WMTConfig, pollingOptions: WMTOperationsPollingOptions = []) {
         self.powerAuth = powerAuth
         self.networking = WMTNetworkingService(powerAuth: powerAuth, config: config, serviceName: "WMTOperations")
         self.config = config
+        self.pollingOptions = pollingOptions
+        
+        #if os(iOS)
+        if pollingOptions.contains(.pauseWhenOnBackground) {
+            notificationObservers.append(NotificationCenter.default.addObserver(forName: UIApplication.willResignActiveNotification, object: nil, queue: nil) { [weak self] _ in
+                guard let `self` = self else {
+                    return
+                }
+                self.pollingLock.synchronized {
+                    if self.isPollingOperationsInternal {
+                        self.pollingTimer?.invalidate()
+                    }
+                }
+            })
+            notificationObservers.append(NotificationCenter.default.addObserver(forName: UIApplication.didBecomeActiveNotification, object: nil, queue: nil) { [weak self] _ in
+                guard let `self` = self else {
+                    return
+                }
+                self.pollingLock.synchronized {
+                    if self.isPollingPaused {
+                        guard let timer = self.pollingTimer else {
+                            D.error("This is a logical error, timer shouldn't be deallocated when paused")
+                            return
+                        }
+                        self.pollingTimer = nil
+                        self.startPollingOperationsInternal(interval: timer.timeInterval, delayStart: false)
+                    }
+                }
+            })
+        }
+        #endif
+    }
+    
+    deinit {
+        notificationObservers.forEach(NotificationCenter.default.removeObserver)
     }
     
     // MARK: - service API
@@ -144,6 +194,37 @@ class WMTOperationsImpl: WMTOperations {
         return task
     }
     
+    /// Retrieves the history of user operations with its current status.
+    /// - Parameters:
+    ///   - authentication: Authentication object for signing.
+    ///   - completion: Result completion.
+    ///                 This completion is always called on the main thread.
+    /// - Returns: Operation object for its state observation.
+    func getHistory(authentication: PowerAuthAuthentication, completion: @escaping (Result<[WMTOperationHistoryEntry], WMTError>) -> Void) -> Operation? {
+        
+        if !powerAuth.hasValidActivation() {
+            DispatchQueue.main.async {
+                completion(.failure(WMTError(reason: .missingActivation)))
+            }
+            return nil
+        }
+        
+        let url         = config.buildURL(WMTOperationEndpoints.History.url)
+        let uriId       = WMTOperationEndpoints.History.uriId
+        let requestData = WMTOperationEndpoints.History.RequestData()
+        let request     = WMTOperationEndpoints.History.Request(url, uriId: uriId, auth: authentication, requestData: requestData)
+        
+        return networking.post(request, completion: { response, error in
+            DispatchQueue.main.async {
+                if let result = response?.responseObject {
+                    completion(.success(result))
+                } else {
+                    completion(.failure(error ?? WMTError(reason: .unknown)))
+                }
+            }
+        })
+    }
+    
     /// Authorize operation with given PowerAuth authentication object.
     ///
     /// - Parameters:
@@ -152,7 +233,7 @@ class WMTOperationsImpl: WMTOperations {
     ///   - completion: Result callback (nil on success).
     ///                 This completion is always called on the main thread.
     /// - Returns: Operation object for its state observation.
-    func authorize(operation: WMTOperation, authentication: PowerAuthAuthentication, completion: @escaping(WMTError?)->Void) -> Operation? {
+    func authorize(operation: WMTOperation, authentication: PowerAuthAuthentication, completion: @escaping(WMTError?) -> Void) -> Operation? {
         
         guard powerAuth.hasValidActivation() else {
             DispatchQueue.main.async {
@@ -161,12 +242,12 @@ class WMTOperationsImpl: WMTOperations {
             return nil
         }
         
-        let url         = config.buildURL(WMTOperationEndpoints.AuthorizeOperation.url)
-        let uriId       = WMTOperationEndpoints.AuthorizeOperation.uriId
-        let requestData = WMTOperationEndpoints.AuthorizeOperation.RequestData(WMTAuthorizationData(operationId: operation.id, operationData: operation.data))
-        let request     = WMTOperationEndpoints.AuthorizeOperation.Request(url, uriId: uriId, auth: authentication, requestData: requestData)
+        let url         = config.buildURL(WMTOperationEndpoints.Authorize.url)
+        let uriId       = WMTOperationEndpoints.Authorize.uriId
+        let requestData = WMTOperationEndpoints.Authorize.RequestData(WMTAuthorizationData(operationId: operation.id, operationData: operation.data))
+        let request     = WMTOperationEndpoints.Authorize.Request(url, uriId: uriId, auth: authentication, requestData: requestData)
         
-        return networking.post(request, completion: { response, error in
+        return networking.post(request, completion: { _, error in
             assert(Thread.isMainThread)
             if error == nil {
                 self.operationsRegister.remove(operation: operation)
@@ -183,7 +264,7 @@ class WMTOperationsImpl: WMTOperations {
     ///   - completion: Result callback (nil on success).
     ///                 This completion is always called on the main thread.
     /// - Returns: Operation object for its state observation.
-    func reject(operation: WMTOperation, reason: WMTRejectionReason, completion: @escaping(WMTError?)->Void) -> Operation? {
+    func reject(operation: WMTOperation, reason: WMTRejectionReason, completion: @escaping(WMTError?) -> Void) -> Operation? {
         
         guard powerAuth.hasValidActivation() else {
             DispatchQueue.main.async {
@@ -195,19 +276,18 @@ class WMTOperationsImpl: WMTOperations {
         let auth = PowerAuthAuthentication()
         auth.usePossession = true
         
-        let url         = config.buildURL(WMTOperationEndpoints.RejectOperation.url)
-        let uriId       = WMTOperationEndpoints.RejectOperation.uriId
-        let requestData = WMTOperationEndpoints.RejectOperation.RequestData(WMTRejectionData(operationId: operation.id, reason: reason))
-        let request     = WMTOperationEndpoints.RejectOperation.Request(url, uriId: uriId, auth: auth, requestData: requestData)
+        let url         = config.buildURL(WMTOperationEndpoints.Reject.url)
+        let uriId       = WMTOperationEndpoints.Reject.uriId
+        let requestData = WMTOperationEndpoints.Reject.RequestData(WMTRejectionData(operationId: operation.id, reason: reason))
+        let request     = WMTOperationEndpoints.Reject.Request(url, uriId: uriId, auth: auth, requestData: requestData)
         
-        return networking.post(request) { (response, error) in
+        return networking.post(request) { (_, error) in
             if error == nil {
                 self.operationsRegister.remove(operation: operation)
             }
             completion(self.adjustOperationError(error, auth: false))
         }
     }
-    
     
     /// Will sign the given QR operation with authentication object.
     ///
@@ -222,7 +302,7 @@ class WMTOperationsImpl: WMTOperations {
     /// - Returns: Operation object for its state observation.
     func authorize(qrOperation: WMTQROperation, authentication: PowerAuthAuthentication, completion: @escaping (Result<String, WMTError>) -> Void) -> Operation {
         
-        let op = WMTAsyncBlockOperation { op, markFinished in 
+        let op = WMTAsyncBlockOperation { _, markFinished in 
             do {
                 let uriId  = qrOperation.uriIdForOfflineSigning
                 let body   = qrOperation.dataForOfflineSigning
@@ -245,6 +325,16 @@ class WMTOperationsImpl: WMTOperations {
     
     /// Start operations polling
     func startPollingOperations(interval: TimeInterval, delayStart: Bool) {
+        pollingLock.synchronized {
+            self.startPollingOperationsInternal(interval: interval, delayStart: delayStart)
+        }
+    }
+    
+    private func startPollingOperationsInternal(interval: TimeInterval, delayStart: Bool) {
+        guard isPollingPaused == false else {
+            D.warning("Polling is paused")
+            return
+        }
         guard pollingTimer == nil else {
             D.warning("Polling already in progress")
             return
@@ -265,6 +355,12 @@ class WMTOperationsImpl: WMTOperations {
     
     /// Stops operations polling
     func stopPollingOperations() {
+        pollingLock.synchronized {
+            self.stopPollingOperationsInternal()
+        }
+    }
+    
+    private func stopPollingOperationsInternal() {
         guard let timer = pollingTimer else {
             return
         }
@@ -285,10 +381,10 @@ class WMTOperationsImpl: WMTOperations {
         let auth = PowerAuthAuthentication()
         auth.usePossession = true
         
-        let url         = config.buildURL(WMTOperationEndpoints.GetOperations.url)
-        let tokenName   = WMTOperationEndpoints.GetOperations.tokenName
-        let requestData = WMTOperationEndpoints.GetOperations.RequestData()
-        let request     = WMTOperationEndpoints.GetOperations.Request(url, tokenName: tokenName, auth: auth, requestData:requestData)
+        let url         = config.buildURL(WMTOperationEndpoints.List.url)
+        let tokenName   = WMTOperationEndpoints.List.tokenName
+        let requestData = WMTOperationEndpoints.List.RequestData()
+        let request     = WMTOperationEndpoints.List.Request(url, tokenName: tokenName, auth: auth, requestData: requestData)
         
         networking.post(request, completion: { (response, error) in
             completion(response?.responseObject, error)
@@ -365,7 +461,7 @@ class WMTOperationsImpl: WMTOperations {
     }
 }
 
-fileprivate class OperationsRegister {
+private class OperationsRegister {
     
     /// List of currently available operations
     private(set) var currentOperations = [WMTUserOperation]()
@@ -443,7 +539,7 @@ fileprivate class OperationsRegister {
 /// Class that wraps completion block that will be finished with the result of `getOperation` call
 ///
 /// Note that the given completion will be always executed on the **main thread**.
-fileprivate class GetOperationsTask: Cancellable {
+private class GetOperationsTask: Cancellable {
     
     fileprivate var isCanceled = false
     private var completion: GetOperationsCompletion

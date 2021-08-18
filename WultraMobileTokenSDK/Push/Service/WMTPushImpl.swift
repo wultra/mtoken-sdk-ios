@@ -18,6 +18,10 @@ import Foundation
 import PowerAuth2
 
 public extension PowerAuthSDK {
+    
+    /// Creates instance of the `WMTPush` on top of the PowerAuth instance.
+    /// - Parameter config: Push service config
+    /// - Returns: Push service
     func createWMTPush(config: WMTConfig) -> WMTPush {
         return WMTPushImpl(powerAuth: self, config: config)
     }

@@ -32,16 +32,21 @@ import WultraMobileTokenSDK
 
 let opsConfig = WMTConfig(
     baseUrl: URL(string: "https://myservice.com/mtoken/operations/api/")!,
-    sslValidation: .default
+    sslValidation: .default,
+    pollingOptions: [.pauseWhenOnBackground]
 )
 let opsService = powerAuth.createWMTOperations(config: config)
 ```
 
-`sslValidation` property is used when validating HTTPS requests. Following strategies can be used.  
+The `sslValidation` parameter is used when validating HTTPS requests. Following strategies can be used.  
 
 - `WMTSSLValidationStrategy.default` 
 - `WMTSSLValidationStrategy.noValidation`
 - `WMTSSLValidationStrategy.sslPinning` 
+
+The `pollingOptions` parameter is used for polling feature configuration. The default value is empty `[]`. Possible options are:
+
+- `WMTOperationsPollingOptions.pauseWhenOnBackground`
 
 ## Retrieve Pending Operations
 
@@ -86,6 +91,7 @@ _Note that the listener is called for all "fetch operations" requests (not just 
 
 ```swift
 import WultraMobileTokenSDK
+import PowerAuth2
 
 class MyOperationsManager: WMTOperationsDelegate {
 
@@ -112,21 +118,50 @@ class MyOperationsManager: WMTOperationsDelegate {
     }
 }
 ```
+<!-- begin box info -->
+Polling behavior can be adjusted by the `pollingOptions` parameter when [creating an instance](#creating-an-instance) of the service.
+<!-- end -->
 
 ## Approve an Operation
 
-To approve an operation use `WMTOperations.authorize`. You can simply use it with the following example:
+To approve an operation use `WMTOperations.authorize`. You can simply use it with following examples:
 
 ```swift
 import WultraMobileTokenSDK
+import PowerAuth2
 
+// Approve operation with password
 func approve(operation: WMTOperation, password: String) {
 
-    let authentication = PowerAuthAuthentication()
-    authentication.usePossession = true
-    authentication.usePassword = password
+    let auth = PowerAuthAuthentication()
+    auth.usePossession = true
+    auth.usePassword = password
 
-    operationService.authorize(operation: operation, authentication: authentication) { error in 
+    operationService.authorize(operation: operation, authentication: auth) { error in 
+        if let error = error {
+            // show error UI
+        } else {
+            // show success UI
+        }
+    }
+}
+```
+
+_To approve offline operations with biometry, your PowerAuth instance [need to be configured with biometry factor](https://github.com/wultra/powerauth-mobile-sdk/blob/develop/docs/PowerAuth-SDK-for-iOS.md#biometry-setup)._
+
+```swift
+import WultraMobileTokenSDK
+import PowerAuth2
+
+// Approve operation with password
+func approveWithBiometry(operation: WMTOperation) {
+
+    let auth = PowerAuthAuthentication()
+    auth.usePossession = true
+    auth.useBiometry = true
+    auth.biometryPrompt = "Confirm operation."
+
+    operationService.authorize(operation: operation, authentication: auth) { error in 
         if let error = error {
             // show error UI
         } else {
@@ -141,6 +176,9 @@ func approve(operation: WMTOperation, password: String) {
 To reject an operation use `WMTOperations.reject`. Operation rejection is confirmed by possession factor so there is no need for creating  `PowerAuthAuthentication` object. You can simply use it with the following example.
 
 ```swift
+import WultraMobileTokenSDK
+import PowerAuth2
+
 // Reject operation with some reason
 func reject(operation: WMTOperation, reason: WMTRejectionReason) {
     operationService.reject(operation: operation, reason: reason) { error in 
@@ -153,11 +191,39 @@ func reject(operation: WMTOperation, reason: WMTRejectionReason) {
 }
 ```
 
+## Operation History
+
+You can retrieve an operation history via the `WMTOperations.getHistory` method. The returned result is operations and their current status.
+
+```swift
+import WultraMobileTokenSDK
+import PowerAuth2
+
+// Retrieve operation history with password
+func history(password: String) {
+    let auth = PowerAuthAuthentication()
+    auth.usePossession = true
+    auth.usePassword = password
+    operationService.getHistory(authentication: auth) { result in 
+        switch result {
+        case .success(let operations):
+            // process operation history
+            break
+        case .failure(let error):
+            // process error
+            break
+        }
+    }
+}
+```
+
+_Note that the operation history availability depends on the backend implementation and might not be available. Please consult this with your backend developers._
+
 ## Off-line Authorization
 
 In case the user is not online, you can use off-line authorizations. In this operation mode, the user needs to scan a QR code, enter PIN code or use biometry, and rewrite the resulting code. Wultra provides a special format for [the operation QR codes](https://github.com/wultra/powerauth-webflow/blob/develop/docs/Off-line-Signatures-QR-Code.md), that is automatically processed with the SDK.
 
-To process the operation QR code string and obtain `WMTQROperation`, simply call the `WMTQROperationParser.parse` function:
+### Processing scanned QR operation
 
 ```swift
 import WultraMobileTokenSDK
@@ -177,30 +243,72 @@ case .failure(let error):
 }
 ```
 
-After that, you can produce an off-line signature using the following code:
+### Authorizing scanned QR operation
+
+<!-- begin box info -->
+An offline operation needs to be __always__ approved with __2-factor scheme__ (password or biometry).
+<!-- end -->
+
+#### With password
 
 ```swift
 import WultraMobileTokenSDK
+import PowerAuth2
 
 func approveQROperation(operation: WMTQROperation, password: String) {
 
-    let authentication = PowerAuthAuthentication()
-    authentication.usePossession = true
-    authentication.usePassword = password
-    authentication.useBiometry = false
+    let auth = PowerAuthAuthentication()
+    auth.usePossession = true
+    auth.usePassword = password
 
-    operationsService.authorize(qrOperation: operation, authentication: authentication) { result in 
+    operationsService.authorize(qrOperation: operation, authentication: auth) { result in 
         switch result {
         case .success(let code):
-            // show success UI - display the code to the user
-            // note that operation will be successful even with a wrong
-            // password as it cannot be verified on the server
+            // Display the signature to the user so it can be manually rewritten.
+            // Note that the operation will be signed even with the wrong password!
         case .failure(let error):
-            // show error UI
+            // Failed to sign the operation
         }
     }
 }
 ```
+
+<!-- warning box info -->
+An offline operation can and will be signed even with an incorrect password. The signature cannot be used for manual approval in such a case. This behavior cannot be detected, so you should warn the user that an incorrect password will result in an incorrect "approval code".
+<!-- end -->
+
+#### With biometry
+
+_To approve offline operations with biometry, your PowerAuth instance [need to be configured with biometry factor](https://github.com/wultra/powerauth-mobile-sdk/blob/develop/docs/PowerAuth-SDK-for-iOS.md#biometry-setup)._
+
+```swift
+import WultraMobileTokenSDK
+import PowerAuth2
+
+// Approves QR operation with biometry
+func approveQROperationWithBiometry(operation: WMTQROperation) {
+
+    guard operation.flags.allowBiometryFactor else {
+        // biometry usage is not allowed on this operation
+        return
+    }
+
+    let auth = PowerAuthAuthentication()
+    auth.usePossession = true
+    auth.useBiometry = true
+    auth.biometryPrompt = "Confirm operation."
+
+    operationsService.authorize(qrOperation: operation, authentication: auth) { result in 
+        switch result {
+        case .success(let code):
+            // Display the signature to the user so it can be manually rewritten.
+        case .failure(let error):
+            // Failed to sign the operation
+        }
+    }
+}
+```
+
 
 ## Operations API Reference
 
@@ -215,6 +323,8 @@ All available methods and attributes of `WMTOperations` API are:
 - `getOperations(completion: @escaping GetOperationsCompletion)` - Retrieves pending operations from the server.
     - `completion` - Called when operation finishes. Always called on the main thread.
 - `isPollingOperations` - If the app is periodically polling for the operations from the server.
+- `pollingOptions` - Configuration of the polling feature
+    - `pauseWhenOnBackground` - Polling will be paused when your app is on the background.
 - `startPollingOperations(interval: TimeInterval, delayStart: Bool)` - Starts the periodic operation polling.
     - `interval` - How often should operations be refreshed.
     - `delayStart` - When true, polling starts after the first `interval` time passes.
@@ -227,6 +337,9 @@ All available methods and attributes of `WMTOperations` API are:
     - `operation` - An operation to reject, retrieved from `getOperations` call or [created locally](#creating-a-custom-operation).
     - `reason` - Rejection reason
     - `completion` - Called when rejection request finishes. Always called on the main thread.
+- `getHistory(authentication: PowerAuthAuthentication, completion: @escaping(Result<[WMTOperationHistoryEntry],WMTError>) -> Void)` - Retrieves operation history
+  - `authentication` - PowerAuth authentication object for operation signing.
+  - `completion` - Called when rejection request finishes. Always called on the main thread.
 - `authorize(qrOperation: WMTQROperation, authentication: PowerAuthAuthentication, completion: @escaping(Result<String, WMTError>) -> Void)` - Sign offline (QR) operation.
     - `operation` - Offline operation that can be retrieved via `WMTQROperationParser.parse` method.
     - `authentication` - PowerAuth authentication object for operation signing.

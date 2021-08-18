@@ -40,7 +40,6 @@ public class WMTOperationAttributeAmount: WMTOperationAttribute {
     /// For example when the currency is CZK, this property will be "Kč"
     public let currencyFormatted: String?
     
-    
     // MARK: - INTERNALS
     
     private enum Keys: CodingKey {
