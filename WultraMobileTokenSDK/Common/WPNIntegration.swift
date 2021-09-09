@@ -23,6 +23,7 @@ import WultraPowerAuthNetworking
 public typealias WMTError = WPNError
 public typealias WMTErrorReason = WPNErrorReason
 public typealias RestApiError = WPNRestApiError
+public typealias KnownRestApiError = WPNKnownRestApiError
 
 // SSL Pinning
 public typealias WMTPinningProvider = WPNPinningProvider
