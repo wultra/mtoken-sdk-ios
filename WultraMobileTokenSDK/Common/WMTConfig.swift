@@ -15,6 +15,7 @@
 //
 
 import Foundation
+import WultraPowerAuthNetworking
 
 /// Configuration class used for configuring WultraMobileTokenSDK services.
 public struct WMTConfig {
@@ -44,4 +45,6 @@ public struct WMTConfig {
         
         return url
     }
+    
+    internal var wpnConfig: WPNConfig { WPNConfig(baseUrl: baseUrl, sslValidation: sslValidation) }
 }
