@@ -1,2 +1,2 @@
-git "file:///Users/kober/dev/wultra/repos/networking-apple" "9ca8b573d1088ac6096061c84d21d5f631dfc529"
+github "wultra/networking-apple" "7543f158013c92889fcb349ec789ce90a9f22910"
 github "wultra/powerauth-mobile-sdk" "b86c15ced7303dd446619a8d714470660d55407b"
