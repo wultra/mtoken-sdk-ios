@@ -16,6 +16,7 @@
 
 import Foundation
 import PowerAuth2
+import WultraPowerAuthNetworking
 
 public extension PowerAuthSDK {
     
@@ -36,7 +37,7 @@ class WMTPushImpl: WMTPush {
     
     // Dependencies
     private let powerAuth: PowerAuthSDK
-    private let networking: WMTNetworkingService
+    private let networking: WPNNetworkingService
     let config: WMTConfig
     
     private(set) var pushNotificationsRegisteredOnServer = false // Contains true if push notifications were already registered
@@ -49,7 +50,7 @@ class WMTPushImpl: WMTPush {
     
     init(powerAuth: PowerAuthSDK, config: WMTConfig) {
         self.powerAuth = powerAuth
-        self.networking = WMTNetworkingService(powerAuth: powerAuth, config: config, serviceName: "WMTPush")
+        self.networking = WPNNetworkingService(powerAuth: powerAuth, config: config.wpnConfig, serviceName: "WMTPush")
         self.config = config
     }
     
@@ -72,15 +73,12 @@ class WMTPushImpl: WMTPush {
         let auth = PowerAuthAuthentication()
         auth.usePossession = true
         
-        let url         = config.buildURL(WMTPushEndpoints.RegisterDevice.url)
-        let tokenName   = WMTPushEndpoints.RegisterDevice.tokenName
-        let requestData = WMTPushEndpoints.RegisterDevice.RequestData(WMTPushRegistrationData(token: HexadecimalString.encodeData(token)))
-        let request     = WMTPushEndpoints.RegisterDevice.Request(url, tokenName: tokenName, auth: auth, requestData: requestData)
-        
         pendingRegistrationForRemotePushNotifications = true
         pushNotificationsRegisteredOnServer = false
         
-        return networking.post(request) { _, error in
+        let data = WMTPushRegistrationData(token: HexadecimalString.encodeData(token))
+        
+        return networking.post(data: .init(data), signedWith: auth, to: WMTPushEndpoints.RegisterDevice.endpoint) { _, error in
             self.pendingRegistrationForRemotePushNotifications = false
             if error == nil {
                 self.pushNotificationsRegisteredOnServer = true

@@ -1,5 +1,5 @@
 //
-// Copyright 2020 Wultra s.r.o.
+// Copyright 2021 Wultra s.r.o.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,10 +17,14 @@
 import Foundation
 import WultraPowerAuthNetworking
 
-enum WMTPushEndpoints {
-    
-    enum RegisterDevice {
-        typealias EndpointType = WPNEndpointSignedWithToken<WPNRequest<WMTPushRegistrationData>, WPNResponseBase>
-        static let endpoint: EndpointType = WPNEndpointSignedWithToken(endpointURLPath: "/api/push/device/register/token", tokenName: "possession_universal")
-    }
-}
+// Following aliases are here to ensure compatibility with versions 1.3.0 and older.
+
+// Errors
+public typealias WMTError = WPNError
+public typealias WMTErrorReason = WPNErrorReason
+public typealias RestApiError = WPNRestApiError
+public typealias KnownRestApiError = WPNKnownRestApiError
+
+// SSL Pinning
+public typealias WMTPinningProvider = WPNPinningProvider
+public typealias WMTSSLValidationStrategy = WPNSSLValidationStrategy

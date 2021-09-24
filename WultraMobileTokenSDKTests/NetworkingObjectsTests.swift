@@ -15,9 +15,16 @@
 //
 
 import XCTest
+import WultraPowerAuthNetworking
 @testable import WultraMobileTokenSDK
 
 class NetworkingObjectsTests: XCTestCase {
+    
+    private let jsonDecoder: JSONDecoder = {
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .iso8601
+        return decoder
+    }()
     
     override func setUp() {
         super.setUp()
@@ -31,19 +38,17 @@ class NetworkingObjectsTests: XCTestCase {
         let expectation = """
                           {"requestObject":{"platform":"ios","token":"5FBC85D026945C48A17FE1327C68C77F7793FEBFE23FF5850224BEE4215C5525"}}
                           """
-        let r = WMTPushEndpoints.RegisterDevice.RequestData(WMTPushRegistrationData(token: "5FBC85D026945C48A17FE1327C68C77F7793FEBFE23FF5850224BEE4215C5525"))
-        let request: WMTPushEndpoints.RegisterDevice.Request = WMTHttpRequest(URL(string: "https://www.wultra.com")!, requestData: r)
+        let r = WMTPushEndpoints.RegisterDevice.EndpointType.RequestData(WMTPushRegistrationData(token: "5FBC85D026945C48A17FE1327C68C77F7793FEBFE23FF5850224BEE4215C5525"))
         
-        request.testSerialization(expectation: expectation)
+        r.testSerialization(expectation: expectation)
     }
     
     func testOperationsResponse() {
         let response = """
                        {"status":"OK","responseObject":[{"id":"930febe7-f350-419a-8bc0-c8883e7f71e3","name":"authorize_payment","data":"A1*A100CZK*Q238400856/0300**D20170629*NUtility Bill Payment - 05/2017","operationCreated":"2018-08-08T12:30:42+0000","operationExpires":"2018-08-08T12:35:43+0000","allowedSignatureType":{"type":"2FA","variants":["possession_knowledge", "possession_biometry"]},"formData":{"title":"Potvrzení platby","message":"Dobrý den,prosíme o potvrzení následující platby:","attributes":[{"type":"AMOUNT","id":"operation.amount","label":"Částka","amount":965165234082.23,"currency":"CZK"},{"type":"KEY_VALUE","id":"operation.account","label":"Na účet","value":"238400856/0300"},{"type":"KEY_VALUE","id":"operation.dueDate","label":"Datum splatnosti","value":"29.6.2017"},{"type":"NOTE","id":"operation.note","label":"Poznámka","note":"Utility Bill Payment - 05/2017"},{"type":"PARTY_INFO","id":"operation.partyInfo","label":"Application","partyInfo":{"logoUrl":"http://whywander.com/wp-content/uploads/2017/05/prague_hero-100x100.jpg","name":"Tesco","description":"Objevte více příběhů psaných s chutí","websiteUrl":"https://itesco.cz/hello/vse-o-jidle/pribehy-psane-s-chuti/clanek/tomovy-burgery-pro-zapalene-fanousky/15012"}}]}},{"id":"930febe7-f350-419a-8bc0-c8883e7f71e3","name":"authorize_payment","data":"A1*A100CZK*Q238400856/0300**D20170629*NUtility Bill Payment - 05/2017","operationCreated":"2018-08-08T12:30:42+0000","operationExpires":"2018-08-08T12:35:43+0000","allowedSignatureType":{"type":"1FA","variants":["possession_knowledge"]},"formData":{"title":"Potvrzení platby","message":"Dobrý den,prosíme o potvrzení následující platby:","attributes":[{"type":"AMOUNT","id":"operation.amount","label":"Částka","amount":100,"currency":"CZK"},{"type":"KEY_VALUE","id":"operation.account","label":"Na účet","value":"238400856/0300"},{"type":"KEY_VALUE","id":"operation.dueDate","label":"Datum splatnosti","value":"29.6.2017"},{"type":"NOTE","id":"operation.note","label":"Poznámka","note":"Utility Bill Payment - 05/2017"}]}}]}
                        """
-        let request: WMTOperationEndpoints.List.Request = WMTHttpRequest(URL(string: "https://www.wultra.com")!, requestData: WMTRequestBase())
         
-        guard let result = request.processResult(data: response.data(using: .utf8)!) else {
+        guard let result = try? jsonDecoder.decode(WPNResponseArray<WMTUserOperation>.self, from: response.data(using: .utf8)!) else {
             XCTFail("Failed to parse JSON data")
             return
         }
@@ -127,9 +132,7 @@ class NetworkingObjectsTests: XCTestCase {
                        {"status":"ERROR","responseObject":{"code":"INVALID_ACTIVATION","message":"Invalid activation found in Mobile Token API component."}}
                        """
         
-        let request: WMTOperationEndpoints.List.Request = WMTHttpRequest(URL(string: "https://www.wultra.com")!, requestData: WMTRequestBase())
-        
-        guard let result = request.processResult(data: response.data(using: .utf8)!) else {
+        guard let result = try? jsonDecoder.decode(WPNResponseArray<WMTUserOperation>.self, from: response.data(using: .utf8)!) else {
             XCTFail("Failed to parse JSON data")
             return
         }
@@ -151,10 +154,8 @@ class NetworkingObjectsTests: XCTestCase {
         let expectation = """
                           {"requestObject":{"id":"95e51995-fa60-4018-bd87-43a58f098570","data":"RANDOMDATA"}}
                           """
-        let data = WMTAuthorizationData(operationId: "95e51995-fa60-4018-bd87-43a58f098570", operationData: "RANDOMDATA")
-        let r = WMTOperationEndpoints.Authorize.RequestData(data)
-        let request: WMTOperationEndpoints.Authorize.Request = WMTHttpRequest(URL(string: "https://www.wultra.com")!, requestData: r)
-        
+        let request = WMTOperationEndpoints.Authorize.EndpointType.RequestData(.init(operationId: "95e51995-fa60-4018-bd87-43a58f098570", operationData: "RANDOMDATA"))
+
         request.testSerialization(expectation: expectation)
     }
     
@@ -164,10 +165,7 @@ class NetworkingObjectsTests: XCTestCase {
                           {"requestObject":{"id":"95e51995-fa60-4018-bd87-43a58f098570","reason":"UNEXPECTED_OPERATION"}}
                           """
         
-        let data = WMTRejectionData(operationId: "95e51995-fa60-4018-bd87-43a58f098570", reason: .unexpectedOperation)
-        let r = WMTOperationEndpoints.Reject.RequestData(data)
-        let request: WMTOperationEndpoints.Reject.Request = WMTHttpRequest(URL(string: "https://www.wultra.com")!, requestData: r)
-        
+        let request = WMTOperationEndpoints.Reject.EndpointType.RequestData(.init(operationId: "95e51995-fa60-4018-bd87-43a58f098570", reason: .unexpectedOperation))
         request.testSerialization(expectation: expectation)
     }
     
@@ -176,9 +174,7 @@ class NetworkingObjectsTests: XCTestCase {
 { "status":"OK", "responseObject":[ { "id":"0775afb2-4f06-4ed9-b990-a35bab4cac3b", "name":"login-tpp", "data":"A2*R666*R123", "status":"PENDING", "operationCreated":"2021-08-09T15:32:24+0000", "operationExpires":"2021-08-09T15:37:24+0000", "allowedSignatureType":{ "type":"2FA", "variants":[ "possession_knowledge", "possession_biometry" ] }, "formData":{ "title":"Login Approval", "message":"Are you logging in to the third party application?", "attributes":[ { "type":"KEY_VALUE", "id":"party.name", "label":"Third Party App", "value":"Datová schránka" }, { "type":"KEY_VALUE", "id":"party.id", "label":"Application ID", "value":"666" }, { "type":"KEY_VALUE", "id":"session.id", "label":"Session ID", "value":"123" }, { "type":"KEY_VALUE", "id":"session.ip-address", "label":"IP Address", "value":"192.168.0.1" } ] } }, { "id":"5bbe1d48-d2f0-43fb-8612-75917a9761fb", "name":"login-tpp", "data":"A2*R666*R123", "status":"REJECTED", "operationCreated":"2021-08-09T15:32:15+0000", "operationExpires":"2021-08-09T15:37:15+0000", "allowedSignatureType":{ "type":"2FA", "variants":[ "possession_knowledge", "possession_biometry" ] }, "formData":{ "title":"Login Approval", "message":"Are you logging in to the third party application?", "attributes":[ { "type":"KEY_VALUE", "id":"party.name", "label":"Third Party App", "value":"Datová schránka" }, { "type":"KEY_VALUE", "id":"party.id", "label":"Application ID", "value":"666" }, { "type":"KEY_VALUE", "id":"session.id", "label":"Session ID", "value":"123" }, { "type":"KEY_VALUE", "id":"session.ip-address", "label":"IP Address", "value":"192.168.0.1" } ] } }, { "id":"8bbff7b6-03c4-470c-9320-4660c3bf1f01", "name":"login-tpp", "data":"A2*R666*R123", "status":"APPROVED", "operationCreated":"2021-08-09T15:31:55+0000", "operationExpires":"2021-08-09T15:36:55+0000", "allowedSignatureType":{ "type":"2FA", "variants":[ "possession_knowledge", "possession_biometry" ] }, "formData":{ "title":"Login Approval", "message":"Are you logging in to the third party application?", "attributes":[ { "type":"KEY_VALUE", "id":"party.name", "label":"Third Party App", "value":"Datová schránka" }, { "type":"KEY_VALUE", "id":"party.id", "label":"Application ID", "value":"666" }, { "type":"KEY_VALUE", "id":"session.id", "label":"Session ID", "value":"123" }, { "type":"KEY_VALUE", "id":"session.ip-address", "label":"IP Address", "value":"192.168.0.1" } ] } }, { "id":"8bbff7b6-03c4-470c-9320-4660c3bf1f01", "name":"login-tpp", "data":"A2*R666*R123", "status":"CANCELED", "operationCreated":"2021-08-09T15:31:55+0000", "operationExpires":"2021-08-09T15:36:55+0000", "allowedSignatureType":{ "type":"2FA", "variants":[ "possession_knowledge", "possession_biometry" ] }, "formData":{ "title":"Login Approval", "message":"Are you logging in to the third party application?", "attributes":[ { "type":"KEY_VALUE", "id":"party.name", "label":"Third Party App", "value":"Datová schránka" }, { "type":"KEY_VALUE", "id":"party.id", "label":"Application ID", "value":"666" }, { "type":"KEY_VALUE", "id":"session.id", "label":"Session ID", "value":"123" }, { "type":"KEY_VALUE", "id":"session.ip-address", "label":"IP Address", "value":"192.168.0.1" } ] } }, { "id":"8bbff7b6-03c4-470c-9320-4660c3bf1f01", "name":"login-tpp", "data":"A2*R666*R123", "status":"EXPIRED", "operationCreated":"2021-08-09T15:31:55+0000", "operationExpires":"2021-08-09T15:36:55+0000", "allowedSignatureType":{ "type":"2FA", "variants":[ "possession_knowledge", "possession_biometry" ] }, "formData":{ "title":"Login Approval", "message":"Are you logging in to the third party application?", "attributes":[ { "type":"KEY_VALUE", "id":"party.name", "label":"Third Party App", "value":"Datová schránka" }, { "type":"KEY_VALUE", "id":"party.id", "label":"Application ID", "value":"666" }, { "type":"KEY_VALUE", "id":"session.id", "label":"Session ID", "value":"123" }, { "type":"KEY_VALUE", "id":"session.ip-address", "label":"IP Address", "value":"192.168.0.1" } ] } }, { "id":"8bbff7b6-03c4-470c-9320-4660c3bf1f01", "name":"login-tpp", "data":"A2*R666*R123", "status":"FAILED", "operationCreated":"2021-08-09T15:31:55+0000", "operationExpires":"2021-08-09T15:36:55+0000", "allowedSignatureType":{ "type":"2FA", "variants":[ "possession_knowledge", "possession_biometry" ] }, "formData":{ "title":"Login Approval", "message":"Are you logging in to the third party application?", "attributes":[ { "type":"KEY_VALUE", "id":"party.name", "label":"Third Party App", "value":"Datová schránka" }, { "type":"KEY_VALUE", "id":"party.id", "label":"Application ID", "value":"666" }, { "type":"KEY_VALUE", "id":"session.id", "label":"Session ID", "value":"123" }, { "type":"KEY_VALUE", "id":"session.ip-address", "label":"IP Address", "value":"192.168.0.1" } ] } } ] }
 """
         
-        let request: WMTOperationEndpoints.History.Request = WMTHttpRequest(URL(string: "https://www.wultra.com")!, requestData: WMTRequestBase())
-        
-        guard let result = request.processResult(data: response.data(using: .utf8)!) else {
+        guard let result = try? jsonDecoder.decode(WPNResponseArray<WMTOperationHistoryEntry>.self, from: response.data(using: .utf8)!) else {
             XCTFail("Failed to parse JSON data")
             return
         }
@@ -198,11 +194,11 @@ class NetworkingObjectsTests: XCTestCase {
     }
 }
 
-extension WMTHttpRequest {
+extension WPNRequestBase {
     
     func testSerialization(expectation: String) {
         
-        guard let data = buildUrlRequest().httpBody, let jsonData = String(data: data, encoding: .utf8) else {
+        guard let data = try? JSONEncoder().encode(self), let jsonData = String(data: data, encoding: .utf8) else {
             XCTFail("Failed to encode request data")
             return
         }

@@ -24,8 +24,6 @@ jobs:
       - name: Make sure we're on the proper branch
         run: |
           [[ $GITHUB_REF == refs/heads/${{ github.event.inputs.confirmBranch }} ]] || exit 1
-      - name: Force Xcode 11.4
-        run: sudo xcode-select -switch /Applications/Xcode_11.4.app
       - name: Publish the library
         uses: kober32/library-deploy@develop
         env:

@@ -15,46 +15,28 @@
 //
 
 import Foundation
+import WultraPowerAuthNetworking
 
-class WMTOperationEndpoints {
-
-    class List {
-        
-        static let url          = "/api/auth/token/app/operation/list"
-        static let tokenName    = "possession_universal"
-        typealias RequestData   = WMTRequestBase
-        typealias ResponseData  = WMTResponseArray<WMTUserOperation>
-        
-        typealias Request       = WMTHttpRequest<RequestData, ResponseData>
+enum WMTOperationEndpoints {
+    
+    enum List {
+        typealias EndpointType = WPNEndpointSignedWithToken<WPNRequestBase, WPNResponseArray<WMTUserOperation>>
+        static let endpoint: EndpointType = WPNEndpointSignedWithToken(endpointURLPath: "/api/auth/token/app/operation/list", tokenName: "possession_universal")
     }
     
-    class History {
-        
-        static let url          = "/api/auth/token/app/operation/history"
-        static let uriId        = "/operation/history"
-        typealias RequestData   = WMTRequestBase
-        typealias ResponseData  = WMTResponseArray<WMTOperationHistoryEntry>
-        
-        typealias Request       = WMTHttpRequest<RequestData, ResponseData>
+    enum History {
+        typealias EndpointType = WPNEndpointSigned<WPNRequestBase, WPNResponseArray<WMTOperationHistoryEntry>>
+        static let endpoint: EndpointType = WPNEndpointSigned(endpointURLPath: "/api/auth/token/app/operation/history", uriId: "/operation/history")
     }
     
-    class Authorize {
-        
-        static let url          = "/api/auth/token/app/operation/authorize"
-        static let uriId        = "/operation/authorize"
-        typealias RequestData   = WMTRequest<WMTAuthorizationData>
-        typealias ResponseData  = WMTResponseBase
-        
-        typealias Request       = WMTHttpRequest<RequestData, ResponseData>
+    enum Authorize {
+        typealias EndpointType = WPNEndpointSigned<WPNRequest<WMTAuthorizationData>, WPNResponseBase>
+        static let endpoint: EndpointType = WPNEndpointSigned(endpointURLPath: "/api/auth/token/app/operation/authorize", uriId: "/operation/authorize")
     }
     
-    class Reject {
-        
-        static let url          = "/api/auth/token/app/operation/cancel"
-        static let uriId        = "/operation/cancel"
-        typealias RequestData   = WMTRequest<WMTRejectionData>
-        typealias ResponseData  = WMTResponseBase
-        
-        typealias Request       = WMTHttpRequest<RequestData, ResponseData>
+    enum Reject {
+        typealias EndpointType = WPNEndpointSigned<WPNRequest<WMTRejectionData>, WPNResponseBase>
+        static let endpoint: EndpointType = WPNEndpointSigned(endpointURLPath: "/api/auth/token/app/operation/cancel", uriId: "/operation/cancel")
     }
+    
 }

@@ -16,6 +16,7 @@
 
 import Foundation
 import PowerAuth2
+import WultraPowerAuthNetworking
 #if os(iOS)
 import UIKit
 #endif
@@ -56,7 +57,7 @@ class WMTOperationsImpl: WMTOperations {
     
     // Dependencies
     private let powerAuth: PowerAuthSDK
-    private let networking: WMTNetworkingService
+    private let networking: WPNNetworkingService
     private let qrQueue: OperationQueue = {
         let q = OperationQueue()
         q.name = "WMTOperationsQRQueue"
@@ -102,7 +103,7 @@ class WMTOperationsImpl: WMTOperations {
     
     init(powerAuth: PowerAuthSDK, config: WMTConfig, pollingOptions: WMTOperationsPollingOptions = []) {
         self.powerAuth = powerAuth
-        self.networking = WMTNetworkingService(powerAuth: powerAuth, config: config, serviceName: "WMTOperations")
+        self.networking = WPNNetworkingService(powerAuth: powerAuth, config: config.wpnConfig, serviceName: "WMTOperations")
         self.config = config
         self.pollingOptions = pollingOptions
         
@@ -209,12 +210,7 @@ class WMTOperationsImpl: WMTOperations {
             return nil
         }
         
-        let url         = config.buildURL(WMTOperationEndpoints.History.url)
-        let uriId       = WMTOperationEndpoints.History.uriId
-        let requestData = WMTOperationEndpoints.History.RequestData()
-        let request     = WMTOperationEndpoints.History.Request(url, uriId: uriId, auth: authentication, requestData: requestData)
-        
-        return networking.post(request, completion: { response, error in
+        return networking.post(data: .init(), signedWith: authentication, to: WMTOperationEndpoints.History.endpoint) { response, error in
             DispatchQueue.main.async {
                 if let result = response?.responseObject {
                     completion(.success(result))
@@ -222,7 +218,7 @@ class WMTOperationsImpl: WMTOperations {
                     completion(.failure(error ?? WMTError(reason: .unknown)))
                 }
             }
-        })
+        }
     }
     
     /// Authorize operation with given PowerAuth authentication object.
@@ -242,18 +238,16 @@ class WMTOperationsImpl: WMTOperations {
             return nil
         }
         
-        let url         = config.buildURL(WMTOperationEndpoints.Authorize.url)
-        let uriId       = WMTOperationEndpoints.Authorize.uriId
-        let requestData = WMTOperationEndpoints.Authorize.RequestData(WMTAuthorizationData(operationId: operation.id, operationData: operation.data))
-        let request     = WMTOperationEndpoints.Authorize.Request(url, uriId: uriId, auth: authentication, requestData: requestData)
+        let data = WMTAuthorizationData(operationId: operation.id, operationData: operation.data)
         
-        return networking.post(request, completion: { _, error in
+        return networking.post(data: .init(data), signedWith: authentication, to: WMTOperationEndpoints.Authorize.endpoint) { _, error in
             assert(Thread.isMainThread)
             if error == nil {
                 self.operationsRegister.remove(operation: operation)
             }
             completion(self.adjustOperationError(error, auth: true))
-        })
+            
+        }
     }
     
     /// Reject operation with a reason.
@@ -276,12 +270,7 @@ class WMTOperationsImpl: WMTOperations {
         let auth = PowerAuthAuthentication()
         auth.usePossession = true
         
-        let url         = config.buildURL(WMTOperationEndpoints.Reject.url)
-        let uriId       = WMTOperationEndpoints.Reject.uriId
-        let requestData = WMTOperationEndpoints.Reject.RequestData(WMTRejectionData(operationId: operation.id, reason: reason))
-        let request     = WMTOperationEndpoints.Reject.Request(url, uriId: uriId, auth: auth, requestData: requestData)
-        
-        return networking.post(request) { (_, error) in
+        return networking.post(data: .init(.init(operationId: operation.id, reason: reason)), signedWith: auth, to: WMTOperationEndpoints.Reject.endpoint) { _, error in
             if error == nil {
                 self.operationsRegister.remove(operation: operation)
             }
@@ -302,7 +291,7 @@ class WMTOperationsImpl: WMTOperations {
     /// - Returns: Operation object for its state observation.
     func authorize(qrOperation: WMTQROperation, authentication: PowerAuthAuthentication, completion: @escaping (Result<String, WMTError>) -> Void) -> Operation {
         
-        let op = WMTAsyncBlockOperation { _, markFinished in 
+        let op = WPNAsyncBlockOperation { _, markFinished in
             do {
                 let uriId  = qrOperation.uriIdForOfflineSigning
                 let body   = qrOperation.dataForOfflineSigning
@@ -381,14 +370,9 @@ class WMTOperationsImpl: WMTOperations {
         let auth = PowerAuthAuthentication()
         auth.usePossession = true
         
-        let url         = config.buildURL(WMTOperationEndpoints.List.url)
-        let tokenName   = WMTOperationEndpoints.List.tokenName
-        let requestData = WMTOperationEndpoints.List.RequestData()
-        let request     = WMTOperationEndpoints.List.Request(url, tokenName: tokenName, auth: auth, requestData: requestData)
-        
-        networking.post(request, completion: { (response, error) in
+        networking.post(data: .init(), signedWith: auth, to: WMTOperationEndpoints.List.endpoint) { response, error in
             completion(response?.responseObject, error)
-        })
+        }
     }
     
     private func shouldContinueLoading() -> Bool {
