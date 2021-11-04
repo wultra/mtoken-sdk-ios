@@ -6,7 +6,7 @@ set -u # stop when undefined variable is used
 
 SCRIPT_FOLDER=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 
-DESTINATION="platform=iOS Simulator,OS=13.5,name=iPhone SE (2nd generation)"
+DESTINATION="platform=iOS Simulator,OS=15.0,name=iPhone SE (2nd generation)"
 CL_URL=""
 CL_LGN=""
 CL_PWD=""
