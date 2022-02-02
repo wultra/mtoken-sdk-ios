@@ -8,10 +8,7 @@ let package = Package(
         .iOS(.v10)
     ],
     products: [
-        .library(
-            name: "WultraMobileTokenSDK",
-            targets: ["WultraMobileTokenSDK"]
-        )
+        .library(name: "WultraMobileTokenSDK", targets: ["WultraMobileTokenSDK"])
     ],
     dependencies: [
         .package(name: "PowerAuth2", url: "https://github.com/wultra/powerauth-mobile-sdk-spm.git", .upToNextMinor(from: "1.6.2")),
