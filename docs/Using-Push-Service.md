@@ -1,6 +1,6 @@
 # Using Push Service
 
-<!-- begin TOC -->
+<!-- begin remove -->
 - [Introduction](#introduction)
 - [Creating an Instance](#creating-an-instance)
 - [Push Service API Reference](#push-service-api-reference)
@@ -13,7 +13,9 @@
 
 Push Service is responsible for registering the device for the push notifications about the Operations that are tied to the current PowerAuth activation.
 
-> __Note:__ Before using Push Service, you need to have a `PowerAuthSDK` object available and initialized with a valid activation. Without a valid PowerAuth activation, service will return an error
+<!-- begin box warning -->
+Note: Before using Push Service, you need to have a `PowerAuthSDK` object available and initialized with a valid activation. Without a valid PowerAuth activation, service will return an error
+<!-- end -->
 
 Push Service communicates with [Mobile Push Registration API](https://github.com/wultra/powerauth-webflow/blob/develop/docs/Mobile-Push-Registration-API.md).
 
@@ -33,9 +35,9 @@ let pushService = powerAuth.createWMTPush(config: config)
 
 `sslValidation` property is used when validating HTTPS requests. Following strategies can be used.  
 
-- `WMTSSLValidationStrategy.default` 
+- `WMTSSLValidationStrategy.default`
 - `WMTSSLValidationStrategy.noValidation`
-- `WMTSSLValidationStrategy.sslPinning` 
+- `WMTSSLValidationStrategy.sslPinning`
 
 ## Push Service API Reference
 
@@ -64,7 +66,9 @@ func application(_ application: UIApplication, didRegisterForRemoteNotifications
 }
 ```
 
-_To make the above method called, you need to register the app to receive push notifications in the first place. For more information visit [official documentation](https://developer.apple.com/documentation/usernotifications/handling_notifications_and_notification-related_actions)._
+<!-- begin box warning -->
+The above method will get called only if you registered the app to receive push notifications. For more information, visit the [official documentation](https://developer.apple.com/documentation/usernotifications/handling_notifications_and_notification-related_actions).
+<!-- end -->
 
 ## Receiving WMT Push Notifications
 
@@ -83,8 +87,7 @@ The `WMTPushMessage` can be following values
   -  `result` of the operation (for example that the operation was canceled by the user).
   -  `originalData` - data on which was the push message constructed
 
-
-_Example push notification processing:_
+Example push notification processing:
 
 ```swift
 // MARK: - UNUserNotificationCenterDelegate
