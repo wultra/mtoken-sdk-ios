@@ -27,4 +27,4 @@ jobs:
           CL_PWD: ${{ secrets.TESTS_CL_PWD }}
           OP_URL: ${{ secrets.TESTS_OP_URL }}
           ER_URL: ${{ secrets.TESTS_ER_URL }}
-        run: ./scripts/test.sh -destination "platform=iOS Simulator,OS=15.0,name=iPhone SE (2nd generation)" -appkey "$APP_KEY" -appsecret "$APP_SECRET" -masterspk "$MASTER_SERVER_PUBLIC_KEY" -er "$ER_URL" -op "$OP_URL" -cl "$CL_URL" -clu "$CL_LGN" -clp "$CL_PWD"
+        run: ./scripts/test.sh -destination "platform=iOS Simulator,OS=15.2,name=iPhone SE (2nd generation)" -appkey "$APP_KEY" -appsecret "$APP_SECRET" -masterspk "$MASTER_SERVER_PUBLIC_KEY" -er "$ER_URL" -op "$OP_URL" -cl "$CL_URL" -clu "$CL_LGN" -clp "$CL_PWD"
