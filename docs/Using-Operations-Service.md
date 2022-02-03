@@ -1,6 +1,6 @@
 # Using Operations Service
 
-<!-- begin TOC -->
+<!-- begin remove -->
 - [Introduction](#introduction)
 - [Creating an Instance](#creating-an-instance)
 - [Retrieve Pending Operations](#retrieve-pending-operations)
@@ -19,7 +19,9 @@ Operations Service is responsible for fetching the operation list and for approv
 
 An operation can be anything you need to be approved or rejected by the user. It can be for example money transfer, login request, access approval, ...
 
-> __Note:__ Before using Operations Service, you need to have a `PowerAuthSDK` object available and initialized with a valid activation. Without a valid PowerAuth activation, all endpoints will return an error
+<!-- begin box warning -->
+Note: Before using Operations Service, you need to have a `PowerAuthSDK` object available and initialized with a valid activation. Without a valid PowerAuth activation, all endpoints will return an error
+<!-- end -->
 
 Operations Service communicates with a backend via [Mobile Token API endpoints](https://github.com/wultra/powerauth-webflow/blob/develop/docs/Mobile-Token-API.md).
 
@@ -40,9 +42,9 @@ let opsService = powerAuth.createWMTOperations(config: config)
 
 The `sslValidation` parameter is used when validating HTTPS requests. Following strategies can be used.  
 
-- `WMTSSLValidationStrategy.default` 
+- `WMTSSLValidationStrategy.default`
 - `WMTSSLValidationStrategy.noValidation`
-- `WMTSSLValidationStrategy.sslPinning` 
+- `WMTSSLValidationStrategy.sslPinning`
 
 The `pollingOptions` parameter is used for polling feature configuration. The default value is empty `[]`. Possible options are:
 
@@ -70,7 +72,9 @@ DispatchQueue.main.async {
 
 After you retrieve the pending operations, you can render them in the UI, for example, as a list of items with a detail of operation shown after a tap.
 
-*Note: Language of the UI data inside the operation depends on the cofiguration of the `WMTOperation.acceptLanguage`.*
+<!-- begin box warning -->
+Note: Language of the UI data inside the operation depends on the configuration of the `WMTOperation.acceptLanguage`.
+<!-- end -->
 
 ## Start Periodic Polling
 
@@ -87,7 +91,9 @@ if (!operationsService.isPollingOperations) {
 
 To receive the result of the polling, set up a delegate.
 
-_Note that the listener is called for all "fetch operations" requests (not just the polling)._
+<!-- begin box warning -->
+Note that the listener is called for all "fetch operations" requests (not just the polling).
+<!-- end -->
 
 ```swift
 import WultraMobileTokenSDK
@@ -96,7 +102,7 @@ import PowerAuth2
 class MyOperationsManager: WMTOperationsDelegate {
 
     private let ops: WMTOperations
-    
+
     init(powerAuth: PowerAuthSDK) {
         let opsConfig = WMTConfig(
             baseUrl: URL(string: "https://myservice.com/mtoken/api/")!,
@@ -118,6 +124,7 @@ class MyOperationsManager: WMTOperationsDelegate {
     }
 }
 ```
+
 <!-- begin box info -->
 Polling behavior can be adjusted by the `pollingOptions` parameter when [creating an instance](#creating-an-instance) of the service.
 <!-- end -->
@@ -137,7 +144,7 @@ func approve(operation: WMTOperation, password: String) {
     auth.usePossession = true
     auth.usePassword = password
 
-    operationService.authorize(operation: operation, authentication: auth) { error in 
+    operationService.authorize(operation: operation, authentication: auth) { error in
         if let error = error {
             // show error UI
         } else {
@@ -147,7 +154,7 @@ func approve(operation: WMTOperation, password: String) {
 }
 ```
 
-_To approve offline operations with biometry, your PowerAuth instance [need to be configured with biometry factor](https://github.com/wultra/powerauth-mobile-sdk/blob/develop/docs/PowerAuth-SDK-for-iOS.md#biometry-setup)._
+To approve offline operations with biometry, your PowerAuth instance [need to be configured with biometry factor](https://github.com/wultra/powerauth-mobile-sdk/blob/develop/docs/PowerAuth-SDK-for-iOS.md#biometry-setup).
 
 ```swift
 import WultraMobileTokenSDK
@@ -161,7 +168,7 @@ func approveWithBiometry(operation: WMTOperation) {
     auth.useBiometry = true
     auth.biometryPrompt = "Confirm operation."
 
-    operationService.authorize(operation: operation, authentication: auth) { error in 
+    operationService.authorize(operation: operation, authentication: auth) { error in
         if let error = error {
             // show error UI
         } else {
@@ -181,7 +188,7 @@ import PowerAuth2
 
 // Reject operation with some reason
 func reject(operation: WMTOperation, reason: WMTRejectionReason) {
-    operationService.reject(operation: operation, reason: reason) { error in 
+    operationService.reject(operation: operation, reason: reason) { error in
         if let error = error {
             // show error UI
         } else {
@@ -204,7 +211,7 @@ func history(password: String) {
     let auth = PowerAuthAuthentication()
     auth.usePossession = true
     auth.usePassword = password
-    operationService.getHistory(authentication: auth) { result in 
+    operationService.getHistory(authentication: auth) { result in
         switch result {
         case .success(let operations):
             // process operation history
@@ -217,13 +224,15 @@ func history(password: String) {
 }
 ```
 
-_Note that the operation history availability depends on the backend implementation and might not be available. Please consult this with your backend developers._
+<!-- begin box warning -->
+Note that the operation history availability depends on the backend implementation and might not be available. Please consult this with your backend developers.
+<!-- end -->
 
 ## Off-line Authorization
 
 In case the user is not online, you can use off-line authorizations. In this operation mode, the user needs to scan a QR code, enter PIN code or use biometry, and rewrite the resulting code. Wultra provides a special format for [the operation QR codes](https://github.com/wultra/powerauth-webflow/blob/develop/docs/Off-line-Signatures-QR-Code.md), that is automatically processed with the SDK.
 
-### Processing scanned QR operation
+### Processing Scanned QR Operation
 
 ```swift
 import WultraMobileTokenSDK
@@ -243,13 +252,13 @@ case .failure(let error):
 }
 ```
 
-### Authorizing scanned QR operation
+### Authorizing Scanned QR Operation
 
 <!-- begin box info -->
 An offline operation needs to be __always__ approved with __2-factor scheme__ (password or biometry).
 <!-- end -->
 
-#### With password
+#### With Password
 
 ```swift
 import WultraMobileTokenSDK
@@ -261,7 +270,7 @@ func approveQROperation(operation: WMTQROperation, password: String) {
     auth.usePossession = true
     auth.usePassword = password
 
-    operationsService.authorize(qrOperation: operation, authentication: auth) { result in 
+    operationsService.authorize(qrOperation: operation, authentication: auth) { result in
         switch result {
         case .success(let code):
             // Display the signature to the user so it can be manually rewritten.
@@ -277,9 +286,9 @@ func approveQROperation(operation: WMTQROperation, password: String) {
 An offline operation can and will be signed even with an incorrect password. The signature cannot be used for manual approval in such a case. This behavior cannot be detected, so you should warn the user that an incorrect password will result in an incorrect "approval code".
 <!-- end -->
 
-#### With biometry
+#### With Biometry
 
-_To approve offline operations with biometry, your PowerAuth instance [need to be configured with biometry factor](https://github.com/wultra/powerauth-mobile-sdk/blob/develop/docs/PowerAuth-SDK-for-iOS.md#biometry-setup)._
+To approve offline operations with biometry, your PowerAuth instance [need to be configured with biometry factor](https://github.com/wultra/powerauth-mobile-sdk/blob/develop/docs/PowerAuth-SDK-for-iOS.md#biometry-setup).
 
 ```swift
 import WultraMobileTokenSDK
@@ -298,7 +307,7 @@ func approveQROperationWithBiometry(operation: WMTQROperation) {
     auth.useBiometry = true
     auth.biometryPrompt = "Confirm operation."
 
-    operationsService.authorize(qrOperation: operation, authentication: auth) { result in 
+    operationsService.authorize(qrOperation: operation, authentication: auth) { result in
         switch result {
         case .success(let code):
             // Display the signature to the user so it can be manually rewritten.
@@ -308,7 +317,6 @@ func approveQROperationWithBiometry(operation: WMTQROperation) {
     }
 }
 ```
-
 
 ## Operations API Reference
 
@@ -360,47 +368,47 @@ class WMTUserOperation: WMTOperation {
 
 	/// Unique operation identifier
 	public let id: String
-	    
+
 	/// System name of the operation.
 	///
-	/// This property lets you adjust the UI for various operation types. 
-	/// For example, the "login" operation may display a specialized interface with 
-	/// an icon or an illustration, instead of an empty list of attributes, 
+	/// This property lets you adjust the UI for various operation types.
+	/// For example, the "login" operation may display a specialized interface with
+	/// an icon or an illustration, instead of an empty list of attributes,
 	/// "payment" operation can include a special icon that denotes payments, etc.
 	public let name: String
-	    
+
 	/// Actual data that will be signed.
 	public let data: String
-	    
+
 	/// Date and time when the operation was created.
 	public let operationCreated: Date
-	    
+
 	/// Date and time when the operation will expire.
 	public let operationExpires: Date
-	    
+
 	/// Data that should be presented to the user.
 	public let formData: WMTOperationFormData
-	    
+
 	/// Allowed signature types.
 	///
-	/// This hints if the operation needs a 2nd factor or can be approved simply by 
-	/// tapping an approve button. If the operation requires 2FA, this value also hints if 
+	/// This hints if the operation needs a 2nd factor or can be approved simply by
+	/// tapping an approve button. If the operation requires 2FA, this value also hints if
 	/// the user may use the biometry, or if a password is required.
 	public let allowedSignatureType: WMTAllowedOperationSignature
 }
 ```
 
-Definition of `WMTOperationFormData`: 
+Definition of `WMTOperationFormData`:
 
 ```swift
 public class WMTOperationFormData {
-    
+
     /// Title of the operation
     public let title: String
-    
+
     /// Message for the user
     public let message: String
-    
+
     /// Other attributes.
     ///
     /// Each attribute presents one line in the UI. Attributes are differentiated by type property
@@ -414,22 +422,24 @@ Attributes types:
 - `KEY_VALUE` any key value pair  
 - `NOTE` just like `KEY_VALUE`, emphasizing that the value is a note or message  
 - `HEADING` single highlighted text, written in a larger font, used as a section heading  
-- `PARTY_INFO` providing structured information about third-party data (for example known eshop)
+- `PARTY_INFO` providing structured information about third-party data (for example known e-shop)
 
 ## Creating a Custom Operation
 
 In some specific scenarios, you might need to approve or reject an operation that you received through a different channel than `getOperations`. In such cases, you can implement the `WMTOperation` protocol in your custom class and then feed created objects to both `authorize` and `reject` methods.
 
-_Note: For such cases, you can use concrete convenient class `WMTLocalOperation`, that implements this protocol._
+<!-- begin box success -->
+You can use concrete convenient class `WMTLocalOperation`, that implements the `WMTOperation` protocol.
+<!-- end -->
 
 Definition of the `WMTOperation`:
 
 ```swift
 public protocol WMTOperation {
-    
+
     /// Operation identifier
     var id: String { get }
-    
+
     /// Data for signing
     var data: String { get }
 }

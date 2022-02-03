@@ -3,7 +3,14 @@
 <!-- begin remove -->
 <p align="center"><img src="docs/images/intro.png" alt="Wultra Mobile Token SDK for Android" width="60%" /></p>
 
-![build](https://github.com/wultra/mtoken-sdk-ios/workflows/build/badge.svg) ![tests](https://github.com/wultra/mtoken-sdk-ios/workflows/tests/badge.svg) [![pod](https://img.shields.io/cocoapods/v/WultraMobileTokenSDK)](https://cocoapods.org/pods/WultraMobileTokenSDK) ![date](https://img.shields.io/github/release-date/wultra/mtoken-sdk-ios) ![platform](https://img.shields.io/cocoapods/p/WultraMobileTokenSDK) [![license](https://img.shields.io/github/license/wultra/mtoken-sdk-ios)](LICENSE)  
+![build](https://github.com/wultra/mtoken-sdk-ios/workflows/build/badge.svg) 
+![tests](https://github.com/wultra/mtoken-sdk-ios/workflows/tests/badge.svg)
+![GitHub release (latest by date)](https://img.shields.io/github/v/release/wultra/mtoken-sdk-ios)
+![date](https://img.shields.io/github/release-date/wultra/mtoken-sdk-ios) 
+![SPM](https://img.shields.io/badge/Swift_Package_Manager-%F0%9F%91%8D-F4412B) 
+[![pod](https://img.shields.io/badge/CocoaPods-%F0%9F%91%8D-fb0006)](https://cocoapods.org/pods/WultraMobileTokenSDK) 
+![platform](https://img.shields.io/cocoapods/p/WultraMobileTokenSDK) 
+[![license](https://img.shields.io/github/license/wultra/mtoken-sdk-ios)](LICENSE)  
 
 __Wultra Mobile Token SDK__ is a high-level SDK for operation approval.
 <!-- end -->

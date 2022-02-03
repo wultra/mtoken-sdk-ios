@@ -1,8 +1,10 @@
 # Logging
 
-For logging purposes, WMT uses `WMTLogger` class that prints to the console. 
+For logging purposes, WMT uses `WMTLogger` class that prints to the console.
 
-_Note that logging to the console is available only when the library is compiled in the `Debug` mode._
+<!-- begin box info -->
+Note that logging to the console is available only when the library is compiled in the `Debug` mode.
+<!-- end -->
 
 ### Verbosity Level
 
