@@ -27,24 +27,25 @@ Operations Service communicates with a backend via [Mobile Token API endpoints](
 
 ## Creating an Instance
 
-To create an instance of an operations service, use the following snippet:
-
+### On Top of the `PowerAuthSDK` instance
 ```swift
 import WultraMobileTokenSDK
+import WultraPowerAuthNetworking
 
-let opsConfig = WMTConfig(
+let networkingConfig = WPNConfig(
     baseUrl: URL(string: "https://myservice.com/mtoken/operations/api/")!,
-    sslValidation: .default,
-    pollingOptions: [.pauseWhenOnBackground]
+    sslValidation: .default
 )
-let opsService = powerAuth.createWMTOperations(config: config)
+let opsService = powerAuth.createWMTOperations(networkingConfig: networkingConfig, pollingOptions: [.pauseWhenOnBackground])
 ```
 
-The `sslValidation` parameter is used when validating HTTPS requests. Following strategies can be used.  
+### On Top of the `WPNNetworkingService` instance
+```swift
+import WultraMobileTokenSDK
+import WultraPowerAuthNetworking
 
-- `WMTSSLValidationStrategy.default`
-- `WMTSSLValidationStrategy.noValidation`
-- `WMTSSLValidationStrategy.sslPinning`
+let opsService = networkingService.createWMTOperations(pollingOptions: [.pauseWhenOnBackground])
+```
 
 The `pollingOptions` parameter is used for polling feature configuration. The default value is empty `[]`. Possible options are:
 
@@ -104,10 +105,11 @@ class MyOperationsManager: WMTOperationsDelegate {
     private let ops: WMTOperations
 
     init(powerAuth: PowerAuthSDK) {
-        let opsConfig = WMTConfig(
-            baseUrl: URL(string: "https://myservice.com/mtoken/api/")!,
-            sslValidation: .default)
-        self.ops = powerAuth.createWMTOperations(config: opsConfig)
+        let networkingConfig = WPNConfig(
+            baseUrl: URL(string: "https://myservice.com/mtoken/operations/api/")!,
+            sslValidation: .default
+        )
+        self.ops = powerAuth.createWMTOperations(networkingConfig: networkingConfig)
         self.ops.delegate = self
     }
 
@@ -323,7 +325,6 @@ func approveQROperationWithBiometry(operation: WMTQROperation) {
 All available methods and attributes of `WMTOperations` API are:
 
 - `delegate` - Delegate object that receives info about operation loading. Methods of the delegate are always called on the main thread.
-- `config` - Config object, that was used for initialization.
 - `acceptLanguage` - Language settings, that will be sent along with each request. The server will return properly localized content based on this value. Value follows standard RFC [Accept-Language](https://tools.ietf.org/html/rfc7231#section-5.3.5)
 - `lastFetchResult()` - Cached last operations result.
 - `isLoadingOperations` - Indicates if the service is loading pending operations.

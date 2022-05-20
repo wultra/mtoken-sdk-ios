@@ -25,9 +25,6 @@ public protocol WMTOperations: AnyObject {
     /// Methods of the delegate are always called on the main thread.
     var delegate: WMTOperationsDelegate? { get set }
     
-    /// Configuration for the service.
-    var config: WMTConfig { get }
-    
     /// Configuration of the polling feature
     var pollingOptions: WMTOperationsPollingOptions { get }
     
