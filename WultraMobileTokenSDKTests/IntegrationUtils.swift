@@ -76,7 +76,7 @@ class IntegrationUtils {
                 """
             }
             
-            completion(self.makeRequest(url: URL(string: "\(config.cloudServerUrl)/operations")!, body: opBody))
+            completion(self.makeRequest(url: URL(string: "\(config.cloudServerUrl)/v2/operations")!, body: opBody))
         }
     }
     
@@ -128,7 +128,7 @@ class IntegrationUtils {
                 callback("Commit activation locally failed.")
                 return
             }
-            guard let _ = commitActivationOnServer() else {
+            guard let _ = commitActivationOnServer(registrationId: act.registrationId) else {
                 callback("Commit on server failed.")
                 return
             }
@@ -142,23 +142,24 @@ class IntegrationUtils {
           "userId": "\(activationName)"
         }
         """
-        let resp: RegistrationObject? = makeRequest(url: URL(string: "\(config.cloudServerUrl)/registration")!, body: body)
+        let resp: RegistrationObject? = makeRequest(url: URL(string: "\(config.cloudServerUrl)/v2/registrations")!, body: body)
         return resp
     }
     
-    private class func commitActivationOnServer() -> CommitObject? {
+    private class func commitActivationOnServer(registrationId: String) -> CommitObject? {
         let body = """
         {
-          "userId": "\(activationName)"
+          "externalUserId": "test"
         }
         """
-        let resp: CommitObject? = makeRequest(url: URL(string: "\(config.cloudServerUrl)/registration/commit")!, body: body)
+        let resp: CommitObject? = makeRequest(url: URL(string: "\(config.cloudServerUrl)/v2/registrations/\(registrationId)/commit")!, body: body)
         return resp
     }
 }
 
 private struct RegistrationObject: Codable {
     let activationQrCodeData: String
+    let registrationId: String
     
     func activationCode() -> String? { return PowerAuthActivationCodeUtil.parse(fromActivationCode: activationQrCodeData)?.activationCode }
 }

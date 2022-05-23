@@ -77,19 +77,21 @@ public protocol WMTOperations: AnyObject {
     @discardableResult
     func authorize(operation: WMTOperation, authentication: PowerAuthAuthentication, completion: @escaping(WMTError?) -> Void) -> Operation?
     
-    /// Will sign the given QR operation with authentication object.
+    /// Will sign the given QR operation with URI ID and authentication object.
     ///
     /// Note that the operation will be signed even if the authentication object is
     /// not valid as it cannot be verified on the server.
     ///
     /// - Parameters:
-    ///   - qrOperation: QR operation data
+    ///   - qrOperation: QR operation data.
+    ///   - uriId: Custom signature URI ID of the operation. Use URI ID under which the operation was
+    ///            created on the server. Usually something like `/confirm/offline/operation`.
     ///   - authentication: Authentication object for signing.
     ///   - completion: Result completion.
     ///                 This completion is always called on the main thread.
     /// - Returns: Operation object for its state observation.
     @discardableResult
-    func authorize(qrOperation: WMTQROperation, authentication: PowerAuthAuthentication, completion: @escaping(Result<String, WMTError>) -> Void) -> Operation
+    func authorize(qrOperation: WMTQROperation, uriId: String, authentication: PowerAuthAuthentication, completion: @escaping(Result<String, WMTError>) -> Void) -> Operation
     
     /// Reject operation with a reason.
     ///
@@ -116,6 +118,27 @@ public protocol WMTOperations: AnyObject {
     
     /// Stops the operations polling.
     func stopPollingOperations()
+}
+
+public extension WMTOperations {
+    
+    /// Will sign the given QR operation with authentication object.
+    ///
+    /// Default operation URI ID `/operation/authorize/offline` is used. To customize this value, use
+    /// the method with `uriId` parameter.
+    ///
+    /// Note that the operation will be signed even if the authentication object is
+    /// not valid as it cannot be verified on the server.
+    ///
+    /// - Parameters:
+    ///   - qrOperation: QR operation data
+    ///   - authentication: Authentication object for signing.
+    ///   - completion: Result completion.
+    ///                 This completion is always called on the main thread.
+    /// - Returns: Operation object for its state observation.
+    func authorize(qrOperation: WMTQROperation, authentication: PowerAuthAuthentication, completion: @escaping (Result<String, WMTError>) -> Void) -> Operation {
+        return authorize(qrOperation: qrOperation, uriId: "/operation/authorize/offline", authentication: authentication, completion: completion)
+    }
 }
 
 public typealias GetOperationsResult = Result<[WMTUserOperation], WMTError>

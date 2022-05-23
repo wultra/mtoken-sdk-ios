@@ -262,6 +262,10 @@ case .failure(let error):
 An offline operation needs to be __always__ approved with __2-factor scheme__ (password or biometry).
 <!-- end -->
 
+<!-- begin box info -->
+Each offline operation created on the server has an __URI ID__ to define its purpose and configuration. The default value used here is `/operation/authorize/offline` and can be modified with the `uriId` parameter in the `authrorize` method.
+<!-- end -->
+
 #### With Password
 
 ```swift
@@ -278,7 +282,7 @@ func approveQROperation(operation: WMTQROperation, password: String) {
         switch result {
         case .success(let code):
             // Display the signature to the user so it can be manually rewritten.
-            // Note that the operation will be signed even with the wrong password!
+            // Note that the operation will be signed even with a wrong password!
         case .failure(let error):
             // Failed to sign the operation
         }
@@ -289,6 +293,31 @@ func approveQROperation(operation: WMTQROperation, password: String) {
 <!-- begin box info -->
 An offline operation can and will be signed even with an incorrect password. The signature cannot be used for manual approval in such a case. This behavior cannot be detected, so you should warn the user that an incorrect password will result in an incorrect "approval code".
 <!-- end -->
+
+#### With Password and Custom `uriId`
+
+```swift
+import WultraMobileTokenSDK
+import PowerAuth2
+
+func approveQROperation(operation: WMTQROperation, password: String) {
+
+    let auth = PowerAuthAuthentication()
+    auth.usePossession = true
+    auth.usePassword = password
+
+    // using the authorize method with custom uriId
+    operationsService.authorize(qrOperation: operation, uriId: "/confirm/offline/operation", authentication: auth) { result in
+        switch result {
+        case .success(let code):
+            // Display the signature to the user so it can be manually rewritten.
+            // Note that the operation will be signed even with a wrong password!
+        case .failure(let error):
+            // Failed to sign the operation
+        }
+    }
+}
+```
 
 #### With Biometry
 
@@ -352,7 +381,12 @@ All available methods and attributes of `WMTOperations` API are:
   - `authentication` - PowerAuth authentication object for operation signing.
   - `completion` - Called when rejection request finishes. Always called on the main thread.
 - `authorize(qrOperation: WMTQROperation, authentication: PowerAuthAuthentication, completion: @escaping(Result<String, WMTError>) -> Void)` - Sign offline (QR) operation.
-    - `operation` - Offline operation that can be retrieved via `WMTQROperationParser.parse` method.
+    - `qrOperation ` - Offline operation that can be retrieved via `WMTQROperationParser.parse` method.
+    - `authentication` - PowerAuth authentication object for operation signing.
+    - `completion` - Called when authentication finishes. Always called on the main thread.
+- `authorize(qrOperation: WMTQROperation, uriId: String, authentication: PowerAuthAuthentication, completion: @escaping(Result<String, WMTError>) -> Void)` - Sign offline (QR) operation.
+    - `qrOperation ` - Offline operation that can be retrieved via `WMTQROperationParser.parse` method.
+    - `uriId` - Custom signature URI ID of the operation. Use URI ID under which the operation was created on the server. Usually something like `/confirm/offline/operation`.
     - `authentication` - PowerAuth authentication object for operation signing.
     - `completion` - Called when authentication finishes. Always called on the main thread.
 
