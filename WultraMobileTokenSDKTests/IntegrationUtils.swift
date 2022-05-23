@@ -21,6 +21,7 @@ class IntegrationUtils {
     
     private static var config: IntegrationConfig!
     private static let activationName = UUID().uuidString
+    private static var registrationId = "" // will be filled when activation is created
     
     typealias Callback = (_ instances: (PowerAuthSDK, WMTOperations)?, _ error: String?) -> Void
     
@@ -79,6 +80,25 @@ class IntegrationUtils {
         }
     }
     
+    class func getQROperation(operation: OperationObject, completion: @escaping (QROperationData?) -> Void) {
+        DispatchQueue.global().async {
+            completion(self.makeRequest(url: URL(string: "\(config.cloudServerUrl)/v2/operations/\(operation.operationId)/offline/qr?registrationId=\(registrationId)")!, body: "", httpMethod: "GET"))
+        }
+    }
+    
+    class func verifyQROperation(operation: OperationObject, operationData: QROperationData, otp: String, completion: @escaping (QROperationVerify?) -> Void) {
+        DispatchQueue.global().async {
+            let body = """
+                {
+                  "otp": "\(otp)",
+                  "nonce": "\(operationData.nonce)",
+                  "registrationId": "\(registrationId)"
+                }
+            """
+            completion(self.makeRequest(url: URL(string: "\(config.cloudServerUrl)/v2/operations/\(operation.operationId)/offline/otp")!, body: body))
+        }
+    }
+    
     private class func makeRequest<T: Codable>(url: URL, body: String, httpMethod: String = "POST") -> T? {
         var r = URLRequest(url: url)
         let creds = "\(config.cloudServerLogin):\(config.cloudServerPassword)".data(using: .utf8)?.base64EncodedString() ?? ""
@@ -116,6 +136,7 @@ class IntegrationUtils {
             callback("Create activation on server failed.")
             return
         }
+        registrationId = act.registrationId
         pa.createActivation(withName: "tests", activationCode: act.activationCode()!) { result, error in
             guard let _ = result else {
                 callback("Create activation failed.")
@@ -188,4 +209,20 @@ private struct IntegrationConfig: Codable {
     let appKey: String
     let appSecret: String
     let masterServerPublicKey: String
+}
+
+struct QROperationData: Codable {
+    let operationQrCodeData: String
+    let nonce: String
+}
+
+struct QROperationVerify: Codable {
+    let otpValid: Bool
+    let userId: String
+    let registrationId: String
+    let registrationStatus: String
+    let signatureType: String
+    let remainingAttempts: Int
+    // let flags: []
+    // let application
 }
