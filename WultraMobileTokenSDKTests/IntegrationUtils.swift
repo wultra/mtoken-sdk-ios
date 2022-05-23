@@ -16,6 +16,7 @@
 
 import PowerAuth2
 import WultraMobileTokenSDK
+import WultraPowerAuthNetworking
 
 class IntegrationUtils {
     
@@ -45,8 +46,8 @@ class IntegrationUtils {
             if let error = error {
                 callback(nil, error)
             } else {
-                let wmtconf = WMTConfig(baseUrl: URL(string: config.operationsServerUrl)!, sslValidation: .noValidation)
-                callback((pa,pa.createWMTOperations(config: wmtconf, pollingOptions: [.pauseWhenOnBackground])), nil)
+                let wpnConf = WPNConfig(baseUrl: URL(string: config.operationsServerUrl)!, sslValidation: .noValidation)
+                callback((pa,pa.createWMTOperations(networkingConfig: wpnConf, pollingOptions: [.pauseWhenOnBackground])), nil)
             }
         }
     }
