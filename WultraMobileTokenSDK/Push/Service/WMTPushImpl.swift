@@ -21,10 +21,19 @@ import WultraPowerAuthNetworking
 public extension PowerAuthSDK {
     
     /// Creates instance of the `WMTPush` on top of the PowerAuth instance.
-    /// - Parameter config: Push service config
+    /// - Parameter networkingConfig: Networking service config
     /// - Returns: Push service
-    func createWMTPush(config: WMTConfig) -> WMTPush {
-        return WMTPushImpl(powerAuth: self, config: config)
+    func createWMTPush(networkingConfig: WPNConfig) -> WMTPush {
+        return WMTPushImpl(networking: WPNNetworkingService(powerAuth: self, config: networkingConfig, serviceName: "WMTPush"))
+    }
+}
+
+public extension WPNNetworkingService {
+    
+    /// Creates instance of the `WMTPush` on top of the WPNNetworkingService instance.
+    /// - Returns: Push service
+    func createWMTPush() -> WMTPush {
+        return WMTPushImpl(networking: self)
     }
 }
 
@@ -36,9 +45,8 @@ public extension WMTErrorReason {
 class WMTPushImpl: WMTPush {
     
     // Dependencies
-    private let powerAuth: PowerAuthSDK
+    private lazy var powerAuth = networking.powerAuth
     private let networking: WPNNetworkingService
-    let config: WMTConfig
     
     private(set) var pushNotificationsRegisteredOnServer = false // Contains true if push notifications were already registered
     private var pendingRegistrationForRemotePushNotifications = false // Contains true if there's pending registration for push notifications
@@ -48,10 +56,8 @@ class WMTPushImpl: WMTPush {
         set { networking.acceptLanguage = newValue }
     }
     
-    init(powerAuth: PowerAuthSDK, config: WMTConfig) {
-        self.powerAuth = powerAuth
-        self.networking = WPNNetworkingService(powerAuth: powerAuth, config: config.wpnConfig, serviceName: "WMTPush")
-        self.config = config
+    init(networking: WPNNetworkingService) {
+        self.networking = networking
     }
     
     @discardableResult
