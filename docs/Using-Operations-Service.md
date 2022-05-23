@@ -36,6 +36,7 @@ let networkingConfig = WPNConfig(
     baseUrl: URL(string: "https://myservice.com/mtoken/operations/api/")!,
     sslValidation: .default
 )
+// powerAuth is instance of PowerAuthSDK
 let opsService = powerAuth.createWMTOperations(networkingConfig: networkingConfig, pollingOptions: [.pauseWhenOnBackground])
 ```
 
@@ -44,6 +45,7 @@ let opsService = powerAuth.createWMTOperations(networkingConfig: networkingConfi
 import WultraMobileTokenSDK
 import WultraPowerAuthNetworking
 
+// networkingService is instance of WPNNetworkingService
 let opsService = networkingService.createWMTOperations(pollingOptions: [.pauseWhenOnBackground])
 ```
 
