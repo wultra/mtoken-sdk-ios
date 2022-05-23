@@ -59,7 +59,7 @@ public class WMTAllowedOperationSignature: Codable {
     }
 }
 
-extension WMTAllowedOperationSignature {
+public extension WMTAllowedOperationSignature {
     /// Helper getter if biometry factor is allowed.
     var isBiometryAllowed: Bool { return signatureFactors.contains(.possessionBiometry) }
 }
