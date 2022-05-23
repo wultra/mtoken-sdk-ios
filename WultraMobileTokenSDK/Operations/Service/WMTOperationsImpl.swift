@@ -25,11 +25,22 @@ public extension PowerAuthSDK {
     
     /// Creates instance of the `WMTOperations` on top of the PowerAuth instance.
     /// - Parameters:
-    ///   - config: Operations service config
+    ///   - networkingConfig: Networking service config
     ///   - pollingOptions: Polling feature configuration
     /// - Returns: Operations service
-    func createWMTOperations(config: WMTConfig, pollingOptions: WMTOperationsPollingOptions = []) -> WMTOperations {
-        return WMTOperationsImpl(powerAuth: self, config: config, pollingOptions: pollingOptions)
+    func createWMTOperations(networkingConfig: WPNConfig, pollingOptions: WMTOperationsPollingOptions = []) -> WMTOperations {
+        return WMTOperationsImpl(networking: WPNNetworkingService(powerAuth: self, config: networkingConfig, serviceName: "WMTOperations"), pollingOptions: pollingOptions)
+    }
+}
+
+public extension WPNNetworkingService {
+    
+    /// Creates instance of the `WMTOperations` on top of the WPNNetworkingService/PowerAuth instance.
+    /// - Parameters:
+    ///   - pollingOptions: Polling feature configuration
+    /// - Returns: Operations service
+    func createWMTOperations(pollingOptions: WMTOperationsPollingOptions = []) -> WMTOperations {
+        return WMTOperationsImpl(networking: self, pollingOptions: pollingOptions)
     }
 }
 
@@ -56,14 +67,13 @@ public extension WMTErrorReason {
 class WMTOperationsImpl: WMTOperations {
     
     // Dependencies
-    private let powerAuth: PowerAuthSDK
+    private lazy var powerAuth = networking.powerAuth
     private let networking: WPNNetworkingService
     private let qrQueue: OperationQueue = {
         let q = OperationQueue()
         q.name = "WMTOperationsQRQueue"
         return q
     }()
-    let config: WMTConfig
     
     /// If operation loading is currently in progress
     private(set) var isLoadingOperations = false {
@@ -101,10 +111,8 @@ class WMTOperationsImpl: WMTOperations {
     /// Methods of the delegate are always called on the main thread.
     weak var delegate: WMTOperationsDelegate?
     
-    init(powerAuth: PowerAuthSDK, config: WMTConfig, pollingOptions: WMTOperationsPollingOptions = []) {
-        self.powerAuth = powerAuth
-        self.networking = WPNNetworkingService(powerAuth: powerAuth, config: config.wpnConfig, serviceName: "WMTOperations")
-        self.config = config
+    init(networking: WPNNetworkingService, pollingOptions: WMTOperationsPollingOptions = []) {
+        self.networking = networking
         self.pollingOptions = pollingOptions
         
         #if os(iOS)

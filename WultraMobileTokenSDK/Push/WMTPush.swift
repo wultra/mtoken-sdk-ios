@@ -23,9 +23,6 @@ public protocol WMTPush: AnyObject {
     /// If there was already made an successful request.
     var pushNotificationsRegisteredOnServer: Bool { get }
     
-    /// Configuration for the service.
-    var config: WMTConfig { get }
-    
     /// Accept language for the outgoing requests headers.
     /// Default value is "en".
     var acceptLanguage: String { get set }
