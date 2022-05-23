@@ -278,24 +278,6 @@ class WMTOperationsImpl: WMTOperations {
         }
     }
     
-    /// Will sign the given QR operation with authentication object.
-    ///
-    /// Default operation URI ID `/operation/authorize/offline` is used. To customize this value, use
-    /// the method with `uriId` parameter.
-    ///
-    /// Note that the operation will be signed even if the authentication object is
-    /// not valid as it cannot be verified on the server.
-    ///
-    /// - Parameters:
-    ///   - qrOperation: QR operation data
-    ///   - authentication: Authentication object for signing.
-    ///   - completion: Result completion.
-    ///                 This completion is always called on the main thread.
-    /// - Returns: Operation object for its state observation.
-    func authorize(qrOperation: WMTQROperation, authentication: PowerAuthAuthentication, completion: @escaping (Result<String, WMTError>) -> Void) -> Operation {
-        return authorize(qrOperation: qrOperation, uriId: "/operation/authorize/offline", authentication: authentication, completion: completion)
-    }
-    
     /// Will sign the given QR operation with URI ID and authentication object.
     ///
     /// Note that the operation will be signed even if the authentication object is
