@@ -278,22 +278,23 @@ class WMTOperationsImpl: WMTOperations {
         }
     }
     
-    /// Will sign the given QR operation with authentication object.
+    /// Will sign the given QR operation with URI ID and authentication object.
     ///
     /// Note that the operation will be signed even if the authentication object is
     /// not valid as it cannot be verified on the server.
     ///
     /// - Parameters:
-    ///   - qrOperation: QR operation data
+    ///   - qrOperation: QR operation data.
+    ///   - uriId: Custom signature URI ID of the operation. Use URI ID under which the operation was
+    ///            created on the server. Usually something like `/confirm/offline/operation`.
     ///   - authentication: Authentication object for signing.
     ///   - completion: Result completion.
     ///                 This completion is always called on the main thread.
     /// - Returns: Operation object for its state observation.
-    func authorize(qrOperation: WMTQROperation, authentication: PowerAuthAuthentication, completion: @escaping (Result<String, WMTError>) -> Void) -> Operation {
+    func authorize(qrOperation: WMTQROperation, uriId: String, authentication: PowerAuthAuthentication, completion: @escaping(Result<String, WMTError>) -> Void) -> Operation {
         
         let op = WPNAsyncBlockOperation { _, markFinished in
             do {
-                let uriId  = qrOperation.uriIdForOfflineSigning
                 let body   = qrOperation.dataForOfflineSigning
                 let nonce  = qrOperation.nonceForOfflineSigning
                 let signature = try self.powerAuth.offlineSignature(with: authentication, uriId: uriId, body: body, nonce: nonce)
