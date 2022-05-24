@@ -19,23 +19,23 @@ import Foundation
 /// Allowed signature types that can be used for operation approval.
 public class WMTAllowedOperationSignature: Codable {
     
-    /// If operation should be signed with 1 or 2 factor authentication
+    /// If operation should be signed with 1 or 2 factor authentication.
     public let signatureType: SignatureType
     
-    /// What factors ("password" or/and "biometry") can be used for signing this operation.
+    /// What factors are needed to signing this operation.
     public let signatureFactors: [SignatureFactors]
-    
-    /// Helper getter if biometry factor is allowed.
-    public var isBiometryAllowed: Bool { return signatureFactors.contains(.possessionBiometry) }
     
     // MARK: - INNER CLASSES
     
     public enum SignatureType: String, Codable {
         case singleFactor = "1FA"
         case twoFactors = "2FA"
+        // 3-factor scheme is not used in mobile token
+        // case threeFactors = "3FA"
     }
     
     public enum SignatureFactors: String, Codable {
+        case possession = "possession"
         case possessionKnowledge = "possession_knowledge"
         case possessionBiometry = "possession_biometry"
     }
@@ -57,4 +57,9 @@ public class WMTAllowedOperationSignature: Codable {
         case signatureType = "type"
         case signatureFactors = "variants"
     }
+}
+
+public extension WMTAllowedOperationSignature {
+    /// Helper getter if biometry factor is allowed.
+    var isBiometryAllowed: Bool { return signatureFactors.contains(.possessionBiometry) }
 }
