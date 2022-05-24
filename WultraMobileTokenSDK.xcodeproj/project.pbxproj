@@ -163,13 +163,13 @@
 			isa = PBXGroup;
 			children = (
 				DC5F6DE724E14FA100D351D3 /* Configs */,
-				DC616235248508F8000DED17 /* QROperationParserTests.swift */,
 				DC616237248508F8000DED17 /* Info.plist */,
 				DC61624124852B6D000DED17 /* NetworkingObjectsTests.swift */,
 				DCE660D024CEBECA00870E53 /* IntegrationTests.swift */,
 				DCE660D224CEF56400870E53 /* IntegrationUtils.swift */,
 				DC395C0924E55B9B0007C36E /* PushParserTests.swift */,
 				DC6EDB7825A49ED900A229E4 /* OperationExpirationTests.swift */,
+				DC616235248508F8000DED17 /* QROperationParserTests.swift */,
 			);
 			path = WultraMobileTokenSDKTests;
 			sourceTree = "<group>";
