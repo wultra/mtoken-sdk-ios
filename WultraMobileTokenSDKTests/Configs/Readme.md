@@ -7,6 +7,7 @@ _Example config:_
     "cloudServerUrl"        : "https://url-to-my-cloud.com/powerauth-cloud",
     "cloudServerLogin"      : "admin",
     "cloudServerPassword"   : "admin",
+    "cloudApplicationId"    : "dev",
     "enrollmentServerUrl"   : "https://url-to-my-cloud.com/enrollment-server",
     "operationsServerUrl"   : "https://url-to-my-cloud.com/enrollment-server",
     "appKey"                : "14w+JmBGbhluACWuJMAzXp==",

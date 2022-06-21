@@ -10,6 +10,7 @@ DESTINATION="platform=iOS Simulator,OS=15.0,name=iPhone SE (2nd generation)"
 CL_URL=""
 CL_LGN=""
 CL_PWD=""
+CL_AID=""
 ER_URL=""
 OP_URL=""
 APPKEY=""
@@ -37,6 +38,11 @@ do
 			;;
 		-clp)
 			CL_PWD="$2"
+			shift
+			shift
+			;;
+		-cla)
+			CL_AID="$2"
 			shift
 			shift
 			;;
@@ -84,6 +90,7 @@ echo """{
     \"cloudServerUrl\"        : \"${CL_URL}\",
     \"cloudServerLogin\"      : \"${CL_LGN}\",
     \"cloudServerPassword\"   : \"${CL_PWD}\",
+    \"cloudApplicationId\"    : \"${CL_AID}\",
     \"enrollmentServerUrl\"   : \"${ER_URL}\",
     \"operationsServerUrl\"   : \"${OP_URL}\",
     \"appKey\"                : \"${APPKEY}\",

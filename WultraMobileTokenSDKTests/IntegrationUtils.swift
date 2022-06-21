@@ -66,7 +66,7 @@ class IntegrationUtils {
                 opBody = """
                 {
                   "userId": "\(activationName)",
-                  "template": "login-tpp",
+                  "template": "login",
                    "parameters": {
                      "party.id": "666",
                      "party.name": "Datová schránka",
@@ -160,7 +160,9 @@ class IntegrationUtils {
     private class func createActivation() -> RegistrationObject? {
         let body = """
         {
-          "userId": "\(activationName)"
+          "userId": "\(activationName)",
+          "flags": [],
+          "appId": "\(config.cloudApplicationId)"
         }
         """
         let resp: RegistrationObject? = makeRequest(url: URL(string: "\(config.cloudServerUrl)/v2/registrations")!, body: body)
@@ -205,6 +207,7 @@ private struct IntegrationConfig: Codable {
     let cloudServerUrl: String
     let cloudServerLogin: String
     let cloudServerPassword: String
+    let cloudApplicationId: String
     let enrollmentServerUrl: String
     let operationsServerUrl: String
     let appKey: String
