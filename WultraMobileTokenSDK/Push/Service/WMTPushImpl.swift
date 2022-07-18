@@ -76,15 +76,12 @@ class WMTPushImpl: WMTPush {
             return nil
         }
         
-        let auth = PowerAuthAuthentication()
-        auth.usePossession = true
-        
         pendingRegistrationForRemotePushNotifications = true
         pushNotificationsRegisteredOnServer = false
         
         let data = WMTPushRegistrationData(token: HexadecimalString.encodeData(token))
         
-        return networking.post(data: .init(data), signedWith: auth, to: WMTPushEndpoints.RegisterDevice.endpoint) { _, error in
+        return networking.post(data: .init(data), signedWith: .possession(), to: WMTPushEndpoints.RegisterDevice.endpoint) { _, error in
             self.pendingRegistrationForRemotePushNotifications = false
             if error == nil {
                 self.pushNotificationsRegisteredOnServer = true

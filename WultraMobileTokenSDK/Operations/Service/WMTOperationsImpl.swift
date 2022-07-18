@@ -274,11 +274,8 @@ class WMTOperationsImpl: WMTOperations {
             }
             return nil
         }
-        
-        let auth = PowerAuthAuthentication()
-        auth.usePossession = true
-        
-        return networking.post(data: .init(.init(operationId: operation.id, reason: reason)), signedWith: auth, to: WMTOperationEndpoints.Reject.endpoint) { _, error in
+                
+        return networking.post(data: .init(.init(operationId: operation.id, reason: reason)), signedWith: .possession(), to: WMTOperationEndpoints.Reject.endpoint) { _, error in
             if error == nil {
                 self.operationsRegister.remove(operation: operation)
             }
@@ -376,10 +373,7 @@ class WMTOperationsImpl: WMTOperations {
             return
         }
         
-        let auth = PowerAuthAuthentication()
-        auth.usePossession = true
-        
-        networking.post(data: .init(), signedWith: auth, to: WMTOperationEndpoints.List.endpoint) { response, error in
+        networking.post(data: .init(), signedWith: .possession(), to: WMTOperationEndpoints.List.endpoint) { response, error in
             completion(response?.responseObject, error)
         }
     }
