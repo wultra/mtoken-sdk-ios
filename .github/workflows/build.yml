@@ -18,4 +18,6 @@ jobs:
       - name: Checkout the repo
         uses: actions/checkout@v2
       - name: Building
+        env:
+          GITHUB_ACCESS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: ./scripts/build.sh
