@@ -144,9 +144,7 @@ import PowerAuth2
 // Approve operation with password
 func approve(operation: WMTOperation, password: String) {
 
-    let auth = PowerAuthAuthentication()
-    auth.usePossession = true
-    auth.usePassword = password
+    let auth = PowerAuthAuthentication.possessionWithPassword(password: password)
 
     operationService.authorize(operation: operation, authentication: auth) { error in
         if let error = error {
@@ -167,10 +165,7 @@ import PowerAuth2
 // Approve operation with password
 func approveWithBiometry(operation: WMTOperation) {
 
-    let auth = PowerAuthAuthentication()
-    auth.usePossession = true
-    auth.useBiometry = true
-    auth.biometryPrompt = "Confirm operation."
+    let auth = PowerAuthAuthentication.possessionWithBiometry(prompt: "Confirm operation.")
 
     operationService.authorize(operation: operation, authentication: auth) { error in
         if let error = error {
@@ -212,9 +207,7 @@ import PowerAuth2
 
 // Retrieve operation history with password
 func history(password: String) {
-    let auth = PowerAuthAuthentication()
-    auth.usePossession = true
-    auth.usePassword = password
+    let auth = PowerAuthAuthentication.possessionWithPassword(password: password)
     operationService.getHistory(authentication: auth) { result in
         switch result {
         case .success(let operations):
@@ -274,9 +267,7 @@ import PowerAuth2
 
 func approveQROperation(operation: WMTQROperation, password: String) {
 
-    let auth = PowerAuthAuthentication()
-    auth.usePossession = true
-    auth.usePassword = password
+    let auth = PowerAuthAuthentication.possessionWithPassword(password: password)
 
     operationsService.authorize(qrOperation: operation, authentication: auth) { result in
         switch result {
@@ -302,9 +293,7 @@ import PowerAuth2
 
 func approveQROperation(operation: WMTQROperation, password: String) {
 
-    let auth = PowerAuthAuthentication()
-    auth.usePossession = true
-    auth.usePassword = password
+    let auth = PowerAuthAuthentication.possessionWithPassword(password: password)
 
     // using the authorize method with custom uriId
     operationsService.authorize(qrOperation: operation, uriId: "/confirm/offline/operation", authentication: auth) { result in
@@ -335,10 +324,7 @@ func approveQROperationWithBiometry(operation: WMTQROperation) {
         return
     }
 
-    let auth = PowerAuthAuthentication()
-    auth.usePossession = true
-    auth.useBiometry = true
-    auth.biometryPrompt = "Confirm operation."
+    let auth = PowerAuthAuthentication.possessionWithBiometry(prompt: "Confirm operation.")
 
     operationsService.authorize(qrOperation: operation, authentication: auth) { result in
         switch result {
