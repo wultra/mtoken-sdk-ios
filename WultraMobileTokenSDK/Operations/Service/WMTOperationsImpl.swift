@@ -19,7 +19,11 @@ import PowerAuth2
 
 public extension PowerAuthSDK {
     func createWMTOperations(config: WMTConfig) -> WMTOperations {
-        return WMTOperationsImpl(powerAuth: self, config: config)
+        return WMTOperationsImpl<WMTUserOperation>(powerAuth: self, config: config)
+    }
+    
+    func createWMTOperations<T: WMTUserOperation>(config: WMTConfig, customOperationType: T.Type) -> WMTOperations {
+        return WMTOperationsImpl<T>(powerAuth: self, config: config)
     }
 }
 
@@ -43,7 +47,7 @@ public extension WMTErrorReason {
     static let operations_QROperationFailed = WMTErrorReason(rawValue: "operations_QRFailed")
 }
 
-class WMTOperationsImpl: WMTOperations {
+class WMTOperationsImpl<T: WMTUserOperation>: WMTOperations {
     
     // Dependencies
     private let powerAuth: PowerAuthSDK
@@ -275,7 +279,7 @@ class WMTOperationsImpl: WMTOperations {
     
     // MARK: - private functions
     
-    private func fetchAvailableOperations(completion: @escaping ([WMTUserOperation]?, WMTError?) -> Void) {
+    private func fetchAvailableOperations(completion: @escaping ([T]?, WMTError?) -> Void) {
         
         if !powerAuth.hasValidActivation() {
             completion(nil, WMTError(reason: .missingActivation))
@@ -287,8 +291,9 @@ class WMTOperationsImpl: WMTOperations {
         
         let url         = config.buildURL(WMTOperationEndpoints.GetOperations.url)
         let tokenName   = WMTOperationEndpoints.GetOperations.tokenName
-        let requestData = WMTOperationEndpoints.GetOperations.RequestData()
-        let request     = WMTOperationEndpoints.GetOperations.Request(url, tokenName: tokenName, auth: auth, requestData:requestData)
+        typealias RequestData = WMTOperationEndpoints.GetOperations.RequestData
+        let requestData = RequestData()
+        let request     = WMTHttpRequest<RequestData, WMTResponseArray<T>>(url, tokenName: tokenName, auth: auth, requestData: requestData)
         
         networking.post(request, completion: { (response, error) in
             completion(response?.responseObject, error)
