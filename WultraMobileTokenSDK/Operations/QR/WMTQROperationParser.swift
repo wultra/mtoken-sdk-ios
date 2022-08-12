@@ -303,19 +303,13 @@ public class WMTQROperationParser {
             bic  = nil
         }
         let allowedChars = "01234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-        for c in iban {
-            if allowedChars.firstIndex(of: c) == nil {
-                // Invalid character in IBAN
-                return nil
-            }
+        if iban.contains(where: { !allowedChars.contains($0) }) {
+            // Invalid character in IBAN
+            return nil
         }
-        if let bic = bic {
-            for c in bic {
-                if allowedChars.firstIndex(of: c) == nil {
-                    // Invalid character in BIC
-                    return nil
-                }
-            }
+        if bic?.contains(where: { !allowedChars.contains($0) }) == true {
+            // Invalid character in BIC
+            return nil
         }
         return .account(iban: iban, bic: bic)
     }

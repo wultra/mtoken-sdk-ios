@@ -445,20 +445,16 @@ private class OperationsRegister {
         // Process received list of operations to build an array of added objects
         var addedOperations = [WMTUserOperation]()
         var addedOperationsSet = Set<String>()
-        for newOp in operations {
-            if currentOperationsSet.contains(newOp.id) == false {
-                // identifier is not in current set
-                addedOperations.append(newOp)
-                addedOperationsSet.insert(newOp.id)
-            }
+        for newOp in operations where currentOperationsSet.contains(newOp.id) == false {
+            // identifier is not in current set
+            addedOperations.append(newOp)
+            addedOperationsSet.insert(newOp.id)
         }
         // Build a list of removed operations
         let newOperationsSet = Set<String>(operations.map { $0.id })
         var removedOperations = [WMTUserOperation]()
-        for op in currentOperations {
-            if newOperationsSet.contains(op.id) == false {
-                removedOperations.append(op)
-            }
+        for op in currentOperations where newOperationsSet.contains(op.id) == false {
+            removedOperations.append(op)
         }
         
         // Now remove no longer valid operations
