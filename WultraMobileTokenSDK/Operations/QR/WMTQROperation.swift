@@ -77,6 +77,12 @@ public struct QROperationFlags {
     
     /// If true, then 2FA signature with biometry factor can be used for operation confirmation.
     public let allowBiometryFactor: Bool
+    
+    /// If confirm/reject buttons should be flipped in the UI. This can be useful to test users attention.
+    public let flipButtons: Bool
+    
+    /// When the operation is considered a "potential fraud" on the server, a warning UI should be displayed to the user.
+    public let fraudWarning: Bool
 }
 
 /// The `WMTQROperationData` structure defines operation data in QR operation.

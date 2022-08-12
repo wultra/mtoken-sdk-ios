@@ -38,13 +38,13 @@ class QROperationParserTests: XCTestCase {
     
     func testCurrentFormat() {
         let parser = WMTQROperationParser()
-        let qrcode = makeCode()
+        let qrcode = makeCode(flags: "BFX")
         let expectedSignedData =
             ("5ff1b1ed-a3cc-45a3-8ab0-ed60950312b6\n" +
             "Payment\n" +
             "Please confirm this payment\n" +
             "A1*A100CZK*ICZ2730300000001165254011*D20180425*Thello world\n" +
-            "B\n" +
+            "BFX\n" +
             "AD8bOO0Df73kNaIGb3Vmpg==\n" +
             "0").data(using: .utf8)
         
@@ -57,6 +57,8 @@ class QROperationParserTests: XCTestCase {
         XCTAssertTrue(operation.title == "Payment")
         XCTAssertTrue(operation.message == "Please confirm this payment")
         XCTAssertTrue(operation.flags.allowBiometryFactor == true)
+        XCTAssertTrue(operation.flags.flipButtons == true)
+        XCTAssertTrue(operation.flags.fraudWarning == true)
         XCTAssertTrue(operation.nonce == "AD8bOO0Df73kNaIGb3Vmpg==")
         XCTAssertTrue(operation.signature.signature == "MEYCIQDby1Uq+MaxiAAGzKmE/McHzNOUrvAP2qqGBvSgcdtyjgIhAMo1sgqNa1pPZTFBhhKvCKFLGDuHuTTYexdmHFjUUIJW")
         XCTAssertTrue(operation.signature.signingKey == .master)

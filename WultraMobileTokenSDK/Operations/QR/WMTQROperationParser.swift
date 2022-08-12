@@ -235,7 +235,10 @@ public class WMTQROperationParser {
     /// Parses given string into QROperationFlags structure
     private func parseOperationFlags(string: String) -> QROperationFlags {
         return QROperationFlags(
-            allowBiometryFactor: string.contains("B"))
+            allowBiometryFactor: string.contains("B"),
+            flipButtons: string.contains("X"),
+            fraudWarning: string.contains("F")
+        )
     }
     
     /// Returns true if provided string is in Base64 format and encoded data's length
