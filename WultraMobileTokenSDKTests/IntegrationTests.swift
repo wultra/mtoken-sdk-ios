@@ -199,18 +199,19 @@ class IntegrationTests: XCTestCase {
                         let auth = PowerAuthAuthentication()
                         auth.usePossession = true
                         auth.usePassword = "xxxx" //  wrong password on purpose
-                        self.ops.authorize(operation: ops.first!, authentication: auth) { error in
-                            if error != nil {
+                        self.ops.authorize(operation: ops.first!, with: auth) { result in
+                            switch result {
+                            case .failure:
                                 let auth = PowerAuthAuthentication()
                                 auth.usePossession = true
                                 auth.usePassword = Self.pin
-                                self.ops.authorize(operation: ops.first!, authentication: auth) { error in
-                                    if let error = error {
+                                self.ops.authorize(operation: ops.first!, with: auth) { result in
+                                    if case .failure(let error) = result {
                                         XCTFail("Failed to authorize op: \(error.description)")
                                     }
                                     exp.fulfill()
                                 }
-                            } else {
+                            case .success:
                                 XCTFail("Operation approved with wrong password")
                                 exp.fulfill()
                             }
@@ -247,8 +248,8 @@ class IntegrationTests: XCTestCase {
                             exp.fulfill()
                             return
                         }
-                        self.ops.reject(operation: opToReject, reason: .unexpectedOperation) { error in
-                            if let error = error {
+                        self.ops.reject(operation: opToReject, with: .unexpectedOperation) { result in
+                            if case .failure(let error) = result {
                                 XCTFail("Failed to reject op: \(error.description)")
                             }
                             exp.fulfill()
