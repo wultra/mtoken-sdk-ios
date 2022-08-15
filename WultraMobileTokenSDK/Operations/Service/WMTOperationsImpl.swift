@@ -202,12 +202,11 @@ class WMTOperationsImpl: WMTOperations {
         }
         
         return networking.post(data: .init(), signedWith: authentication, to: WMTOperationEndpoints.History.endpoint) { response, error in
-            DispatchQueue.main.async {
-                if let result = response?.responseObject {
-                    completion(.success(result))
-                } else {
-                    completion(.failure(error ?? WMTError(reason: .unknown)))
-                }
+            assert(Thread.isMainThread)
+            if let result = response?.responseObject {
+                completion(.success(result))
+            } else {
+                completion(.failure(error ?? WMTError(reason: .unknown)))
             }
         }
     }
@@ -235,13 +234,12 @@ class WMTOperationsImpl: WMTOperations {
         let data = WMTAuthorizationData(operationId: operation.id, operationData: operation.data)
         
         return networking.post(data: .init(data), signedWith: authentication, to: WMTOperationEndpoints.Authorize.endpoint) { _, error in
-            DispatchQueue.main.async {
-                if let error = error {
-                    completion(.failure(self.adjustOperationError(error, auth: true)))
-                } else {
-                    self.operationsRegister.remove(operation: operation)
-                    completion(.success(()))
-                }
+            assert(Thread.isMainThread)
+            if let error = error {
+                completion(.failure(self.adjustOperationError(error, auth: true)))
+            } else {
+                self.operationsRegister.remove(operation: operation)
+                completion(.success(()))
             }
         }
     }
@@ -271,13 +269,12 @@ class WMTOperationsImpl: WMTOperations {
             signedWith: .possession(),
             to: WMTOperationEndpoints.Reject.endpoint
         ) { _, error in
-            DispatchQueue.main.async {
-                if let error = error {
-                    self.operationsRegister.remove(operation: operation)
-                    completion(.failure(self.adjustOperationError(error, auth: false)))
-                } else {
-                    completion(.success(()))
-                }
+            assert(Thread.isMainThread)
+            if let error = error {
+                self.operationsRegister.remove(operation: operation)
+                completion(.failure(self.adjustOperationError(error, auth: false)))
+            } else {
+                completion(.success(()))
             }
         }
     }
@@ -353,34 +350,34 @@ class WMTOperationsImpl: WMTOperations {
     
     private func fetchOperations(completion: @escaping GetOperationsCompletion) {
         
+        assert(Thread.isMainThread)
+        
         if !powerAuth.hasValidActivation() {
             completion(.failure(WMTError(reason: .missingActivation)))
             return
         }
         
         networking.post(data: .init(), signedWith: .possession(), to: WMTOperationEndpoints.List.endpoint) { response, error in
-            DispatchQueue.main.async {
-                
-                // if all tasks were canceled, just ignore the result.
-                guard self.tasks.contains(where: { $0.isCanceled == false }) else {
-                    completion(.failure(WMTError(reason: .unknown)))
-                    return
-                }
-                
-                let result: GetOperationsResult
-                
-                if let ops = response?.responseObject {
-                    result = .success(ops)
-                    self.operationsRegister.replace(with: ops)
-                } else {
-                    let err = error ?? WMTError(reason: .unknown)
-                    result = .failure(err)
-                    self.delegate?.operationsFailed(error: err)
-                }
-                
-                self.lastFetchResult = result
-                completion(result)
+            assert(Thread.isMainThread)
+            // if all tasks were canceled, just ignore the result.
+            guard self.tasks.contains(where: { $0.isCanceled == false }) else {
+                completion(.failure(WMTError(reason: .unknown)))
+                return
             }
+            
+            let result: GetOperationsResult
+            
+            if let ops = response?.responseObject {
+                result = .success(ops)
+                self.operationsRegister.replace(with: ops)
+            } else {
+                let err = error ?? WMTError(reason: .unknown)
+                result = .failure(err)
+                self.delegate?.operationsFailed(error: err)
+            }
+            
+            self.lastFetchResult = result
+            completion(result)
         }
     }
     

@@ -18,8 +18,8 @@ Pod::Spec.new do |s|
   # 'Common' subspec
   s.subspec 'Common' do |sub|
     sub.source_files = 'WultraMobileTokenSDK/Common/**/*.swift'
-    sub.dependency 'PowerAuth2', '>= 1.6'
-    sub.dependency 'WultraPowerAuthNetworking', '>= 1.1.3'
+    sub.dependency 'PowerAuth2', '>= 1.7'
+    sub.dependency 'WultraPowerAuthNetworking', '>= 1.1.4'
   end
   
   # 'Operations' subspec
