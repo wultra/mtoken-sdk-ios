@@ -24,7 +24,7 @@ class QROperationParserTests: XCTestCase {
         title: String           = "Payment",
         message: String         = "Please confirm this payment",
         operationData: String   = "A1*A100CZK*ICZ2730300000001165254011*D20180425*Thello world",
-        flags: String           = "B",
+        flags: String           = "BCFX",
         otherAttrs: [String]?   = nil,
         nonce: String           = "AD8bOO0Df73kNaIGb3Vmpg==",
         signingKey: String      = "0",
@@ -57,6 +57,9 @@ class QROperationParserTests: XCTestCase {
         XCTAssertTrue(operation.title == "Payment")
         XCTAssertTrue(operation.message == "Please confirm this payment")
         XCTAssertTrue(operation.flags.allowBiometryFactor == true)
+        XCTAssertTrue(operation.flags.fraudWarning == true)
+        XCTAssertTrue(operation.flags.flipButtons == true)
+        XCTAssertTrue(operation.flags.blockWhenOnCall == true)
         XCTAssertTrue(operation.nonce == "AD8bOO0Df73kNaIGb3Vmpg==")
         XCTAssertTrue(operation.signature.signature == "MEYCIQDby1Uq+MaxiAAGzKmE/McHzNOUrvAP2qqGBvSgcdtyjgIhAMo1sgqNa1pPZTFBhhKvCKFLGDuHuTTYexdmHFjUUIJW")
         XCTAssertTrue(operation.signature.signingKey == .master)
@@ -167,6 +170,9 @@ class QROperationParserTests: XCTestCase {
             return
         }
         XCTAssertFalse(operation.flags.allowBiometryFactor)
+        XCTAssertFalse(operation.flags.blockWhenOnCall)
+        XCTAssertFalse(operation.flags.flipButtons)
+        XCTAssertFalse(operation.flags.fraudWarning)
     }
 
     func testMissingOrBadNonce() {
