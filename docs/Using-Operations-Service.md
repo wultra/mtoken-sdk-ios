@@ -367,13 +367,13 @@ All available methods and attributes of `WMTOperations` API are:
     - `interval` - How often should operations be refreshed.
     - `delayStart` - When true, polling starts after the first `interval` time passes.
 - `stopPollingOperations()` - Stops the periodic operation polling.
-- `authorize(operation: WMTOperation, authentication: PowerAuthAuthentication, completion: @escaping(WMTError?)->Void)` - Authorize provided operation.
+- `authorize(operation: WMTOperation, with: PowerAuthAuthentication, completion: @escaping(Result<Void, WMTError>) -> Void)` - Authorize provided operation.
     - `operation` - An operation to approve, retrieved from `getOperations` call or [created locally](#creating-a-custom-operation).
-    - `authentication` - PowerAuth authentication object for operation signing.
+    - `with` - PowerAuth authentication object for operation signing.
     - `completion` - Called when authorization request finishes. Always called on the main thread.
-- `reject(operation: WMTOperation, reason: WMTRejectionReason, completion: @escaping(WMTError?)->Void)` - Reject provided operation.
+- `reject(operation: WMTOperation, with: WMTRejectionReason, completion: @escaping(Result<Void, WMTError>) -> Void)` - Reject provided operation.
     - `operation` - An operation to reject, retrieved from `getOperations` call or [created locally](#creating-a-custom-operation).
-    - `reason` - Rejection reason
+    - `with` - Rejection reason
     - `completion` - Called when rejection request finishes. Always called on the main thread.
 - `getHistory(authentication: PowerAuthAuthentication, completion: @escaping(Result<[WMTOperationHistoryEntry],WMTError>) -> Void)` - Retrieves operation history
   - `authentication` - PowerAuth authentication object for operation signing.

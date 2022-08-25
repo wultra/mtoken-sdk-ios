@@ -106,7 +106,7 @@ class WMTOperationsImpl<T: WMTUserOperation>: WMTOperations {
         }
     }
     
-    var isPollingOperations: Bool { return pollingLock.synchronized { self.isPollingOperationsInternal } }
+    var isPollingOperations: Bool { return pollingLock.synchronized { isPollingOperationsInternal } }
     private var isPollingOperationsInternal: Bool { pollingTimer != nil }
     
     let pollingOptions: WMTOperationsPollingOptions
@@ -141,7 +141,7 @@ class WMTOperationsImpl<T: WMTUserOperation>: WMTOperations {
         #if os(iOS)
         if pollingOptions.contains(.pauseWhenOnBackground) {
             notificationObservers.append(NotificationCenter.default.addObserver(forName: UIApplication.willResignActiveNotification, object: nil, queue: nil) { [weak self] _ in
-                guard let `self` = self else {
+                guard let self = self else {
                     return
                 }
                 self.pollingLock.synchronized {
@@ -151,7 +151,7 @@ class WMTOperationsImpl<T: WMTUserOperation>: WMTOperations {
                 }
             })
             notificationObservers.append(NotificationCenter.default.addObserver(forName: UIApplication.didBecomeActiveNotification, object: nil, queue: nil) { [weak self] _ in
-                guard let `self` = self else {
+                guard let self = self else {
                     return
                 }
                 self.pollingLock.synchronized {
@@ -175,9 +175,6 @@ class WMTOperationsImpl<T: WMTUserOperation>: WMTOperations {
     
     // MARK: - service API
     
-    /// Refreshes operations, but does not return any result. For the result, you can
-    /// add a delegate to `delegates` property.
-    /// If operations are already loading, the function does nothing.
     func refreshOperations() {
         DispatchQueue.main.async {
             // no need to start new operation loading if there is already one in progress
@@ -187,51 +184,37 @@ class WMTOperationsImpl<T: WMTUserOperation>: WMTOperations {
         }
     }
     
-    /// Retrieves user operations and calls task when finished.
-    ///
-    /// - Parameter completion: To be called when operations are loaded.
-    ///                         This completion is always called on the main thread.
-    /// - Returns: Control object in case the operations needs to be canceled.
-    ///
-    /// Note: be sure to call this method on the main thread!
     @discardableResult
     func getOperations(completion: @escaping GetOperationsCompletion) -> Cancellable {
         
-        // getOperations should always be called from main thread to ensure
-        // order of operations
-        assert(Thread.isMainThread)
-        
         let task = GetOperationsTask(completion: completion)
         
-        // register block
-       self.tasks.append(task)
+        DispatchQueue.main.async {
         
-        // if there is loading in progress, just exit and wait for result
-        if isLoadingOperations == false {
-        
-            isLoadingOperations = true
+            // register block
+            self.tasks.append(task)
             
-            fetchOps { result in
-                // this callback should be called from main thread to prevent inconsistent state when multiple
-                // getOperations are called
-                assert(Thread.isMainThread)
-                // call all registered blocks and clear them
-                self.tasks.filter({ $0.isCanceled == false }).forEach { $0.finish(result) }
-                self.tasks.removeAll()
-                // reset the state
-                self.isLoadingOperations = false
+            // if there is loading in progress, just exit and wait for result
+            if self.isLoadingOperations == false {
+            
+                self.isLoadingOperations = true
+                
+                self.fetchOperations { result in
+                    // this callback should be called from main thread to prevent inconsistent state when multiple
+                    // getOperations are called
+                    assert(Thread.isMainThread)
+                    // call all registered blocks and clear them
+                    self.tasks.filter({ $0.isCanceled == false }).forEach { $0.finish(result) }
+                    self.tasks.removeAll()
+                    // reset the state
+                    self.isLoadingOperations = false
+                }
             }
         }
         
         return task
     }
     
-    /// Retrieves the history of user operations with its current status.
-    /// - Parameters:
-    ///   - authentication: Authentication object for signing.
-    ///   - completion: Result completion.
-    ///                 This completion is always called on the main thread.
-    /// - Returns: Operation object for its state observation.
     func getHistory(authentication: PowerAuthAuthentication, completion: @escaping (Result<[WMTOperationHistoryEntry], WMTError>) -> Void) -> Operation? {
         
         if !powerAuth.hasValidActivation() {
@@ -242,29 +225,32 @@ class WMTOperationsImpl<T: WMTUserOperation>: WMTOperations {
         }
         
         return networking.post(data: .init(), signedWith: authentication, to: WMTOperationEndpoints.History.endpoint) { response, error in
-            DispatchQueue.main.async {
-                if let result = response?.responseObject {
-                    completion(.success(result))
-                } else {
-                    completion(.failure(error ?? WMTError(reason: .unknown)))
-                }
+            assert(Thread.isMainThread)
+            if let result = response?.responseObject {
+                completion(.success(result))
+            } else {
+                completion(.failure(error ?? WMTError(reason: .unknown)))
             }
         }
     }
     
-    /// Authorize operation with given PowerAuth authentication object.
-    ///
-    /// - Parameters:
-    ///   - operation: Operation that should  be authorized.
-    ///   - authentication: Authentication object for signing.
-    ///   - completion: Result callback (nil on success).
-    ///                 This completion is always called on the main thread.
-    /// - Returns: Operation object for its state observation.
+    // DEPRECATED, REMOVE IN THE FUTURE
     func authorize(operation: WMTOperation, authentication: PowerAuthAuthentication, completion: @escaping(WMTError?) -> Void) -> Operation? {
+        return authorize(operation: operation, with: authentication) { result in
+            switch result {
+            case .success:
+                completion(nil)
+            case .failure(let error):
+                completion(error)
+            }
+        }
+    }
+    
+    func authorize(operation: WMTOperation, with authentication: PowerAuthAuthentication, completion: @escaping (Result<Void, WMTError>) -> Void) -> Operation? {
         
         guard powerAuth.hasValidActivation() else {
             DispatchQueue.main.async {
-                completion(WMTError(reason: .missingActivation))
+                completion(.failure(WMTError(reason: .missingActivation)))
             }
             return nil
         }
@@ -273,52 +259,51 @@ class WMTOperationsImpl<T: WMTUserOperation>: WMTOperations {
         
         return networking.post(data: .init(data), signedWith: authentication, to: WMTOperationEndpoints.Authorize.endpoint) { _, error in
             assert(Thread.isMainThread)
-            if error == nil {
+            if let error = error {
+                completion(.failure(self.adjustOperationError(error, auth: true)))
+            } else {
                 self.operationsRegister.remove(operation: operation)
+                completion(.success(()))
             }
-            completion(self.adjustOperationError(error, auth: true))
-            
         }
     }
     
-    /// Reject operation with a reason.
-    ///
-    /// - Parameters:
-    ///   - operation: Operation that should be rejected.
-    ///   - reason: Reason for the rejection.
-    ///   - completion: Result callback (nil on success).
-    ///                 This completion is always called on the main thread.
-    /// - Returns: Operation object for its state observation.
+    // DEPRECATED, REMOVE IN THE FUTURE
     func reject(operation: WMTOperation, reason: WMTRejectionReason, completion: @escaping(WMTError?) -> Void) -> Operation? {
+        return reject(operation: operation, with: reason) { result in
+            switch result {
+            case .success:
+                completion(nil)
+            case .failure(let error):
+                completion(error)
+            }
+        }
+    }
+    
+    func reject(operation: WMTOperation, with reason: WMTRejectionReason, completion: @escaping(Result<Void, WMTError>) -> Void) -> Operation? {
         
         guard powerAuth.hasValidActivation() else {
             DispatchQueue.main.async {
-                completion(WMTError(reason: .missingActivation))
+                completion(.failure(WMTError(reason: .missingActivation)))
             }
             return nil
         }
                 
-        return networking.post(data: .init(.init(operationId: operation.id, reason: reason)), signedWith: .possession(), to: WMTOperationEndpoints.Reject.endpoint) { _, error in
-            if error == nil {
+        return networking.post(
+            data: .init(.init(operationId: operation.id, reason: reason)),
+            signedWith: .possession(),
+            to: WMTOperationEndpoints.Reject.endpoint
+        ) { _, error in
+            assert(Thread.isMainThread)
+            if let error = error {
                 self.operationsRegister.remove(operation: operation)
+                completion(.failure(self.adjustOperationError(error, auth: false)))
+            } else {
+                completion(.success(()))
             }
-            completion(self.adjustOperationError(error, auth: false))
         }
     }
     
-    /// Will sign the given QR operation with URI ID and authentication object.
-    ///
-    /// Note that the operation will be signed even if the authentication object is
-    /// not valid as it cannot be verified on the server.
-    ///
-    /// - Parameters:
-    ///   - qrOperation: QR operation data.
-    ///   - uriId: Custom signature URI ID of the operation. Use URI ID under which the operation was
-    ///            created on the server. Usually something like `/confirm/offline/operation`.
-    ///   - authentication: Authentication object for signing.
-    ///   - completion: Result completion.
-    ///                 This completion is always called on the main thread.
-    /// - Returns: Operation object for its state observation.
     func authorize(qrOperation: WMTQROperation, uriId: String, authentication: PowerAuthAuthentication, completion: @escaping(Result<String, WMTError>) -> Void) -> Operation {
         
         let op = WPNAsyncBlockOperation { _, markFinished in
@@ -341,7 +326,6 @@ class WMTOperationsImpl<T: WMTUserOperation>: WMTOperations {
         return op
     }
     
-    /// Start operations polling
     func startPollingOperations(interval: TimeInterval, delayStart: Bool) {
         pollingLock.synchronized {
             self.startPollingOperationsInternal(interval: interval, delayStart: delayStart)
@@ -389,57 +373,41 @@ class WMTOperationsImpl<T: WMTUserOperation>: WMTOperations {
     
     // MARK: - private functions
     
-    private func fetchAvailableOperations(completion: @escaping ([T]?, WMTError?) -> Void) {
+    private func fetchOperations(completion: @escaping GetOperationsCompletion) {
+        
+        assert(Thread.isMainThread)
         
         if !powerAuth.hasValidActivation() {
-            completion(nil, WMTError(reason: .missingActivation))
+            completion(.failure(WMTError(reason: .missingActivation)))
             return
         }
         
-        networking.post(data: .init(), signedWith: .possession(), to: WMTOperationEndpoints.List<T>.endpoint) { response, error in
-            completion(response?.responseObject, error)
-        }
-    }
-    
-    private func shouldContinueLoading() -> Bool {
-        assert(Thread.isMainThread) // main thread to sync this method with getOperations calls
-        return tasks.contains { $0.isCanceled == false }
-    }
-    
-    private func fetchOps(completion: @escaping GetOperationsCompletion) {
-        
-        fetchAvailableOperations { ops, error in
-                
-            guard self.shouldContinueLoading() else {
-                self.processFetchResult(nil, nil, completion)
+        networking.post(data: .init(), signedWith: .possession(), to: WMTOperationEndpoints.List.endpoint) { response, error in
+            assert(Thread.isMainThread)
+            // if all tasks were canceled, just ignore the result.
+            guard self.tasks.contains(where: { $0.isCanceled == false }) else {
+                completion(.failure(WMTError(reason: .unknown)))
                 return
             }
             
-            self.processFetchResult(ops, error, completion)
+            let result: GetOperationsResult
+            
+            if let ops = response?.responseObject {
+                result = .success(ops)
+                self.operationsRegister.replace(with: ops)
+            } else {
+                let err = error ?? WMTError(reason: .unknown)
+                result = .failure(err)
+                self.delegate?.operationsFailed(error: err)
+            }
+            
+            self.lastFetchResult = result
+            completion(result)
         }
-    }
-    
-    private func processFetchResult(_ operations: [WMTUserOperation]?, _ error: WMTError?, _ completion: GetOperationsCompletion) {
-        
-        if let ops = operations {
-            lastFetchResult = .success(ops)
-            operationsRegister.replace(with: ops)
-        } else {
-            let err = error ?? WMTError(reason: .unknown)
-            lastFetchResult = .failure(err)
-            delegate?.operationsFailed(error: err)
-        }
-        
-        completion(lastFetchResult!)
     }
     
     /// If request for operation fails at known error code, then this private function adjusts description of given AuthError.
-    /// The provided string is then typically presented into the UI.
-    private func adjustOperationError(_ error: WMTError?, auth: Bool) -> WMTError? {
-        
-        guard let error = error else {
-            return nil
-        }
+    private func adjustOperationError(_ error: WMTError, auth: Bool) -> WMTError {
 
         var reason: WMTErrorReason?
 
@@ -480,11 +448,10 @@ private class OperationsRegister {
     private var currentOperationsSet = Set<String>()
     
     /// Returns true if register is empty
-    var isEmpty: Bool {
-        return self.currentOperations.isEmpty
-    }
+    var isEmpty: Bool { currentOperations.isEmpty }
     
     typealias OnChangeCallback = (_ operations: [WMTUserOperation], _ added: [WMTUserOperation], _ removed: [WMTUserOperation]) -> Void
+    
     /// Callback  that is called everytime that register changed
     private let onChangeCallback: OnChangeCallback
     
@@ -508,20 +475,20 @@ private class OperationsRegister {
         // Build a list of removed operations
         let newOperationsSet = Set<String>(operations.map { $0.id })
         var removedOperations = [WMTUserOperation]()
-        for op in self.currentOperations where newOperationsSet.contains(op.id) == false {
+        for op in currentOperations where newOperationsSet.contains(op.id) == false {
             removedOperations.append(op)
         }
         
         // Now remove no longer valid operations
         for removedOp in removedOperations {
-            if let index = self.currentOperations.firstIndex(where: { $0.id == removedOp.id }) {
-                self.currentOperations.remove(at: index)
-                self.currentOperationsSet.remove(removedOp.id)
+            if let index = currentOperations.firstIndex(where: { $0.id == removedOp.id }) {
+                currentOperations.remove(at: index)
+                currentOperationsSet.remove(removedOp.id)
             }
         }
         // ...and append new objects
-        self.currentOperations.append(contentsOf: addedOperations)
-        self.currentOperationsSet.formUnion(addedOperationsSet)
+        currentOperations.append(contentsOf: addedOperations)
+        currentOperationsSet.formUnion(addedOperationsSet)
         
         // we need to call onChanged even if nothing changed, because the objects are replaced by different insntances
         onChangeCallback(currentOperations, addedOperations, removedOperations)
@@ -532,10 +499,10 @@ private class OperationsRegister {
     /// Removes an operation from register
     func remove(operation: WMTOperation) {
         assert(Thread.isMainThread)
-        if let index = self.currentOperationsSet.firstIndex(of: operation.id) {
+        if let index = currentOperationsSet.firstIndex(of: operation.id) {
             currentOperationsSet.remove(at: index)
         }
-        if let index = self.currentOperations.firstIndex(where: { $0.id == operation.id }) {
+        if let index = currentOperations.firstIndex(where: { $0.id == operation.id }) {
             let removedOperation = currentOperations.remove(at: index)
             onChangeCallback(currentOperations, [], [removedOperation])
         }
