@@ -24,7 +24,7 @@ class QROperationParserTests: XCTestCase {
         title: String           = "Payment",
         message: String         = "Please confirm this payment",
         operationData: String   = "A1*A100CZK*ICZ2730300000001165254011*D20180425*Thello world",
-        flags: String           = "B",
+        flags: String           = "BCFX",
         otherAttrs: [String]?   = nil,
         nonce: String           = "AD8bOO0Df73kNaIGb3Vmpg==",
         signingKey: String      = "0",
@@ -38,13 +38,13 @@ class QROperationParserTests: XCTestCase {
     
     func testCurrentFormat() {
         let parser = WMTQROperationParser()
-        let qrcode = makeCode(flags: "BFX")
+        let qrcode = makeCode()
         let expectedSignedData =
             ("5ff1b1ed-a3cc-45a3-8ab0-ed60950312b6\n" +
             "Payment\n" +
             "Please confirm this payment\n" +
             "A1*A100CZK*ICZ2730300000001165254011*D20180425*Thello world\n" +
-            "BFX\n" +
+            "BCFX\n" +
             "AD8bOO0Df73kNaIGb3Vmpg==\n" +
             "0").data(using: .utf8)
         
@@ -59,6 +59,7 @@ class QROperationParserTests: XCTestCase {
         XCTAssertTrue(operation.flags.allowBiometryFactor == true)
         XCTAssertTrue(operation.flags.flipButtons == true)
         XCTAssertTrue(operation.flags.fraudWarning == true)
+        XCTAssertTrue(operation.flags.blockWhenOnCall == true)
         XCTAssertTrue(operation.nonce == "AD8bOO0Df73kNaIGb3Vmpg==")
         XCTAssertTrue(operation.signature.signature == "MEYCIQDby1Uq+MaxiAAGzKmE/McHzNOUrvAP2qqGBvSgcdtyjgIhAMo1sgqNa1pPZTFBhhKvCKFLGDuHuTTYexdmHFjUUIJW")
         XCTAssertTrue(operation.signature.signingKey == .master)
@@ -109,7 +110,7 @@ class QROperationParserTests: XCTestCase {
             "Payment\n" +
             "Please confirm this payment\n" +
             "B2*Xtest\n" +
-            "B\n" +
+            "BCFX\n" +
             "Some Additional Information\n" +
             "AD8bOO0Df73kNaIGb3Vmpg==\n" +
             "0").data(using: .utf8)
@@ -169,6 +170,22 @@ class QROperationParserTests: XCTestCase {
             return
         }
         XCTAssertFalse(operation.flags.allowBiometryFactor)
+        XCTAssertFalse(operation.flags.blockWhenOnCall)
+        XCTAssertFalse(operation.flags.flipButtons)
+        XCTAssertFalse(operation.flags.fraudWarning)
+    }
+    
+    func testSomeMissingFlags() {
+        let parser = WMTQROperationParser()
+        let qrcode = makeCode(flags: "FX")
+        guard case .success(let operation) = parser.parse(string: qrcode) else {
+            XCTFail("This should be parsed")
+            return
+        }
+        XCTAssertFalse(operation.flags.allowBiometryFactor)
+        XCTAssertFalse(operation.flags.blockWhenOnCall)
+        XCTAssertTrue(operation.flags.flipButtons)
+        XCTAssertTrue(operation.flags.fraudWarning)
     }
 
     func testMissingOrBadNonce() {
@@ -349,5 +366,4 @@ class QROperationParserTests: XCTestCase {
             return
         }
     }
-
 }

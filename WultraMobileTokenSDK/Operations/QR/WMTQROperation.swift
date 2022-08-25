@@ -83,6 +83,9 @@ public struct QROperationFlags {
     
     /// When the operation is considered a "potential fraud" on the server, a warning UI should be displayed to the user.
     public let fraudWarning: Bool
+    
+    /// Block confirmation when call is active.
+    public let blockWhenOnCall: Bool
 }
 
 /// The `WMTQROperationData` structure defines operation data in QR operation.

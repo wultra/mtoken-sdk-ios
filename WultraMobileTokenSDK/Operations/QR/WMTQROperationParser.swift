@@ -237,7 +237,8 @@ public class WMTQROperationParser {
         return QROperationFlags(
             allowBiometryFactor: string.contains("B"),
             flipButtons: string.contains("X"),
-            fraudWarning: string.contains("F")
+            fraudWarning: string.contains("F"),
+            blockWhenOnCall: string.contains("C")
         )
     }
     
