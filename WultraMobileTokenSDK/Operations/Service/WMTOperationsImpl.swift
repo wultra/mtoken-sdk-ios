@@ -29,7 +29,21 @@ public extension PowerAuthSDK {
     ///   - pollingOptions: Polling feature configuration
     /// - Returns: Operations service
     func createWMTOperations(networkingConfig: WPNConfig, pollingOptions: WMTOperationsPollingOptions = []) -> WMTOperations {
-        return WMTOperationsImpl(networking: WPNNetworkingService(powerAuth: self, config: networkingConfig, serviceName: "WMTOperations"), pollingOptions: pollingOptions)
+        return createWMTOperations(networkingConfig: networkingConfig, pollingOptions: pollingOptions, customUserOperationType: WMTUserOperation.self)
+    }
+    
+    /// Creates instance of the `WMTOperations` on top of the PowerAuth instance.
+    /// - Parameters:
+    ///   - networkingConfig: Networking service config
+    ///   - pollingOptions: Polling feature configuration
+    ///   - customUserOperationType: All user operations fetched from the server will be decoded as the given type. Make sure such type properly conforms to the Codable protocol.
+    /// - Returns: Operations service
+    func createWMTOperations<T: WMTUserOperation>(
+        networkingConfig: WPNConfig,
+        pollingOptions: WMTOperationsPollingOptions = [],
+        customUserOperationType: T.Type
+    ) -> WMTOperations {
+        return WMTOperationsImpl<T>(networking: WPNNetworkingService(powerAuth: self, config: networkingConfig, serviceName: "WMTOperations"), pollingOptions: pollingOptions)
     }
 }
 
@@ -40,7 +54,16 @@ public extension WPNNetworkingService {
     ///   - pollingOptions: Polling feature configuration
     /// - Returns: Operations service
     func createWMTOperations(pollingOptions: WMTOperationsPollingOptions = []) -> WMTOperations {
-        return WMTOperationsImpl(networking: self, pollingOptions: pollingOptions)
+        return createWMTOperations(pollingOptions: pollingOptions, customUserOperationType: WMTUserOperation.self)
+    }
+    
+    /// Creates instance of the `WMTOperations` on top of the WPNNetworkingService/PowerAuth instance.
+    /// - Parameters:
+    ///   - pollingOptions: Polling feature configuration
+    ///   - customUserOperationType: All user operations fetched from the server will be decoded as the given type. Make sure such type properly conforms to the Codable protocol.
+    /// - Returns: Operations service
+    func createWMTOperations<T: WMTUserOperation>(pollingOptions: WMTOperationsPollingOptions = [], customUserOperationType: T.Type) -> WMTOperations {
+        return WMTOperationsImpl<T>(networking: self, pollingOptions: pollingOptions)
     }
 }
 
@@ -64,7 +87,7 @@ public extension WMTErrorReason {
     static let operations_QROperationFailed = WMTErrorReason(rawValue: "operations_QRFailed")
 }
 
-class WMTOperationsImpl: WMTOperations {
+class WMTOperationsImpl<T: WMTUserOperation>: WMTOperations {
     
     // Dependencies
     private lazy var powerAuth = networking.powerAuth
@@ -211,6 +234,7 @@ class WMTOperationsImpl: WMTOperations {
         }
     }
     
+    // DEPRECATED, REMOVE IN THE FUTURE
     func authorize(operation: WMTOperation, authentication: PowerAuthAuthentication, completion: @escaping(WMTError?) -> Void) -> Operation? {
         return authorize(operation: operation, with: authentication) { result in
             switch result {
@@ -244,6 +268,7 @@ class WMTOperationsImpl: WMTOperations {
         }
     }
     
+    // DEPRECATED, REMOVE IN THE FUTURE
     func reject(operation: WMTOperation, reason: WMTRejectionReason, completion: @escaping(WMTError?) -> Void) -> Operation? {
         return reject(operation: operation, with: reason) { result in
             switch result {
