@@ -27,24 +27,27 @@ Operations Service communicates with a backend via [Mobile Token API endpoints](
 
 ## Creating an Instance
 
-To create an instance of an operations service, use the following snippet:
-
+### On Top of the `PowerAuthSDK` instance
 ```swift
 import WultraMobileTokenSDK
+import WultraPowerAuthNetworking
 
-let opsConfig = WMTConfig(
+let networkingConfig = WPNConfig(
     baseUrl: URL(string: "https://myservice.com/mtoken/operations/api/")!,
-    sslValidation: .default,
-    pollingOptions: [.pauseWhenOnBackground]
+    sslValidation: .default
 )
-let opsService = powerAuth.createWMTOperations(config: config)
+// powerAuth is instance of PowerAuthSDK
+let opsService = powerAuth.createWMTOperations(networkingConfig: networkingConfig, pollingOptions: [.pauseWhenOnBackground])
 ```
 
-The `sslValidation` parameter is used when validating HTTPS requests. Following strategies can be used.  
+### On Top of the `WPNNetworkingService` instance
+```swift
+import WultraMobileTokenSDK
+import WultraPowerAuthNetworking
 
-- `WMTSSLValidationStrategy.default`
-- `WMTSSLValidationStrategy.noValidation`
-- `WMTSSLValidationStrategy.sslPinning`
+// networkingService is instance of WPNNetworkingService
+let opsService = networkingService.createWMTOperations(pollingOptions: [.pauseWhenOnBackground])
+```
 
 The `pollingOptions` parameter is used for polling feature configuration. The default value is empty `[]`. Possible options are:
 
@@ -104,10 +107,11 @@ class MyOperationsManager: WMTOperationsDelegate {
     private let ops: WMTOperations
 
     init(powerAuth: PowerAuthSDK) {
-        let opsConfig = WMTConfig(
-            baseUrl: URL(string: "https://myservice.com/mtoken/api/")!,
-            sslValidation: .default)
-        self.ops = powerAuth.createWMTOperations(config: opsConfig)
+        let networkingConfig = WPNConfig(
+            baseUrl: URL(string: "https://myservice.com/mtoken/operations/api/")!,
+            sslValidation: .default
+        )
+        self.ops = powerAuth.createWMTOperations(networkingConfig: networkingConfig)
         self.ops.delegate = self
     }
 
@@ -140,9 +144,7 @@ import PowerAuth2
 // Approve operation with password
 func approve(operation: WMTOperation, password: String) {
 
-    let auth = PowerAuthAuthentication()
-    auth.usePossession = true
-    auth.usePassword = password
+    let auth = PowerAuthAuthentication.possessionWithPassword(password: password)
 
     operationService.authorize(operation: operation, authentication: auth) { error in
         if let error = error {
@@ -163,10 +165,7 @@ import PowerAuth2
 // Approve operation with password
 func approveWithBiometry(operation: WMTOperation) {
 
-    let auth = PowerAuthAuthentication()
-    auth.usePossession = true
-    auth.useBiometry = true
-    auth.biometryPrompt = "Confirm operation."
+    let auth = PowerAuthAuthentication.possessionWithBiometry(prompt: "Confirm operation.")
 
     operationService.authorize(operation: operation, authentication: auth) { error in
         if let error = error {
@@ -208,9 +207,7 @@ import PowerAuth2
 
 // Retrieve operation history with password
 func history(password: String) {
-    let auth = PowerAuthAuthentication()
-    auth.usePossession = true
-    auth.usePassword = password
+    let auth = PowerAuthAuthentication.possessionWithPassword(password: password)
     operationService.getHistory(authentication: auth) { result in
         switch result {
         case .success(let operations):
@@ -258,6 +255,10 @@ case .failure(let error):
 An offline operation needs to be __always__ approved with __2-factor scheme__ (password or biometry).
 <!-- end -->
 
+<!-- begin box info -->
+Each offline operation created on the server has an __URI ID__ to define its purpose and configuration. The default value used here is `/operation/authorize/offline` and can be modified with the `uriId` parameter in the `authrorize` method.
+<!-- end -->
+
 #### With Password
 
 ```swift
@@ -266,15 +267,13 @@ import PowerAuth2
 
 func approveQROperation(operation: WMTQROperation, password: String) {
 
-    let auth = PowerAuthAuthentication()
-    auth.usePossession = true
-    auth.usePassword = password
+    let auth = PowerAuthAuthentication.possessionWithPassword(password: password)
 
     operationsService.authorize(qrOperation: operation, authentication: auth) { result in
         switch result {
         case .success(let code):
             // Display the signature to the user so it can be manually rewritten.
-            // Note that the operation will be signed even with the wrong password!
+            // Note that the operation will be signed even with a wrong password!
         case .failure(let error):
             // Failed to sign the operation
         }
@@ -285,6 +284,29 @@ func approveQROperation(operation: WMTQROperation, password: String) {
 <!-- begin box info -->
 An offline operation can and will be signed even with an incorrect password. The signature cannot be used for manual approval in such a case. This behavior cannot be detected, so you should warn the user that an incorrect password will result in an incorrect "approval code".
 <!-- end -->
+
+#### With Password and Custom `uriId`
+
+```swift
+import WultraMobileTokenSDK
+import PowerAuth2
+
+func approveQROperation(operation: WMTQROperation, password: String) {
+
+    let auth = PowerAuthAuthentication.possessionWithPassword(password: password)
+
+    // using the authorize method with custom uriId
+    operationsService.authorize(qrOperation: operation, uriId: "/confirm/offline/operation", authentication: auth) { result in
+        switch result {
+        case .success(let code):
+            // Display the signature to the user so it can be manually rewritten.
+            // Note that the operation will be signed even with a wrong password!
+        case .failure(let error):
+            // Failed to sign the operation
+        }
+    }
+}
+```
 
 #### With Biometry
 
@@ -302,10 +324,7 @@ func approveQROperationWithBiometry(operation: WMTQROperation) {
         return
     }
 
-    let auth = PowerAuthAuthentication()
-    auth.usePossession = true
-    auth.useBiometry = true
-    auth.biometryPrompt = "Confirm operation."
+    let auth = PowerAuthAuthentication.possessionWithBiometry(prompt: "Confirm operation.")
 
     operationsService.authorize(qrOperation: operation, authentication: auth) { result in
         switch result {
@@ -323,7 +342,6 @@ func approveQROperationWithBiometry(operation: WMTQROperation) {
 All available methods and attributes of `WMTOperations` API are:
 
 - `delegate` - Delegate object that receives info about operation loading. Methods of the delegate are always called on the main thread.
-- `config` - Config object, that was used for initialization.
 - `acceptLanguage` - Language settings, that will be sent along with each request. The server will return properly localized content based on this value. Value follows standard RFC [Accept-Language](https://tools.ietf.org/html/rfc7231#section-5.3.5)
 - `lastFetchResult()` - Cached last operations result.
 - `isLoadingOperations` - Indicates if the service is loading pending operations.
@@ -337,19 +355,24 @@ All available methods and attributes of `WMTOperations` API are:
     - `interval` - How often should operations be refreshed.
     - `delayStart` - When true, polling starts after the first `interval` time passes.
 - `stopPollingOperations()` - Stops the periodic operation polling.
-- `authorize(operation: WMTOperation, authentication: PowerAuthAuthentication, completion: @escaping(WMTError?)->Void)` - Authorize provided operation.
+- `authorize(operation: WMTOperation, with: PowerAuthAuthentication, completion: @escaping(Result<Void, WMTError>) -> Void)` - Authorize provided operation.
     - `operation` - An operation to approve, retrieved from `getOperations` call or [created locally](#creating-a-custom-operation).
-    - `authentication` - PowerAuth authentication object for operation signing.
+    - `with` - PowerAuth authentication object for operation signing.
     - `completion` - Called when authorization request finishes. Always called on the main thread.
-- `reject(operation: WMTOperation, reason: WMTRejectionReason, completion: @escaping(WMTError?)->Void)` - Reject provided operation.
+- `reject(operation: WMTOperation, with: WMTRejectionReason, completion: @escaping(Result<Void, WMTError>) -> Void)` - Reject provided operation.
     - `operation` - An operation to reject, retrieved from `getOperations` call or [created locally](#creating-a-custom-operation).
-    - `reason` - Rejection reason
+    - `with` - Rejection reason
     - `completion` - Called when rejection request finishes. Always called on the main thread.
 - `getHistory(authentication: PowerAuthAuthentication, completion: @escaping(Result<[WMTOperationHistoryEntry],WMTError>) -> Void)` - Retrieves operation history
   - `authentication` - PowerAuth authentication object for operation signing.
   - `completion` - Called when rejection request finishes. Always called on the main thread.
 - `authorize(qrOperation: WMTQROperation, authentication: PowerAuthAuthentication, completion: @escaping(Result<String, WMTError>) -> Void)` - Sign offline (QR) operation.
-    - `operation` - Offline operation that can be retrieved via `WMTQROperationParser.parse` method.
+    - `qrOperation ` - Offline operation that can be retrieved via `WMTQROperationParser.parse` method.
+    - `authentication` - PowerAuth authentication object for operation signing.
+    - `completion` - Called when authentication finishes. Always called on the main thread.
+- `authorize(qrOperation: WMTQROperation, uriId: String, authentication: PowerAuthAuthentication, completion: @escaping(Result<String, WMTError>) -> Void)` - Sign offline (QR) operation.
+    - `qrOperation ` - Offline operation that can be retrieved via `WMTQROperationParser.parse` method.
+    - `uriId` - Custom signature URI ID of the operation. Use URI ID under which the operation was created on the server. Usually something like `/confirm/offline/operation`.
     - `authentication` - PowerAuth authentication object for operation signing.
     - `completion` - Called when authentication finishes. Always called on the main thread.
 

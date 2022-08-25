@@ -199,18 +199,19 @@ class IntegrationTests: XCTestCase {
                         let auth = PowerAuthAuthentication()
                         auth.usePossession = true
                         auth.usePassword = "xxxx" //  wrong password on purpose
-                        self.ops.authorize(operation: ops.first!, authentication: auth) { error in
-                            if error != nil {
+                        self.ops.authorize(operation: ops.first!, with: auth) { result in
+                            switch result {
+                            case .failure:
                                 let auth = PowerAuthAuthentication()
                                 auth.usePossession = true
                                 auth.usePassword = Self.pin
-                                self.ops.authorize(operation: ops.first!, authentication: auth) { error in
-                                    if let error = error {
+                                self.ops.authorize(operation: ops.first!, with: auth) { result in
+                                    if case .failure(let error) = result {
                                         XCTFail("Failed to authorize op: \(error.description)")
                                     }
                                     exp.fulfill()
                                 }
-                            } else {
+                            case .success:
                                 XCTFail("Operation approved with wrong password")
                                 exp.fulfill()
                             }
@@ -247,8 +248,8 @@ class IntegrationTests: XCTestCase {
                             exp.fulfill()
                             return
                         }
-                        self.ops.reject(operation: opToReject, reason: .unexpectedOperation) { error in
-                            if let error = error {
+                        self.ops.reject(operation: opToReject, with: .unexpectedOperation) { result in
+                            if case .failure(let error) = result {
                                 XCTFail("Failed to reject op: \(error.description)")
                             }
                             exp.fulfill()
@@ -395,6 +396,67 @@ class IntegrationTests: XCTestCase {
         } else {
             XCTFail("expectation should not have been met")
         }
+    }
+    
+    func testQROperation() {
+        let exp = expectation(description: "QR Operation integration test")
+        
+        // create regular operation
+        IntegrationUtils.createOperation { op in
+            
+            guard let op = op else {
+                XCTFail("Failed to create operation")
+                exp.fulfill()
+                return
+            }
+            
+            // get QR data of the operation
+            IntegrationUtils.getQROperation(operation: op) { qrData in
+                guard let qrData = qrData else {
+                    XCTFail("Failed to retrieve QR data")
+                    exp.fulfill()
+                    return
+                }
+                
+                // parse the data
+                switch WMTQROperationParser().parse(string: qrData.operationQrCodeData) {
+                case .success(let qrOp):
+                    
+                    let auth = PowerAuthAuthentication()
+                    auth.usePossession = true
+                    auth.usePassword = Self.pin
+                    
+                    // get the OTP with the "offline" signing
+                    _ = self.ops.authorize(qrOperation: qrOp, authentication: auth) { qrAuthResult in
+                        switch qrAuthResult {
+                        case .success(let otp):
+                            
+                            // verify the operation on the backend with the OTP
+                            IntegrationUtils.verifyQROperation(operation: op, operationData: qrData, otp: otp) { verified in
+                                
+                                print("Operation verified with \(verified?.otpValid.description ?? "ERROR") result")
+                                
+                                // success?
+                                if verified?.otpValid == true {
+                                    exp.fulfill()
+                                } else {
+                                    XCTFail("Failed to verify QR operation")
+                                    exp.fulfill()
+                                }
+                            }
+                        case .failure:
+                            XCTFail("Failed to authorize QR operation")
+                            exp.fulfill()
+                        }
+                    }
+                case .failure:
+                    XCTFail("Failed to parse QR operation")
+                    exp.fulfill()
+                }
+            }
+        }
+        // there are 3 backend calls, give it some time...
+        waitForExpectations(timeout: 20, handler: nil)
     }
 }
 

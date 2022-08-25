@@ -16,11 +16,13 @@
 
 import PowerAuth2
 import WultraMobileTokenSDK
+import WultraPowerAuthNetworking
 
 class IntegrationUtils {
     
     private static var config: IntegrationConfig!
     private static let activationName = UUID().uuidString
+    private static var registrationId = "" // will be filled when activation is created
     
     typealias Callback = (_ instances: (PowerAuthSDK, WMTOperations)?, _ error: String?) -> Void
     
@@ -44,8 +46,8 @@ class IntegrationUtils {
             if let error = error {
                 callback(nil, error)
             } else {
-                let wmtconf = WMTConfig(baseUrl: URL(string: config.operationsServerUrl)!, sslValidation: .noValidation)
-                callback((pa,pa.createWMTOperations(config: wmtconf, pollingOptions: [.pauseWhenOnBackground])), nil)
+                let wpnConf = WPNConfig(baseUrl: URL(string: config.operationsServerUrl)!, sslValidation: .noValidation)
+                callback((pa,pa.createWMTOperations(networkingConfig: wpnConf, pollingOptions: [.pauseWhenOnBackground])), nil)
             }
         }
     }
@@ -64,7 +66,7 @@ class IntegrationUtils {
                 opBody = """
                 {
                   "userId": "\(activationName)",
-                  "template": "login-tpp",
+                  "template": "login",
                    "parameters": {
                      "party.id": "666",
                      "party.name": "Datová schránka",
@@ -75,7 +77,26 @@ class IntegrationUtils {
                 """
             }
             
-            completion(self.makeRequest(url: URL(string: "\(config.cloudServerUrl)/operations")!, body: opBody))
+            completion(self.makeRequest(url: URL(string: "\(config.cloudServerUrl)/v2/operations")!, body: opBody))
+        }
+    }
+    
+    class func getQROperation(operation: OperationObject, completion: @escaping (QROperationData?) -> Void) {
+        DispatchQueue.global().async {
+            completion(self.makeRequest(url: URL(string: "\(config.cloudServerUrl)/v2/operations/\(operation.operationId)/offline/qr?registrationId=\(registrationId)")!, body: "", httpMethod: "GET"))
+        }
+    }
+    
+    class func verifyQROperation(operation: OperationObject, operationData: QROperationData, otp: String, completion: @escaping (QROperationVerify?) -> Void) {
+        DispatchQueue.global().async {
+            let body = """
+                {
+                  "otp": "\(otp)",
+                  "nonce": "\(operationData.nonce)",
+                  "registrationId": "\(registrationId)"
+                }
+            """
+            completion(self.makeRequest(url: URL(string: "\(config.cloudServerUrl)/v2/operations/\(operation.operationId)/offline/otp")!, body: body))
         }
     }
     
@@ -116,6 +137,7 @@ class IntegrationUtils {
             callback("Create activation on server failed.")
             return
         }
+        registrationId = act.registrationId
         pa.createActivation(withName: "tests", activationCode: act.activationCode()!) { result, error in
             guard let _ = result else {
                 callback("Create activation failed.")
@@ -127,7 +149,7 @@ class IntegrationUtils {
                 callback("Commit activation locally failed.")
                 return
             }
-            guard let _ = commitActivationOnServer() else {
+            guard let _ = commitActivationOnServer(registrationId: act.registrationId) else {
                 callback("Commit on server failed.")
                 return
             }
@@ -138,26 +160,29 @@ class IntegrationUtils {
     private class func createActivation() -> RegistrationObject? {
         let body = """
         {
-          "userId": "\(activationName)"
+          "userId": "\(activationName)",
+          "flags": [],
+          "appId": "\(config.cloudApplicationId)"
         }
         """
-        let resp: RegistrationObject? = makeRequest(url: URL(string: "\(config.cloudServerUrl)/registration")!, body: body)
+        let resp: RegistrationObject? = makeRequest(url: URL(string: "\(config.cloudServerUrl)/v2/registrations")!, body: body)
         return resp
     }
     
-    private class func commitActivationOnServer() -> CommitObject? {
+    private class func commitActivationOnServer(registrationId: String) -> CommitObject? {
         let body = """
         {
-          "userId": "\(activationName)"
+          "externalUserId": "test"
         }
         """
-        let resp: CommitObject? = makeRequest(url: URL(string: "\(config.cloudServerUrl)/registration/commit")!, body: body)
+        let resp: CommitObject? = makeRequest(url: URL(string: "\(config.cloudServerUrl)/v2/registrations/\(registrationId)/commit")!, body: body)
         return resp
     }
 }
 
 private struct RegistrationObject: Codable {
     let activationQrCodeData: String
+    let registrationId: String
     
     func activationCode() -> String? { return PowerAuthActivationCodeUtil.parse(fromActivationCode: activationQrCodeData)?.activationCode }
 }
@@ -182,9 +207,26 @@ private struct IntegrationConfig: Codable {
     let cloudServerUrl: String
     let cloudServerLogin: String
     let cloudServerPassword: String
+    let cloudApplicationId: String
     let enrollmentServerUrl: String
     let operationsServerUrl: String
     let appKey: String
     let appSecret: String
     let masterServerPublicKey: String
+}
+
+struct QROperationData: Codable {
+    let operationQrCodeData: String
+    let nonce: String
+}
+
+struct QROperationVerify: Codable {
+    let otpValid: Bool
+    let userId: String
+    let registrationId: String
+    let registrationStatus: String
+    let signatureType: String
+    let remainingAttempts: Int
+    // let flags: []
+    // let application
 }

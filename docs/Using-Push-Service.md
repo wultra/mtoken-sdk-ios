@@ -21,30 +21,32 @@ Push Service communicates with [Mobile Push Registration API](https://github.com
 
 ## Creating an Instance
 
-To create an instance of the push service, use the following snippet:
-
+### On Top of the `PowerAuthSDK` instance
 ```swift
 import WultraMobileTokenSDK
+import WultraPowerAuthNetworking
 
-let opsConfig = WMTConfig(
+let networkingConfig = WPNConfig(
     baseUrl: URL(string: "https://myservice.com/mtoken/push/api/")!,
     sslValidation: .default
 )
-let pushService = powerAuth.createWMTPush(config: config)
+// powerAuth is instance of PowerAuthSDK
+let pushService = powerAuth.createWMTPush(networkingConfig: networkingConfig)
 ```
 
-`sslValidation` property is used when validating HTTPS requests. Following strategies can be used.  
+### On Top of the `WPNNetworkingService` instance
+```swift
+import WultraMobileTokenSDK
 
-- `WMTSSLValidationStrategy.default`
-- `WMTSSLValidationStrategy.noValidation`
-- `WMTSSLValidationStrategy.sslPinning`
+// networkingService is instance of WPNNetworkingService
+let pushService = networkingService.createWMTPush()
+```
 
 ## Push Service API Reference
 
 All available methods of the `WMTPush` API are:
 
 - `pushNotificationsRegisteredOnServer` - If there was already made an successful request.
-- `config` - Config object, that was used for initialization.
 - `acceptLanguage` - Language settings, that will be sent along with each request.
 - `registerDeviceTokenForPushNotifications(token: Data, completionHandler: @escaping (_ success: Bool, _ error: WMTError?) -> Void)` - Registers push token on the backend.
     - `token` - token data retrieved from APNS.

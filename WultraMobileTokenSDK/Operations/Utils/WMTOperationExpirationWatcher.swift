@@ -109,13 +109,11 @@ public class WMTOperationExpirationWatcher {
         return lock.synchronized {
             
             let currentDate = currentDateProvider.currentDate
-            for op in operations {
+            for op in operations where op.isExpired(currentDate) {
                 // we do not remove expired operations.
                 // Operation can expire during the networking communication. Such operation
                 // would be lost and never reported as expired.
-                if op.isExpired(currentDate) {
-                    D.warning("WMTOperationExpirationWatcher: You're adding an expired operation to watch.")
-                }
+                D.warning("WMTOperationExpirationWatcher: You're adding an expired operation to watch.")
             }
             
             guard operations.isEmpty == false else {

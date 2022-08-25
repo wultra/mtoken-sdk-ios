@@ -1,2 +1,1 @@
-github "wultra/powerauth-mobile-sdk" "release/1.6.x"
-github "wultra/networking-apple" "release/1.0.x"
+github "wultra/networking-apple" "release/1.1.x"

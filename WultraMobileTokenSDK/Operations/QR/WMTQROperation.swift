@@ -51,10 +51,6 @@ public struct WMTQROperation {
         return nonce
     }
     
-    internal var uriIdForOfflineSigning: String {
-        return "/operation/authorize/offline"
-    }
-    
     internal var dataForOfflineSigning: Data {
         return "\(operationId)&\(operationData.sourceString)".data(using: .utf8)!
     }
