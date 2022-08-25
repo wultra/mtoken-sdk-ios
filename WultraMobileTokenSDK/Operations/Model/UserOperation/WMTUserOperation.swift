@@ -19,7 +19,7 @@ import Foundation
 /// `WMTUserOperation` is object returned from the backend that can be either approved or rejected.
 /// It is usually visually presented to the user as a non-editable form with information, about
 /// the real-world operation (for example login or payment).
-public class WMTUserOperation: WMTOperation, Codable {
+open class WMTUserOperation: WMTOperation, Codable {
     
     /// Unique operation identifier
     public let id: String

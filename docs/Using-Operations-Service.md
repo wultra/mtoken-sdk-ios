@@ -9,6 +9,7 @@
 - [Reject an Operation](#reject-an-operation)
 - [Off-line Authorization](#off-line-authorization)
 - [Operations API Reference](#operations-api-reference)
+- [WMTUserOperation](#WMTUserOperation)
 - [Creating a Custom Operation](#creating-a-custom-operation)
 - [Error handling](#error-handling)
 <!-- end -->
@@ -52,6 +53,17 @@ let opsService = networkingService.createWMTOperations(pollingOptions: [.pauseWh
 The `pollingOptions` parameter is used for polling feature configuration. The default value is empty `[]`. Possible options are:
 
 - `WMTOperationsPollingOptions.pauseWhenOnBackground`
+
+### With custom WMTUserOperation objects
+
+To retreive custom user operations, both `createWMTOperations` methods offer optional parameter `customUserOperationType` where you can setup requested type.
+
+```swift
+// networkingService is instance of WPNNetworkingService
+let opsService = networkingService.createWMTOperations(customUserOperationType: CustomUserOperation.self).
+```
+
+When [custom operation type](#subclassing-WMTUserOperation) is set, all `WMTUserOperation` objects from such service can be explicitly unboxed to this type.
 
 ## Retrieve Pending Operations
 
@@ -446,6 +458,47 @@ Attributes types:
 - `NOTE` just like `KEY_VALUE`, emphasizing that the value is a note or message  
 - `HEADING` single highlighted text, written in a larger font, used as a section heading  
 - `PARTY_INFO` providing structured information about third-party data (for example known e-shop)
+
+### Subclassing WMTUserOperation
+
+`WMTUserOperation` class is `open` and can be subclassed. This is useful when your backend adds additional properties to operations retrieved via the `getOperations` API.
+
+Example of such class:
+
+```swift
+class CustomUserOperation: WMTUserOperation {
+    
+    enum CodingKeys: CodingKey {
+        case playSound
+    }
+    
+    /// Should we play a sound when the operation is displayed?
+    let playSound: Bool
+    
+    required init(from decoder: Decoder) throws {
+	    /// Decode the playSound property
+        playSound = try decoder.container(keyedBy: CodingKeys.self).decode(Bool, forKey: . playSound)
+        /// Decode the rest of the properties by the super class
+        try super.init(from: decoder)
+}
+```
+
+To set up the Operation Service to receive such objects, you need to create it with a [`customUserOperationType` parameter](#with-custom-WMTUserOperation-objects). After that, all `WMTUserOperation` objects can be unboxed into your custom objects.
+
+Example of the unboxing:
+
+```swift
+opsService.getOperations { result in
+    switch result {
+    case .success(let ops):
+       // unbox operations into the [CustomUserOperation]
+    	let unboxed = ops.map { $0 as! CustomUserOperation }
+    case .failure(let error):
+    	// do something with the error
+    	break
+    }
+}
+```
 
 ## Creating a Custom Operation
 
