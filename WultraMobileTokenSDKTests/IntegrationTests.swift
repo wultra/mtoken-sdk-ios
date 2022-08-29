@@ -26,27 +26,24 @@ import PowerAuth2
 
 class IntegrationTests: XCTestCase {
     
-    private var pa: PowerAuthSDK { Self.pa }
-    private static var pa: PowerAuthSDK!
+    private var proxy: IntegrationProxy!
+    private var pa: PowerAuthSDK! { proxy.powerAuth }
+    private var ops: WMTOperations! { proxy.operations }
     
-    private var ops: WMTOperations { Self.ops }
-    private static var ops: WMTOperations!
+    private let pin = "1234"
     
-    private static let pin = "1234"
-    
-    override class func setUp() {
+    override func setUp() {
         super.setUp()
+        
+        proxy = IntegrationProxy()
         
         let exp = XCTestExpectation(description: "setup expectation")
         
         // Integration Utils prepares an valid activation and sets is as primary
         // token activation on nextstep server
-        IntegrationUtils.prepareActivation(pin: pin) { instances, err in
-            if let instances = instances {
-                pa = instances.0
-                ops = instances.1
-            } else {
-                XCTFail(err ?? "Failed to create valid PowerAuth activation.")
+        proxy.prepareActivation(pin: pin) { error in
+            if let error = error {
+                XCTFail(error)
             }
             exp.fulfill()
         }
@@ -55,14 +52,12 @@ class IntegrationTests: XCTestCase {
         waiter.wait(for: [exp], timeout: 20)
     }
     
-    override class func tearDown() {
+    override func tearDown() {
         super.tearDown()
         let exp = XCTestExpectation(description: "setup expectation")
         
         // after each batch of tests, remove the activation
-        let auth = PowerAuthAuthentication()
-        auth.usePassword = pin
-        auth.usePossession = true
+        let auth = PowerAuthAuthentication.possessionWithPassword(password: pin)
         if let pa = pa {
             pa.removeActivation(with: auth) { err in
                 exp.fulfill()
@@ -83,8 +78,8 @@ class IntegrationTests: XCTestCase {
         _ = ops.getOperations { result in
             
             switch result {
-            case .success:
-                break // nothing to do here
+            case .success(let ops):
+                XCTAssertTrue(ops.isEmpty)
             case .failure(let err):
                 XCTFail(err.description)
             }
@@ -101,7 +96,7 @@ class IntegrationTests: XCTestCase {
 //
 //        let exp = expectation(description: "Approve login")
 //
-//        IntegrationUtils.createOperation { error in
+//        proxy.createOperation { error in
 //            guard error == nil else {
 //                XCTFail(error!)
 //                exp.fulfill()
@@ -142,7 +137,7 @@ class IntegrationTests: XCTestCase {
 //
 //        let exp = expectation(description: "Reject login")
 //
-//        IntegrationUtils.createOperation { error in
+//        proxy.createOperation { error in
 //            guard error == nil else {
 //                XCTFail(error!)
 //                exp.fulfill()
@@ -180,7 +175,7 @@ class IntegrationTests: XCTestCase {
         
         let exp = expectation(description: "Approve payment")
         
-        IntegrationUtils.createOperation { op in
+        proxy.createOperation { op in
             guard op != nil else {
                 XCTFail("Failed to create operation")
                 exp.fulfill()
@@ -196,15 +191,12 @@ class IntegrationTests: XCTestCase {
                             exp.fulfill()
                             return
                         }
-                        let auth = PowerAuthAuthentication()
-                        auth.usePossession = true
-                        auth.usePassword = "xxxx" //  wrong password on purpose
+                        //  wrong password on purpose
+                        let auth = PowerAuthAuthentication.possessionWithPassword(password: "xxxx")
                         self.ops.authorize(operation: ops.first!, with: auth) { result in
                             switch result {
                             case .failure:
-                                let auth = PowerAuthAuthentication()
-                                auth.usePossession = true
-                                auth.usePassword = Self.pin
+                                let auth = PowerAuthAuthentication.possessionWithPassword(password: self.pin)
                                 self.ops.authorize(operation: ops.first!, with: auth) { result in
                                     if case .failure(let error) = result {
                                         XCTFail("Failed to authorize op: \(error.description)")
@@ -232,7 +224,7 @@ class IntegrationTests: XCTestCase {
         
         let exp = expectation(description: "Reject payment")
         
-        IntegrationUtils.createOperation { op in
+        proxy.createOperation { op in
             guard let op = op else {
                 XCTFail("Failed to create operation")
                 exp.fulfill()
@@ -269,7 +261,8 @@ class IntegrationTests: XCTestCase {
     func testOperationPolling() {
         let exp = expectation(description: "Polling expectation")
         XCTAssertFalse(ops.isPollingOperations)
-        let delegate = OpDelegate { count in
+        let delegate = OpDelegate()
+        delegate.loadingCountCallback = { count in
             if count == 4 {
                 self.ops.stopPollingOperations()
                 exp.fulfill()
@@ -288,7 +281,7 @@ class IntegrationTests: XCTestCase {
         let exp = expectation(description: "history expectation")
         
         // lets create 1 operation and leave it in the state of "pending"
-        IntegrationUtils.createOperation { op in
+        proxy.createOperation { op in
             
             guard let op = op else {
                 XCTFail("Failed to create operation")
@@ -296,9 +289,7 @@ class IntegrationTests: XCTestCase {
                 return
             }
             
-            let auth = PowerAuthAuthentication()
-            auth.usePossession = true
-            auth.usePassword = Self.pin
+            let auth = PowerAuthAuthentication.possessionWithPassword(password: self.pin)
             self.ops.getHistory(authentication: auth) { result in
                 switch result {
                 case .success(let ops):
@@ -322,7 +313,8 @@ class IntegrationTests: XCTestCase {
         XCTAssertTrue(ops.pollingOptions.contains(.pauseWhenOnBackground), "Operation service is not set to pause on background")
         let exp = expectation(description: "Timeout expectation")
         XCTAssertFalse(ops.isPollingOperations, "Polling should be inactive")
-        let delegate = OpDelegate { count in
+        let delegate = OpDelegate()
+        delegate.loadingCountCallback = { count in
             if count == 1 {
                 // will resign active should stop polling as the app "is on background"
                 NotificationCenter.default.post(name: UIApplication.willResignActiveNotification, object: nil)
@@ -343,7 +335,8 @@ class IntegrationTests: XCTestCase {
         // After the pause, reactive the app again and check if it was continued
         
         let exp2 = expectation(description: "Polling pause expectation")
-        let delegate2 = OpDelegate { count in
+        let delegate2 = OpDelegate()
+        delegate2.loadingCountCallback = { count in
             if count == 1 {
                 self.ops.stopPollingOperations()
                 exp2.fulfill()
@@ -352,7 +345,7 @@ class IntegrationTests: XCTestCase {
         ops.delegate = delegate2
         NotificationCenter.default.post(name: UIApplication.didBecomeActiveNotification, object: nil)
         wait(for: [exp2], timeout: 5)
-        XCTAssertEqual(delegate2.loadingCount, 1, "Loading didnt continue after the active notification")
+        XCTAssertEqual(delegate2.loadingCount, 1, "Loading did continue after the active notification")
         XCTAssertFalse(ops.isPollingOperations)
     }
     
@@ -361,7 +354,8 @@ class IntegrationTests: XCTestCase {
         XCTAssertTrue(ops.pollingOptions.contains(.pauseWhenOnBackground), "Operation service is not set to pause on background")
         let exp = expectation(description: "Timeout expectation")
         XCTAssertFalse(ops.isPollingOperations, "Polling should be inactive")
-        let delegate = OpDelegate { count in
+        let delegate = OpDelegate()
+        delegate.loadingCountCallback = { count in
             if count == 1 {
                 // will resign active should stop polling as the app "is on background"
                 NotificationCenter.default.post(name: UIApplication.willResignActiveNotification, object: nil)
@@ -398,11 +392,147 @@ class IntegrationTests: XCTestCase {
         }
     }
     
+    func testOperationChangedDelegate() {
+        
+        // overall process expectation
+        let exp = expectation(description: "Operation delegates called properly")
+        
+        // expectation for each delegate
+        let expD1 = expectation(description: "Delegate 1 was handeled")
+        let expD2 = expectation(description: "Delegate 2 was handeled")
+        let expD3 = expectation(description: "Delegate 3 was handeled")
+        let expD4 = expectation(description: "Delegate 4 was handeled")
+        
+        // keeping the delegates to retain the objects
+        let d1 = OpDelegate()
+        let d2 = OpDelegate()
+        let d3 = OpDelegate()
+        let d4 = OpDelegate()
+        
+        // first delegate confirms adding 1 operation to empty list
+        d1.changedCallback = { all, removed, added in
+            XCTAssertEqual(all.count, 1)
+            XCTAssertTrue(removed.isEmpty)
+            XCTAssertEqual(added.count, 1)
+            expD1.fulfill()
+        }
+        ops.delegate = d1
+        
+        proxy.createOperation { op in
+            
+            guard op != nil else {
+                XCTFail("Failed to create operation")
+                exp.fulfill()
+                return
+            }
+            
+            // refresh operation to trigger onChanged callback
+            self.ops.refreshOperations()
+            self.wait(for: [expD1], timeout: 4)
+            
+            // second delegate confirms adding 1 operation to list with 1 operation already added
+            d2.changedCallback = { all, removed, added in
+                XCTAssertEqual(all.count, 2)
+                XCTAssertTrue(removed.isEmpty)
+                XCTAssertEqual(added.count, 1)
+                expD2.fulfill()
+            }
+            self.ops.delegate = d2
+            
+            self.proxy.createOperation { op2 in
+                
+                guard op2 != nil else {
+                    XCTFail("Failed to create operation")
+                    exp.fulfill()
+                    return
+                }
+                
+                // refresh operation to trigger onChanged callback
+                self.ops.refreshOperations()
+                self.wait(for: [expD2], timeout: 4)
+                
+                self.ops.delegate = nil // to disable repeated call on d2 fullfill
+                self.ops.getOperations { rOps in
+                    
+                    guard case .success(let ops) = rOps else {
+                        XCTFail("Failed to retreive ops")
+                        exp.fulfill()
+                        return
+                    }
+                    
+                    guard ops.count == 2 else {
+                        XCTFail("\(ops.count) operations retreived instead of 2")
+                        exp.fulfill()
+                        return
+                    }
+                    XCTAssertEqual(ops.count, 2) // just to make a point
+                    
+                    // third delegate confirms properly removed operation after reject
+                    d3.changedCallback = { all, removed, added in
+                        XCTAssertEqual(all.count, 1)
+                        XCTAssertTrue(added.isEmpty)
+                        XCTAssertEqual(removed.count, 1)
+                        expD3.fulfill()
+                    }
+                    self.ops.delegate = d3
+                    
+                    self.ops.reject(operation: ops[0], with: .unknown) { result in
+                        
+                        switch result {
+                        case .failure(let error):
+                            XCTFail("Failed to reject operation: \(error)")
+                            exp.fulfill()
+                            return
+                        case .success:
+                            self.wait(for: [expD3], timeout: 4)
+                            
+                            // last delegate confirms properly removed operation after authorize
+                            d4.changedCallback = { all, removed, added in
+                                XCTAssertTrue(all.isEmpty)
+                                XCTAssertTrue(added.isEmpty)
+                                XCTAssertEqual(removed.count, 1)
+                                expD4.fulfill()
+                            }
+                            self.ops.delegate = d4
+                            
+                            let auth = PowerAuthAuthentication.possessionWithPassword(password: self.pin)
+                            self.ops.authorize(operation: ops[1], with: auth) { result2 in
+                                
+                                switch result2 {
+                                case .failure(let error):
+                                    XCTFail("Failed to reject operation: \(error)")
+                                    exp.fulfill()
+                                    return
+                                case .success:
+                                    self.wait(for: [expD4], timeout: 2)
+                                    self.ops.delegate = nil // to disable repeated call on d4 fullfill
+                                    
+                                    // final confirm that there are no operation left to resolve
+                                    self.ops.getOperations { resultOps in
+                                        switch resultOps {
+                                        case .success(let ops):
+                                            XCTAssertEqual(ops.count, 0)
+                                        case .failure(let error):
+                                            XCTFail("Failed to reject operation: \(error)")
+                                        }
+                                        exp.fulfill()
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        
+        wait(for: [exp], timeout: 10)
+    }
+    
     func testQROperation() {
         let exp = expectation(description: "QR Operation integration test")
         
         // create regular operation
-        IntegrationUtils.createOperation { op in
+        proxy.createOperation { op in
             
             guard let op = op else {
                 XCTFail("Failed to create operation")
@@ -411,7 +541,7 @@ class IntegrationTests: XCTestCase {
             }
             
             // get QR data of the operation
-            IntegrationUtils.getQROperation(operation: op) { qrData in
+            self.proxy.getQROperation(operation: op) { qrData in
                 guard let qrData = qrData else {
                     XCTFail("Failed to retrieve QR data")
                     exp.fulfill()
@@ -422,9 +552,7 @@ class IntegrationTests: XCTestCase {
                 switch WMTQROperationParser().parse(string: qrData.operationQrCodeData) {
                 case .success(let qrOp):
                     
-                    let auth = PowerAuthAuthentication()
-                    auth.usePossession = true
-                    auth.usePassword = Self.pin
+                    let auth = PowerAuthAuthentication.possessionWithPassword(password: self.pin)
                     
                     // get the OTP with the "offline" signing
                     _ = self.ops.authorize(qrOperation: qrOp, authentication: auth) { qrAuthResult in
@@ -432,7 +560,7 @@ class IntegrationTests: XCTestCase {
                         case .success(let otp):
                             
                             // verify the operation on the backend with the OTP
-                            IntegrationUtils.verifyQROperation(operation: op, operationData: qrData, otp: otp) { verified in
+                            self.proxy.verifyQROperation(operation: op, operationData: qrData, otp: otp) { verified in
                                 
                                 print("Operation verified with \(verified?.otpValid.description ?? "ERROR") result")
                                 
@@ -462,11 +590,12 @@ class IntegrationTests: XCTestCase {
 
 private class OpDelegate: WMTOperationsDelegate {
     
-    private let loadingCountCallback: ((Int) -> Void)?
+    var loadingCountCallback: ((Int) -> Void)?
+    var changedCallback: ((_ operations: [WMTUserOperation], _ removed: [WMTUserOperation], _ added: [WMTUserOperation]) -> Void)?
     private(set) var loadingCount = 0
     
-    init(loadingCountCallback: ((Int) -> Void)? = nil) {
-        self.loadingCountCallback = loadingCountCallback
+    init() {
+        
     }
     
     func operationsLoading(loading: Bool) {
@@ -477,7 +606,7 @@ private class OpDelegate: WMTOperationsDelegate {
     }
     
     func operationsChanged(operations: [WMTUserOperation], removed: [WMTUserOperation], added: [WMTUserOperation]) {
-        
+        changedCallback?(operations, removed, added)
     }
     
     func operationsFailed(error: WMTError) {
