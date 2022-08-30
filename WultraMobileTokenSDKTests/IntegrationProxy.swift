@@ -18,18 +18,21 @@ import PowerAuth2
 import WultraMobileTokenSDK
 import WultraPowerAuthNetworking
 
-class IntegrationUtils {
+class IntegrationProxy {
     
-    private static var config: IntegrationConfig!
-    private static let activationName = UUID().uuidString
-    private static var registrationId = "" // will be filled when activation is created
+    private(set) var powerAuth: PowerAuthSDK?
+    private(set) var operations: WMTOperations?
     
-    typealias Callback = (_ instances: (PowerAuthSDK, WMTOperations)?, _ error: String?) -> Void
+    private var config: IntegrationConfig!
+    private let activationName = UUID().uuidString
+    private var registrationId = "" // will be filled when activation is created
     
-    class func prepareActivation(pin: String, callback: @escaping Callback) {
+    typealias Callback = (_ error: String?) -> Void
+    
+    func prepareActivation(pin: String, callback: @escaping Callback) {
         
-        guard let configPath = Bundle.init(for: IntegrationUtils.self).path(forResource: "config", ofType: "json", inDirectory: "Configs") else {
-            callback(nil, "Config file config.json is not present.")
+        guard let configPath = Bundle.init(for: IntegrationProxy.self).path(forResource: "config", ofType: "json", inDirectory: "Configs") else {
+            callback("Config file config.json is not present.")
             return
         }
         
@@ -37,17 +40,19 @@ class IntegrationUtils {
             let configContent = try String(contentsOfFile: configPath)
             config = try JSONDecoder().decode(IntegrationConfig.self, from: configContent.data(using: .utf8)!)
         } catch _ {
-            callback(nil, "Config file config.json cannot be parsed.")
+            callback("Config file config.json cannot be parsed.")
             return
         }
         
         let pa = preparePAInstance()
         enrollPAInstance(pa: pa, pin: pin) { error in
             if let error = error {
-                callback(nil, error)
+                callback(error)
             } else {
-                let wpnConf = WPNConfig(baseUrl: URL(string: config.operationsServerUrl)!, sslValidation: .noValidation)
-                callback((pa,pa.createWMTOperations(networkingConfig: wpnConf, pollingOptions: [.pauseWhenOnBackground])), nil)
+                let wpnConf = WPNConfig(baseUrl: URL(string: self.config.operationsServerUrl)!, sslValidation: .noValidation)
+                self.powerAuth = pa
+                self.operations = pa.createWMTOperations(networkingConfig: wpnConf, pollingOptions: [.pauseWhenOnBackground])
+                callback(nil)
             }
         }
     }
@@ -58,14 +63,14 @@ class IntegrationUtils {
         case F_2FA
     }
     
-    class func createOperation(_ factors: Factors = .F_2FA, completion: @escaping (OperationObject?) -> Void) {
+    func createOperation(_ factors: Factors = .F_2FA, completion: @escaping (OperationObject?) -> Void) {
         DispatchQueue.global().async {
             let opBody: String
             switch factors {
             case .F_2FA:
                 opBody = """
                 {
-                  "userId": "\(activationName)",
+                  "userId": "\(self.activationName)",
                   "template": "login",
                    "parameters": {
                      "party.id": "666",
@@ -77,30 +82,30 @@ class IntegrationUtils {
                 """
             }
             
-            completion(self.makeRequest(url: URL(string: "\(config.cloudServerUrl)/v2/operations")!, body: opBody))
+            completion(self.makeRequest(url: URL(string: "\(self.config.cloudServerUrl)/v2/operations")!, body: opBody))
         }
     }
     
-    class func getQROperation(operation: OperationObject, completion: @escaping (QROperationData?) -> Void) {
+    func getQROperation(operation: OperationObject, completion: @escaping (QROperationData?) -> Void) {
         DispatchQueue.global().async {
-            completion(self.makeRequest(url: URL(string: "\(config.cloudServerUrl)/v2/operations/\(operation.operationId)/offline/qr?registrationId=\(registrationId)")!, body: "", httpMethod: "GET"))
+            completion(self.makeRequest(url: URL(string: "\(self.config.cloudServerUrl)/v2/operations/\(operation.operationId)/offline/qr?registrationId=\(self.registrationId)")!, body: "", httpMethod: "GET"))
         }
     }
     
-    class func verifyQROperation(operation: OperationObject, operationData: QROperationData, otp: String, completion: @escaping (QROperationVerify?) -> Void) {
+    func verifyQROperation(operation: OperationObject, operationData: QROperationData, otp: String, completion: @escaping (QROperationVerify?) -> Void) {
         DispatchQueue.global().async {
             let body = """
                 {
                   "otp": "\(otp)",
                   "nonce": "\(operationData.nonce)",
-                  "registrationId": "\(registrationId)"
+                  "registrationId": "\(self.registrationId)"
                 }
             """
-            completion(self.makeRequest(url: URL(string: "\(config.cloudServerUrl)/v2/operations/\(operation.operationId)/offline/otp")!, body: body))
+            completion(self.makeRequest(url: URL(string: "\(self.config.cloudServerUrl)/v2/operations/\(operation.operationId)/offline/otp")!, body: body))
         }
     }
     
-    private class func makeRequest<T: Codable>(url: URL, body: String, httpMethod: String = "POST") -> T? {
+    private func makeRequest<T: Codable>(url: URL, body: String, httpMethod: String = "POST") -> T? {
         var r = URLRequest(url: url)
         let creds = "\(config.cloudServerLogin):\(config.cloudServerPassword)".data(using: .utf8)?.base64EncodedString() ?? ""
         r.httpMethod = httpMethod
@@ -119,7 +124,7 @@ class IntegrationUtils {
         return result
     }
     
-    private class func preparePAInstance() -> PowerAuthSDK {
+    private func preparePAInstance() -> PowerAuthSDK {
         
         let cfg = PowerAuthConfiguration()
         cfg.instanceId = "tests"
@@ -132,7 +137,7 @@ class IntegrationUtils {
         return PowerAuthSDK(configuration: cfg)!
     }
     
-    private class func enrollPAInstance(pa: PowerAuthSDK, pin: String, callback: @escaping (String?) -> Void) {
+    private func enrollPAInstance(pa: PowerAuthSDK, pin: String, callback: @escaping (String?) -> Void) {
         guard let act = createActivation() else {
             callback("Create activation on server failed.")
             return
@@ -149,7 +154,7 @@ class IntegrationUtils {
                 callback("Commit activation locally failed.")
                 return
             }
-            guard let _ = commitActivationOnServer(registrationId: act.registrationId) else {
+            guard let _ = self.commitActivationOnServer(registrationId: act.registrationId) else {
                 callback("Commit on server failed.")
                 return
             }
@@ -157,7 +162,7 @@ class IntegrationUtils {
         }
     }
     
-    private class func createActivation() -> RegistrationObject? {
+    private func createActivation() -> RegistrationObject? {
         let body = """
         {
           "userId": "\(activationName)",
@@ -169,7 +174,7 @@ class IntegrationUtils {
         return resp
     }
     
-    private class func commitActivationOnServer(registrationId: String) -> CommitObject? {
+    private func commitActivationOnServer(registrationId: String) -> CommitObject? {
         let body = """
         {
           "externalUserId": "test"
