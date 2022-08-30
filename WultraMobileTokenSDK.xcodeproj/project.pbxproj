@@ -48,7 +48,7 @@
 		DCD8B336246C1BAF00385F02 /* WMTRejectionReason.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCD8B335246C1BAF00385F02 /* WMTRejectionReason.swift */; };
 		DCE5EAB026BD81150061861A /* WMTOperationHistoryEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCE5EAAF26BD81150061861A /* WMTOperationHistoryEntry.swift */; };
 		DCE660D124CEBECA00870E53 /* IntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCE660D024CEBECA00870E53 /* IntegrationTests.swift */; };
-		DCE660D324CEF56400870E53 /* IntegrationUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCE660D224CEF56400870E53 /* IntegrationUtils.swift */; };
+		DCE660D324CEF56400870E53 /* IntegrationProxy.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCE660D224CEF56400870E53 /* IntegrationProxy.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -108,7 +108,7 @@
 		DCD8B335246C1BAF00385F02 /* WMTRejectionReason.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTRejectionReason.swift; sourceTree = "<group>"; };
 		DCE5EAAF26BD81150061861A /* WMTOperationHistoryEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTOperationHistoryEntry.swift; sourceTree = "<group>"; };
 		DCE660D024CEBECA00870E53 /* IntegrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntegrationTests.swift; sourceTree = "<group>"; };
-		DCE660D224CEF56400870E53 /* IntegrationUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntegrationUtils.swift; sourceTree = "<group>"; };
+		DCE660D224CEF56400870E53 /* IntegrationProxy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntegrationProxy.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -166,7 +166,7 @@
 				DC616237248508F8000DED17 /* Info.plist */,
 				DC61624124852B6D000DED17 /* NetworkingObjectsTests.swift */,
 				DCE660D024CEBECA00870E53 /* IntegrationTests.swift */,
-				DCE660D224CEF56400870E53 /* IntegrationUtils.swift */,
+				DCE660D224CEF56400870E53 /* IntegrationProxy.swift */,
 				DC395C0924E55B9B0007C36E /* PushParserTests.swift */,
 				DC6EDB7825A49ED900A229E4 /* OperationExpirationTests.swift */,
 				DC616235248508F8000DED17 /* QROperationParserTests.swift */,
@@ -461,7 +461,7 @@
 				DC6EDB7925A49ED900A229E4 /* OperationExpirationTests.swift in Sources */,
 				DC616236248508F8000DED17 /* QROperationParserTests.swift in Sources */,
 				DCE660D124CEBECA00870E53 /* IntegrationTests.swift in Sources */,
-				DCE660D324CEF56400870E53 /* IntegrationUtils.swift in Sources */,
+				DCE660D324CEF56400870E53 /* IntegrationProxy.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

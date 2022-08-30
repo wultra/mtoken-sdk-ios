@@ -296,9 +296,9 @@ class WMTOperationsImpl<T: WMTUserOperation>: WMTOperations {
         ) { _, error in
             assert(Thread.isMainThread)
             if let error = error {
-                self.operationsRegister.remove(operation: operation)
                 completion(.failure(self.adjustOperationError(error, auth: false)))
             } else {
+                self.operationsRegister.remove(operation: operation)
                 completion(.success(()))
             }
         }
