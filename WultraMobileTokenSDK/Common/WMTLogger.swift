@@ -36,7 +36,7 @@ public class WMTLogger {
     
     /// Prints simple message to the debug console.
     static func print(_ message: @autoclosure () -> String) {
-        #if DEBUG
+        #if DEBUG || WMT_ENABLE_LOGGING
         if verboseLevel == .all {
             Swift.print("[WMT] \(message())")
         }
@@ -45,7 +45,7 @@ public class WMTLogger {
 
     /// Prints warning message to the debug console.
     static func warning(_ message: @autoclosure () -> String) {
-        #if DEBUG
+        #if DEBUG || WMT_ENABLE_LOGGING
         if verboseLevel.rawValue >= VerboseLevel.warnings.rawValue {
             Swift.print("[WMT] WARNING: \(message())")
         }
@@ -54,7 +54,7 @@ public class WMTLogger {
     
     /// Prints error message to the debug console.
     static func error(_ message: @autoclosure () -> String) {
-        #if DEBUG
+        #if DEBUG || WMT_ENABLE_LOGGING
         if verboseLevel != .off {
             Swift.print("[WMT] ERROR: \(message())")
         }
