@@ -3,7 +3,7 @@
 For logging purposes, WMT uses `WMTLogger` class that prints to the console.
 
 <!-- begin box info -->
-Note that logging to the console is available only when the library is compiled in the `Debug` mode.
+Note that logging to the console is available only when the library is compiled in the `Debug` mode or with `WMT_ENABLE_LOGGING` Swift compile condition.
 <!-- end -->
 
 ### Verbosity Level
