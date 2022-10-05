@@ -5,7 +5,7 @@ on:
     branches:
       - develop
       - master
-      - release/*
+      - releases/*
   pull_request:
   schedule:
     - cron:  '25 6 * * *'
@@ -17,6 +17,10 @@ jobs:
     steps:
       - name: Checkout the repo
         uses: actions/checkout@v2
+      - name: Set proper xcode version
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: '14.0'
       - name: Building
         env:
           GITHUB_ACCESS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
