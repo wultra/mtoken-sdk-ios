@@ -87,10 +87,10 @@ public extension WMTErrorReason {
     static let operations_QROperationFailed = WMTErrorReason(rawValue: "operations_QRFailed")
 }
 
-class WMTOperationsImpl<T: WMTUserOperation>: WMTOperations {
+class WMTOperationsImpl<T: WMTUserOperation>: WMTOperations, WMTService {
     
     // Dependencies
-    private lazy var powerAuth = networking.powerAuth
+    lazy var powerAuth = networking.powerAuth
     private let networking: WPNNetworkingService
     private let qrQueue: OperationQueue = {
         let q = OperationQueue()
@@ -217,75 +217,39 @@ class WMTOperationsImpl<T: WMTUserOperation>: WMTOperations {
     
     func getHistory(authentication: PowerAuthAuthentication, completion: @escaping (Result<[WMTOperationHistoryEntry], WMTError>) -> Void) -> Operation? {
         
-        if !powerAuth.hasValidActivation() {
-            DispatchQueue.main.async {
-                completion(.failure(WMTError(reason: .missingActivation)))
-            }
+        guard validateActivation(completion) else {
             return nil
         }
         
         return networking.post(data: .init(), signedWith: authentication, to: WMTOperationEndpoints.History.endpoint) { response, error in
-            assert(Thread.isMainThread)
-            if let result = response?.responseObject {
-                completion(.success(result))
-            } else {
-                completion(.failure(error ?? WMTError(reason: .unknown)))
-            }
-        }
-    }
-    
-    // DEPRECATED, REMOVE IN THE FUTURE
-    func authorize(operation: WMTOperation, authentication: PowerAuthAuthentication, completion: @escaping(WMTError?) -> Void) -> Operation? {
-        return authorize(operation: operation, with: authentication) { result in
-            switch result {
-            case .success:
-                completion(nil)
-            case .failure(let error):
-                completion(error)
-            }
+            self.processResult(response: response, error: error, completion: completion)
         }
     }
     
     func authorize(operation: WMTOperation, with authentication: PowerAuthAuthentication, completion: @escaping (Result<Void, WMTError>) -> Void) -> Operation? {
         
-        guard powerAuth.hasValidActivation() else {
-            DispatchQueue.main.async {
-                completion(.failure(WMTError(reason: .missingActivation)))
-            }
+        guard validateActivation(completion) else {
             return nil
         }
         
         let data = WMTAuthorizationData(operationId: operation.id, operationData: operation.data)
         
-        return networking.post(data: .init(data), signedWith: authentication, to: WMTOperationEndpoints.Authorize.endpoint) { _, error in
-            assert(Thread.isMainThread)
-            if let error = error {
-                completion(.failure(self.adjustOperationError(error, auth: true)))
-            } else {
-                self.operationsRegister.remove(operation: operation)
-                completion(.success(()))
-            }
-        }
-    }
-    
-    // DEPRECATED, REMOVE IN THE FUTURE
-    func reject(operation: WMTOperation, reason: WMTRejectionReason, completion: @escaping(WMTError?) -> Void) -> Operation? {
-        return reject(operation: operation, with: reason) { result in
-            switch result {
-            case .success:
-                completion(nil)
-            case .failure(let error):
-                completion(error)
+        return networking.post(data: .init(data), signedWith: authentication, to: WMTOperationEndpoints.Authorize.endpoint) { response, error in
+            self.processResult(response: response, error: error) { result in
+                switch result {
+                case .success:
+                    self.operationsRegister.remove(operation: operation)
+                    completion(.success(()))
+                case .failure(let err):
+                    completion(.failure(self.adjustOperationError(err, auth: true)))
+                }
             }
         }
     }
     
     func reject(operation: WMTOperation, with reason: WMTRejectionReason, completion: @escaping(Result<Void, WMTError>) -> Void) -> Operation? {
         
-        guard powerAuth.hasValidActivation() else {
-            DispatchQueue.main.async {
-                completion(.failure(WMTError(reason: .missingActivation)))
-            }
+        guard validateActivation(completion) else {
             return nil
         }
                 
@@ -293,13 +257,15 @@ class WMTOperationsImpl<T: WMTUserOperation>: WMTOperations {
             data: .init(.init(operationId: operation.id, reason: reason)),
             signedWith: .possession(),
             to: WMTOperationEndpoints.Reject.endpoint
-        ) { _, error in
-            assert(Thread.isMainThread)
-            if let error = error {
-                completion(.failure(self.adjustOperationError(error, auth: false)))
-            } else {
-                self.operationsRegister.remove(operation: operation)
-                completion(.success(()))
+        ) { response, error in
+            self.processResult(response: response, error: error) { result in
+                switch result {
+                case .success:
+                    self.operationsRegister.remove(operation: operation)
+                    completion(.success(()))
+                case .failure(let err):
+                    completion(.failure(self.adjustOperationError(err, auth: false)))
+                }
             }
         }
     }
@@ -377,8 +343,7 @@ class WMTOperationsImpl<T: WMTUserOperation>: WMTOperations {
         
         assert(Thread.isMainThread)
         
-        if !powerAuth.hasValidActivation() {
-            completion(.failure(WMTError(reason: .missingActivation)))
+        guard validateActivation(completion) else {
             return
         }
         

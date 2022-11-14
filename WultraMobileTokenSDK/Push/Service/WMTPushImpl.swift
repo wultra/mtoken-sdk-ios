@@ -42,11 +42,11 @@ public extension WMTErrorReason {
     static let push_alreadyRegistering = WMTErrorReason(rawValue: "push_alreadyRegistering")
 }
 
-class WMTPushImpl: WMTPush {
+class WMTPushImpl: WMTPush, WMTService {
     
     // Dependencies
-    private lazy var powerAuth = networking.powerAuth
-    private let networking: WPNNetworkingService
+    lazy var powerAuth = networking.powerAuth
+    let networking: WPNNetworkingService
     
     private(set) var pushNotificationsRegisteredOnServer = false // Contains true if push notifications were already registered
     private var pendingRegistrationForRemotePushNotifications = false // Contains true if there's pending registration for push notifications
@@ -61,17 +61,15 @@ class WMTPushImpl: WMTPush {
     }
     
     @discardableResult
-    func registerDeviceTokenForPushNotifications(token: Data, completionHandler: @escaping (_ success: Bool, _ error: WMTError?) -> Void) -> Operation? {
+    func registerDeviceTokenForPushNotifications(token: Data, completion: @escaping (Result<Void, WMTError>) -> Void) -> Operation? {
         
-        guard powerAuth.hasValidActivation() else {
-            DispatchQueue.main.async {
-                completionHandler(false, WMTError(reason: .missingActivation))
-            }
+        guard validateActivation(completion) else {
             return nil
         }
+        
         guard pendingRegistrationForRemotePushNotifications == false else {
             DispatchQueue.main.async {
-                completionHandler(false, WMTError(reason: .push_alreadyRegistering))
+                completion(.failure(WMTError(reason: .push_alreadyRegistering)))
             }
             return nil
         }
@@ -83,12 +81,12 @@ class WMTPushImpl: WMTPush {
         
         return networking.post(data: .init(data), signedWith: .possession(), to: WMTPushEndpoints.RegisterDevice.endpoint) { _, error in
             self.pendingRegistrationForRemotePushNotifications = false
-            if error == nil {
-                self.pushNotificationsRegisteredOnServer = true
-                completionHandler(true, nil)
-            } else {
+            if let error = error {
                 self.pushNotificationsRegisteredOnServer = false
-                completionHandler(false, error)
+                completion(.failure(error))
+            } else {
+                self.pushNotificationsRegisteredOnServer = true
+                completion(.success(()))
             }
         }
     }

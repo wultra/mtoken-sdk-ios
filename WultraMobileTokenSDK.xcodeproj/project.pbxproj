@@ -11,6 +11,13 @@
 		DC395C0A24E55B9B0007C36E /* PushParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC395C0924E55B9B0007C36E /* PushParserTests.swift */; };
 		DC3D0B372480F3C7000DC4D9 /* WMTOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC3D0B362480F3C7000DC4D9 /* WMTOperation.swift */; };
 		DC3D0B392480F886000DC4D9 /* WMTLocalOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC3D0B382480F886000DC4D9 /* WMTLocalOperation.swift */; };
+		DC488031292282C900DB844B /* WMTService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC488030292282C900DB844B /* WMTService.swift */; };
+		DC48803D292282FF00DB844B /* WMTInbox.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC488035292282FF00DB844B /* WMTInbox.swift */; };
+		DC48803E292282FF00DB844B /* WMTInboxPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC488037292282FF00DB844B /* WMTInboxPage.swift */; };
+		DC48803F292282FF00DB844B /* WMTInboxMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC488038292282FF00DB844B /* WMTInboxMessage.swift */; };
+		DC488040292282FF00DB844B /* WMTInboxUnread.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC488039292282FF00DB844B /* WMTInboxUnread.swift */; };
+		DC488041292282FF00DB844B /* WMTInboxEndpoints.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC48803B292282FF00DB844B /* WMTInboxEndpoints.swift */; };
+		DC488042292282FF00DB844B /* WMTInboxImpl.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC48803C292282FF00DB844B /* WMTInboxImpl.swift */; };
 		DC5F6DE824E14FA100D351D3 /* Configs in Resources */ = {isa = PBXBuildFile; fileRef = DC5F6DE724E14FA100D351D3 /* Configs */; };
 		DC616236248508F8000DED17 /* QROperationParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC616235248508F8000DED17 /* QROperationParserTests.swift */; };
 		DC616238248508F8000DED17 /* WultraMobileTokenSDK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DCC5CC9A2449EE21004679AC /* WultraMobileTokenSDK.framework */; };
@@ -66,6 +73,13 @@
 		DC395C0924E55B9B0007C36E /* PushParserTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushParserTests.swift; sourceTree = "<group>"; };
 		DC3D0B362480F3C7000DC4D9 /* WMTOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTOperation.swift; sourceTree = "<group>"; };
 		DC3D0B382480F886000DC4D9 /* WMTLocalOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTLocalOperation.swift; sourceTree = "<group>"; };
+		DC488030292282C900DB844B /* WMTService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WMTService.swift; sourceTree = "<group>"; };
+		DC488035292282FF00DB844B /* WMTInbox.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WMTInbox.swift; sourceTree = "<group>"; };
+		DC488037292282FF00DB844B /* WMTInboxPage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WMTInboxPage.swift; sourceTree = "<group>"; };
+		DC488038292282FF00DB844B /* WMTInboxMessage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WMTInboxMessage.swift; sourceTree = "<group>"; };
+		DC488039292282FF00DB844B /* WMTInboxUnread.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WMTInboxUnread.swift; sourceTree = "<group>"; };
+		DC48803B292282FF00DB844B /* WMTInboxEndpoints.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WMTInboxEndpoints.swift; sourceTree = "<group>"; };
+		DC48803C292282FF00DB844B /* WMTInboxImpl.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WMTInboxImpl.swift; sourceTree = "<group>"; };
 		DC5F6DE724E14FA100D351D3 /* Configs */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Configs; sourceTree = "<group>"; };
 		DC616233248508F8000DED17 /* WultraMobileTokenSDKTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = WultraMobileTokenSDKTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		DC616235248508F8000DED17 /* QROperationParserTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QROperationParserTests.swift; sourceTree = "<group>"; };
@@ -159,6 +173,34 @@
 			path = UserOperation;
 			sourceTree = "<group>";
 		};
+		DC488034292282FF00DB844B /* Inbox */ = {
+			isa = PBXGroup;
+			children = (
+				DC488036292282FF00DB844B /* Model */,
+				DC48803A292282FF00DB844B /* Service */,
+			);
+			path = Inbox;
+			sourceTree = "<group>";
+		};
+		DC488036292282FF00DB844B /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				DC488037292282FF00DB844B /* WMTInboxPage.swift */,
+				DC488038292282FF00DB844B /* WMTInboxMessage.swift */,
+				DC488039292282FF00DB844B /* WMTInboxUnread.swift */,
+			);
+			path = Model;
+			sourceTree = "<group>";
+		};
+		DC48803A292282FF00DB844B /* Service */ = {
+			isa = PBXGroup;
+			children = (
+				DC48803B292282FF00DB844B /* WMTInboxEndpoints.swift */,
+				DC48803C292282FF00DB844B /* WMTInboxImpl.swift */,
+			);
+			path = Service;
+			sourceTree = "<group>";
+		};
 		DC616234248508F8000DED17 /* WultraMobileTokenSDKTests */ = {
 			isa = PBXGroup;
 			children = (
@@ -244,6 +286,7 @@
 		DC81D1CE24502E0300F80CD6 /* Common */ = {
 			isa = PBXGroup;
 			children = (
+				DC488030292282C900DB844B /* WMTService.swift */,
 				DCC5CCCD244DB0AD004679AC /* WMTLogger.swift */,
 				DC06D01E25AC74E400F2EA69 /* WMTLock.swift */,
 				DC9511F826EA02C100FF40AD /* WPNIntegration.swift */,
@@ -282,9 +325,11 @@
 		DCC5CC9C2449EE21004679AC /* WultraMobileTokenSDK */ = {
 			isa = PBXGroup;
 			children = (
+				DC488035292282FF00DB844B /* WMTInbox.swift */,
 				DC81D1CE24502E0300F80CD6 /* Common */,
 				DC81D1C5244F302300F80CD6 /* Operations */,
 				DC81D1C6244F357900F80CD6 /* Push */,
+				DC488034292282FF00DB844B /* Inbox */,
 				DCC5CC9D2449EE21004679AC /* MobileTokenSDK.h */,
 				DCC5CC9E2449EE21004679AC /* Info.plist */,
 				DCC5CCA72449F27B004679AC /* ConfigFiles */,
@@ -471,18 +516,22 @@
 			files = (
 				DC81D1C9244F38DB00F80CD6 /* WMTPushEndpoints.swift in Sources */,
 				DC8CB202244DCBE2009DDAA3 /* WMTOperations.swift in Sources */,
+				DC48803E292282FF00DB844B /* WMTInboxPage.swift in Sources */,
 				DCC5CCB52449F8E9004679AC /* WMTOperationAttributeAmount.swift in Sources */,
 				DCC5CCD6244DBB7F004679AC /* WMTPushRegistrationData.swift in Sources */,
 				DC3D0B392480F886000DC4D9 /* WMTLocalOperation.swift in Sources */,
 				DCD8B336246C1BAF00385F02 /* WMTRejectionReason.swift in Sources */,
 				DCC5CCD8244DBBBD004679AC /* WMTAuthorizationData.swift in Sources */,
+				DC488040292282FF00DB844B /* WMTInboxUnread.swift in Sources */,
 				DC3D0B372480F3C7000DC4D9 /* WMTOperation.swift in Sources */,
 				DC81D1CD244F640600F80CD6 /* WMTPush.swift in Sources */,
 				DC6E52D6259C964600FC25BE /* WMTOperationExpirationWatcher.swift in Sources */,
 				DCC5CCDA244DBBE2004679AC /* WMTRejectionData.swift in Sources */,
+				DC48803F292282FF00DB844B /* WMTInboxMessage.swift in Sources */,
 				DCAB7BC824580B4C0006989D /* WMTQROperationParser.swift in Sources */,
 				DCC5CCB12449F81C004679AC /* WMTOperationFormData.swift in Sources */,
 				DCC5CCD4244DBA1C004679AC /* WMTOperationEndpoints.swift in Sources */,
+				DC488031292282C900DB844B /* WMTService.swift in Sources */,
 				DCC5CCB92449F93C004679AC /* WMTOperationAttributeKeyValue.swift in Sources */,
 				DCC5CCBB2449F952004679AC /* WMTOperationAttributeNote.swift in Sources */,
 				DCC5CCB32449F8CD004679AC /* WMTOperationAttribute.swift in Sources */,
@@ -498,6 +547,9 @@
 				DCAB7BCA24580BAC0006989D /* WMTQROperation.swift in Sources */,
 				DCC5CCBF2449F981004679AC /* WMTOperationAttributePartyInfo.swift in Sources */,
 				DC81D1CB244F451E00F80CD6 /* WMTPushImpl.swift in Sources */,
+				DC488041292282FF00DB844B /* WMTInboxEndpoints.swift in Sources */,
+				DC48803D292282FF00DB844B /* WMTInbox.swift in Sources */,
+				DC488042292282FF00DB844B /* WMTInboxImpl.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

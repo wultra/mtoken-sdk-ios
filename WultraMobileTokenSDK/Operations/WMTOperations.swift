@@ -69,18 +69,6 @@ public protocol WMTOperations: AnyObject {
     /// - Parameters:
     ///   - operation: Operation that should  be authorized.
     ///   - authentication: Authentication object for signing.
-    ///   - completion: Result callback (nil on success).
-    ///                 This completion is always called on the main thread.
-    /// - Returns: Operation object for its state observation.
-    @discardableResult
-    @available(*, deprecated, message: "Use method with the result completion instead")
-    func authorize(operation: WMTOperation, authentication: PowerAuthAuthentication, completion: @escaping(WMTError?) -> Void) -> Operation?
-    
-    /// Authorize operation with given PowerAuth authentication object.
-    ///
-    /// - Parameters:
-    ///   - operation: Operation that should  be authorized.
-    ///   - authentication: Authentication object for signing.
     ///   - completion: Result callback.
     ///                 This completion is always called on the main thread.
     /// - Returns: Operation object for its state observation.
@@ -102,18 +90,6 @@ public protocol WMTOperations: AnyObject {
     /// - Returns: Operation object for its state observation.
     @discardableResult
     func authorize(qrOperation: WMTQROperation, uriId: String, authentication: PowerAuthAuthentication, completion: @escaping(Result<String, WMTError>) -> Void) -> Operation
-    
-    /// Reject operation with a reason.
-    ///
-    /// - Parameters:
-    ///   - operation: Operation that should be rejected.
-    ///   - reason: Reason for the rejection.
-    ///   - completion: Result callback (nil on success).
-    ///                 This completion is always called on the main thread.
-    /// - Returns: Operation object for its state observation.
-    @discardableResult
-    @available(*, deprecated, message: "Use method with the Result completion instead")
-    func reject(operation: WMTOperation, reason: WMTRejectionReason, completion: @escaping(WMTError?) -> Void) -> Operation?
     
     /// Reject operation with a reason.
     ///
