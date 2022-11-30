@@ -53,7 +53,7 @@ public protocol WMTOperations: AnyObject {
     ///                         This completion is always called on the main thread.
     /// - Returns: Control object in case the operations needs to be canceled.
     @discardableResult
-    func getOperations(completion: @escaping GetOperationsCompletion) -> Cancellable
+    func getOperations(completion: @escaping GetOperationsCompletion) -> WMTCancellable
     
     /// Retrieves the history of user operations with its current status.
     /// - Parameters:
@@ -141,11 +141,6 @@ public extension WMTOperations {
 
 public typealias GetOperationsResult = Result<[WMTUserOperation], WMTError>
 public typealias GetOperationsCompletion = (GetOperationsResult) -> Void
-
-public protocol Cancellable: AnyObject {
-    var isCanceled: Bool { get }
-    func cancel()
-}
 
 /// Delegate for WMTOperations service
 public protocol WMTOperationsDelegate: AnyObject {

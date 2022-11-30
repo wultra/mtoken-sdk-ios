@@ -16,14 +16,12 @@
 
 import Foundation
 
-/// Structure contains information about message in inbox.
-public struct WMTInboxMessage: Codable {
-    /// Message's identifier.
-    let id: String
-    /// Message's subject.
-    let subject: String
-    /// If `true`, then user already read the message.
-    let read: Bool
-    /// Date and time when the message was created.
-    let timestampCreated: Date
+/// Request payload describing whith page in messages list should be received.
+struct WMTInboxGetList: Codable {
+    /// Page number.
+    let page: Int
+    /// Page size.
+    let size: Int
+    /// Specify whether only unread messages should be received.
+    let onlyUnread: Bool
 }

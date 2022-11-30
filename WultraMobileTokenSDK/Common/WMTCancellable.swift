@@ -16,14 +16,11 @@
 
 import Foundation
 
-/// Structure contains information about message in inbox.
-public struct WMTInboxMessage: Codable {
-    /// Message's identifier.
-    let id: String
-    /// Message's subject.
-    let subject: String
-    /// If `true`, then user already read the message.
-    let read: Bool
-    /// Date and time when the message was created.
-    let timestampCreated: Date
+/// Simple protocol for cancelable operations.
+public protocol WMTCancellable: AnyObject {
+    var isCanceled: Bool { get }
+    func cancel()
 }
+
+// TODO: Should be deprecated in future releases.
+typealias Cancellable = WMTCancellable

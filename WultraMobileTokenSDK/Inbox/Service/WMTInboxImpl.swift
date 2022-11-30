@@ -18,6 +18,16 @@ import Foundation
 import PowerAuth2
 import WultraPowerAuthNetworking
 
+public extension PowerAuthSDK {
+    /// Creates instance of the `WMTInbox` on top of the PowerAuth instance.
+    /// - Parameters:
+    ///   - networkingConfig: Networking service config
+    /// - Returns: Inbox service
+    func createWMTInbox(networkingConfig: WPNConfig) -> WMTInbox {
+        return WMTInboxImpl(networking: WPNNetworkingService(powerAuth: self, config: networkingConfig, serviceName: "WMTInbox"))
+    }
+}
+
 class WMTInboxImpl: WMTInbox, WMTService {
     
     // Dependencies
@@ -33,7 +43,7 @@ class WMTInboxImpl: WMTInbox, WMTService {
         self.networking = networking
     }
     
-    func getUnreadCount(completion: @escaping (Result<WMTInboxUnread, WMTError>) -> Void) -> Operation? {
+    func getUnreadCount(completion: @escaping (Result<WMTInboxCount, WMTError>) -> Void) -> Operation? {
         guard validateActivation(completion) else {
             return nil
         }
@@ -43,23 +53,22 @@ class WMTInboxImpl: WMTInbox, WMTService {
         }
     }
     
-    func getPage(pageNumber: Int, size: Int, completion: @escaping (Result<WMTInboxPage, WMTError>) -> Void) -> Operation? {
-        
+    func getMessageList(pageNumber: Int, pageSize: Int, onlyUnread: Bool, completion: @escaping (Result<[WMTInboxMessage], WMTError>) -> Void) -> Operation? {
         guard validateActivation(completion) else {
             return nil
         }
-        
-        return networking.post(data: .init(), signedWith: .possession(), to: WMTInboxEndpoints.Page.endpoint) { [weak self] response, error in
+        let data = WMTInboxGetList(page: pageNumber, size: pageSize, onlyUnread: onlyUnread)
+        return networking.post(data: .init(data), signedWith: .possession(), to: WMTInboxEndpoints.MessageList.endpoint) { [weak self] response, error in
             self?.processResult(response: response, error: error, completion: completion)
         }
     }
     
-    func getMessage(id: String, completion: @escaping (Result<WMTInboxMessage, WMTError>) -> Void) -> Operation? {
+    func getMessageDetail(messageId: String, completion: @escaping (Result<WMTInboxMessageDetail, WMTError>) -> Void) -> Operation? {
         guard validateActivation(completion) else {
             return nil
         }
-        
-        return networking.post(data: .init(), signedWith: .possession(), to: WMTInboxEndpoints.MessageDetail.endpoint) { [weak self] response, error in
+        let data = WMTInboxGetMessageDetail(id: messageId)
+        return networking.post(data: .init(data), signedWith: .possession(), to: WMTInboxEndpoints.MessageDetail.endpoint) { [weak self] response, error in
             self?.processResult(response: response, error: error, completion: completion)
         }
     }
@@ -68,8 +77,8 @@ class WMTInboxImpl: WMTInbox, WMTService {
         guard validateActivation(completion) else {
             return nil
         }
-        
-        return networking.post(data: .init(), signedWith: .possession(), to: WMTInboxEndpoints.MessageRead.endpoint) { [weak self] response, error in
+        let data = WMTInboxSetMessageRead(id: messageId)
+        return networking.post(data: .init(data), signedWith: .possession(), to: WMTInboxEndpoints.MessageRead.endpoint) { [weak self] response, error in
             self?.processResult(response: response, error: error, completion: completion)
         }
     }
@@ -78,7 +87,6 @@ class WMTInboxImpl: WMTInbox, WMTService {
         guard validateActivation(completion) else {
             return nil
         }
-        
         return networking.post(data: .init(), signedWith: .possession(), to: WMTInboxEndpoints.MessageReadAll.endpoint) { [weak self] response, error in
             self?.processResult(response: response, error: error, completion: completion)
         }

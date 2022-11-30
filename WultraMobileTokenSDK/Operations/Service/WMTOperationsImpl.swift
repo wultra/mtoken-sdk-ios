@@ -185,7 +185,7 @@ class WMTOperationsImpl<T: WMTUserOperation>: WMTOperations, WMTService {
     }
     
     @discardableResult
-    func getOperations(completion: @escaping GetOperationsCompletion) -> Cancellable {
+    func getOperations(completion: @escaping GetOperationsCompletion) -> WMTCancellable {
         
         let task = GetOperationsTask(completion: completion)
         
@@ -477,7 +477,7 @@ private class OperationsRegister {
 /// Class that wraps completion block that will be finished with the result of `getOperation` call
 ///
 /// Note that the given completion will be always executed on the **main thread**.
-private class GetOperationsTask: Cancellable {
+private class GetOperationsTask: WMTCancellable {
     
     fileprivate var isCanceled = false
     private var completion: GetOperationsCompletion

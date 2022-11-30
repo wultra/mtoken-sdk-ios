@@ -16,6 +16,16 @@
 
 import Foundation
 
-public struct WMTInboxUnread: Codable {
-    
+/// Structure with message detail.
+public struct WMTInboxMessageDetail: Codable {
+    /// Message's identifier.
+    public let id: String
+    /// Message's subject.
+    public let subject: String
+    /// Message's body.
+    public let body: String
+    /// If `true`, then user already read the message.
+    public let read: Bool
+    /// Date and time when the message was created.
+    public let timestampCreated: Date
 }

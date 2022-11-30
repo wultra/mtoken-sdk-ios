@@ -20,27 +20,27 @@ import WultraPowerAuthNetworking
 enum WMTInboxEndpoints {
     
     enum Count {
-        typealias EndpointType = WPNEndpointSigned<WPNRequestBase, WPNResponse<WMTInboxUnread>>
-        static let endpoint: EndpointType = WPNEndpointSigned(endpointURLPath: "/api/inbox/count", uriId: "/api/inbox/count")
+        typealias EndpointType = WPNEndpointSignedWithToken<WPNRequestBase, WPNResponse<WMTInboxCount>>
+        static let endpoint: EndpointType = WPNEndpointSignedWithToken(endpointURLPath: "/api/inbox/count", tokenName: "possession_universal")
     }
     
-    enum Page {
-        typealias EndpointType = WPNEndpointSigned<WPNRequestBase, WPNResponse<WMTInboxPage>>
-        static let endpoint: EndpointType = WPNEndpointSigned(endpointURLPath: "/api/inbox/page", uriId: "/api/inbox/page")
+    enum MessageList {
+        typealias EndpointType = WPNEndpointSignedWithToken<WPNRequest<WMTInboxGetList>, WPNResponseArray<WMTInboxMessage>>
+        static let endpoint: EndpointType = WPNEndpointSignedWithToken(endpointURLPath: "/api/inbox/message/list", tokenName: "possession_universal")
     }
     
     enum MessageDetail {
-        typealias EndpointType = WPNEndpointSigned<WPNRequestBase, WPNResponse<WMTInboxMessage>>
-        static let endpoint: EndpointType = WPNEndpointSigned(endpointURLPath: "/api/inbox/message/detail", uriId: "/api/inbox/message/detail")
+        typealias EndpointType = WPNEndpointSignedWithToken<WPNRequest<WMTInboxGetMessageDetail>, WPNResponse<WMTInboxMessageDetail>>
+        static let endpoint: EndpointType = WPNEndpointSignedWithToken(endpointURLPath: "/api/inbox/message/detail", tokenName: "possession_universal")
     }
     
     enum MessageRead {
-        typealias EndpointType = WPNEndpointSigned<WPNRequestBase, WPNResponseBase>
-        static let endpoint: EndpointType = WPNEndpointSigned(endpointURLPath: "/api/inbox/message/read", uriId: "/api/inbox/message/read")
+        typealias EndpointType = WPNEndpointSignedWithToken<WPNRequest<WMTInboxSetMessageRead>, WPNResponseBase>
+        static let endpoint: EndpointType = WPNEndpointSignedWithToken(endpointURLPath: "/api/inbox/message/read", tokenName: "possession_universal")
     }
     
     enum MessageReadAll {
-        typealias EndpointType = WPNEndpointSigned<WPNRequestBase, WPNResponseBase>
-        static let endpoint: EndpointType = WPNEndpointSigned(endpointURLPath: "/api/inbox/message/read-all", uriId: "/api/inbox/message/read-all")
+        typealias EndpointType = WPNEndpointSignedWithToken<WPNRequestBase, WPNResponseBase>
+        static let endpoint: EndpointType = WPNEndpointSignedWithToken(endpointURLPath: "/api/inbox/message/read-all", tokenName: "possession_universal")
     }
 }
