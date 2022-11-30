@@ -32,7 +32,7 @@ public protocol WMTPush: AnyObject {
     /// - Parameters:
     ///   - token: Push token.
     ///   - completion: Completion handler.
-    ///                 his completion is always called on the main thread.
+    ///                 This completion is always called on the main thread.
     /// - Returns: Operation object for its state observation.
     @discardableResult
     func registerDeviceTokenForPushNotifications(token: Data, completion: @escaping (Result<Void, WMTError>) -> Void) -> Operation?
