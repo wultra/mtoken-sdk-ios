@@ -63,6 +63,7 @@ do
             IN_URL="$2"
             shift
             shift
+            ;;
 		-appkey)
 			APPKEY="$2"
 			shift
