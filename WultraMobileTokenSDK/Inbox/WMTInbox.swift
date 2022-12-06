@@ -164,7 +164,7 @@ private class FetchOperation: WMTCancellable {
     /// - Returns: `true` if we're at the end of the list.
     func appendPartialMessages(_ messages: [WMTInboxMessage]) -> Bool {
         readMessages.append(contentsOf: messages)
-        pageNumber += messages.count
+        pageNumber += 1
         return messages.count < pageSize || (messageLimit > 0 && readMessages.count > messageLimit)
     }
     

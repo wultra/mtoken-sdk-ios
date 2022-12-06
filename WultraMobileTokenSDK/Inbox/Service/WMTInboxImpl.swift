@@ -28,6 +28,14 @@ public extension PowerAuthSDK {
     }
 }
 
+public extension WPNNetworkingService {
+    /// Creates instance of the `WMTInbox` on top of the WPNNetworkingService instance.
+    /// - Returns: Inbox service
+    func createWMTInbox() -> WMTInbox {
+        return WMTInboxImpl(networking: self)
+    }
+}
+
 class WMTInboxImpl: WMTInbox, WMTService {
     
     // Dependencies
