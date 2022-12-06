@@ -593,17 +593,8 @@ class IntegrationTests: XCTestCase {
     func testInboxMessages() {
         let messagesToTest = 5
         let messages = prepareMessages(count: messagesToTest)
-        let getMessagesCount = expectation(description: "Get inbox messages count")
-        inbox.getUnreadCount { result in
-            switch result {
-            case .success(let count):
-                XCTAssertEqual(messagesToTest, count.countUnread)
-            case .failure(let error):
-                XCTFail("Request failed with error: \(error)")
-            }
-            getMessagesCount.fulfill()
-        }
-        XCTWaiter().wait(for: [getMessagesCount], timeout: 20)
+        let unreadCount = fetchUnreadMessagesCount()
+        XCTAssertEqual(messagesToTest, unreadCount)
         
         // Read all messages at once
         let getMessages = expectation(description: "Get inbox messages list")
@@ -655,43 +646,33 @@ class IntegrationTests: XCTestCase {
             switch result {
             case .success(let msgs):
                 receivedMessages = msgs
-                XCTAssertEqual(count, msgs.count)
+                
             case .failure:
                 XCTFail()
             }
             getAllMessages.fulfill()
         }
         XCTWaiter().wait(for: [getAllMessages], timeout: 20)
+        XCTAssertEqual(count, receivedMessages.count)
         compareMessages(expected: messages, received: receivedMessages)
     }
     
     func testMarkMessageRead() {
         let count = 4
         let messages = prepareMessages(count: count)
-        var receivedMessages = [WMTInboxMessage]()
-        let getAllMessages = expectation(description: "Get all messages")
-        inbox.getAllMessages { result in
-            switch result {
-            case .success(let msgs):
-                receivedMessages = msgs
-                XCTAssertEqual(count, msgs.count)
-            case .failure:
-                XCTFail()
-            }
-            getAllMessages.fulfill()
-        }
-        XCTWaiter().wait(for: [getAllMessages], timeout: 20)
+        var receivedMessages = fetchAllMessages()
+        XCTAssertEqual(count, receivedMessages.count)
         compareMessages(expected: messages, received: receivedMessages)
         
         // Mark first as read and receive its detail
         let setMessageAsRead = expectation(description: "Set message as read")
         let readMessageDetail = expectation(description: "Get read message's detail")
-        
-        inbox.markRead(messageId: receivedMessages[0].id) { result in
+        let messageId = receivedMessages[0].id
+        inbox.markRead(messageId: messageId) { result in
             switch result {
             case .success:
                 // If success, then read message detail and test whether the message was set as read
-                self.inbox.getMessageDetail(messageId: receivedMessages[0].id) { result in
+                self.inbox.getMessageDetail(messageId: messageId) { result in
                     switch result {
                     case .success(let detail):
                         XCTAssertTrue(detail.read)
@@ -707,24 +688,24 @@ class IntegrationTests: XCTestCase {
             setMessageAsRead.fulfill()
         }
         XCTWaiter().wait(for: [setMessageAsRead, readMessageDetail], timeout: 20)
+        
+        // Now update list
+        receivedMessages = fetchAllMessages(onlyUnread: true)
+        XCTAssertEqual(count - 1, receivedMessages.count)
+        XCTAssertNil(receivedMessages.findMessage(messageId: messageId))
+        
+        receivedMessages = fetchAllMessages(onlyUnread: false)
+        XCTAssertEqual(count, receivedMessages.count)
+        let alreadyRead = receivedMessages.findMessage(messageId: messageId)
+        XCTAssertNotNil(alreadyRead)
+        XCTAssertTrue(alreadyRead?.read ?? false)
     }
     
     func testMarkAllMessagesRead() {
         let count = 4
         let messages = prepareMessages(count: count)
-        var receivedMessages = [WMTInboxMessage]()
-        let getAllMessages = expectation(description: "Get all messages")
-        inbox.getAllMessages { result in
-            switch result {
-            case .success(let msgs):
-                receivedMessages = msgs
-                XCTAssertEqual(count, msgs.count)
-            case .failure:
-                XCTFail()
-            }
-            getAllMessages.fulfill()
-        }
-        XCTWaiter().wait(for: [getAllMessages], timeout: 20)
+        let receivedMessages = fetchAllMessages()
+        XCTAssertEqual(count, receivedMessages.count)
         compareMessages(expected: messages, received: receivedMessages)
         
         // Mark first as read and receive its detail
@@ -768,6 +749,40 @@ class IntegrationTests: XCTestCase {
         XCTAssertEqual(count, allMsgsRead.count)
         
         // Now test all messages
+    }
+    
+    // Support functions
+    
+    private func fetchUnreadMessagesCount() -> Int {
+        let getMessagesCount = expectation(description: "Get inbox messages count")
+        var receivedCount = -1
+        inbox.getUnreadCount { result in
+            switch result {
+            case .success(let count):
+                receivedCount = count.countUnread
+            case .failure(let error):
+                XCTFail("Request failed with error: \(error)")
+            }
+            getMessagesCount.fulfill()
+        }
+        XCTWaiter().wait(for: [getMessagesCount], timeout: 20)
+        return receivedCount
+    }
+    
+    private func fetchAllMessages(onlyUnread: Bool = false) -> [WMTInboxMessage] {
+        var receivedMessages = [WMTInboxMessage]()
+        let getAllMessages = expectation(description: "Get all messages")
+        inbox.getAllMessages(onlyUnread: onlyUnread) { result in
+            switch result {
+            case .success(let msgs):
+                receivedMessages = msgs
+            case .failure:
+                XCTFail()
+            }
+            getAllMessages.fulfill()
+        }
+        XCTWaiter().wait(for: [getAllMessages], timeout: 20)
+        return receivedMessages
     }
     
     private func prepareMessages(count: Int) -> [InboxMessageDetail] {
