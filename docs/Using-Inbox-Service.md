@@ -7,7 +7,7 @@
   - [Get Number of Unread Messages](#get-number-of-unread-messages)
   - [Get List of Messages](#get-list-of-messages)
   - [Get Message Detail](#get-message-detail)
-  - [Set message as read](#set-message-as-read)
+  - [Set Message as Read](#set-message-as-read)
 - [Error handling](#error-handling)
 <!-- end -->
 
@@ -117,7 +117,7 @@ inboxService.getMessageDetail(messageId: messageId) { result in
 }
 ```
 
-### Set message as read
+### Set Message as Read
 
 To mark message as read by the user, use the following code:
 
@@ -136,7 +136,7 @@ inboxService.markRead(messageId: messageId) {
 Alternatively, you can mark all messages as read:
 
 ```swift
-inboxService.markReadAll {
+inboxService.markAllRead {
     switch result {
     case .success:
         print("OK")

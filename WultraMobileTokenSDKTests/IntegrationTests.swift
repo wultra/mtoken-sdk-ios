@@ -734,7 +734,7 @@ class IntegrationTests: XCTestCase {
         
         var allMsgsRead = [WMTInboxMessage]()
         var allMsgsUnread = [WMTInboxMessage]()
-        inbox.markReadAll { result in
+        inbox.markAllRead { result in
             switch result {
             case .success:
                 // If success, then read message all messages

@@ -75,7 +75,7 @@ public protocol WMTInbox: AnyObject {
     ///                 This completion is always called on the main thread.
     /// - Returns: Operation object for its state observation.
     @discardableResult
-    func markReadAll(completion: @escaping(Result<Void, WMTError>) -> Void) -> Operation?
+    func markAllRead(completion: @escaping(Result<Void, WMTError>) -> Void) -> Operation?
 }
 
 public extension WMTInbox {

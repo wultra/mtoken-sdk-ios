@@ -91,7 +91,7 @@ class WMTInboxImpl: WMTInbox, WMTService {
         }
     }
     
-    func markReadAll(completion: @escaping (Result<Void, WMTError>) -> Void) -> Operation? {
+    func markAllRead(completion: @escaping (Result<Void, WMTError>) -> Void) -> Operation? {
         guard validateActivation(completion) else {
             return nil
         }
