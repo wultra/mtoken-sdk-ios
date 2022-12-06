@@ -15,6 +15,7 @@ CL_PWD=""
 CL_AID=""
 ER_URL=""
 OP_URL=""
+IN_URL=""
 APPKEY=""
 APPSECRET=""
 MASTERSPK=""
@@ -58,6 +59,10 @@ do
 			shift
 			shift
 			;;
+        -in)
+            IN_URL="$2"
+            shift
+            shift
 		-appkey)
 			APPKEY="$2"
 			shift
@@ -95,6 +100,7 @@ echo """{
     \"cloudApplicationId\"    : \"${CL_AID}\",
     \"enrollmentServerUrl\"   : \"${ER_URL}\",
     \"operationsServerUrl\"   : \"${OP_URL}\",
+    \"inboxServerUrl\"        : \"${IN_URL}\",
     \"appKey\"                : \"${APPKEY}\",
     \"appSecret\"             : \"${APPSECRET}\",
     \"masterServerPublicKey\" : \"${MASTERSPK}\"
