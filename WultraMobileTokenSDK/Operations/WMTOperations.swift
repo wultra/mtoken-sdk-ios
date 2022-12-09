@@ -53,7 +53,7 @@ public protocol WMTOperations: AnyObject {
     ///                         This completion is always called on the main thread.
     /// - Returns: Control object in case the operations needs to be canceled.
     @discardableResult
-    func getOperations(completion: @escaping GetOperationsCompletion) -> Cancellable
+    func getOperations(completion: @escaping GetOperationsCompletion) -> WMTCancellable
     
     /// Retrieves the history of user operations with its current status.
     /// - Parameters:
@@ -63,18 +63,6 @@ public protocol WMTOperations: AnyObject {
     /// - Returns: Operation object for its state observation.
     @discardableResult
     func getHistory(authentication: PowerAuthAuthentication, completion: @escaping(Result<[WMTOperationHistoryEntry], WMTError>) -> Void) -> Operation?
-    
-    /// Authorize operation with given PowerAuth authentication object.
-    ///
-    /// - Parameters:
-    ///   - operation: Operation that should  be authorized.
-    ///   - authentication: Authentication object for signing.
-    ///   - completion: Result callback (nil on success).
-    ///                 This completion is always called on the main thread.
-    /// - Returns: Operation object for its state observation.
-    @discardableResult
-    @available(*, deprecated, message: "Use method with the result completion instead")
-    func authorize(operation: WMTOperation, authentication: PowerAuthAuthentication, completion: @escaping(WMTError?) -> Void) -> Operation?
     
     /// Authorize operation with given PowerAuth authentication object.
     ///
@@ -102,18 +90,6 @@ public protocol WMTOperations: AnyObject {
     /// - Returns: Operation object for its state observation.
     @discardableResult
     func authorize(qrOperation: WMTQROperation, uriId: String, authentication: PowerAuthAuthentication, completion: @escaping(Result<String, WMTError>) -> Void) -> Operation
-    
-    /// Reject operation with a reason.
-    ///
-    /// - Parameters:
-    ///   - operation: Operation that should be rejected.
-    ///   - reason: Reason for the rejection.
-    ///   - completion: Result callback (nil on success).
-    ///                 This completion is always called on the main thread.
-    /// - Returns: Operation object for its state observation.
-    @discardableResult
-    @available(*, deprecated, message: "Use method with the Result completion instead")
-    func reject(operation: WMTOperation, reason: WMTRejectionReason, completion: @escaping(WMTError?) -> Void) -> Operation?
     
     /// Reject operation with a reason.
     ///
@@ -165,11 +141,6 @@ public extension WMTOperations {
 
 public typealias GetOperationsResult = Result<[WMTUserOperation], WMTError>
 public typealias GetOperationsCompletion = (GetOperationsResult) -> Void
-
-public protocol Cancellable: AnyObject {
-    var isCanceled: Bool { get }
-    func cancel()
-}
 
 /// Delegate for WMTOperations service
 public protocol WMTOperationsDelegate: AnyObject {

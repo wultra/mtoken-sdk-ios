@@ -22,6 +22,7 @@ class IntegrationProxy {
     
     private(set) var powerAuth: PowerAuthSDK?
     private(set) var operations: WMTOperations?
+    private(set) var inbox: WMTInbox?
     
     private var config: IntegrationConfig!
     private let activationName = UUID().uuidString
@@ -30,7 +31,7 @@ class IntegrationProxy {
     typealias Callback = (_ error: String?) -> Void
     
     func prepareActivation(pin: String, callback: @escaping Callback) {
-        
+        WPNLogger.verboseLevel = .all
         guard let configPath = Bundle.init(for: IntegrationProxy.self).path(forResource: "config", ofType: "json", inDirectory: "Configs") else {
             callback("Config file config.json is not present.")
             return
@@ -49,9 +50,11 @@ class IntegrationProxy {
             if let error = error {
                 callback(error)
             } else {
-                let wpnConf = WPNConfig(baseUrl: URL(string: self.config.operationsServerUrl)!, sslValidation: .noValidation)
+                let wpnOperationsConf = WPNConfig(baseUrl: URL(string: self.config.operationsServerUrl)!, sslValidation: .noValidation)
+                let wpnInboxConf = WPNConfig(baseUrl: URL(string: self.config.inboxServerUrl)!, sslValidation: .noValidation)
                 self.powerAuth = pa
-                self.operations = pa.createWMTOperations(networkingConfig: wpnConf, pollingOptions: [.pauseWhenOnBackground])
+                self.operations = pa.createWMTOperations(networkingConfig: wpnOperationsConf, pollingOptions: [.pauseWhenOnBackground])
+                self.inbox = pa.createWMTInbox(networkingConfig: wpnInboxConf)
                 callback(nil)
             }
         }
@@ -105,7 +108,31 @@ class IntegrationProxy {
         }
     }
     
-    private func makeRequest<T: Codable>(url: URL, body: String, httpMethod: String = "POST") -> T? {
+    func createInboxMessages(count: Int, createFunc: ((Int) -> InboxMessage)? = nil, completion: @escaping ([InboxMessageDetail]) ->Void) {
+        DispatchQueue.global().async {
+            var result = [InboxMessageDetail]()
+            for index in 1...count {
+                let message = createFunc?(count) ?? InboxMessage(subject: "Message #\(index)", body: "This is body for message \(index).")
+                let body = """
+                {
+                    "subject":"\(message.subject)",
+                    "body":"\(message.body)"
+                }
+                """
+                let decoder = JSONDecoder()
+                decoder.dateDecodingStrategy = .millisecondsSince1970
+                let url = URL(string: "\(self.config.cloudServerUrl)/v2/inbox/\(self.activationName)?appId=\(self.config.cloudApplicationId)")!
+                guard let createdMessage: InboxMessageDetail = self.makeRequest(url: url, body: body, decoder: decoder) else {
+                    print("ERROR: Failed to create message #\(index)")
+                    continue
+                }
+                result.append(createdMessage)
+            }
+            completion(result)
+        }
+    }
+    
+    private func makeRequest<T: Codable>(url: URL, body: String, httpMethod: String = "POST", decoder: JSONDecoder = JSONDecoder()) -> T? {
         var r = URLRequest(url: url)
         let creds = "\(config.cloudServerLogin):\(config.cloudServerPassword)".data(using: .utf8)?.base64EncodedString() ?? ""
         r.httpMethod = httpMethod
@@ -116,7 +143,7 @@ class IntegrationProxy {
         let semaphore = DispatchSemaphore(value: 0)
         URLSession.shared.dataTask(with: r) { data, resp, error in
             if let data = data {
-                result = try? JSONDecoder().decode(T.self, from: data)
+                result = try? decoder.decode(T.self, from: data)
             }
             semaphore.signal()
         }.resume()
@@ -215,6 +242,7 @@ private struct IntegrationConfig: Codable {
     let cloudApplicationId: String
     let enrollmentServerUrl: String
     let operationsServerUrl: String
+    let inboxServerUrl: String
     let appKey: String
     let appSecret: String
     let masterServerPublicKey: String
@@ -234,4 +262,17 @@ struct QROperationVerify: Codable {
     let remainingAttempts: Int
     // let flags: []
     // let application
+}
+
+struct InboxMessage: Codable {
+    let subject: String
+    let body: String
+}
+
+struct InboxMessageDetail: Codable {
+    let id: String
+    let subject: String
+    let body: String
+    let timestamp: Date
+    let read: Bool
 }

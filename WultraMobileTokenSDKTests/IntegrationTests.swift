@@ -29,12 +29,13 @@ class IntegrationTests: XCTestCase {
     private var proxy: IntegrationProxy!
     private var pa: PowerAuthSDK! { proxy.powerAuth }
     private var ops: WMTOperations! { proxy.operations }
+    private var inbox: WMTInbox! { proxy.inbox }
     
     private let pin = "1234"
     
     override func setUp() {
         super.setUp()
-        
+        WMTLogger.verboseLevel = .all
         proxy = IntegrationProxy()
         
         let exp = XCTestExpectation(description: "setup expectation")
@@ -586,7 +587,229 @@ class IntegrationTests: XCTestCase {
         // there are 3 backend calls, give it some time...
         waitForExpectations(timeout: 20, handler: nil)
     }
+    
+    // MARK: - Inbox
+    
+    func testInboxMessages() {
+        let messagesToTest = 5
+        let messages = prepareMessages(count: messagesToTest)
+        let unreadCount = fetchUnreadMessagesCount()
+        XCTAssertEqual(messagesToTest, unreadCount)
+        
+        // Read all messages at once
+        let getMessages = expectation(description: "Get inbox messages list")
+        var messageList = [WMTInboxMessage]()
+        inbox.getMessageList(pageNumber: 0, pageSize: 50, onlyUnread: true) { result in
+            switch result {
+            case .success(let messages):
+                XCTAssertEqual(messagesToTest, messages.count)
+                messageList = messages
+            case .failure(let error):
+                XCTFail("Request failed with error: \(error)")
+            }
+            getMessages.fulfill()
+        }
+        XCTWaiter().wait(for: [getMessages], timeout: 20)
+        
+        // Now test received messages
+        compareMessages(expected: messages, received: messageList)
+        
+        // Try to get message detail
+        var messageDetail: WMTInboxMessageDetail?
+        let firstMessage = messages.first!
+        let getMessageDetail = expectation(description: "Get message detail")
+        inbox.getMessageDetail(messageId: firstMessage.id) { result in
+            switch result {
+            case .success(let detail):
+                messageDetail = detail
+            case .failure(let error):
+                XCTFail("Request failed with error: \(error)")
+            }
+            getMessageDetail.fulfill()
+        }
+        XCTWaiter().wait(for: [getMessageDetail], timeout: 20)
+        
+        XCTAssertNotNil(messageDetail)
+        XCTAssertEqual(firstMessage.id, messageDetail?.id)
+        XCTAssertEqual(firstMessage.subject, messageDetail?.subject)
+        XCTAssertEqual(firstMessage.body, messageDetail?.body)
+        XCTAssertEqual(firstMessage.read, messageDetail?.read)
+        XCTAssertEqual(floor(firstMessage.timestamp.timeIntervalSince1970), floor(messageDetail!.timestampCreated.timeIntervalSince1970))
+    }
+    
+    func testGetAllInboxMessages() {
+        let count = 11
+        let messages = prepareMessages(count: count)
+        var receivedMessages = [WMTInboxMessage]()
+        let getAllMessages = expectation(description: "Get all messages")
+        inbox.getAllMessages(pageSize: 5) { result in
+            switch result {
+            case .success(let msgs):
+                receivedMessages = msgs
+                
+            case .failure:
+                XCTFail()
+            }
+            getAllMessages.fulfill()
+        }
+        XCTWaiter().wait(for: [getAllMessages], timeout: 20)
+        XCTAssertEqual(count, receivedMessages.count)
+        compareMessages(expected: messages, received: receivedMessages)
+    }
+    
+    func testMarkMessageRead() {
+        let count = 4
+        let messages = prepareMessages(count: count)
+        var receivedMessages = fetchAllMessages()
+        XCTAssertEqual(count, receivedMessages.count)
+        compareMessages(expected: messages, received: receivedMessages)
+        
+        // Mark first as read and receive its detail
+        let setMessageAsRead = expectation(description: "Set message as read")
+        let readMessageDetail = expectation(description: "Get read message's detail")
+        let messageId = receivedMessages[0].id
+        inbox.markRead(messageId: messageId) { result in
+            switch result {
+            case .success:
+                // If success, then read message detail and test whether the message was set as read
+                self.inbox.getMessageDetail(messageId: messageId) { result in
+                    switch result {
+                    case .success(let detail):
+                        XCTAssertTrue(detail.read)
+                    case .failure:
+                        XCTFail()
+                    }
+                    readMessageDetail.fulfill()
+                }
+            case .failure:
+                XCTFail()
+                readMessageDetail.fulfill()
+            }
+            setMessageAsRead.fulfill()
+        }
+        XCTWaiter().wait(for: [setMessageAsRead, readMessageDetail], timeout: 20)
+        
+        // Now update list
+        receivedMessages = fetchAllMessages(onlyUnread: true)
+        XCTAssertEqual(count - 1, receivedMessages.count)
+        XCTAssertNil(receivedMessages.findMessage(messageId: messageId))
+        
+        receivedMessages = fetchAllMessages(onlyUnread: false)
+        XCTAssertEqual(count, receivedMessages.count)
+        let alreadyRead = receivedMessages.findMessage(messageId: messageId)
+        XCTAssertNotNil(alreadyRead)
+        XCTAssertTrue(alreadyRead?.read ?? false)
+    }
+    
+    func testMarkAllMessagesRead() {
+        let count = 4
+        let messages = prepareMessages(count: count)
+        let receivedMessages = fetchAllMessages()
+        XCTAssertEqual(count, receivedMessages.count)
+        compareMessages(expected: messages, received: receivedMessages)
+        
+        // Mark first as read and receive its detail
+        let setMessagesAsRead = expectation(description: "Set all messages as read")
+        let allReadMessages = expectation(description: "Get all messages (read)")
+        let allUnreadMessages = expectation(description: "Get all messages (unread)")
+        
+        var allMsgsRead = [WMTInboxMessage]()
+        var allMsgsUnread = [WMTInboxMessage]()
+        inbox.markAllRead { result in
+            switch result {
+            case .success:
+                // If success, then read message all messages
+                self.inbox.getAllMessages(onlyUnread: false) { result in
+                    switch result {
+                    case .success(let msgs):
+                        allMsgsRead = msgs
+                    case .failure:
+                        XCTFail()
+                    }
+                    allReadMessages.fulfill()
+                }
+                self.inbox.getAllMessages(onlyUnread: true) { result in
+                    switch result {
+                    case .success(let msgs):
+                        allMsgsUnread = msgs
+                    case .failure:
+                        XCTFail()
+                    }
+                    allUnreadMessages.fulfill()
+                }
+            case .failure:
+                XCTFail()
+                allReadMessages.fulfill()
+                allUnreadMessages.fulfill()
+            }
+            setMessagesAsRead.fulfill()
+        }
+        XCTWaiter().wait(for: [setMessagesAsRead, allReadMessages, allUnreadMessages], timeout: 20)
+        XCTAssertEqual(0, allMsgsUnread.count)
+        XCTAssertEqual(count, allMsgsRead.count)
+        
+        // Now test all messages
+    }
+    
+    // Support functions
+    
+    private func fetchUnreadMessagesCount() -> Int {
+        let getMessagesCount = expectation(description: "Get inbox messages count")
+        var receivedCount = -1
+        inbox.getUnreadCount { result in
+            switch result {
+            case .success(let count):
+                receivedCount = count.countUnread
+            case .failure(let error):
+                XCTFail("Request failed with error: \(error)")
+            }
+            getMessagesCount.fulfill()
+        }
+        XCTWaiter().wait(for: [getMessagesCount], timeout: 20)
+        return receivedCount
+    }
+    
+    private func fetchAllMessages(onlyUnread: Bool = false) -> [WMTInboxMessage] {
+        var receivedMessages = [WMTInboxMessage]()
+        let getAllMessages = expectation(description: "Get all messages")
+        inbox.getAllMessages(onlyUnread: onlyUnread) { result in
+            switch result {
+            case .success(let msgs):
+                receivedMessages = msgs
+            case .failure:
+                XCTFail()
+            }
+            getAllMessages.fulfill()
+        }
+        XCTWaiter().wait(for: [getAllMessages], timeout: 20)
+        return receivedMessages
+    }
+    
+    private func prepareMessages(count: Int) -> [InboxMessageDetail] {
+        let prepareExp = expectation(description: "Prepare inbox messages")
+        var messages = [InboxMessageDetail]()
+        proxy.createInboxMessages(count: count) { msgs in
+            messages = msgs
+            prepareExp.fulfill()
+        }
+        XCTWaiter().wait(for: [prepareExp], timeout: 20)
+        XCTAssertEqual(count, messages.count)
+        return messages
+    }
+    
+    private func compareMessages(expected: [InboxMessageDetail], received: [WMTInboxMessage]) {
+        for e in expected {
+            guard let r = received.findMessage(messageId: e.id) else {
+                XCTFail("Message \(e.id) not found")
+                continue
+            }
+            XCTAssertEqual(e.read, r.read)
+            XCTAssertEqual(e.subject, r.subject)
+            XCTAssertEqual(floor(e.timestamp.timeIntervalSince1970), floor(r.timestampCreated.timeIntervalSince1970))
+        }
+    }
 }
+
 
 private class OpDelegate: WMTOperationsDelegate {
     
@@ -611,5 +834,14 @@ private class OpDelegate: WMTOperationsDelegate {
     
     func operationsFailed(error: WMTError) {
         
+    }
+}
+
+private extension Array where Element == WMTInboxMessage {
+    func findMessage(messageId: String) -> WMTInboxMessage? {
+        if let index = self.firstIndex(where: { $0.id == messageId }) {
+            return self[index]
+        }
+        return nil
     }
 }
