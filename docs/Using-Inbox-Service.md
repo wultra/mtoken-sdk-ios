@@ -9,9 +9,9 @@
   - [Get Message Detail](#get-message-detail)
   - [Set Message as Read](#set-message-as-read)
 - [Error handling](#error-handling)
-<!-- end -->
 
 ## Introduction
+<!-- end -->
 
 Inbox Service is responsible for managing messages in the Inbox. The inbox is a simple one way delivery system that allows you to deliver messages to the user.
 
@@ -65,6 +65,23 @@ inboxService.getUnreadCount { result in
 
 ### Get List of Messages
 
+The Inbox Service provide a paged list of messages:
+
+```swift
+// First page is 0, next 1, etc...
+inboxService.getMessageList(pageNumber: 0, pageSize: 50, onlyUnread: false) { result in
+    switch result {
+    case .success(let messages):
+        if messages.count < 50 {
+            // This is the last page
+        }
+        // Process result
+    case .faulure(let error):
+        // Process error...
+    } 
+}
+```
+
 To get the list of all messages, call:
 
 ```swift
@@ -79,23 +96,6 @@ inboxService.getAllMessages { result in
     case .failure(let error):
         print("Error \(error)")
     }
-}
-```
-
-The code above reads all messages at once but can take a while to complete. If you want to implement your own paging then use the `getMessageList()` function instead. For example:
-
-```swift
-// First page is 0, next 1, etc...
-inboxService.getMessageList(pageNumber: 0, pageSize: 50, onlyUnread: false) { result in
-    switch result {
-    case .success(let messages):
-        if messages.count < 50 {
-            // This is the last page
-        }
-        // Process result
-    case .faulure(let error):
-        // Process error...
-    } 
 }
 ```
 

@@ -12,9 +12,9 @@
 - [WMTUserOperation](#WMTUserOperation)
 - [Creating a Custom Operation](#creating-a-custom-operation)
 - [Error handling](#error-handling)
-<!-- end -->
 
 ## Introduction
+<!-- end -->
 
 Operations Service is responsible for fetching the operation list and for approving or rejecting operations.
 
