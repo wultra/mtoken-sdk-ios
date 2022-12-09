@@ -16,6 +16,8 @@
 
 import Foundation
 
+/// Request payload describing which message detail should be received.
 struct WMTInboxGetMessageDetail: Codable {
+    /// Message's identifier.
     let id: String
 }

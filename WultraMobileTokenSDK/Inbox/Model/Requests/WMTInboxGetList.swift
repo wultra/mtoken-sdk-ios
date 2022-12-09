@@ -16,7 +16,7 @@
 
 import Foundation
 
-/// Request payload describing whith page in messages list should be received.
+/// Request payload describing which page in messages list should be received.
 struct WMTInboxGetList: Codable {
     /// Page number.
     let page: Int

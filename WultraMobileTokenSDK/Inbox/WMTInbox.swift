@@ -16,7 +16,7 @@
 
 import Foundation
 
-/// Protocol for service that communicates with Inbox API that is managing user inbox.
+/// Protocol for service that communicates with Inbox API that is managing user's inbox.
 public protocol WMTInbox: AnyObject {
     
     /// Accept language for the outgoing requests headers.
@@ -27,11 +27,10 @@ public protocol WMTInbox: AnyObject {
     /// will return operation texts in german (if available).
     var acceptLanguage: String { get set }
     
-    /// Number of unread messages in the inbox
+    /// Get number of unread messages in the inbox.
     ///
     /// - Parameters:
-    ///   - completion: Result callback.
-    ///                 This completion is always called on the main thread.
+    ///   - completion: Result callback. This completion is always called on the main thread.
     /// - Returns: Operation object for its state observation.
     @discardableResult
     func getUnreadCount(completion: @escaping(Result<WMTInboxCount, WMTError>) -> Void) -> Operation?
@@ -40,53 +39,49 @@ public protocol WMTInbox: AnyObject {
     ///
     /// - Parameters:
     ///   - pageNumber: Page number.
-    ///   - pageSize: Size of the page.
-    ///   - onlyUnread" Get only unread messages.
-    ///   - completion: Result callback.
-    ///                 This completion is always called on the main thread.
+    ///   - pageSize: Size of the page. First page is `0`, second `1`, etc.
+    ///   - onlyUnread: Get only unread messages.
+    ///   - completion: Result callback. This completion is always called on the main thread.
     /// - Returns: Operation object for its state observation.
     @discardableResult
     func getMessageList(pageNumber: Int, pageSize: Int, onlyUnread: Bool, completion: @escaping(Result<[WMTInboxMessage], WMTError>) -> Void) -> Operation?
     
-    /// Message detail in the inbox.
+    /// Get message detail in the inbox.
     ///
     /// - Parameters:
     ///   - messageId: Message ID.
-    ///   - completion: Result callback.
-    ///                 This completion is always called on the main thread.
+    ///   - completion: Result callback. This completion is always called on the main thread.
     /// - Returns: Operation object for its state observation.
     @discardableResult
     func getMessageDetail(messageId: String, completion: @escaping(Result<WMTInboxMessageDetail, WMTError>) -> Void) -> Operation?
     
-    /// Marks the given message as read.
+    /// Mark the message with the given identifier as read.
     ///
     /// - Parameters:
-    ///   - messageId: Message ID.
-    ///   - completion: Result callback.
-    ///                 This completion is always called on the main thread.
+    ///   - messageId: Message identifier.
+    ///   - completion: Result callback. This completion is always called on the main thread.
     /// - Returns: Operation object for its state observation.
     @discardableResult
     func markRead(messageId: String, completion: @escaping(Result<Void, WMTError>) -> Void) -> Operation?
     
-    /// Marks all unread messages in the inboc as read.
+    /// Marks all unread messages in the inbox as read.
     ///
     /// - Parameters:
-    ///   - completion: Result callback.
-    ///                 This completion is always called on the main thread.
+    ///   - completion: Result callback. This completion is always called on the main thread.
     /// - Returns: Operation object for its state observation.
     @discardableResult
     func markAllRead(completion: @escaping(Result<Void, WMTError>) -> Void) -> Operation?
 }
 
 public extension WMTInbox {
+    
     /// Get all messages in the inbox. The function will issue multiple HTTP requests until the list is not complete.
     ///
     /// - Parameters:
     ///   - pageSize: How many messages should be fetched at once. The default value is 100.
-    ///   - messageLimit:Maximum number of messages to be retrieved. Use 0 to set no limit. The default value is 1000.
+    ///   - messageLimit: Maximum number of messages to be retrieved. Use 0 to set no limit. The default value is 1000.
     ///   - onlyUnread: If `true` then only unread messages will be returned. The default value is `false`.
     ///   - completion: Result callback. This completion is always called on the main thread.
-    ///
     /// - Returns: Operation object for its state observation.
     @discardableResult
     func getAllMessages(pageSize: Int = 100, messageLimit: Int = 1000, onlyUnread: Bool = false, completion: @escaping(Result<[WMTInboxMessage], WMTError>) -> Void) -> WMTCancellable? {
@@ -96,10 +91,7 @@ public extension WMTInbox {
     
     /// Fetch partial list from the server.
     /// - Parameters:
-    ///   - pageNumber: Starting page number.
-    ///   - pageSize: Size of page.
-    ///   - messageLimit: Maximum number of messages to be retrieved.
-    ///   - fetchOperation: Fetch operation that contains overall progress of getting messages.
+    ///   - fetchOperation: Fetch operation object.
     /// - Returns: Provided fetch operation or `nil` if function unable to get messages at this time.
     private func fetchPartialList(fetchOperation: FetchOperation) -> Operation? {
         let operation = self.getMessageList(pageNumber: fetchOperation.pageNumber, pageSize: fetchOperation.pageSize, onlyUnread: fetchOperation.onlyUnread) { [weak self] result in
@@ -113,7 +105,7 @@ public extension WMTInbox {
                 // Append operations to the result and determine whether we're at the end of the list.
                 if fetchOperation.appendPartialMessages(messages) {
                     // We're at the end of the list, or message limit reached.
-                    fetchOperation.complete(.success(fetchOperation.readMessages))
+                    fetchOperation.complete()
                 } else {
                     // We should fetch the next batch of messages.
                     fetchOperation.nestedOperation = self.fetchPartialList(fetchOperation: fetchOperation)
@@ -128,7 +120,7 @@ public extension WMTInbox {
     }
 }
 
-/// Support class that allows fetch all messages at once.
+/// Support class that keeps partially received messages and track the current page to fetch.
 private class FetchOperation: WMTCancellable {
     
     typealias ResultType = Result<[WMTInboxMessage], WMTError>
@@ -165,17 +157,17 @@ private class FetchOperation: WMTCancellable {
     func appendPartialMessages(_ messages: [WMTInboxMessage]) -> Bool {
         readMessages.append(contentsOf: messages)
         pageNumber += 1
-        return messages.count < pageSize || (messageLimit > 0 && readMessages.count > messageLimit)
+        return messages.count < pageSize || (messageLimit > 0 && readMessages.count >= messageLimit)
     }
     
     /// Complete operation with result.
-    /// - Parameter result: Result to report back to the application.
-    func complete(_ result: ResultType) {
+    /// - Parameter result: Result to report back to the application. If `nil` then success is reported.
+    func complete(_ result: ResultType? = nil) {
         guard !cancelFlag && !finishFlag else {
             return
         }
         finishFlag = true
-        completion(result)
+        completion(result ?? .success(readMessages))
     }
     
     func cancel() {

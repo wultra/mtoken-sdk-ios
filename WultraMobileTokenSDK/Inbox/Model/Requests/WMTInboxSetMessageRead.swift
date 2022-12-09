@@ -16,6 +16,8 @@
 
 import Foundation
 
+/// Request payload describing which message should be set as read.
 struct WMTInboxSetMessageRead: Codable {
+    /// Message's identifier.
     let id: String
 }
