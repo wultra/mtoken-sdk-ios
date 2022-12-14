@@ -27,7 +27,7 @@ import WultraMobileTokenSDK
 import WultraPowerAuthNetworking
 
 let networkingConfig = WPNConfig(
-    baseUrl: URL(string: "https://myservice.com/mtoken/push/api/")!,
+    baseUrl: URL(string: "https://myservice.com/mtoken/inbox/api/")!,
     sslValidation: .default
 )
 // powerAuth is instance of PowerAuthSDK
@@ -148,4 +148,4 @@ inboxService.markAllRead {
 
 ## Error handling
 
-Every error produced by the Push Service is of a `WMTError` type. For more information see detailed [error handling documentation](Error-Handling.md).
+Every error produced by the Inbox Service is of a `WMTError` type. For more information see detailed [error handling documentation](Error-Handling.md).
