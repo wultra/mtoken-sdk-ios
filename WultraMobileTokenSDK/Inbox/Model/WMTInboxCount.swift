@@ -19,5 +19,5 @@ import Foundation
 /// Structure contains information about unread messages in inbox.
 public struct WMTInboxCount: Codable {
     /// Number of unread messages in inbox.
-    let countUnread: Int
+    public let countUnread: Int
 }
