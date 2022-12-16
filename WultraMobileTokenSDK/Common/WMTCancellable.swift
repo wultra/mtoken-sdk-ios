@@ -23,4 +23,4 @@ public protocol WMTCancellable: AnyObject {
 }
 
 // TODO: Should be deprecated in future releases.
-typealias Cancellable = WMTCancellable
+public typealias Cancellable = WMTCancellable
