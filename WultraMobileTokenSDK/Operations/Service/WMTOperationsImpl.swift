@@ -347,7 +347,7 @@ class WMTOperationsImpl<T: WMTUserOperation>: WMTOperations, WMTService {
             return
         }
         
-        networking.post(data: .init(), signedWith: .possession(), to: WMTOperationEndpoints.List.endpoint) { response, error in
+        networking.post(data: .init(), signedWith: .possession(), to: WMTOperationEndpoints.List<T>.endpoint) { response, error in
             assert(Thread.isMainThread)
             // if all tasks were canceled, just ignore the result.
             guard self.tasks.contains(where: { $0.isCanceled == false }) else {
