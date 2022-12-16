@@ -19,11 +19,11 @@ import Foundation
 /// Structure contains information about message in inbox.
 public struct WMTInboxMessage: Codable {
     /// Message's identifier.
-    let id: String
+    public let id: String
     /// Message's subject.
-    let subject: String
+    public let subject: String
     /// If `true`, then user already read the message.
-    let read: Bool
+    public let read: Bool
     /// Date and time when the message was created.
-    let timestampCreated: Date
+    public let timestampCreated: Date
 }
