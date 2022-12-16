@@ -33,5 +33,11 @@ Pod::Spec.new do |s|
     sub.source_files = 'WultraMobileTokenSDK/Push/**/*.swift'
     sub.dependency 'WultraMobileTokenSDK/Common'
   end
+  
+  # 'Inbox' subspec
+  s.subspec 'Inbox' do |sub|
+    sub.source_files = 'WultraMobileTokenSDK/Inbox/**/*.swift'
+    sub.dependency 'WultraMobileTokenSDK/Common'
+  end
 
 end
