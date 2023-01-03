@@ -115,13 +115,15 @@ class IntegrationProxy {
                 let message = createFunc?(count) ?? InboxMessage(subject: "Message #\(index)", body: "This is body for message \(index).")
                 let body = """
                 {
+                    "userId":"\(self.activationName)",
                     "subject":"\(message.subject)",
-                    "body":"\(message.body)"
+                    "body":"\(message.body)",
+                    "silent":true
                 }
                 """
                 let decoder = JSONDecoder()
                 decoder.dateDecodingStrategy = .millisecondsSince1970
-                let url = URL(string: "\(self.config.cloudServerUrl)/v2/inbox/\(self.activationName)?appId=\(self.config.cloudApplicationId)")!
+                let url = URL(string: "\(self.config.cloudServerUrl)/v2/inbox/messages")!
                 guard let createdMessage: InboxMessageDetail = self.makeRequest(url: url, body: body, decoder: decoder) else {
                     print("ERROR: Failed to create message #\(index)")
                     continue
