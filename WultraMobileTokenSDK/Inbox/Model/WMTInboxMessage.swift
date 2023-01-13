@@ -22,6 +22,11 @@ public struct WMTInboxMessage: Codable {
     public let id: String
     /// Message's subject.
     public let subject: String
+    /// Message's summary. It typically contains a reduced
+    /// information from message's body, with no additional formatting.
+    public let summary: String
+    /// Message body's content type.
+    public let type: WMTInboxContentType
     /// If `true`, then user already read the message.
     public let read: Bool
     /// Date and time when the message was created.
