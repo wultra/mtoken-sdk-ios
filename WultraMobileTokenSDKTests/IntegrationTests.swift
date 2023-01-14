@@ -632,14 +632,16 @@ class IntegrationTests: XCTestCase {
         XCTAssertNotNil(messageDetail)
         XCTAssertEqual(firstMessage.id, messageDetail?.id)
         XCTAssertEqual(firstMessage.subject, messageDetail?.subject)
+        XCTAssertEqual(firstMessage.summary, messageDetail?.summary)
         XCTAssertEqual(firstMessage.body, messageDetail?.body)
         XCTAssertEqual(firstMessage.read, messageDetail?.read)
+        XCTAssertEqual(firstMessage.type, messageDetail?.type.rawValue)
         XCTAssertEqual(floor(firstMessage.timestamp.timeIntervalSince1970), floor(messageDetail!.timestampCreated.timeIntervalSince1970))
     }
     
     func testGetAllInboxMessages() {
         let count = 11
-        let messages = prepareMessages(count: count)
+        let messages = prepareMessages(count: count, type: "html")
         var receivedMessages = [WMTInboxMessage]()
         let getAllMessages = expectation(description: "Get all messages")
         inbox.getAllMessages(pageSize: 5) { result in
@@ -785,7 +787,7 @@ class IntegrationTests: XCTestCase {
         return receivedMessages
     }
     
-    private func prepareMessages(count: Int) -> [InboxMessageDetail] {
+    private func prepareMessages(count: Int, type: String = "text") -> [InboxMessageDetail] {
         let prepareExp = expectation(description: "Prepare inbox messages")
         var messages = [InboxMessageDetail]()
         proxy.createInboxMessages(count: count) { msgs in
@@ -805,6 +807,8 @@ class IntegrationTests: XCTestCase {
             }
             XCTAssertEqual(e.read, r.read)
             XCTAssertEqual(e.subject, r.subject)
+            XCTAssertEqual(e.summary, r.summary)
+            XCTAssertEqual(e.type, r.type.rawValue)
             XCTAssertEqual(floor(e.timestamp.timeIntervalSince1970), floor(r.timestampCreated.timeIntervalSince1970))
         }
     }
