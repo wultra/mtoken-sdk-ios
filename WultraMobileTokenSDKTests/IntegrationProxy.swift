@@ -108,16 +108,24 @@ class IntegrationProxy {
         }
     }
     
-    func createInboxMessages(count: Int, createFunc: ((Int) -> InboxMessage)? = nil, completion: @escaping ([InboxMessageDetail]) ->Void) {
+    func createInboxMessages(count: Int, defaultType: String = "text", createFunc: ((Int) -> InboxMessage)? = nil, completion: @escaping ([InboxMessageDetail]) ->Void) {
         DispatchQueue.global().async {
             var result = [InboxMessageDetail]()
             for index in 1...count {
-                let message = createFunc?(count) ?? InboxMessage(subject: "Message #\(index)", body: "This is body for message \(index).")
+                let message = createFunc?(count) ??
+                    InboxMessage(
+                        subject: "Message #\(index)",
+                        summary: "This is body for message \(index).",
+                        body: "This is body for message \(index).",
+                        type: defaultType
+                    )
                 let body = """
                 {
                     "userId":"\(self.activationName)",
                     "subject":"\(message.subject)",
+                    "summary":"\(message.summary)",
                     "body":"\(message.body)",
+                    "type":"\(message.type)",
                     "silent":true
                 }
                 """
@@ -268,13 +276,17 @@ struct QROperationVerify: Codable {
 
 struct InboxMessage: Codable {
     let subject: String
+    let summary: String
     let body: String
+    let type: String
 }
 
 struct InboxMessageDetail: Codable {
     let id: String
     let subject: String
+    let summary: String
     let body: String
+    let type: String
     let timestamp: Date
     let read: Bool
 }
