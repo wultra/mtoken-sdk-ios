@@ -32,11 +32,13 @@ public class WMTOperationAttribute: Codable {
     
     /// Attribute type. Based on this type, proper class will be chosen for "deserialization".
     public enum AttributeType: String, Codable {
-        case amount     = "AMOUNT"      // amount, like "100.00 CZK"
-        case keyValue   = "KEY_VALUE"   // any key value pair
-        case note       = "NOTE"        // just like KEY_VALUE, emphasizing that the value is a note or message
-        case heading    = "HEADING"     // single highlighted text, written in a larger font, used as a section heading
-        case partyInfo  = "PARTY_INFO"  // for displaying third party information
+        case amount           = "AMOUNT"            // amount, like "100.00 CZK"
+        case amountConversion = "AMOUNT_CONVERSION" // Currency conversion, for example when changing money from USD to EUR
+        case keyValue         = "KEY_VALUE"         // any key value pair
+        case note             = "NOTE"              // just like KEY_VALUE, emphasizing that the value is a note or message
+        case heading          = "HEADING"           // single highlighted text, written in a larger font, used as a section heading
+        case partyInfo        = "PARTY_INFO"        // for displaying third party information
+        case unknown          = "UNKNOWN"           // when unknown attribute is presented, it will be returned as unknown
     }
     
     /// Attribute label serves as a UI heading for the attribute.
@@ -75,12 +77,8 @@ public class WMTOperationAttribute: Codable {
         let value = try c.decode(String.self, forKey: .value)
         let t = try c.decode(String.self, forKey: .operationType)
         
-        guard let opType = AttributeType(rawValue: t) else {
-            throw WMTOperationAttributeError.unknownType
-        }
-        
         label = AttributeLabel(id: id, value: value)
-        type = opType
+        type = AttributeType(rawValue: t) ?? .unknown
     }
     
     /// This is convenience function to implement Polymorphic behavior on array with different types of attributes
@@ -88,9 +86,7 @@ public class WMTOperationAttribute: Codable {
         
         let c = try decoder.container(keyedBy: Keys.self)
         let t = try c.decode(String.self, forKey: .operationType)
-        guard let opType = AttributeType(rawValue: t) else {
-            throw WMTOperationAttributeError.unknownType
-        }
+        let opType = AttributeType(rawValue: t) ?? .unknown
         
         switch opType {
         case .amount: return try WMTOperationAttributeAmount(from: decoder)
@@ -98,10 +94,8 @@ public class WMTOperationAttribute: Codable {
         case .note: return try WMTOperationAttributeNote(from: decoder)
         case .heading: return try WMTOperationAttributeHeading(from: decoder)
         case .partyInfo: return try WMTOperationAttributePartyInfo(from: decoder)
+        case .amountConversion: return try WMTOperationAttributeAmountConversion(from: decoder)
+        case .unknown: return try WMTOperationAttribute(from: decoder)
         }
     }
-}
-
-public enum WMTOperationAttributeError: Error {
-    case unknownType
 }

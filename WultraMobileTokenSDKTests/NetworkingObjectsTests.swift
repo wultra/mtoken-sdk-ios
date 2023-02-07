@@ -45,7 +45,7 @@ class NetworkingObjectsTests: XCTestCase {
     
     func testOperationsResponse() {
         let response = """
-                       {"status":"OK","responseObject":[{"id":"930febe7-f350-419a-8bc0-c8883e7f71e3","name":"authorize_payment","data":"A1*A100CZK*Q238400856/0300**D20170629*NUtility Bill Payment - 05/2017","operationCreated":"2018-08-08T12:30:42+0000","operationExpires":"2018-08-08T12:35:43+0000","allowedSignatureType":{"type":"2FA","variants":["possession_knowledge", "possession_biometry"]},"formData":{"title":"Potvrzení platby","message":"Dobrý den,prosíme o potvrzení následující platby:","attributes":[{"type":"AMOUNT","id":"operation.amount","label":"Částka","amount":965165234082.23,"currency":"CZK"},{"type":"KEY_VALUE","id":"operation.account","label":"Na účet","value":"238400856/0300"},{"type":"KEY_VALUE","id":"operation.dueDate","label":"Datum splatnosti","value":"29.6.2017"},{"type":"NOTE","id":"operation.note","label":"Poznámka","note":"Utility Bill Payment - 05/2017"},{"type":"PARTY_INFO","id":"operation.partyInfo","label":"Application","partyInfo":{"logoUrl":"http://whywander.com/wp-content/uploads/2017/05/prague_hero-100x100.jpg","name":"Tesco","description":"Objevte více příběhů psaných s chutí","websiteUrl":"https://itesco.cz/hello/vse-o-jidle/pribehy-psane-s-chuti/clanek/tomovy-burgery-pro-zapalene-fanousky/15012"}}]}},{"id":"930febe7-f350-419a-8bc0-c8883e7f71e3","name":"authorize_payment","data":"A1*A100CZK*Q238400856/0300**D20170629*NUtility Bill Payment - 05/2017","operationCreated":"2018-08-08T12:30:42+0000","operationExpires":"2018-08-08T12:35:43+0000","allowedSignatureType":{"type":"1FA","variants":["possession_knowledge"]},"formData":{"title":"Potvrzení platby","message":"Dobrý den,prosíme o potvrzení následující platby:","attributes":[{"type":"AMOUNT","id":"operation.amount","label":"Částka","amount":100,"currency":"CZK"},{"type":"KEY_VALUE","id":"operation.account","label":"Na účet","value":"238400856/0300"},{"type":"KEY_VALUE","id":"operation.dueDate","label":"Datum splatnosti","value":"29.6.2017"},{"type":"NOTE","id":"operation.note","label":"Poznámka","note":"Utility Bill Payment - 05/2017"}]}}]}
+                       {"status":"OK","responseObject":[{"id":"930febe7-f350-419a-8bc0-c8883e7f71e3","name":"authorize_payment","data":"A1*A100CZK*Q238400856/0300**D20170629*NUtility Bill Payment - 05/2017","operationCreated":"2018-08-08T12:30:42+0000","operationExpires":"2018-08-08T12:35:43+0000","allowedSignatureType":{"type":"2FA","variants":["possession_knowledge", "possession_biometry"]},"formData":{"title":"Potvrzení platby","message":"Dobrý den,prosíme o potvrzení následující platby:","attributes":[{"type":"AMOUNT","id":"operation.amount","label":"Částka","amount":965165234082.23,"currency":"CZK"},{"type":"KEY_VALUE","id":"operation.account","label":"Na účet","value":"238400856/0300"},{"type":"KEY_VALUE","id":"operation.dueDate","label":"Datum splatnosti","value":"29.6.2017"},{"type":"NOTE","id":"operation.note","label":"Poznámka","note":"Utility Bill Payment - 05/2017"},{"type":"PARTY_INFO","id":"operation.partyInfo","label":"Application","partyInfo":{"logoUrl":"http://whywander.com/wp-content/uploads/2017/05/prague_hero-100x100.jpg","name":"Tesco","description":"Objevte více příběhů psaných s chutí","websiteUrl":"https://itesco.cz/hello/vse-o-jidle/pribehy-psane-s-chuti/clanek/tomovy-burgery-pro-zapalene-fanousky/15012"}},{ "type": "AMOUNT_CONVERSION", "id": "operation.conversion", "label": "Conversion", "dynamic": true, "sourceAmount": 1.26, "sourceCurrency": "ETC", "sourceAmountFormatted": "1.26", "sourceCurrencyFormatted": "ETC", "targetAmount": 1710.98, "targetCurrency": "USD", "targetAmountFormatted": "1,710.98", "targetCurrencyFormatted": "USD"}]}},{"id":"930febe7-f350-419a-8bc0-c8883e7f71e3","name":"authorize_payment","data":"A1*A100CZK*Q238400856/0300**D20170629*NUtility Bill Payment - 05/2017","operationCreated":"2018-08-08T12:30:42+0000","operationExpires":"2018-08-08T12:35:43+0000","allowedSignatureType":{"type":"1FA","variants":["possession_knowledge"]},"formData":{"title":"Potvrzení platby","message":"Dobrý den,prosíme o potvrzení následující platby:","attributes":[{"type":"AMOUNT","id":"operation.amount","label":"Částka","amount":100,"currency":"CZK"},{"type":"KEY_VALUE","id":"operation.account","label":"Na účet","value":"238400856/0300"},{"type":"KEY_VALUE","id":"operation.dueDate","label":"Datum splatnosti","value":"29.6.2017"},{"type":"NOTE","id":"operation.note","label":"Poznámka","note":"Utility Bill Payment - 05/2017"}]}}]}
                        """
         
         guard let result = try? jsonDecoder.decode(WPNResponseArray<WMTUserOperation>.self, from: response.data(using: .utf8)!) else {
@@ -78,7 +78,7 @@ class NetworkingObjectsTests: XCTestCase {
         XCTAssert(op.formData.title == "Potvrzení platby")
         XCTAssert(op.formData.message == "Dobrý den,prosíme o potvrzení následující platby:")
         
-        if op.formData.attributes.count == 5 {
+        if op.formData.attributes.count == 6 {
             
             if let attr = op.formData.attributes[0] as? WMTOperationAttributeAmount {
                 XCTAssert(attr.type == .amount)
@@ -87,7 +87,7 @@ class NetworkingObjectsTests: XCTestCase {
                 XCTAssert(attr.amount ==  NSDecimalNumber(string: "965165234082.23").decimalValue)
                 XCTAssert(attr.currency == "CZK")
             } else {
-                XCTFail("attribute not recognized")
+                XCTFail("amount attribute not recognized")
             }
             
             if let attr = op.formData.attributes[1] as? WMTOperationAttributeKeyValue {
@@ -96,7 +96,7 @@ class NetworkingObjectsTests: XCTestCase {
                 XCTAssert(attr.label.value == "Na účet")
                 XCTAssert(attr.value == "238400856/0300")
             } else {
-                XCTFail("attribute not recognized")
+                XCTFail("account attribute not recognized")
             }
             
             if let attr = op.formData.attributes[3] as? WMTOperationAttributeNote {
@@ -105,7 +105,7 @@ class NetworkingObjectsTests: XCTestCase {
                 XCTAssert(attr.label.value == "Poznámka")
                 XCTAssert(attr.note == "Utility Bill Payment - 05/2017")
             } else {
-                XCTFail("attribute not recognized")
+                XCTFail("note attribute not recognized")
             }
             
             if let attr = op.formData.attributes[4] as? WMTOperationAttributePartyInfo {
@@ -113,6 +113,25 @@ class NetworkingObjectsTests: XCTestCase {
                 XCTAssert(attr.label.id == "operation.partyInfo")
                 XCTAssert(attr.label.value == "Application")
                 XCTAssert(attr.partyInfo.websiteUrl != nil)
+            } else {
+                XCTFail("partyInfo attribute not recognized")
+            }
+            
+            if let attr = op.formData.attributes[5] as? WMTOperationAttributeAmountConversion {
+                XCTAssert(attr.type == .amountConversion)
+                XCTAssert(attr.label.id == "operation.conversion")
+                XCTAssert(attr.label.value == "Conversion")
+                XCTAssert(attr.dynamic)
+                XCTAssert(attr.source.amount == 1.26)
+                XCTAssert(attr.source.currency == "ETC")
+                XCTAssert(attr.source.amountFormatted == "1.26")
+                XCTAssert(attr.source.currencyFormatted == "ETC")
+                XCTAssert(attr.target.amount == 1710.98)
+                XCTAssert(attr.target.currency == "USD")
+                XCTAssert(attr.target.amountFormatted == "1,710.98")
+                XCTAssert(attr.target.currencyFormatted == "USD")
+            } else {
+                XCTFail("conversion attribute not recognized")
             }
             
             
@@ -149,6 +168,37 @@ class NetworkingObjectsTests: XCTestCase {
         XCTAssert(error.message == "Invalid activation found in Mobile Token API component.")
     }
     
+    func testUnknownAttribute() {
+        let response = """
+                       {"status":"OK","responseObject":[{"id":"930febe7-f350-419a-8bc0-c8883e7f71e3","name":"authorize_payment","data":"A1*A100CZK*Q238400856/0300**D20170629*NUtility Bill Payment - 05/2017","operationCreated":"2018-08-08T12:30:42+0000","operationExpires":"2018-08-08T12:35:43+0000","allowedSignatureType":{"type":"2FA","variants":["possession_knowledge", "possession_biometry"]},"formData":{"title":"Potvrzení platby","message":"Dobrý den,prosíme o potvrzení následující platby:","attributes":[{"type":"THIS_IS_FAKE_ATTR","id":"operation.amount","label":"Částka","amount":965165234082.23,"currency":"CZK"},{"type":"KEY_VALUE","id":"operation.account","label":"Na účet","value":"238400856/0300"}]}}]}
+                       """
+        
+        guard let result = try? jsonDecoder.decode(WPNResponseArray<WMTUserOperation>.self, from: response.data(using: .utf8)!) else {
+            XCTFail("Failed to parse JSON data")
+            return
+        }
+        
+        XCTAssert(result.status == .Ok)
+        XCTAssert(result.responseError == nil)
+        
+        guard let operations = result.responseObject else {
+            XCTFail("response object nil")
+            return
+        }
+        
+        guard operations.count == 1 else {
+            XCTFail("There should be 1 operation")
+            return
+        }
+        
+        guard operations[0].formData.attributes.count == 2 else {
+            XCTFail("There should be 2 attributes")
+            return
+        }
+        
+        XCTAssertTrue(operations[0].formData.attributes[0].type == .unknown, "Attribute should be unknown")
+    }
+    
     func testOperationAuthorizationRequest() {
         
         let expectation = """
@@ -167,6 +217,10 @@ class NetworkingObjectsTests: XCTestCase {
         
         let request = WMTOperationEndpoints.Reject.EndpointType.RequestData(.init(operationId: "95e51995-fa60-4018-bd87-43a58f098570", reason: .unexpectedOperation))
         request.testSerialization(expectation: expectation)
+    }
+    
+    func testUnknownOperationAttribute() {
+        
     }
     
     func testHistoryResponse() {
