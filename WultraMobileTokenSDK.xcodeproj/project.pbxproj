@@ -40,6 +40,7 @@
 		DC9511F926EA02C100FF40AD /* WPNIntegration.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC9511F826EA02C100FF40AD /* WPNIntegration.swift */; };
 		DC9511FB26EA02ED00FF40AD /* WultraPowerAuthNetworking.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = DC9511FA26EA02ED00FF40AD /* WultraPowerAuthNetworking.xcframework */; };
 		DCA43C6B29927C960059A163 /* WMTOperationAttributeAmountConversion.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCA43C6A29927C960059A163 /* WMTOperationAttributeAmountConversion.swift */; };
+		DCA43C6D2993F63E0059A163 /* WMTOperationAttributeImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCA43C6C2993F63E0059A163 /* WMTOperationAttributeImage.swift */; };
 		DCAB7BC824580B4C0006989D /* WMTQROperationParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCAB7BC724580B4C0006989D /* WMTQROperationParser.swift */; };
 		DCAB7BCA24580BAC0006989D /* WMTQROperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCAB7BC924580BAC0006989D /* WMTQROperation.swift */; };
 		DCC3420424E3DB310045D27D /* WMTPushParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCC3420324E3DB310045D27D /* WMTPushParser.swift */; };
@@ -108,6 +109,7 @@
 		DC9511F826EA02C100FF40AD /* WPNIntegration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WPNIntegration.swift; sourceTree = "<group>"; };
 		DC9511FA26EA02ED00FF40AD /* WultraPowerAuthNetworking.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = WultraPowerAuthNetworking.xcframework; path = Carthage/Build/WultraPowerAuthNetworking.xcframework; sourceTree = "<group>"; };
 		DCA43C6A29927C960059A163 /* WMTOperationAttributeAmountConversion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTOperationAttributeAmountConversion.swift; sourceTree = "<group>"; };
+		DCA43C6C2993F63E0059A163 /* WMTOperationAttributeImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTOperationAttributeImage.swift; sourceTree = "<group>"; };
 		DCAB7BC724580B4C0006989D /* WMTQROperationParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTQROperationParser.swift; sourceTree = "<group>"; };
 		DCAB7BC924580BAC0006989D /* WMTQROperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTQROperation.swift; sourceTree = "<group>"; };
 		DCC3420324E3DB310045D27D /* WMTPushParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTPushParser.swift; sourceTree = "<group>"; };
@@ -180,6 +182,7 @@
 				DCC5CCBC2449F965004679AC /* WMTOperationAttributeHeading.swift */,
 				DCC5CCBE2449F981004679AC /* WMTOperationAttributePartyInfo.swift */,
 				DCA43C6A29927C960059A163 /* WMTOperationAttributeAmountConversion.swift */,
+				DCA43C6C2993F63E0059A163 /* WMTOperationAttributeImage.swift */,
 			);
 			path = Attributes;
 			sourceTree = "<group>";
@@ -580,6 +583,7 @@
 				DC81D1CB244F451E00F80CD6 /* WMTPushImpl.swift in Sources */,
 				DC488041292282FF00DB844B /* WMTInboxEndpoints.swift in Sources */,
 				BF53DFC82971905600829814 /* WMTInboxContentType.swift in Sources */,
+				DCA43C6D2993F63E0059A163 /* WMTOperationAttributeImage.swift in Sources */,
 				DC48803D292282FF00DB844B /* WMTInbox.swift in Sources */,
 				DC488042292282FF00DB844B /* WMTInboxImpl.swift in Sources */,
 			);

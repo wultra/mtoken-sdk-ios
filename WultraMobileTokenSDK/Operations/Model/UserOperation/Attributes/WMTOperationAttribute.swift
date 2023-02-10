@@ -38,6 +38,7 @@ public class WMTOperationAttribute: Codable {
         case note             = "NOTE"              // just like KEY_VALUE, emphasizing that the value is a note or message
         case heading          = "HEADING"           // single highlighted text, written in a larger font, used as a section heading
         case partyInfo        = "PARTY_INFO"        // for displaying third party information
+        case image            = "IMAGE"             // for image displaying
         case unknown          = "UNKNOWN"           // when unknown attribute is presented, it will be returned as unknown
     }
     
@@ -95,6 +96,7 @@ public class WMTOperationAttribute: Codable {
         case .heading: return try WMTOperationAttributeHeading(from: decoder)
         case .partyInfo: return try WMTOperationAttributePartyInfo(from: decoder)
         case .amountConversion: return try WMTOperationAttributeAmountConversion(from: decoder)
+        case .image: return try WMTOperationAttributeImage(from: decoder)
         case .unknown: return try WMTOperationAttribute(from: decoder)
         }
     }
