@@ -20,7 +20,7 @@ import WultraPowerAuthNetworking
 enum WMTOperationEndpoints {
     
     enum List<T: WMTUserOperation> {
-        typealias EndpointType = WPNEndpointSignedWithToken<WPNRequestBase, WPNResponseArray<T>>
+        typealias EndpointType = WPNEndpointSignedWithToken<WPNRequestBase, WMTOperationListResponse<T>>
         static var endpoint: EndpointType { WPNEndpointSignedWithToken(endpointURLPath: "/api/auth/token/app/operation/list", tokenName: "possession_universal") }
     }
     

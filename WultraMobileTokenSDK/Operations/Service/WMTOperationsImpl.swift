@@ -116,6 +116,15 @@ class WMTOperationsImpl<T: WMTUserOperation>: WMTOperations, WMTService {
         set { networking.acceptLanguage = newValue }
     }
     
+    /// Calculated difference between server and device time
+    private var serverDateShiftInSeconds: TimeInterval?
+    var currentServerDate: Date? {
+        if let serverDateShiftInSeconds {
+            return Date().addingTimeInterval(serverDateShiftInSeconds)
+        }
+        return nil
+    }
+    
     private var tasks = [GetOperationsTask]() // Task that are waiting for operation fetch
     private var pollingTimer: Timer? // Timer that manages operations polling when requested
     private var isPollingPaused: Bool { return pollingTimer?.isValid == false }
@@ -347,8 +356,16 @@ class WMTOperationsImpl<T: WMTUserOperation>: WMTOperations, WMTService {
             return
         }
         
+        let requestStartDate = Date()
+        
         networking.post(data: .init(), signedWith: .possession(), to: WMTOperationEndpoints.List<T>.endpoint) { response, error in
+            
             assert(Thread.isMainThread)
+            
+            if let response {
+                self.processServerTime(response: response, requestStarted: requestStartDate)
+            }
+            
             // if all tasks were canceled, just ignore the result.
             guard self.tasks.contains(where: { $0.isCanceled == false }) else {
                 completion(.failure(WMTError(reason: .unknown)))
@@ -369,6 +386,33 @@ class WMTOperationsImpl<T: WMTUserOperation>: WMTOperations, WMTService {
             self.lastFetchResult = result
             completion(result)
         }
+    }
+    
+    private func processServerTime(response: WMTOperationListResponse<T>, requestStarted: Date) {
+        
+        let now = Date()
+        let requestDelay = now.timeIntervalSince1970 - requestStarted.timeIntervalSince1970
+        
+        // server does not support this feature
+        guard var serverTime = response.currentTimestamp else {
+            return
+        }
+        
+        // Reject the value if the request took too long and we already have a server date.
+        // This is to avoid volatility of the value
+        if currentServerDate != nil && requestDelay > 1 {
+            return
+        }
+        
+        // We're adding half of the time that the request took to compensate for the network delay
+        serverTime = serverTime.addingTimeInterval(requestDelay/2)
+        
+        // If the difference is under 0.3 seconds, we ignore the new value to avoid unnecesary changes that might be due to network delay.
+        if let currentServerDate, abs(currentServerDate.timeIntervalSince1970 - serverTime.timeIntervalSince1970) < 0.3 {
+            return
+        }
+        
+        serverDateShiftInSeconds = serverTime.timeIntervalSince1970 - now.timeIntervalSince1970
     }
     
     /// If request for operation fails at known error code, then this private function adjusts description of given AuthError.

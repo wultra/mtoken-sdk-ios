@@ -1,0 +1,3 @@
+[submodule "Carthage/Checkouts/networking-apple"]
+	url = https://github.com/wultra/networking-apple.git
+	path = Carthage/Checkouts/networking-apple

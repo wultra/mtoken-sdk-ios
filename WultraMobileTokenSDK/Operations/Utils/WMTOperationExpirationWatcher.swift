@@ -241,18 +241,26 @@ public class WMTOperationExpirationWatcher {
 
 // MARK: - Public utilities
 
+/// Object that can provide current time from the server
+public protocol WMTServerTimeProvider {
+    var currentServerDate: Date? { get }
+}
+
 /// Default implementation of a date provider.
-/// You can customize this provider by the `TimeInterval` offset that is added to the new `Date()` instance
-/// that is returned for `currentDate` property
+/// You can customize this provider by the `TimeInterval` offset that is added to the current time.
+/// If `serverTimeProvider` is set, server time is used, otherwise `Date()` instance is used as
+/// a current time.
 public class WMTOffsetDateProvider: WMTCurrentDateProvider {
     
     private let offset: TimeInterval
+    private let serverTimeProvider: WMTServerTimeProvider?
     
-    public init(offset: TimeInterval = 0) {
+    public init(offset: TimeInterval = 0, serverTimeProvider: WMTServerTimeProvider? = nil) {
         self.offset = offset
+        self.serverTimeProvider = serverTimeProvider
     }
     
-    public var currentDate: Date { return Date().addingTimeInterval(offset) }
+    public var currentDate: Date { return (serverTimeProvider?.currentServerDate ?? Date()).addingTimeInterval(offset) }
 }
 
 /// Conformation to `WMTExpirableOperation` for default object returned

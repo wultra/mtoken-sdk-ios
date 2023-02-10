@@ -19,7 +19,7 @@ import PowerAuth2
 
 /// Protocol for service, that communicates with Mobile Token API that handles operation approving
 /// via powerauth protocol.
-public protocol WMTOperations: AnyObject {
+public protocol WMTOperations: AnyObject, WMTServerTimeProvider {
     
     /// Delegate gets notified about changes in operations loading.
     /// Methods of the delegate are always called on the main thread.
@@ -38,6 +38,18 @@ public protocol WMTOperations: AnyObject {
     
     /// Last cached operation result for easy access.
     var lastFetchResult: GetOperationsResult? { get }
+    
+    /// Current server date
+    ///
+    /// This is calculated property based on the difference between phone date
+    /// and date on the server.
+    ///
+    /// This property is available after the first successful operation list request.
+    /// It might be nil if the server doesn't provide such a feature.
+    ///
+    /// Note that this value might be incorrent when the user decide to
+    /// change the system time during the runtime of the application.
+    var currentServerDate: Date? { get }
     
     /// If operation loading is currently in progress.
     var isLoadingOperations: Bool { get }
