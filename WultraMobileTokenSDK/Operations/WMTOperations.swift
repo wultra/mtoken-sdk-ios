@@ -19,7 +19,7 @@ import PowerAuth2
 
 /// Protocol for service, that communicates with Mobile Token API that handles operation approving
 /// via powerauth protocol.
-public protocol WMTOperations: AnyObject, WMTServerTimeProvider {
+public protocol WMTOperations: AnyObject {
     
     /// Delegate gets notified about changes in operations loading.
     /// Methods of the delegate are always called on the main thread.
