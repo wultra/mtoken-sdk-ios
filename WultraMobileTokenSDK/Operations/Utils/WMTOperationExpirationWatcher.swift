@@ -241,7 +241,6 @@ public class WMTOperationExpirationWatcher {
 
 // MARK: - Public utilities
 
-/// Default implementation of a date provider.
 /// You can customize this provider by the `TimeInterval` offset that is added to the new `Date()` instance
 /// that is returned for `currentDate` property
 public class WMTOffsetDateProvider: WMTCurrentDateProvider {

@@ -91,6 +91,26 @@ class IntegrationTests: XCTestCase {
         waitForExpectations(timeout: 20, handler: nil)
     }
     
+    /// `currentServerDate` is nil by default and after ops fetch, it should be set
+    func testCurrentServerDate() {
+        let exp = expectation(description: "Server date should be set after operation fetch")
+        
+        XCTAssertNil(self.ops.currentServerDate)
+        
+        _ = ops.getOperations { result in
+            
+            switch result {
+            case .success:
+                XCTAssertNotNil(self.ops.currentServerDate)
+            case .failure(let err):
+                XCTFail(err.description)
+            }
+            exp.fulfill()
+        }
+        
+        waitForExpectations(timeout: 20, handler: nil)
+    }
+    
     /// Test of Login operation approval (1FA)
     /// TODO: prepare 1FA op
 //    func testApproveLogin() {

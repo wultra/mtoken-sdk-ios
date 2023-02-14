@@ -39,6 +39,18 @@ public protocol WMTOperations: AnyObject {
     /// Last cached operation result for easy access.
     var lastFetchResult: GetOperationsResult? { get }
     
+    /// Current server date
+    ///
+    /// This is calculated property based on the difference between phone date
+    /// and date on the server.
+    ///
+    /// This property is available after the first successful operation list request.
+    /// It might be nil if the server doesn't provide such a feature.
+    ///
+    /// Note that this value might be incorrent when the user decide to
+    /// change the system time during the runtime of the application.
+    var currentServerDate: Date? { get }
+    
     /// If operation loading is currently in progress.
     var isLoadingOperations: Bool { get }
     

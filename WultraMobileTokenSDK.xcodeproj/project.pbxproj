@@ -12,6 +12,7 @@
 		BFEEB20729379F960047941D /* WMTInboxSetMessageRead.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFEEB20629379F960047941D /* WMTInboxSetMessageRead.swift */; };
 		BFEEB2092937A2680047941D /* WMTInboxGetList.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFEEB2082937A2680047941D /* WMTInboxGetList.swift */; };
 		BFEEB20B2937AD700047941D /* WMTCancellable.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFEEB20A2937AD700047941D /* WMTCancellable.swift */; };
+		DC0268DF29965495000BB9FA /* WMTOperationListResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC0268DE29965495000BB9FA /* WMTOperationListResponse.swift */; };
 		DC06D01F25AC74E400F2EA69 /* WMTLock.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC06D01E25AC74E400F2EA69 /* WMTLock.swift */; };
 		DC395C0A24E55B9B0007C36E /* PushParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC395C0924E55B9B0007C36E /* PushParserTests.swift */; };
 		DC3D0B372480F3C7000DC4D9 /* WMTOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC3D0B362480F3C7000DC4D9 /* WMTOperation.swift */; };
@@ -81,6 +82,7 @@
 		BFEEB20629379F960047941D /* WMTInboxSetMessageRead.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTInboxSetMessageRead.swift; sourceTree = "<group>"; };
 		BFEEB2082937A2680047941D /* WMTInboxGetList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTInboxGetList.swift; sourceTree = "<group>"; };
 		BFEEB20A2937AD700047941D /* WMTCancellable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTCancellable.swift; sourceTree = "<group>"; };
+		DC0268DE29965495000BB9FA /* WMTOperationListResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTOperationListResponse.swift; sourceTree = "<group>"; };
 		DC06D01E25AC74E400F2EA69 /* WMTLock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTLock.swift; sourceTree = "<group>"; };
 		DC395C0924E55B9B0007C36E /* PushParserTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushParserTests.swift; sourceTree = "<group>"; };
 		DC3D0B362480F3C7000DC4D9 /* WMTOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTOperation.swift; sourceTree = "<group>"; };
@@ -170,6 +172,14 @@
 				BFEEB20629379F960047941D /* WMTInboxSetMessageRead.swift */,
 			);
 			path = Requests;
+			sourceTree = "<group>";
+		};
+		DC0268DD29965473000BB9FA /* Responses */ = {
+			isa = PBXGroup;
+			children = (
+				DC0268DE29965495000BB9FA /* WMTOperationListResponse.swift */,
+			);
+			path = Responses;
 			sourceTree = "<group>";
 		};
 		DC059A3C244DD30900B24878 /* Attributes */ = {
@@ -381,6 +391,7 @@
 			children = (
 				DC3D0B352480F368000DC4D9 /* UserOperation */,
 				DCD8B337246C1BD800385F02 /* Requests */,
+				DC0268DD29965473000BB9FA /* Responses */,
 				DCD8B335246C1BAF00385F02 /* WMTRejectionReason.swift */,
 				DC3D0B362480F3C7000DC4D9 /* WMTOperation.swift */,
 				DC3D0B382480F886000DC4D9 /* WMTLocalOperation.swift */,
@@ -544,6 +555,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				DC81D1C9244F38DB00F80CD6 /* WMTPushEndpoints.swift in Sources */,
+				DC0268DF29965495000BB9FA /* WMTOperationListResponse.swift in Sources */,
 				DC8CB202244DCBE2009DDAA3 /* WMTOperations.swift in Sources */,
 				DC48803E292282FF00DB844B /* WMTInboxMessage.swift in Sources */,
 				DCC5CCB52449F8E9004679AC /* WMTOperationAttributeAmount.swift in Sources */,

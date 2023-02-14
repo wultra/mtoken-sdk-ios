@@ -356,6 +356,7 @@ All available methods and attributes of `WMTOperations` API are:
 - `delegate` - Delegate object that receives info about operation loading. Methods of the delegate are always called on the main thread.
 - `acceptLanguage` - Language settings, that will be sent along with each request. The server will return properly localized content based on this value. Value follows standard RFC [Accept-Language](https://tools.ietf.org/html/rfc7231#section-5.3.5)
 - `lastFetchResult()` - Cached last operations result.
+- `currentServerDate` - Current server date. This is a calculated property based on the difference between the phone date and the date on the server. This property is available after the first successful operation list request. It might be nil if the server doesn't provide such a feature.
 - `isLoadingOperations` - Indicates if the service is loading pending operations.
 - `refreshOperations` - Async "fire and forget" request to refresh pending operations.
 - `getOperations(completion: @escaping GetOperationsCompletion)` - Retrieves pending operations from the server.
