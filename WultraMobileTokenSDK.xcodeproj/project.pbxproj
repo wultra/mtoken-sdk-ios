@@ -224,6 +224,7 @@
 				DCC5CCB02449F81C004679AC /* WMTOperationFormData.swift */,
 				DC8CB205244DD007009DDAA3 /* WMTAllowedOperationSignature.swift */,
 				DCE5EAAF26BD81150061861A /* WMTOperationHistoryEntry.swift */,
+				EA294F3C29F6A07A00A0494E /* WMTOperationUIData.swift */,
 			);
 			path = UserOperation;
 			sourceTree = "<group>";
@@ -415,7 +416,6 @@
 				DCD8B335246C1BAF00385F02 /* WMTRejectionReason.swift */,
 				DC3D0B362480F3C7000DC4D9 /* WMTOperation.swift */,
 				DC3D0B382480F886000DC4D9 /* WMTLocalOperation.swift */,
-				EA294F3C29F6A07A00A0494E /* WMTOperationUIData.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
