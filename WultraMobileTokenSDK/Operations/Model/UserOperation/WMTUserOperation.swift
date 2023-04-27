@@ -53,4 +53,10 @@ open class WMTUserOperation: WMTOperation, Codable {
     /// tapping an approve button. If the operation requires 2FA, this value also hints if
     /// the user may use the biometry, or if a password is required.
     public let allowedSignatureType: WMTAllowedOperationSignature
+    
+    /// UI data to be shown
+    ///
+    /// Accompanying information about the operation additional UI which should be presented such as
+    /// Pre-Approval Screen or Post-Approval Screen
+    public let ui: WMTOperationUIData?
 }

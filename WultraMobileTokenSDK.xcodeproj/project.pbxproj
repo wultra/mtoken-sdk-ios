@@ -64,6 +64,15 @@
 		DCE5EAB026BD81150061861A /* WMTOperationHistoryEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCE5EAAF26BD81150061861A /* WMTOperationHistoryEntry.swift */; };
 		DCE660D124CEBECA00870E53 /* IntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCE660D024CEBECA00870E53 /* IntegrationTests.swift */; };
 		DCE660D324CEF56400870E53 /* IntegrationProxy.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCE660D224CEF56400870E53 /* IntegrationProxy.swift */; };
+		EA294F3D29F6A07A00A0494E /* WMTOperationUIData.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA294F3C29F6A07A00A0494E /* WMTOperationUIData.swift */; };
+		EA44366A29F9294600DDEC1C /* WMTPostApprovaScreenReview.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA44366929F9294600DDEC1C /* WMTPostApprovaScreenReview.swift */; };
+		EA44366C29F9297100DDEC1C /* WMTPostApprovaScreenRedirect.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA44366B29F9297100DDEC1C /* WMTPostApprovaScreenRedirect.swift */; };
+		EA44366E29F9298100DDEC1C /* WMTPostApprovaScreenGeneric.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA44366D29F9298100DDEC1C /* WMTPostApprovaScreenGeneric.swift */; };
+		EA6DDF0F29F8036B0011E234 /* WMTPreApprovalScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA6DDF0E29F8036B0011E234 /* WMTPreApprovalScreen.swift */; };
+		EA6DDF1429F804210011E234 /* WMTPreApprovalScreenInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA6DDF1329F804210011E234 /* WMTPreApprovalScreenInfo.swift */; };
+		EA6DDF1629F804570011E234 /* WMTPreApprovalScreenWarning.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA6DDF1529F804570011E234 /* WMTPreApprovalScreenWarning.swift */; };
+		EA6DDF1A29F804D60011E234 /* WMTPostApprovalScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA6DDF1929F804D60011E234 /* WMTPostApprovalScreen.swift */; };
+		EA6DDF1C29F807230011E234 /* OperationUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA6DDF1B29F807230011E234 /* OperationUITests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -139,6 +148,15 @@
 		DCE5EAAF26BD81150061861A /* WMTOperationHistoryEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTOperationHistoryEntry.swift; sourceTree = "<group>"; };
 		DCE660D024CEBECA00870E53 /* IntegrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntegrationTests.swift; sourceTree = "<group>"; };
 		DCE660D224CEF56400870E53 /* IntegrationProxy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntegrationProxy.swift; sourceTree = "<group>"; };
+		EA294F3C29F6A07A00A0494E /* WMTOperationUIData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTOperationUIData.swift; sourceTree = "<group>"; };
+		EA44366929F9294600DDEC1C /* WMTPostApprovaScreenReview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTPostApprovaScreenReview.swift; sourceTree = "<group>"; };
+		EA44366B29F9297100DDEC1C /* WMTPostApprovaScreenRedirect.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTPostApprovaScreenRedirect.swift; sourceTree = "<group>"; };
+		EA44366D29F9298100DDEC1C /* WMTPostApprovaScreenGeneric.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTPostApprovaScreenGeneric.swift; sourceTree = "<group>"; };
+		EA6DDF0E29F8036B0011E234 /* WMTPreApprovalScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTPreApprovalScreen.swift; sourceTree = "<group>"; };
+		EA6DDF1329F804210011E234 /* WMTPreApprovalScreenInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTPreApprovalScreenInfo.swift; sourceTree = "<group>"; };
+		EA6DDF1529F804570011E234 /* WMTPreApprovalScreenWarning.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTPreApprovalScreenWarning.swift; sourceTree = "<group>"; };
+		EA6DDF1929F804D60011E234 /* WMTPostApprovalScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTPostApprovalScreen.swift; sourceTree = "<group>"; };
+		EA6DDF1B29F807230011E234 /* OperationUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OperationUITests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -200,6 +218,7 @@
 		DC3D0B352480F368000DC4D9 /* UserOperation */ = {
 			isa = PBXGroup;
 			children = (
+				EA6DDF0D29F8031F0011E234 /* Screens */,
 				DC059A3C244DD30900B24878 /* Attributes */,
 				DCC5CCAD2449F7AC004679AC /* WMTUserOperation.swift */,
 				DCC5CCB02449F81C004679AC /* WMTOperationFormData.swift */,
@@ -246,6 +265,7 @@
 				DC5F6DE724E14FA100D351D3 /* Configs */,
 				DC616237248508F8000DED17 /* Info.plist */,
 				DC61624124852B6D000DED17 /* NetworkingObjectsTests.swift */,
+				EA6DDF1B29F807230011E234 /* OperationUITests.swift */,
 				DCE660D024CEBECA00870E53 /* IntegrationTests.swift */,
 				DCE660D224CEF56400870E53 /* IntegrationProxy.swift */,
 				DC395C0924E55B9B0007C36E /* PushParserTests.swift */,
@@ -395,6 +415,7 @@
 				DCD8B335246C1BAF00385F02 /* WMTRejectionReason.swift */,
 				DC3D0B362480F3C7000DC4D9 /* WMTOperation.swift */,
 				DC3D0B382480F886000DC4D9 /* WMTLocalOperation.swift */,
+				EA294F3C29F6A07A00A0494E /* WMTOperationUIData.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -406,6 +427,20 @@
 				DCC5CCD9244DBBE2004679AC /* WMTRejectionData.swift */,
 			);
 			path = Requests;
+			sourceTree = "<group>";
+		};
+		EA6DDF0D29F8031F0011E234 /* Screens */ = {
+			isa = PBXGroup;
+			children = (
+				EA6DDF0E29F8036B0011E234 /* WMTPreApprovalScreen.swift */,
+				EA6DDF1329F804210011E234 /* WMTPreApprovalScreenInfo.swift */,
+				EA6DDF1529F804570011E234 /* WMTPreApprovalScreenWarning.swift */,
+				EA6DDF1929F804D60011E234 /* WMTPostApprovalScreen.swift */,
+				EA44366B29F9297100DDEC1C /* WMTPostApprovaScreenRedirect.swift */,
+				EA44366929F9294600DDEC1C /* WMTPostApprovaScreenReview.swift */,
+				EA44366D29F9298100DDEC1C /* WMTPostApprovaScreenGeneric.swift */,
+			);
+			path = Screens;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -545,6 +580,7 @@
 				DC395C0A24E55B9B0007C36E /* PushParserTests.swift in Sources */,
 				DC6EDB7925A49ED900A229E4 /* OperationExpirationTests.swift in Sources */,
 				DC616236248508F8000DED17 /* QROperationParserTests.swift in Sources */,
+				EA6DDF1C29F807230011E234 /* OperationUITests.swift in Sources */,
 				DCE660D124CEBECA00870E53 /* IntegrationTests.swift in Sources */,
 				DCE660D324CEF56400870E53 /* IntegrationProxy.swift in Sources */,
 			);
@@ -556,7 +592,9 @@
 			files = (
 				DC81D1C9244F38DB00F80CD6 /* WMTPushEndpoints.swift in Sources */,
 				DC0268DF29965495000BB9FA /* WMTOperationListResponse.swift in Sources */,
+				EA6DDF1629F804570011E234 /* WMTPreApprovalScreenWarning.swift in Sources */,
 				DC8CB202244DCBE2009DDAA3 /* WMTOperations.swift in Sources */,
+				EA6DDF1429F804210011E234 /* WMTPreApprovalScreenInfo.swift in Sources */,
 				DC48803E292282FF00DB844B /* WMTInboxMessage.swift in Sources */,
 				DCC5CCB52449F8E9004679AC /* WMTOperationAttributeAmount.swift in Sources */,
 				DCC5CCD6244DBB7F004679AC /* WMTPushRegistrationData.swift in Sources */,
@@ -571,14 +609,19 @@
 				DC6E52D6259C964600FC25BE /* WMTOperationExpirationWatcher.swift in Sources */,
 				DCC5CCDA244DBBE2004679AC /* WMTRejectionData.swift in Sources */,
 				DC48803F292282FF00DB844B /* WMTInboxMessageDetail.swift in Sources */,
+				EA6DDF0F29F8036B0011E234 /* WMTPreApprovalScreen.swift in Sources */,
 				DCAB7BC824580B4C0006989D /* WMTQROperationParser.swift in Sources */,
+				EA44366C29F9297100DDEC1C /* WMTPostApprovaScreenRedirect.swift in Sources */,
 				DCC5CCB12449F81C004679AC /* WMTOperationFormData.swift in Sources */,
 				DCC5CCD4244DBA1C004679AC /* WMTOperationEndpoints.swift in Sources */,
 				DC488031292282C900DB844B /* WMTService.swift in Sources */,
+				EA6DDF1A29F804D60011E234 /* WMTPostApprovalScreen.swift in Sources */,
 				DCC5CCB92449F93C004679AC /* WMTOperationAttributeKeyValue.swift in Sources */,
 				DCC5CCBB2449F952004679AC /* WMTOperationAttributeNote.swift in Sources */,
 				BFEEB2092937A2680047941D /* WMTInboxGetList.swift in Sources */,
 				BFEEB20729379F960047941D /* WMTInboxSetMessageRead.swift in Sources */,
+				EA44366A29F9294600DDEC1C /* WMTPostApprovaScreenReview.swift in Sources */,
+				EA294F3D29F6A07A00A0494E /* WMTOperationUIData.swift in Sources */,
 				DCC5CCB32449F8CD004679AC /* WMTOperationAttribute.swift in Sources */,
 				DCC5CCAC2449F765004679AC /* WMTOperationsImpl.swift in Sources */,
 				DC06D01F25AC74E400F2EA69 /* WMTLock.swift in Sources */,
@@ -596,6 +639,7 @@
 				DC488041292282FF00DB844B /* WMTInboxEndpoints.swift in Sources */,
 				BF53DFC82971905600829814 /* WMTInboxContentType.swift in Sources */,
 				DCA43C6D2993F63E0059A163 /* WMTOperationAttributeImage.swift in Sources */,
+				EA44366E29F9298100DDEC1C /* WMTPostApprovaScreenGeneric.swift in Sources */,
 				DC48803D292282FF00DB844B /* WMTInbox.swift in Sources */,
 				DC488042292282FF00DB844B /* WMTInboxImpl.swift in Sources */,
 			);
