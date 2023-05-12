@@ -28,7 +28,7 @@ public class WMTPreApprovalScreen: Codable {
     public enum PreApprovalScreenType: String, Codable {
         case info = "INFO"
         case warning = "WARNING"
-        case qr = "QR"
+        case qr = "QR_SCAN"
     }
     
     // MARK: - INTERNALS
