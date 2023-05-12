@@ -54,7 +54,7 @@ open class WMTUserOperation: WMTOperation, Codable {
     /// the user may use the biometry, or if a password is required.
     public let allowedSignatureType: WMTAllowedOperationSignature
     
-    /// UI data to be shown
+    /// Data for the operation UI presented
     ///
     /// Accompanying information about the operation additional UI which should be presented such as
     /// Pre-Approval Screen or Post-Approval Screen
