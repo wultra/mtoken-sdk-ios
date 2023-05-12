@@ -1,16 +1,24 @@
 //
-//  OperationUITests.swift
-//  WultraMobileTokenSDKTests
+// Copyright 2023 Wultra s.r.o.
 //
-//  Created by Marek Stránský on 25.04.2023.
-//  Copyright © 2023 Wultra. All rights reserved.
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions
+// and limitations under the License.
 //
 
 import XCTest
 @testable import WultraMobileTokenSDK
 
 final class OperationUITests: XCTestCase {
-
+    
     
     func test_operationPreScreenUIResponse_matchesPreApprovalResponse() {
         
@@ -87,11 +95,36 @@ final class OperationUITests: XCTestCase {
         )
     }
     
+    func test_genericPayloadWithString_matches() {
+        guard let result = prepareGenericPostApproval(response: genericPostApproval) else {
+            XCTFail("Failed to parse JSON data")
+            return
+        }
+        
+        let generic = WMTPostApprovalScreenGeneric(
+            heading: "Thank you for your order",
+            message: "You may close the application now.",
+            payload: try! GenericPostApprovalScreenPayload(
+                customMessage: .object(["nestedMessage": .string("See you next time.")])
+            )
+        )
+
+        XCTAssertEqual(result.heading, generic.heading)
+        XCTAssertEqual(result.message, generic.message)
+        XCTAssertEqual(result.payload.customMessage, generic.payload.customMessage)
+        XCTAssertEqual(result.payload.customMessage["nestedMessage"], generic.payload.customMessage["nestedMessage"])
+    }
+    
     
     // MARK: Helpers
     
     private func prepareResult(response: String) -> WMTUserOperation? {
         let result = try? jsonDecoder.decode(WMTUserOperation.self, from: response.data(using: .utf8)!)
+        return result
+    }
+    
+    private func prepareGenericPostApproval(response: String) -> WMTPostApprovalScreenGeneric? {
+        let result = try? jsonDecoder.decode(WMTPostApprovalScreenGeneric.self, from: response.data(using: .utf8)!)
         return result
     }
     
@@ -191,6 +224,21 @@ final class OperationUITests: XCTestCase {
                     }]
                 }
             }
+    """
+    }()
+    
+    private let genericPostApproval: String = {
+    """
+    {
+        "type": "GENERIC",
+        "heading": "Thank you for your order",
+        "message": "You may close the application now.",
+        "payload": {
+          "customMessage": {
+                "nestedMessage": "See you next time."
+            }
+        }
+    }
     """
     }()
 }
