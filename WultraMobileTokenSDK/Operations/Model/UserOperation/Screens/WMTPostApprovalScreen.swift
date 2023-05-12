@@ -62,44 +62,4 @@ public class WMTPostApprovalScreen: Codable {
 }
 
 /// PostApprovalScreenPayload is base class for all payload classes
-///
-/// It is empty in this moment as `RedirectPostApprovalScreenPayload` is the only implemented payload
-public class PostApprovalScreenPayload: Codable {
-    
-}
-
-/// Payload with data about redirecting after the operation
-public class RedirectPostApprovalScreenPayload: PostApprovalScreenPayload {
-    
-    /// Text for the button title
-    public let text: String
-    
-    /// URL where to redirect
-    public let url: String
-    
-    /// Countdown after which the redirect should happen in seconds
-    public let countdown: Int
-    
-    // MARK: Internals
-    
-    private enum Keys: String, CodingKey {
-        case text = "redirectText"
-        case url = "redirectUrl"
-        case countdown = "countdown"
-    }
-    
-    public init(text: String, url: String, countdown: Int) {
-        self.text = text
-        self.url = url
-        self.countdown = countdown
-        super.init()
-    }
-    
-    required init(from decoder: Decoder) throws {
-        let c = try decoder.container(keyedBy: Keys.self)
-        text = try c.decode(String.self, forKey: .text)
-        url = try c.decode(String.self, forKey: .url)
-        countdown = try c.decode(Int.self, forKey: .countdown)
-        super.init()
-    }
-}
+public class PostApprovalScreenPayload: Codable {}
