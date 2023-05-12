@@ -49,9 +49,9 @@ public class WMTPostApprovalScreenGeneric: WMTPostApprovalScreen {
     }
 }
 
-///Payload of the generic post-approval screen may contain any object.
+/// Payload of the generic post-approval screen may contain any object.
 ///
-///So it implements custome JSONValue for decoding generic response
+/// So it implements custome JSONValue for decoding generic response
 public class GenericPostApprovalScreenPayload: PostApprovalScreenPayload {
     
     /// Generic Custom message may contain any object, kept to be String
