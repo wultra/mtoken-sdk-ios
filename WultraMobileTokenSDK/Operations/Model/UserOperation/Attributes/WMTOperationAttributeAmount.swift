@@ -42,8 +42,8 @@ public class WMTOperationAttributeAmount: WMTOperationAttribute {
 
     /// Formatted value and currency to the locale based on acceptLanguage
     ///
-    /// Both values are formatted, String will show e.g. "€" in front of the value
-    /// or "EUR" behind the value depending on locale
+    /// Both amount and currency are formatted, String will show e.g. "€" in front of the amount
+    /// or "EUR" behind the amount depending on locale
     public let valueFormatted: String?
     
     // MARK: - INTERNALS
