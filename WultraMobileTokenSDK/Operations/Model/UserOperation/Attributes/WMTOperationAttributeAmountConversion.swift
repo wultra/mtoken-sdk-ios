@@ -41,6 +41,12 @@ public class WMTOperationAttributeAmountConversion: WMTOperationAttribute {
         ///
         /// For example when the currency is CZK, this property will be "Kč"
         public let currencyFormatted: String?
+        
+        /// Formatted currency and amount to the locale based on acceptLanguage
+        ///
+        /// Both amount and currency are formatted, String will show e.g. "€" in front of the amount
+        /// or "EUR" behind the amount depending on locale
+        public let valueFormatted: String?
     }
     
     /// If the conversion is dynamic and the application should refresh it periodically
@@ -73,20 +79,22 @@ public class WMTOperationAttributeAmountConversion: WMTOperationAttribute {
             amount: try c.decode(Decimal.self, forKey: .sourceAmount),
             currency: try c.decode(String.self, forKey: .sourceCurrency),
             amountFormatted: try? c.decode(String.self, forKey: .sourceAmountFormatted),
-            currencyFormatted: try? c.decode(String.self, forKey: .sourceCurrencyFormatted)
+            currencyFormatted: try? c.decode(String.self, forKey: .sourceCurrencyFormatted),
+            valueFormatted: try? c.decode(String.self, forKey: .sourceValueFormatted)
         )
         self.target = .init(
             amount: try c.decode(Decimal.self, forKey: .targetAmount),
             currency: try c.decode(String.self, forKey: .targetCurrency),
             amountFormatted: try? c.decode(String.self, forKey: .targetAmountFormatted),
-            currencyFormatted: try? c.decode(String.self, forKey: .targetCurrencyFormatted)
+            currencyFormatted: try? c.decode(String.self, forKey: .targetCurrencyFormatted),
+            valueFormatted: try? c.decode(String.self, forKey: .targetValueFormatted)
         )
         
         try super.init(from: decoder)
     }
     
     private enum Keys: CodingKey {
-        case dynamic, sourceAmount, sourceCurrency, sourceAmountFormatted, sourceCurrencyFormatted,
-             targetAmount, targetCurrency, targetAmountFormatted, targetCurrencyFormatted
+        case dynamic, sourceAmount, sourceCurrency, sourceAmountFormatted, sourceCurrencyFormatted, sourceValueFormatted,
+             targetAmount, targetCurrency, targetAmountFormatted, targetCurrencyFormatted, targetValueFormatted
     }
 }
