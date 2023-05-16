@@ -88,7 +88,7 @@ class NetworkingObjectsTests: XCTestCase {
                 XCTAssert(attr.label.value == "Částka")
                 XCTAssert(attr.amount ==  NSDecimalNumber(string: "965165234082.23").decimalValue)
                 XCTAssert(attr.currency == "CZK")
-                XCTAssert(attr.valueFormatted == "\(NSDecimalNumber(string: "965165234082.23").decimalValue) CZK")
+                XCTAssert(attr.valueFormatted == "965165234082.23 CZK")
             } else {
                 XCTFail("amount attribute not recognized")
             }
