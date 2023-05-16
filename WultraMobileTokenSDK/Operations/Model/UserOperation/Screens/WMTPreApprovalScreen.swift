@@ -16,50 +16,71 @@
 
 import Foundation
 
-/// WMTPreApprovalScreen is the base class for Pre Approval screen classes
+/// WMTPreApprovalScreen contains data to be presented before approving operation
 ///
 /// `type` define different kind of data which can be passed with operation
 /// and shall be displayed before operation is confirmed
 public class WMTPreApprovalScreen: Codable {
     
-    /// type of PreApprovalScrren is presented with different classes (Starting with `WMTPreApprovalScreen*`)
+    /// Type of PreApprovalScreen (`WARNING`, `INFO`, `QR_SCAN` or unknown for future compatibility )
     public let type: PreApprovalScreenType
+    
+    /// Heading of the pre-approval screen
+    public let heading: String
+    
+    /// Message to the user
+    public let message: String
+    
+    /// Array of items to be displayed as list of choices
+    public let items: [String]?
+    
+    /// Type of the approval button
+    public let approvalType: PreApprovalScreenConfirmAction
+    
+    // MARK: - INTERNALS
     
     public enum PreApprovalScreenType: String, Codable {
         case info = "INFO"
         case warning = "WARNING"
         case qr = "QR_SCAN"
+        case unknown
     }
     
-    // MARK: - INTERNALS
-    
     private enum Keys: String, CodingKey {
-        case type
+        case type, heading, message, items, approvalType
     }
     
     public required init(from decoder: Decoder) throws {
         let c = try decoder.container(keyedBy: Keys.self)
         type = try c.decode(PreApprovalScreenType.self, forKey: .type)
+        heading = try c.decode(String.self, forKey: .heading)
+        message = try c.decode(String.self, forKey: .message)
+        items = try c.decode([String].self, forKey: .items)
+        approvalType = try c.decode(PreApprovalScreenConfirmAction.self, forKey: .approvalType)
     }
     
-    public init(type: PreApprovalScreenType) {
+    public init(type: PreApprovalScreenType, heading: String, message: String, items: [String]? = nil, approvalType: PreApprovalScreenConfirmAction) {
         self.type = type
+        self.heading = heading
+        self.message = message
+        self.items = items
+        self.approvalType = approvalType
     }
-    
-    /// This is convenience function to implement Polymorphic behavior with different types of screens
-    class func decode(decoder: Decoder) throws -> WMTPreApprovalScreen? {
-        let c = try decoder.container(keyedBy: Keys.self)
-        let t = try c.decode(String.self, forKey: .type)
-        let preType = PreApprovalScreenType(rawValue: t)
-        
-        switch preType {
-        case .info: return try WMTPreApprovalScreenInfo(from: decoder)
-        case .warning: return try WMTPreApprovalScreenWarning(from: decoder)
-        default:
-            D.error("Unknown preApproval type: \(t)")
-            return nil
-        }
-    }
+//    
+//    /// This is convenience function to implement Polymorphic behavior with different types of screens
+//    class func decode(decoder: Decoder) throws -> WMTPreApprovalScreen? {
+//        let c = try decoder.container(keyedBy: Keys.self)
+//        let t = try c.decode(String.self, forKey: .type)
+//        let preType = PreApprovalScreenType(rawValue: t)
+//        
+//        switch preType {
+//        case .info: return try WMTPreApprovalScreenInfo(from: decoder)
+//        case .warning: return try WMTPreApprovalScreenWarning(from: decoder)
+//        default:
+//            D.error("Unknown preApproval type: \(t)")
+//            return nil
+//        }
+//    }
 }
 
 /// Type of action which is used within Derived PreApproval classes to define

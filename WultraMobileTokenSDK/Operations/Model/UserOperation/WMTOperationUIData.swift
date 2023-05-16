@@ -22,7 +22,7 @@ open class WMTOperationUIData: Codable {
     /// Order of the buttons
     public let flipButtons: Bool?
     
-    /// Block approval during incoming phone call
+    /// Block approval when on call (for example when on phone or skype call)
     public let blockApprovalOnCall: Bool?
     
     /// UI for pre-approval opration screen
@@ -43,7 +43,7 @@ open class WMTOperationUIData: Codable {
         let c = try decoder.container(keyedBy: Keys.self)
         flipButtons = try? c.decode(Bool.self, forKey: .flipButtons)
         blockApprovalOnCall = try? c.decode(Bool.self, forKey: .blockApprovalOnCall)
-        preApprovalScreen = try? c.decode(WMTPreApprovalScreenDecodable.self, forKey: .preApprovalScreen).preApprovalObject
+        preApprovalScreen = try? c.decode(WMTPreApprovalScreen.self, forKey: .preApprovalScreen)
         postApprovalScreen = try? c.decode(WMTPostApprovalScreenDecodable.self, forKey: .postApprovalScreen).postApprovalObject
     }
     
@@ -52,17 +52,6 @@ open class WMTOperationUIData: Codable {
         self.blockApprovalOnCall = blockApprovalOnCall
         self.preApprovalScreen = preApprovalScreen
         self.postApprovalScreen = postApprovalScreen
-    }
-}
-
-// This class acts as "translation layer" for decoding polymorphic property of preApprovalScreen
-// property inside OperationUIData class that can have multiple types of PreApprovalScreen inside
-private class WMTPreApprovalScreenDecodable: Decodable {
-    
-    fileprivate let preApprovalObject: WMTPreApprovalScreen?
-    
-    required init(from decoder: Decoder) throws {
-        preApprovalObject = try WMTPreApprovalScreen.decode(decoder: decoder)
     }
 }
 
