@@ -25,12 +25,12 @@ open class WMTOperationUIData: Codable {
     /// Block approval when on call (for example when on phone or skype call)
     public let blockApprovalOnCall: Bool?
     
-    /// UI for pre-approval opration screen
-    ///
-    /// Note that screen can be presented with different classes (Name starts with `WMTPreApprovalScreen*` )
+    /// UI for pre-approval operation screen
     public let preApprovalScreen: WMTPreApprovalScreen?
     
     /// UI for post-approval opration screen
+    ///
+    /// Type of PostApprovalScrren is presented with different classes (Starting with `WMTPostApprovalScreen*`)
     public let postApprovalScreen: WMTPostApprovalScreen?
     
     // MARK: - INTERNALS

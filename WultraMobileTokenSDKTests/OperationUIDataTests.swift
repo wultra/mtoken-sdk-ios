@@ -52,6 +52,28 @@ class OperationUIDataTests: XCTestCase {
         XCTAssertEqual((result.ui?.preApprovalScreen)?.approvalType, ui.preApprovalScreen?.approvalType)
     }
     
+    func testPreApprovalUnknownResponse() {
+        guard let result = prepareResult(response: preApprovalFutureResponse) else {
+            XCTFail("Failed to parse JSON data")
+            return
+        }
+        
+        let ui = WMTOperationUIData(
+            flipButtons: true,
+            blockApprovalOnCall: false,
+            preApprovalScreen:
+                    .init(
+                        type: .unknown,
+                        heading: "Future",
+                        message: "Future is now, old man",
+                        items: [],
+                        approvalType: nil),
+            postApprovalScreen: nil)
+        
+        XCTAssertEqual(result.ui?.preApprovalScreen?.type,ui.preApprovalScreen?.type)
+        XCTAssertEqual((result.ui?.preApprovalScreen)?.heading, ui.preApprovalScreen?.heading)
+    }
+    
     func testPreApprovalGenericResponse() {
         guard let result = prepareGenericPostApproval(response: genericPostApproval) else {
             XCTFail("Failed to parse JSON data")
@@ -167,6 +189,51 @@ class OperationUIDataTests: XCTestCase {
                         "message": "You may become a victim of an attack.",
                         "items": ["You activate a new app and allow access to your accounts", "Make sure the activation takes place on your device", "If you have been prompted for this operation in connection with a payment, decline it"],
                         "approvalType": "SLIDER"
+                    }
+                },
+                "allowedSignatureType": {
+                    "type": "2FA",
+                    "variants": ["possession_knowledge", "possession_biometry"]
+                },
+                "formData": {
+                    "title": "Payment Approval",
+                    "message": "Please confirm the payment",
+                    "attributes": [{
+                        "type": "AMOUNT",
+                        "id": "operation.amount",
+                        "label": "Amount",
+                        "amount": 100.00,
+                        "currency": "EUR",
+                        "amountFormatted": "100,00",
+                        "currencyFormatted": "€"
+                    }, {
+                        "type": "KEY_VALUE",
+                        "id": "operation.account",
+                        "label": "To Account",
+                        "value": "CZ3855000000003643174999"
+                    }]
+                }
+            }
+    """
+    }()
+    
+    private let preApprovalFutureResponse: String = {
+    """
+            {
+                "id": "74654880-6db9-4b84-9174-386fc5e7d8ab",
+                "name": "authorize_payment_preApproval",
+                "data": "A1*A100.00EUR*ICZ3855000000003643174999",
+                "status": "PENDING",
+                "operationCreated": "2023-04-25T13:09:52+0000",
+                "operationExpires": "2023-04-25T13:14:52+0000",
+                "ui": {
+                    "flipButtons": true,
+                    "blockApprovalOnCall": false,
+                    "preApprovalScreen": {
+                        "type": "FUTURE",
+                        "heading": "Future",
+                        "message": "Future is now, old man.",
+                        "items": []
                     }
                 },
                 "allowedSignatureType": {
