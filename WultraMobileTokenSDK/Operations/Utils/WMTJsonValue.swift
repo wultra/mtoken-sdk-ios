@@ -8,7 +8,6 @@
 
 import Foundation
 
-
 // JSONValue is helper enum to decode generic response
 public enum WMTJSONValue: Codable, Equatable {
     case string(String)
