@@ -17,11 +17,10 @@
 import XCTest
 @testable import WultraMobileTokenSDK
 
-final class OperationUITests: XCTestCase {
+class OperationUIDataTests: XCTestCase {
     
     
-    func test_operationPreScreenUIResponse_matchesPreApprovalResponse() {
-        
+    func testPreApprovalWarningResponse() {
         guard let result = prepareResult(response: preApprovalResponse) else {
             XCTFail("Failed to parse JSON data")
             return
@@ -31,29 +30,64 @@ final class OperationUITests: XCTestCase {
             flipButtons: true,
             blockApprovalOnCall: false,
             preApprovalScreen:
-                WMTPreApprovalScreenWarning(
-                    heading: "Watch out!",
-                    message: "You may become a victim of an attack.",
-                    items: ["You activate a new app and allow access to your accounts",
+                    .init(
+                        type: .warning,
+                        heading: "Watch out!",
+                        message: "You may become a victim of an attack.",
+                        items: [
+                            "You activate a new app and allow access to your accounts",
                             "Make sure the activation takes place on your device",
-                            "If you have been prompted for this operation in connection with a payment, decline it"],
-                    approvalType: PreApprovalScreenConfirmAction(rawValue: "SLIDER")!,
-                    type: WMTPreApprovalScreen.PreApprovalScreenType(rawValue: "WARNING")!),
+                            "If you have been prompted for this operation in connection with a payment, decline it"
+                        ],
+                        approvalType: PreApprovalScreenConfirmAction(rawValue: "SLIDER")!),
             postApprovalScreen: nil)
         
         
         XCTAssertEqual(result.ui?.flipButtons, ui.flipButtons)
         XCTAssertEqual(result.ui?.blockApprovalOnCall, ui.blockApprovalOnCall)
         XCTAssertEqual(result.ui?.preApprovalScreen?.type,ui.preApprovalScreen?.type)
-        XCTAssertEqual((result.ui?.preApprovalScreen as? WMTPreApprovalScreenWarning)?.heading, (ui.preApprovalScreen as? WMTPreApprovalScreenWarning)?.heading)
-        XCTAssertEqual((result.ui?.preApprovalScreen as? WMTPreApprovalScreenWarning)?.items, (ui.preApprovalScreen as? WMTPreApprovalScreenWarning)?.items)
-        XCTAssertEqual((result.ui?.preApprovalScreen as? WMTPreApprovalScreenWarning)?.message, (ui.preApprovalScreen as? WMTPreApprovalScreenWarning)?.message)
-        XCTAssertEqual((result.ui?.preApprovalScreen as? WMTPreApprovalScreenWarning)?.approvalType, (ui.preApprovalScreen as? WMTPreApprovalScreenWarning)?.approvalType)
+        XCTAssertEqual((result.ui?.preApprovalScreen)?.heading, ui.preApprovalScreen?.heading)
+        XCTAssertEqual((result.ui?.preApprovalScreen)?.items, ui.preApprovalScreen?.items)
+        XCTAssertEqual((result.ui?.preApprovalScreen)?.message, ui.preApprovalScreen?.message)
+        XCTAssertEqual((result.ui?.preApprovalScreen)?.approvalType, ui.preApprovalScreen?.approvalType)
+    }
+    
+    func testPreApprovalGenericResponse() {
+        guard let result = prepareGenericPostApproval(response: genericPostApproval) else {
+            XCTFail("Failed to parse JSON data")
+            return
+        }
+        
+        let generic = WMTPostApprovalScreenGeneric(
+            heading: "Thank you for your order",
+            message: "You may close the application now.",
+            payload: try! WMTJSONValue(jsonData:
+            """
+                {
+                    "nestedMessage": "See you next time.",
+                    "integer": 1,
+                    "boolean": true,
+                    "array": ["firstElement", "secondElement"],
+                    "object": {
+                        "nestedObject": "stringValue"
+                    }
+                }
+             """.data(using: .utf8)!
+            )
+        )
+        
+        XCTAssertEqual(result.heading, generic.heading)
+        XCTAssertEqual(result.message, generic.message)
+        XCTAssertEqual(result.payload, generic.payload)
+        XCTAssertEqual(result.payload["nestedMessage"], .string("See you next time."))
+        XCTAssertEqual(result.payload["integer"], .int(1))
+        XCTAssertEqual(result.payload["boolean"], .bool(true))
+        XCTAssertEqual(result.payload["array"], .array([.string("firstElement"), .string("secondElement")]))
+        XCTAssertEqual(result.payload["object"], .object(["nestedObject" : .string("stringValue")])    )
     }
     
     
-    func test_operationPostScreenUIResponse_matchesPostApprovalResponse() {
-        
+    func testPostApprovalResponse() {
         guard let result = prepareResult(response: postApprovalResponse) else {
             XCTFail("Failed to parse JSON data")
             return
@@ -68,7 +102,7 @@ final class OperationUITests: XCTestCase {
                     heading: "Thank you for your order",
                     message: "You will be redirected to the merchant application.",
                     payload:
-                        RedirectPostApprovalScreenPayload(
+                        WMTRedirectPostApprovalScreenPayload(
                             text: "Go to the application",
                             url:"https://www.alza.cz/ubiquiti-unifi-ap-6-pro-d7212937.htm",
                             countdown: 5),
@@ -80,40 +114,21 @@ final class OperationUITests: XCTestCase {
         XCTAssertEqual((result.ui?.postApprovalScreen as? WMTPostApprovalScreenRedirect)?.heading, (ui.postApprovalScreen as? WMTPostApprovalScreenRedirect)?.heading)
         XCTAssertEqual((result.ui?.postApprovalScreen as? WMTPostApprovalScreenRedirect)?.heading, (ui.postApprovalScreen as? WMTPostApprovalScreenRedirect)?.heading)
         XCTAssertEqual((result.ui?.postApprovalScreen as? WMTPostApprovalScreenRedirect)?.message, (ui.postApprovalScreen as? WMTPostApprovalScreenRedirect)?.message)
-        XCTAssertEqual(((result.ui?.postApprovalScreen as? WMTPostApprovalScreenRedirect)?.payload as? RedirectPostApprovalScreenPayload)?.text, ((ui.postApprovalScreen as? WMTPostApprovalScreenRedirect)?.payload as? RedirectPostApprovalScreenPayload)?.text)
+        XCTAssertEqual(((result.ui?.postApprovalScreen as? WMTPostApprovalScreenRedirect)?.payload as? WMTRedirectPostApprovalScreenPayload)?.text, ((ui.postApprovalScreen as? WMTPostApprovalScreenRedirect)?.payload as? WMTRedirectPostApprovalScreenPayload)?.text)
         XCTAssertEqual(
-            ((result.ui?.postApprovalScreen as? WMTPostApprovalScreenRedirect)?.payload as? RedirectPostApprovalScreenPayload)?.text,
-            ((ui.postApprovalScreen as? WMTPostApprovalScreenRedirect)?.payload as? RedirectPostApprovalScreenPayload)?.text
+            ((result.ui?.postApprovalScreen as? WMTPostApprovalScreenRedirect)?.payload as? WMTRedirectPostApprovalScreenPayload)?.text,
+            ((ui.postApprovalScreen as? WMTPostApprovalScreenRedirect)?.payload as? WMTRedirectPostApprovalScreenPayload)?.text
         )
         XCTAssertEqual(
-            ((result.ui?.postApprovalScreen as? WMTPostApprovalScreenRedirect)?.payload as? RedirectPostApprovalScreenPayload)?.url,
-            ((ui.postApprovalScreen as? WMTPostApprovalScreenRedirect)?.payload as? RedirectPostApprovalScreenPayload)?.url
+            ((result.ui?.postApprovalScreen as? WMTPostApprovalScreenRedirect)?.payload as? WMTRedirectPostApprovalScreenPayload)?.url,
+            ((ui.postApprovalScreen as? WMTPostApprovalScreenRedirect)?.payload as? WMTRedirectPostApprovalScreenPayload)?.url
         )
         XCTAssertEqual(
-            ((result.ui?.postApprovalScreen as? WMTPostApprovalScreenRedirect)?.payload as? RedirectPostApprovalScreenPayload)?.countdown,
-            ((ui.postApprovalScreen as? WMTPostApprovalScreenRedirect)?.payload as? RedirectPostApprovalScreenPayload)?.countdown
+            ((result.ui?.postApprovalScreen as? WMTPostApprovalScreenRedirect)?.payload as? WMTRedirectPostApprovalScreenPayload)?.countdown,
+            ((ui.postApprovalScreen as? WMTPostApprovalScreenRedirect)?.payload as? WMTRedirectPostApprovalScreenPayload)?.countdown
         )
     }
     
-    func test_genericPayloadWithString_matches() {
-        guard let result = prepareGenericPostApproval(response: genericPostApproval) else {
-            XCTFail("Failed to parse JSON data")
-            return
-        }
-        
-        let generic = WMTPostApprovalScreenGeneric(
-            heading: "Thank you for your order",
-            message: "You may close the application now.",
-            payload: try! GenericPostApprovalScreenPayload(
-                customMessage: .object(["nestedMessage": .string("See you next time.")])
-            )
-        )
-
-        XCTAssertEqual(result.heading, generic.heading)
-        XCTAssertEqual(result.message, generic.message)
-        XCTAssertEqual(result.payload.customMessage, generic.payload.customMessage)
-        XCTAssertEqual(result.payload.customMessage["nestedMessage"], generic.payload.customMessage["nestedMessage"])
-    }
     
     
     // MARK: Helpers
@@ -234,8 +249,12 @@ final class OperationUITests: XCTestCase {
         "heading": "Thank you for your order",
         "message": "You may close the application now.",
         "payload": {
-          "customMessage": {
-                "nestedMessage": "See you next time."
+            "nestedMessage": "See you next time.",
+            "integer": 1,
+            "boolean": true,
+            "array": ["firstElement", "secondElement"],
+            "object": {
+                "nestedObject": "stringValue"
             }
         }
     }

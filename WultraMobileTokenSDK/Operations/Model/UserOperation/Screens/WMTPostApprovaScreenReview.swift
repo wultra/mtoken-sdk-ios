@@ -25,7 +25,7 @@ public class WMTPostApprovalScreenReview: WMTPostApprovalScreen {
     public let message: String
     
     /// Payload with data about action after the operation
-    public let payload: ReviewPostApprovalScreenPayload
+    public let payload: WMTReviewPostApprovalScreenPayload
     // MARK: Internals
     
     private enum Keys: String, CodingKey {
@@ -36,13 +36,13 @@ public class WMTPostApprovalScreenReview: WMTPostApprovalScreen {
         let c = try decoder.container(keyedBy: Keys.self)
         heading = try c.decode(String.self, forKey: .heading)
         message = try c.decode(String.self, forKey: .message)
-        payload = try c.decode(ReviewPostApprovalScreenPayload.self, forKey: .payload)
+        payload = try c.decode(WMTReviewPostApprovalScreenPayload.self, forKey: .payload)
         try super.init(from: decoder)
     }
 }
 
 /// Payload of the review post-approval screen shows the operation attributes.
-public class ReviewPostApprovalScreenPayload: PostApprovalScreenPayload {
+public class WMTReviewPostApprovalScreenPayload: PostApprovalScreenPayload {
     
     /// Review attributes contains info
     public let attributes: [ReviewAttributes]

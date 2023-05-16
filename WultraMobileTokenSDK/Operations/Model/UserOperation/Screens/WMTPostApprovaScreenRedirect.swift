@@ -25,13 +25,13 @@ public class WMTPostApprovalScreenRedirect: WMTPostApprovalScreen {
     public let message: String
     
     /// Payload with data about action after the operation
-    public let payload: RedirectPostApprovalScreenPayload
+    public let payload: WMTRedirectPostApprovalScreenPayload
     
     private enum Keys: String, CodingKey {
         case heading, message, payload
     }
     
-    public init(heading: String, message: String, payload: RedirectPostApprovalScreenPayload, type: PostApprovalScreenType) {
+    public init(heading: String, message: String, payload: WMTRedirectPostApprovalScreenPayload, type: PostApprovalScreenType) {
         self.heading = heading
         self.message = message
         self.payload = payload
@@ -42,13 +42,13 @@ public class WMTPostApprovalScreenRedirect: WMTPostApprovalScreen {
         let c = try decoder.container(keyedBy: Keys.self)
         heading = try c.decode(String.self, forKey: .heading)
         message = try c.decode(String.self, forKey: .message)
-        payload = try c.decode(RedirectPostApprovalScreenPayload.self, forKey: .payload)
+        payload = try c.decode(WMTRedirectPostApprovalScreenPayload.self, forKey: .payload)
         try super.init(from: decoder)
     }
 }
 
 /// Payload with data about redirecting after the operation
-public class RedirectPostApprovalScreenPayload: PostApprovalScreenPayload {
+public class WMTRedirectPostApprovalScreenPayload: PostApprovalScreenPayload {
     
     /// Text for the button title
     public let text: String

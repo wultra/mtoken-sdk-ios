@@ -19,7 +19,7 @@ import Foundation
 /// Operation UI contains data for screens pre and/or post approved operation
 open class WMTOperationUIData: Codable {
     
-    /// Order of the buttons
+    /// Confirm and Reject buttons should be flipped both in position and style
     public let flipButtons: Bool?
     
     /// Block approval when on call (for example when on phone or skype call)
