@@ -475,7 +475,7 @@ open class WMTOperationUIData: Codable {
     /// Confirm and Reject buttons should be flipped both in position and style
     public let flipButtons: Bool?
     
-    /// Block approval when on call (for example when on phone or skype call)
+    /// Block approval when on call (for example when on a phone or Skype call)
     public let blockApprovalOnCall: Bool?
     
     /// UI for pre-approval operation screen
@@ -496,10 +496,10 @@ PreApprovalScreen types:
 - `UNKNOWN` 
 
 PostApprovalScreen types:
-`WMTPostApprovalScreen*` classes commonly contains `heading` and `message` and different payload data
+`WMTPostApprovalScreen*` classes commonly contain `heading` and `message` and different payload data
 
-- `REVIEW` providing array of operations attributes with data: type, id, label and note
-- `REDIRECT`providing text for button, countdown and redirection url
+- `REVIEW` provides an array of operations attributes with data: type, id, label, and note
+- `REDIRECT` providing text for button, countdown, and redirection URL
 - `GENERIC` may contain any object
 
 ### Subclassing WMTUserOperation
