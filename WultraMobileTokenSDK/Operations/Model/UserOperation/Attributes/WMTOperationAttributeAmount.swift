@@ -39,18 +39,25 @@ public class WMTOperationAttributeAmount: WMTOperationAttribute {
     ///
     /// For example when the currency is CZK, this property will be "Kč"
     public let currencyFormatted: String?
+
+    /// Formatted value and currency to the locale based on acceptLanguage
+    ///
+    /// Both amount and currency are formatted, String will show e.g. "€" in front of the amount
+    /// or "EUR" behind the amount depending on the locale
+    public let valueFormatted: String?
     
     // MARK: - INTERNALS
     
     private enum Keys: CodingKey {
-        case amount, amountFormatted, currency, currencyFormatted
+        case amount, amountFormatted, currency, currencyFormatted, valueFormatted
     }
     
-    public init(label: AttributeLabel, amount: Decimal, currency: String, amountFormatted: String?, currencyFormatted: String?) {
+    public init(label: AttributeLabel, amount: Decimal, currency: String, amountFormatted: String?, currencyFormatted: String?, valueFormatted: String?) {
         self.amount = amount
         self.currency = currency
         self.amountFormatted = amountFormatted
         self.currencyFormatted = currencyFormatted
+        self.valueFormatted = valueFormatted
         super.init(type: .amount, label: label)
     }
     
@@ -59,10 +66,10 @@ public class WMTOperationAttributeAmount: WMTOperationAttribute {
         let c = try decoder.container(keyedBy: Keys.self)
         
         amount = (try c.decode(Double.self, forKey: .amount) as NSNumber).decimalValue
+        currency = try c.decode(String.self, forKey: .currency)
         amountFormatted = try? c.decode(String.self, forKey: .amountFormatted)
         currencyFormatted = try? c.decode(String.self, forKey: .currencyFormatted)
-        currency = try c.decode(String.self, forKey: .currency)
-        
+        valueFormatted = try? c.decode(String.self, forKey: .valueFormatted)
         try super.init(from: decoder)
     }
 }
