@@ -14,7 +14,6 @@
 // and limitations under the License.
 //
 
-
 import Foundation
 
 // JSONValue is helper enum to decode generic response
