@@ -24,7 +24,7 @@ public class WMTPostApprovalScreenGeneric: WMTPostApprovalScreen {
     /// Message to the user
     public let message: String
     
-    /// Payload with data about action after the operation
+    /// Generic data defined on server
     public let payload: WMTJSONValue
 
     // MARK: Internals
