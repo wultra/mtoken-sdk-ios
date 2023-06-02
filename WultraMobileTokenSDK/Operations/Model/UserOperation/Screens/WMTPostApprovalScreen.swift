@@ -53,10 +53,8 @@ public class WMTPostApprovalScreen: Codable {
         switch preType {
         case .review: return try WMTPostApprovalScreenReview(from: decoder)
         case .redirect: return try WMTPostApprovalScreenRedirect(from: decoder)
-        case .generic: return try WMTPostApprovalScreenGeneric(from: decoder)
         default:
-            D.error("Unknown postApproval type: \(t)")
-            return nil
+            return try WMTPostApprovalScreenGeneric(from: decoder)
         }
     }
 }

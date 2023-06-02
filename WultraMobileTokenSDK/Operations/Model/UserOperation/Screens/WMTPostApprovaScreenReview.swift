@@ -32,6 +32,13 @@ public class WMTPostApprovalScreenReview: WMTPostApprovalScreen {
         case heading, message, payload
     }
     
+    public init(heading: String, message: String, payload: WMTReviewPostApprovalScreenPayload, type: PostApprovalScreenType) {
+        self.heading = heading
+        self.message = message
+        self.payload = payload
+        super.init(type: type)
+    }
+    
     public required init(from decoder: Decoder) throws {
         let c = try decoder.container(keyedBy: Keys.self)
         heading = try c.decode(String.self, forKey: .heading)
@@ -44,53 +51,25 @@ public class WMTPostApprovalScreenReview: WMTPostApprovalScreen {
 /// Payload of the review post-approval screen shows the operation attributes.
 public class WMTReviewPostApprovalScreenPayload: PostApprovalScreenPayload {
     
-    /// Review attributes contains info
-    public let attributes: [ReviewAttributes]
+    /// Attributes as in FormData but its data might be only a subset
+    public let attributes: [WMTOperationAttribute]
     
     // MARK: Internals
     
-    private enum Keys: String, CodingKey {
-        case attributes, type, id, label, note
+    public required init(from decoder: Decoder) throws {
+        
+        let c = try decoder.container(keyedBy: Keys.self)
+        attributes = (try? c.decode([WMTOperationAttributeDecodable].self, forKey: .attributes).map {
+            $0.attrObject }) ?? []
+        super.init()
     }
     
-    public class ReviewAttributes: Codable {
-        
-        public let type: String
-        
-        public let id: String
-        
-        public let label: String
-        
-        public let note: String
-        
-        private enum AttributesKeys: String, CodingKey {
-            case type, id, label, note
-        }
-        
-        public init(type: String, id: String, label: String, note: String) {
-            self.type = type
-            self.id = id
-            self.label = label
-            self.note = note
-        }
-        
-        public required init(from decoder: Decoder) throws {
-            let c = try decoder.container(keyedBy: AttributesKeys.self)
-            type = try c.decode(String.self, forKey: .type)
-            id = try c.decode(String.self, forKey: .id)
-            label = try c.decode(String.self, forKey: .label)
-            note = try c.decode(String.self, forKey: .note)
-        }
-    }
-    
-    public init(attributes: [ReviewAttributes]) {
+    public init(attributes: [WMTOperationAttribute]) {
         self.attributes = attributes
         super.init()
     }
     
-    public required init(from decoder: Decoder) throws {
-        let c = try decoder.container(keyedBy: Keys.self)
-        attributes = try c.decode([ReviewAttributes].self, forKey: .attributes)
-        super.init()
+    private enum Keys: CodingKey {
+        case attributes
     }
 }

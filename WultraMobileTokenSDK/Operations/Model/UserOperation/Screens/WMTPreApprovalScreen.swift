@@ -67,21 +67,6 @@ public class WMTPreApprovalScreen: Codable {
         self.items = items
         self.approvalType = approvalType
     }
-//    
-//    /// This is convenience function to implement Polymorphic behavior with different types of screens
-//    class func decode(decoder: Decoder) throws -> WMTPreApprovalScreen? {
-//        let c = try decoder.container(keyedBy: Keys.self)
-//        let t = try c.decode(String.self, forKey: .type)
-//        let preType = PreApprovalScreenType(rawValue: t)
-//        
-//        switch preType {
-//        case .info: return try WMTPreApprovalScreenInfo(from: decoder)
-//        case .warning: return try WMTPreApprovalScreenWarning(from: decoder)
-//        default:
-//            D.error("Unknown preApproval type: \(t)")
-//            return nil
-//        }
-//    }
 }
 
 /// Type of action which is used within Derived PreApproval classes to define
