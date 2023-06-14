@@ -23,7 +23,7 @@ import Foundation
 public class WMTPreApprovalScreen: Codable {
     
     /// Type of PreApprovalScreen (`WARNING`, `INFO`, `QR_SCAN` or unknown for future compatibility )
-    public let type: PreApprovalScreenType
+    public let type: ScreenType
     
     /// Heading of the pre-approval screen
     public let heading: String
@@ -35,11 +35,11 @@ public class WMTPreApprovalScreen: Codable {
     public let items: [String]?
     
     /// Type of the approval button
-    public let approvalType: PreApprovalScreenConfirmAction?
+    public let approvalType: WMTPreApprovalScreenConfirmAction?
     
     // MARK: - INTERNALS
     
-    public enum PreApprovalScreenType: String, Codable {
+    public enum ScreenType: String, Codable {
         case info = "INFO"
         case warning = "WARNING"
         case qr = "QR_SCAN"
@@ -53,14 +53,14 @@ public class WMTPreApprovalScreen: Codable {
     public required init(from decoder: Decoder) throws {
         let c = try decoder.container(keyedBy: Keys.self)
         let t = try c.decode(String.self, forKey: .type)
-        type = PreApprovalScreenType(rawValue: t) ?? .unknown
+        type = ScreenType(rawValue: t) ?? .unknown
         heading = try c.decode(String.self, forKey: .heading)
         message = try c.decode(String.self, forKey: .message)
         items = try? c.decode([String].self, forKey: .items)
-        approvalType = try? c.decode(PreApprovalScreenConfirmAction.self, forKey: .approvalType)
+        approvalType = try? c.decode(WMTPreApprovalScreenConfirmAction.self, forKey: .approvalType)
     }
     
-    public init(type: PreApprovalScreenType, heading: String, message: String, items: [String]? = nil, approvalType: PreApprovalScreenConfirmAction?) {
+    public init(type: ScreenType, heading: String, message: String, items: [String]? = nil, approvalType: WMTPreApprovalScreenConfirmAction?) {
         self.type = type
         self.heading = heading
         self.message = message
@@ -71,6 +71,6 @@ public class WMTPreApprovalScreen: Codable {
 
 /// Type of action which is used within Derived PreApproval classes to define
 /// how the confirm action shall be performed
-public enum PreApprovalScreenConfirmAction: String, Codable {
+public enum WMTPreApprovalScreenConfirmAction: String, Codable {
     case slider = "SLIDER"
 }

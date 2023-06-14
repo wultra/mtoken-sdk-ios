@@ -16,6 +16,7 @@
 
 import Foundation
 
+/// Review screen shows the operation attributes
 public class WMTPostApprovalScreenReview: WMTPostApprovalScreen {
     
     /// Heading of the post-approval screen
@@ -32,7 +33,7 @@ public class WMTPostApprovalScreenReview: WMTPostApprovalScreen {
         case heading, message, payload
     }
     
-    public init(heading: String, message: String, payload: WMTReviewPostApprovalScreenPayload, type: PostApprovalScreenType) {
+    public init(heading: String, message: String, payload: WMTReviewPostApprovalScreenPayload, type: ScreenType) {
         self.heading = heading
         self.message = message
         self.payload = payload
@@ -49,7 +50,7 @@ public class WMTPostApprovalScreenReview: WMTPostApprovalScreen {
 }
 
 /// Payload of the review post-approval screen shows the operation attributes.
-public class WMTReviewPostApprovalScreenPayload: PostApprovalScreenPayload {
+public class WMTReviewPostApprovalScreenPayload: WMTPostApprovalScreenPayload {
     
     /// Attributes as in FormData but its data might be only a subset
     public let attributes: [WMTOperationAttribute]

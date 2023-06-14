@@ -16,6 +16,7 @@
 
 import Foundation
 
+/// Redirect screen prepares for merchant redirect
 public class WMTPostApprovalScreenRedirect: WMTPostApprovalScreen {
     
     /// Heading of the post-approval screen
@@ -31,7 +32,7 @@ public class WMTPostApprovalScreenRedirect: WMTPostApprovalScreen {
         case heading, message, payload
     }
     
-    public init(heading: String, message: String, payload: WMTRedirectPostApprovalScreenPayload, type: PostApprovalScreenType) {
+    public init(heading: String, message: String, payload: WMTRedirectPostApprovalScreenPayload, type: ScreenType) {
         self.heading = heading
         self.message = message
         self.payload = payload
@@ -48,7 +49,7 @@ public class WMTPostApprovalScreenRedirect: WMTPostApprovalScreen {
 }
 
 /// Payload with data about redirecting after the operation
-public class WMTRedirectPostApprovalScreenPayload: PostApprovalScreenPayload {
+public class WMTRedirectPostApprovalScreenPayload: WMTPostApprovalScreenPayload {
     
     /// Text for the button title
     public let text: String

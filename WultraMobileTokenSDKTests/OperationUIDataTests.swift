@@ -39,7 +39,7 @@ class OperationUIDataTests: XCTestCase {
                             "Make sure the activation takes place on your device",
                             "If you have been prompted for this operation in connection with a payment, decline it"
                         ],
-                        approvalType: PreApprovalScreenConfirmAction(rawValue: "SLIDER")!),
+                        approvalType: WMTPreApprovalScreenConfirmAction(rawValue: "SLIDER")!),
             postApprovalScreen: nil)
         
         
@@ -128,7 +128,7 @@ class OperationUIDataTests: XCTestCase {
                             text: "Go to the application",
                             url:"https://www.alza.cz/ubiquiti-unifi-ap-6-pro-d7212937.htm",
                             countdown: 5),
-                    type: WMTPostApprovalScreen.PostApprovalScreenType(rawValue: "MERCHANT_REDIRECT")!))
+                    type: WMTPostApprovalScreen.ScreenType(rawValue: "MERCHANT_REDIRECT")!))
         
         XCTAssertEqual(result.ui?.flipButtons, ui.flipButtons)
         XCTAssertEqual(result.ui?.blockApprovalOnCall, ui.blockApprovalOnCall)
@@ -172,7 +172,7 @@ class OperationUIDataTests: XCTestCase {
                                 )
                             ]
                         ),
-                    type: WMTPostApprovalScreen.PostApprovalScreenType(rawValue: "REVIEW")!
+                    type: WMTPostApprovalScreen.ScreenType(rawValue: "REVIEW")!
                 )
         )
         let resultPostApproval = result.ui?.postApprovalScreen as? WMTPostApprovalScreenReview

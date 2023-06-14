@@ -16,6 +16,7 @@
 
 import Foundation
 
+/// Generic screen may contain any object
 public class WMTPostApprovalScreenGeneric: WMTPostApprovalScreen {
     
     /// Heading of the post-approval screen

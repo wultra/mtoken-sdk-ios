@@ -22,10 +22,10 @@ import Foundation
 /// and shall be displayed before operation is confirmed
 public class WMTPostApprovalScreen: Codable {
     
-    /// type of PostApprovalScrren is presented with different classes (Starting with `WMTPostApprovalScreen*`)
-    public let type: PostApprovalScreenType
+    /// type of PostApprovalScreen is presented with different classes (Starting with `WMTPostApprovalScreen*`)
+    public let type: ScreenType
     
-    public enum PostApprovalScreenType: String, Codable {
+    public enum ScreenType: String, Codable {
         case review = "REVIEW"
         case redirect = "MERCHANT_REDIRECT"
         case generic = "GENERIC"
@@ -37,10 +37,10 @@ public class WMTPostApprovalScreen: Codable {
     
     public required init(from decoder: Decoder) throws {
         let c = try decoder.container(keyedBy: Keys.self)
-        type = try c.decode(PostApprovalScreenType.self, forKey: .type)
+        type = try c.decode(ScreenType.self, forKey: .type)
     }
     
-    public init(type: PostApprovalScreenType) {
+    public init(type: ScreenType) {
         self.type = type
     }
     
@@ -48,7 +48,7 @@ public class WMTPostApprovalScreen: Codable {
     class func decode(decoder: Decoder) throws -> WMTPostApprovalScreen? {
         let c = try decoder.container(keyedBy: Keys.self)
         let t = try c.decode(String.self, forKey: .type)
-        let preType = PostApprovalScreenType(rawValue: t)
+        let preType = ScreenType(rawValue: t)
         
         switch preType {
         case .review: return try WMTPostApprovalScreenReview(from: decoder)
@@ -60,4 +60,4 @@ public class WMTPostApprovalScreen: Codable {
 }
 
 /// PostApprovalScreenPayload is base class for all payload classes
-public class PostApprovalScreenPayload: Codable {}
+public class WMTPostApprovalScreenPayload: Codable {}
