@@ -56,9 +56,9 @@ public class WMTOperationFormData: Codable {
 
 // This class acts as "translation layer" for decoding polymorphic property of "attributes"
 // property inside OperationFormData class that can have multiple types of Attribute inside
-private class WMTOperationAttributeDecodable: Decodable {
+class WMTOperationAttributeDecodable: Decodable {
     
-    fileprivate let attrObject: WMTOperationAttribute
+    let attrObject: WMTOperationAttribute
     
     required init(from decoder: Decoder) throws {
         attrObject = try WMTOperationAttribute.decode(decoder: decoder)

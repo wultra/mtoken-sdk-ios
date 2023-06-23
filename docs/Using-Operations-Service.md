@@ -431,6 +431,11 @@ class WMTUserOperation: WMTOperation {
 	/// tapping an approve button. If the operation requires 2FA, this value also hints if
 	/// the user may use the biometry, or if a password is required.
 	public let allowedSignatureType: WMTAllowedOperationSignature
+ 
+    /// Additional UI data to present
+    ///
+    /// Additional UI data such as Pre-Approval Screen or Post-Approval Screen should be presented.
+    public let ui: WMTOperationUIData?   
 }
 ```
 
@@ -462,6 +467,40 @@ Attributes types:
 - `AMOUNT_CONVERSION` providing data about Money conversion  
 - `IMAGE` image row  
 - `UNKNOWN` fallback option when unknown attribute type is passed. Such attribute only contains the label.
+
+Definition of `WMTOperationUIData`:
+
+```swift
+open class WMTOperationUIData: Codable {
+    /// Confirm and Reject buttons should be flipped both in position and style
+    public let flipButtons: Bool?
+    
+    /// Block approval when on call (for example when on a phone or Skype call)
+    public let blockApprovalOnCall: Bool?
+    
+    /// UI for pre-approval operation screen
+    public let preApprovalScreen: WMTPreApprovalScreen?
+    
+    /// UI for post-approval opration screen
+    ///
+    /// Type of PostApprovalScrren is presented with different classes (Starting with `WMTPostApprovalScreen*`)
+    public let postApprovalScreen: WMTPostApprovalScreen?
+}
+```
+
+PreApprovalScreen types:
+
+- `WARNING`
+- `INFO`
+- `QR_SCAN`
+- `UNKNOWN` 
+
+PostApprovalScreen types:
+`WMTPostApprovalScreen*` classes commonly contain `heading` and `message` and different payload data
+
+- `REVIEW` provides an array of operations attributes with data: type, id, label, and note
+- `REDIRECT` providing text for button, countdown, and redirection URL
+- `GENERIC` may contain any object
 
 ### Subclassing WMTUserOperation
 
