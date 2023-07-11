@@ -12,12 +12,12 @@ Add `https://github.com/wultra/mtoken-sdk-ios` repository as a package in Xcode 
 Alternatively, you can add the dependency manually. For example:
 
 ```swift
-// swift-tools-version:5.4
+// swift-tools-version:5.7
 import PackageDescription
 let package = Package(
     name: "YourLibrary",
     platforms: [
-        .iOS(.v10)
+        .iOS(.v11)
     ],
     products: [
         .library(
@@ -26,7 +26,7 @@ let package = Package(
         ),
     ],
     dependencies: [
-        .package(name: "WultraMobileTokenSDK", url: "https://github.com/wultra/mtoken-sdk-ios.git", .from("1.4.1"))
+        .package(url: "https://github.com/wultra/mtoken-sdk-ios.git", .from("1.4.1"))
     ],
     targets: [
         .target(

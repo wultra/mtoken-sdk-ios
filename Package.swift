@@ -1,23 +1,27 @@
-// swift-tools-version:5.4
+// swift-tools-version:5.7
 
 import PackageDescription
 
 let package = Package(
     name: "WultraMobileTokenSDK",
     platforms: [
-        .iOS(.v10)
+        .iOS(.v11)
     ],
     products: [
         .library(name: "WultraMobileTokenSDK", targets: ["WultraMobileTokenSDK"])
     ],
     dependencies: [
-        .package(name: "PowerAuth2", url: "https://github.com/wultra/powerauth-mobile-sdk-spm.git", .upToNextMinor(from: "1.7.3")),
-        .package(name: "WultraPowerAuthNetworking", url: "https://github.com/wultra/networking-apple.git", .upToNextMinor(from: "1.1.7"))
+        .package(url: "https://github.com/wultra/powerauth-mobile-sdk-spm.git", .upToNextMinor(from: "1.7.8")),
+        .package(url: "https://github.com/wultra/networking-apple.git", .upToNextMinor(from: "1.1.7"))
     ],
     targets: [
         .target(
             name: "WultraMobileTokenSDK",
-            dependencies: ["PowerAuth2", .product(name: "PowerAuthCore", package: "PowerAuth2"), "WultraPowerAuthNetworking"],
+            dependencies: [
+                .product(name: "PowerAuth2", package: "powerauth-mobile-sdk-spm"),
+                .product(name: "PowerAuthCore", package: "powerauth-mobile-sdk-spm"), 
+                .product(name: "WultraPowerAuthNetworking", package: "networking-apple")
+            ],
             path: "WultraMobileTokenSDK",
             exclude: ["ConfigFiles/Config.xcconfig", "ConfigFiles/Debug.xcconfig", "ConfigFiles/Release.xcconfig", "Info.plist", "Podfile"]
         )
