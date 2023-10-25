@@ -58,4 +58,7 @@ open class WMTUserOperation: WMTOperation, Codable {
     ///
     /// Additional UI data such as Pre-Approval Screen or Post-Approval Screen should be presented.
     public let ui: WMTOperationUIData?
+    
+    /// Proximity Check Data to be passed when otp is handed to the app
+    public var proximityCheck: WMTProximityCheck?
 }

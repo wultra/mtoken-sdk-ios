@@ -25,8 +25,39 @@ class WMTAuthorizationData: Codable {
     /// Operation id
     let id: String
     
-    init(operationId: String, operationData: String) {
-        self.data = operationData
-        self.id   = operationId
+    /// Proximity Otp Object
+    let proximityCheck: WMTProximityCheckData?
+    
+    init(operation: WMTOperation) {
+        self.id            = operation.id
+        self.data          = operation.data
+        
+        guard let proximityCheck = operation.proximityCheck else {
+            self.proximityCheck = nil
+            return
+        }
+        
+        self.proximityCheck = WMTProximityCheckData(
+            otp: proximityCheck.otp,
+            type: proximityCheck.type,
+            timestampRequested: proximityCheck.timestampRequested,
+            timestampSigned: Date()
+        )
     }
+}
+
+/// Internal proximity check data used for authorization
+struct WMTProximityCheckData: Codable {
+    
+    /// Tha actual otp code
+    let otp: String
+    
+    /// Type of the Proximity check
+    let type: WMTProximityCheckType
+    
+    /// Timestamp when the operation was delivered to the app
+    let timestampRequested: Date
+    
+    /// Timestamp when the operation was signed
+    let timestampSigned: Date
 }
