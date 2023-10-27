@@ -35,7 +35,7 @@ public class WMTTOTPUtils {
         
         public init(from decoder: Decoder) throws {
             let container = try decoder.container(keyedBy: Keys.self)
-            otp = try container.decode(String.self, forKey: .otp)
+            totp = try container.decode(String.self, forKey: .totp)
             operationId = try container.decode(String.self, forKey: .operationId)
         }
     }
