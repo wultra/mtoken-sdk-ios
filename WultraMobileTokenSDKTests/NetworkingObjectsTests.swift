@@ -273,11 +273,39 @@ extension WPNRequestBase {
     
     func testSerialization(expectation: String) {
         
-        guard let data = try? JSONEncoder().encode(self), let jsonData = String(data: data, encoding: .utf8) else {
+        // Convert WPNRequestBase object to Data
+        guard let data = try? JSONEncoder().encode(self) else {
             XCTFail("Failed to encode request data")
             return
         }
+
+        // Convert String to Data
+        guard let expectationData = expectation.data(using: .utf8) else {
+            XCTFail("Failed to encode expectation string")
+            return
+        }
         
-        XCTAssert(jsonData == expectation, "Serialized JSON doesn't match expected string")
+        // Convert to [String: Any]
+        guard let expectationDict = try? JSONSerialization.jsonObject(with: expectationData) as? [String: Any],
+               let jsonDataDict = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else {
+            XCTFail("Failed to cast data to format [String: Any]")
+            return
+        }
+        
+        // Convert back to data with sorted keys
+        guard let sortedExpectationData = try? JSONSerialization.data(withJSONObject: expectationDict, options: [.sortedKeys]),
+                let sortedJsonData = try? JSONSerialization.data(withJSONObject: jsonDataDict, options: [.sortedKeys]) else {
+            XCTFail("Failed to sort data")
+            return
+        }
+                
+        // Convert Data back to strings for comparison
+        guard let sortedExpectationString = String(data: sortedExpectationData, encoding: .utf8),
+              let sortedJsonDataString = String(data: sortedJsonData, encoding: .utf8) else {
+            XCTFail("Failed to cast data to string")
+            return
+        }
+                    
+        XCTAssertEqual(sortedExpectationString, sortedJsonDataString, "Serialized Strings doesn't match")
     }
 }
