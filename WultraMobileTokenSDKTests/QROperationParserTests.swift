@@ -36,7 +36,7 @@ class QROperationParserTests: XCTestCase {
     
     // MARK: - Main tests
     
-    func testCurrentFormat() {
+    func testCurrentFormat() { // Without TOTP
         let parser = WMTQROperationParser()
         let qrcode = makeCode()
         let expectedSignedData =
@@ -102,15 +102,55 @@ class QROperationParserTests: XCTestCase {
         }
     }
     
+    func testCurrentFormatWithTOTP() {
+        let parser = WMTQROperationParser()
+        let qrcode = makeCode(otherAttrs: ["12345678"])
+        let expectedSignedData =
+            ("5ff1b1ed-a3cc-45a3-8ab0-ed60950312b6\n" +
+            "Payment\n" +
+            "Please confirm this payment\n" +
+            "A1*A100CZK*ICZ2730300000001165254011*D20180425*Thello world\n" +
+            "BCFX\n" +
+            "12345678\n" +
+            "AD8bOO0Df73kNaIGb3Vmpg==\n" +
+            "0").data(using: .utf8)
+        
+        guard case .success(let operation) = parser.parse(string: qrcode) else {
+            XCTFail("This should be parsed")
+            return
+        }
+        
+        XCTAssertTrue(operation.operationId == "5ff1b1ed-a3cc-45a3-8ab0-ed60950312b6")
+        XCTAssertTrue(operation.title == "Payment")
+        XCTAssertTrue(operation.message == "Please confirm this payment")
+        XCTAssertTrue(operation.flags.allowBiometryFactor == true)
+        XCTAssertTrue(operation.flags.flipButtons == true)
+        XCTAssertTrue(operation.flags.fraudWarning == true)
+        XCTAssertTrue(operation.flags.blockWhenOnCall == true)
+        XCTAssertTrue(operation.totp == "12345678")
+        XCTAssertTrue(operation.nonce == "AD8bOO0Df73kNaIGb3Vmpg==")
+        XCTAssertTrue(operation.signature.signature == "MEYCIQDby1Uq+MaxiAAGzKmE/McHzNOUrvAP2qqGBvSgcdtyjgIhAMo1sgqNa1pPZTFBhhKvCKFLGDuHuTTYexdmHFjUUIJW")
+        XCTAssertTrue(operation.signature.signingKey == .master)
+        XCTAssertTrue(operation.signedData == expectedSignedData)
+        
+        // Operation data
+        XCTAssertTrue(operation.operationData.version == .v1)
+        XCTAssertTrue(operation.operationData.templateId == 1)
+        XCTAssertTrue(operation.operationData.fields.count == 4)
+        XCTAssertTrue(operation.operationData.sourceString == "A1*A100CZK*ICZ2730300000001165254011*D20180425*Thello world")
+    }
+    
+    
     func testForwardCompatibility() {
         let parser = WMTQROperationParser()
-        let qrcode = makeCode(operationData:"B2*Xtest", otherAttrs:["Some Additional Information"])
+        let qrcode = makeCode(operationData:"B2*Xtest", otherAttrs:["12345678", "Some Additional Information"])
         let expectedSignedData =
             ("5ff1b1ed-a3cc-45a3-8ab0-ed60950312b6\n" +
             "Payment\n" +
             "Please confirm this payment\n" +
             "B2*Xtest\n" +
             "BCFX\n" +
+            "12345678\n" +
             "Some Additional Information\n" +
             "AD8bOO0Df73kNaIGb3Vmpg==\n" +
             "0").data(using: .utf8)

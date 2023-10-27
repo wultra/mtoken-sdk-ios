@@ -30,10 +30,10 @@ public class WMTQROperationParser {
     private static let minimumAttributeFields = 7
     
     /// Current number of lines in input string, supported by this parser
-    private static let currentAttributeFields = 7
+    private static let currentAttributeFields = 8
     
     /// Maximum number of operation data fields supported in this version.
-    private static let maximumDataFields = 5
+    private static let maximumDataFields = 6
 
     /// Parses input string into `WMTQROperationData` structure.
     public func parse(string: String) -> WMTQROperationParseResult {
@@ -47,6 +47,7 @@ public class WMTQROperationParser {
         let message         = parseAttributeText(from: String(attributes[2]))
         let dataString      = String(attributes[3])
         let flagsString     = String(attributes[4])
+        let totp            = attributes.count > WMTQROperationParser.minimumAttributeFields ? String(attributes[5]) : nil
         // Signature and nonce are always located at last lines
         let nonce           = String(attributes[attributes.count - 2])
         let signatureString = attributes[attributes.count - 1]
@@ -74,7 +75,8 @@ public class WMTQROperationParser {
         
         // Parse flags
         let flags = parseOperationFlags(string: flagsString)
-        let isNewerFormat   = attributes.count > WMTQROperationParser.currentAttributeFields
+        let current = WMTQROperationParser.currentAttributeFields
+        let isNewerFormat   = attributes.count > current
 
         // Build final structure
         return .success(WMTQROperation(
@@ -84,6 +86,7 @@ public class WMTQROperationParser {
             operationData: formData,
             nonce: nonce,
             flags: flags,
+            totp: totp,
             signedData: signedData,
             signature: signature,
             isNewerFormat: isNewerFormat)

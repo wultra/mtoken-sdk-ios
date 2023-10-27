@@ -37,6 +37,9 @@ public struct WMTQROperation {
     /// Flags associated with the operation
     public let flags: QROperationFlags
     
+    /// Additional Time-based one time password for proximity check
+    public let totp: String?
+    
     /// Data for signature validation
     public let signedData: Data
     
@@ -52,7 +55,10 @@ public struct WMTQROperation {
     }
     
     internal var dataForOfflineSigning: Data {
-        return "\(operationId)&\(operationData.sourceString)".data(using: .utf8)!
+        guard let totp = totp else {
+            return "\(operationId)&\(operationData.sourceString)".data(using: .utf8)!
+        }
+        return "\(operationId)&\(operationData.sourceString)&\(totp)".data(using: .utf8)!
     }
 }
 
