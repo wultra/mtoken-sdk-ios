@@ -234,6 +234,35 @@ class NetworkingObjectsTests: XCTestCase {
         request.testSerialization(expectation: expectation)
     }
     
+    func testTOTPOperationAuthorizationRequest() {
+
+        let response = """
+                    {"status":"OK","responseObject":[{"id":"47825519-35b8-469d-ad76-e42f85b9a31d","name":"login_preApproval","data":"A2","status":"PENDING","operationCreated":"2023-10-27T11:04:00+0000","operationExpires":"2023-10-27T11:54:00+0000","ui":{"preApprovalScreen":{"type":"QR_SCAN","heading":"Scan the QR code!","message":"To verify that you are close by, please scan the code from the monitor."}},"allowedSignatureType":{"type":"2FA","variants":["possession_knowledge","possession_biometry"]},"formData":{"title":"Login Approval","message":"Are you logging in to the internet banking?","attributes":[]}}],"currentTimestamp":"2023-10-27T11:04:15+0000"}
+                    """
+        guard let result = try? jsonDecoder.decode(WMTOperationListResponse<WMTUserOperation>.self, from: response.data(using: .utf8)!) else {
+            XCTFail("Failed to parse JSON data")
+            return
+        }
+        
+        guard let operations = result.responseObject else {
+            XCTFail("response object nil")
+            return
+        }
+        
+        let op = operations[0]
+        op.proximityCheck = WMTProximityCheck(totp: "12345678", type: .qrCode)
+        
+        let request = WMTOperationEndpoints.Authorize.EndpointType.RequestData(.init(operation: op))
+        
+        let proximityCheck = request.requestObject?.proximityCheck
+        
+        XCTAssertEqual(request.requestObject?.data, "A2")
+        XCTAssertEqual(request.requestObject?.id, "47825519-35b8-469d-ad76-e42f85b9a31d")
+        XCTAssertEqual(proximityCheck?.type, .qrCode)
+        XCTAssertEqual(proximityCheck?.totp, "12345678")
+    }
+    
+    
     func testOperationRejectionRequest() {
         
         let expectation = """
