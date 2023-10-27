@@ -28,6 +28,12 @@ class WMTAuthorizationData: Codable {
     /// Proximity Otp Object
     let proximityCheck: WMTProximityCheckData?
     
+    init(operationId: String, operationData: String, proximityCheck: WMTProximityCheckData? = nil) {
+        self.id              = operationId
+        self.data            = operationData
+        self.proximityCheck   = proximityCheck
+    }
+    
     init(operation: WMTOperation) {
         self.id            = operation.id
         self.data          = operation.data
