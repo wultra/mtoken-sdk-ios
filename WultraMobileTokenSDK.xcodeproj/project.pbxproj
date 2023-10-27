@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 52;
+	objectVersion = 54;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -71,6 +71,7 @@
 		EA6DDF0F29F8036B0011E234 /* WMTPreApprovalScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA6DDF0E29F8036B0011E234 /* WMTPreApprovalScreen.swift */; };
 		EA6DDF1A29F804D60011E234 /* WMTPostApprovalScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA6DDF1929F804D60011E234 /* WMTPostApprovalScreen.swift */; };
 		EA6DDF1C29F807230011E234 /* OperationUIDataTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA6DDF1B29F807230011E234 /* OperationUIDataTests.swift */; };
+		EA9CE2BE2AEAA9FD00FE4E35 /* WMTProximityCheck.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA9CE2BD2AEAA9FD00FE4E35 /* WMTProximityCheck.swift */; };
 		EACAF7B02A126B7D0021CA54 /* WMTJsonValue.swift in Sources */ = {isa = PBXBuildFile; fileRef = EACAF7AF2A126B7D0021CA54 /* WMTJsonValue.swift */; };
 /* End PBXBuildFile section */
 
@@ -154,6 +155,7 @@
 		EA6DDF0E29F8036B0011E234 /* WMTPreApprovalScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTPreApprovalScreen.swift; sourceTree = "<group>"; };
 		EA6DDF1929F804D60011E234 /* WMTPostApprovalScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTPostApprovalScreen.swift; sourceTree = "<group>"; };
 		EA6DDF1B29F807230011E234 /* OperationUIDataTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OperationUIDataTests.swift; sourceTree = "<group>"; };
+		EA9CE2BD2AEAA9FD00FE4E35 /* WMTProximityCheck.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WMTProximityCheck.swift; sourceTree = "<group>"; };
 		EACAF7AF2A126B7D0021CA54 /* WMTJsonValue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTJsonValue.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -223,6 +225,7 @@
 				DC8CB205244DD007009DDAA3 /* WMTAllowedOperationSignature.swift */,
 				DCE5EAAF26BD81150061861A /* WMTOperationHistoryEntry.swift */,
 				EA294F3C29F6A07A00A0494E /* WMTOperationUIData.swift */,
+				EA9CE2BD2AEAA9FD00FE4E35 /* WMTProximityCheck.swift */,
 			);
 			path = UserOperation;
 			sourceTree = "<group>";
@@ -632,6 +635,7 @@
 				DCAB7BCA24580BAC0006989D /* WMTQROperation.swift in Sources */,
 				DCC5CCBF2449F981004679AC /* WMTOperationAttributePartyInfo.swift in Sources */,
 				DC81D1CB244F451E00F80CD6 /* WMTPushImpl.swift in Sources */,
+				EA9CE2BE2AEAA9FD00FE4E35 /* WMTProximityCheck.swift in Sources */,
 				DC488041292282FF00DB844B /* WMTInboxEndpoints.swift in Sources */,
 				BF53DFC82971905600829814 /* WMTInboxContentType.swift in Sources */,
 				DCA43C6D2993F63E0059A163 /* WMTOperationAttributeImage.swift in Sources */,

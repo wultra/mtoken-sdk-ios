@@ -21,8 +21,8 @@ import Foundation
 /// Data shall be assigned to the operation when accessed
 public class WMTProximityCheck: Codable {
     
-    /// Tha actual otp code
-    public let otp: String
+    /// Tha actual Time-based one time password
+    public let totp: String
     
     /// Type of the Proximity check
     public let type: WMTProximityCheckType
@@ -30,8 +30,8 @@ public class WMTProximityCheck: Codable {
     /// Timestamp when the operation was delivered to the device
     public let timestampRequested: Date
     
-    public init(otp: String, type: WMTProximityCheckType, timestampRequested: Date = Date()) {
-        self.otp = otp
+    public init(totp: String, type: WMTProximityCheckType, timestampRequested: Date = Date()) {
+        self.totp = totp
         self.type = type
         self.timestampRequested = timestampRequested
     }

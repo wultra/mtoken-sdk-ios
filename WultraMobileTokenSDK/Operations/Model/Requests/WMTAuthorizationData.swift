@@ -44,7 +44,7 @@ class WMTAuthorizationData: Codable {
         }
         
         self.proximityCheck = WMTProximityCheckData(
-            otp: proximityCheck.otp,
+            totp: proximityCheck.totp,
             type: proximityCheck.type,
             timestampRequested: proximityCheck.timestampRequested,
             timestampSigned: Date()
@@ -56,7 +56,7 @@ class WMTAuthorizationData: Codable {
 struct WMTProximityCheckData: Codable {
     
     /// Tha actual otp code
-    let otp: String
+    let totp: String
     
     /// Type of the Proximity check
     let type: WMTProximityCheckType

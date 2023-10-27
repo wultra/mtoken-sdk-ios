@@ -22,14 +22,14 @@ public class WMTTOTPUtils {
     /// Data payload which is
     public struct WMTOperationOTPData: Codable {
         
-        /// The actual otp code
-        public let otp: String
+        /// The actual Time-based one time password
+        public let totp: String
         
         /// Id of the operations to which the otp belongs to
         public let operationId: String
         
         public enum Keys: String, CodingKey {
-            case otp = "potp"
+            case totp = "totp"
             case operationId = "oid"
         }
         
