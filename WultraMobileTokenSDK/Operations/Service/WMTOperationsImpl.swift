@@ -241,7 +241,7 @@ class WMTOperationsImpl<T: WMTUserOperation>: WMTOperations, WMTService {
             return nil
         }
         
-        let data = WMTAuthorizationData(operation: operation)
+        let data = WMTAuthorizationData(operation: operation, timestampSigned: currentServerDate ?? Date())
         
         return networking.post(data: .init(data), signedWith: authentication, to: WMTOperationEndpoints.Authorize.endpoint) { response, error in
             self.processResult(response: response, error: error) { result in

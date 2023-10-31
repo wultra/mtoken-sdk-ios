@@ -19,29 +19,8 @@ import Foundation
 /// Utility class used for handling TOTP
 public class WMTTOTPUtils {
     
-    /// Data payload which is
-    public struct WMTOperationOTPData: Codable {
-        
-        /// The actual Time-based one time password
-        public let totp: String
-        
-        /// Id of the operations to which the otp belongs to
-        public let operationId: String
-        
-        public enum Keys: String, CodingKey {
-            case totp = "totp"
-            case operationId = "oid"
-        }
-        
-        public init(from decoder: Decoder) throws {
-            let container = try decoder.container(keyedBy: Keys.self)
-            totp = try container.decode(String.self, forKey: .totp)
-            operationId = try container.decode(String.self, forKey: .operationId)
-        }
-    }
-    
     /// Method accepts deeeplink URL and returns payload data
-    public static func tryLoginDeeplink(url: URL) -> WMTOperationOTPData? {
+    public static func parseLoginDeeplink(url: URL) -> WMTOperationTOTPData? {
         
         guard let components = URLComponents(string: url.absoluteString) else { return nil }
         
@@ -57,28 +36,50 @@ public class WMTTOTPUtils {
     }
     
     /// Method accepts scanned code as a String and returns payload data
-    public static func getTOTPFromQR(code: String) -> WMTOperationOTPData? {
+    public static func getTOTPFromQR(code: String) -> WMTOperationTOTPData? {
         return parseJWT(code: code)
     }
     
-    private static func parseJWT(code: String) -> WMTOperationOTPData? {
+    private static func parseJWT(code: String) -> WMTOperationTOTPData? {
         let jwtParts = code.split(separator: ".")
         
         // At this moment we dont care about header, we want only payload which is the second part of JWT
-        let jwtBase64String = String(jwtParts[1])
-        if jwtBase64String.isEmpty == false {
+        let jwtBase64String = jwtParts.count > 1 ? String(jwtParts[1]) : ""
+        
+        if let base64EncodedData = jwtBase64String.data(using: .utf8),
+           let dataPayload = Data(base64Encoded: base64EncodedData) {
             
-            if let base64EncodedData = jwtBase64String.data(using: .utf8), 
-                let dataPayload = Data(base64Encoded: base64EncodedData) {
-                
-                do {
-                    return try JSONDecoder().decode(WMTOperationOTPData.self, from: dataPayload)
-                } catch {
-                    return nil
-                }
-
+            do {
+                return try JSONDecoder().decode(WMTOperationTOTPData.self, from: dataPayload)
+            } catch {
+                D.error("Failed to decode QR JWT: \(code)")
+                D.error("With error: \(error)")
+                return nil
             }
         }
+        
+        D.error("Failed to decode QR JWT from: \(jwtBase64String)")
         return nil
+    }
+}
+
+/// Data payload which is
+public struct WMTOperationTOTPData: Codable {
+    
+    /// The actual Time-based one time password
+    public let totp: String
+    
+    /// Id of the operations to which the otp belongs to
+    public let operationId: String
+    
+    public enum Keys: String, CodingKey {
+        case totp = "totp"
+        case operationId = "oid"
+    }
+    
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: Keys.self)
+        totp = try container.decode(String.self, forKey: .totp)
+        operationId = try container.decode(String.self, forKey: .operationId)
     }
 }

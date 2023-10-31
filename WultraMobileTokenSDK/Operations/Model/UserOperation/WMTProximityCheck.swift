@@ -18,7 +18,7 @@ import Foundation
 
 /// Object which is used to hold data about proximity check
 ///
-/// Data shall be assigned to the operation when accessed
+/// Data shall be assigned to the operation when obtained
 public class WMTProximityCheck: Codable {
     
     /// Tha actual Time-based one time password
@@ -27,7 +27,7 @@ public class WMTProximityCheck: Codable {
     /// Type of the Proximity check
     public let type: WMTProximityCheckType
     
-    /// Timestamp when the operation was delivered to the device
+    /// Timestamp when the operation was scanned (qrCode) or delivered to the device (deeplink)
     public let timestampRequested: Date
     
     public init(totp: String, type: WMTProximityCheckType, timestampRequested: Date = Date()) {

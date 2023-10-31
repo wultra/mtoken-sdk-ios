@@ -25,18 +25,18 @@ class WMTAuthorizationData: Codable {
     /// Operation id
     let id: String
     
-    /// Proximity Otp Object
+    /// Proximity OTP data
     let proximityCheck: WMTProximityCheckData?
     
     init(operationId: String, operationData: String, proximityCheck: WMTProximityCheckData? = nil) {
-        self.id              = operationId
-        self.data            = operationData
-        self.proximityCheck   = proximityCheck
+        self.id = operationId
+        self.data = operationData
+        self.proximityCheck = proximityCheck
     }
     
-    init(operation: WMTOperation) {
-        self.id            = operation.id
-        self.data          = operation.data
+    init(operation: WMTOperation, timestampSigned: Date = Date()) {
+        self.id = operation.id
+        self.data = operation.data
         
         guard let proximityCheck = operation.proximityCheck else {
             self.proximityCheck = nil
@@ -47,7 +47,7 @@ class WMTAuthorizationData: Codable {
             totp: proximityCheck.totp,
             type: proximityCheck.type,
             timestampRequested: proximityCheck.timestampRequested,
-            timestampSigned: Date()
+            timestampSigned: timestampSigned
         )
     }
 }
