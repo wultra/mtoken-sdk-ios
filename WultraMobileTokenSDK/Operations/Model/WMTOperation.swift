@@ -26,7 +26,7 @@ public protocol WMTOperation {
     /// Data for signing
     var data: String { get }
     
-    /// Additional informations with proximity check data
+    /// Additional information with proximity check data
     var proximityCheck: WMTProximityCheck? { get }
 }
 

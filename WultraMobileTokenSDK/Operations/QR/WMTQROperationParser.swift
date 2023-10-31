@@ -75,8 +75,7 @@ public class WMTQROperationParser {
         
         // Parse flags
         let flags = parseOperationFlags(string: flagsString)
-        let current = WMTQROperationParser.currentAttributeFields
-        let isNewerFormat   = attributes.count > current
+        let isNewerFormat = attributes.count > WMTQROperationParser.currentAttributeFields
 
         // Build final structure
         return .success(WMTQROperation(
