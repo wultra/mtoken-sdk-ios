@@ -259,7 +259,7 @@ class NetworkingObjectsTests: XCTestCase {
         XCTAssertEqual(request.requestObject?.data, "A2")
         XCTAssertEqual(request.requestObject?.id, "47825519-35b8-469d-ad76-e42f85b9a31d")
         XCTAssertEqual(proximityCheck?.type, .qrCode)
-        XCTAssertEqual(proximityCheck?.totp, "12345678")
+        XCTAssertEqual(proximityCheck?.otp, "12345678")
     }
     
     
