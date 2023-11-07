@@ -1,0 +1,23 @@
+{
+  "pins" : [
+    {
+      "identity" : "networking-apple",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/wultra/networking-apple.git",
+      "state" : {
+        "revision" : "b7ebe23f441e614d13bd6bc803d658e66767e31a",
+        "version" : "1.2.0"
+      }
+    },
+    {
+      "identity" : "powerauth-mobile-sdk-spm",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/wultra/powerauth-mobile-sdk-spm.git",
+      "state" : {
+        "revision" : "095be6adfc057501a7cb9a7351697a1b6ed9e64b",
+        "version" : "1.7.8"
+      }
+    }
+  ],
+  "version" : 2
+}

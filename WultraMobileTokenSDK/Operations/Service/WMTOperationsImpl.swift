@@ -82,6 +82,8 @@ public extension WMTErrorReason {
     static let operations_authExpired = WMTErrorReason(rawValue: "operations_authExpired")
     /// Operation has expired when trying to reject the operation.
     static let operations_rejectExpired = WMTErrorReason(rawValue: "operations_rejectExpired")
+    /// Operation authentication failed  (e.g. incorrect totp).
+    static let operations_failed = WMTErrorReason(rawValue: "operations_failed")
     
     /// Couldn't sign QR operation.
     static let operations_QROperationFailed = WMTErrorReason(rawValue: "operations_QRFailed")
@@ -436,6 +438,8 @@ class WMTOperationsImpl<T: WMTUserOperation>: WMTOperations, WMTService {
                 } else {
                     reason = .operations_rejectExpired
                 }
+            case .operationFailed:
+                reason = .operations_failed
             default:
                 break
             }
