@@ -82,7 +82,7 @@ public extension WMTErrorReason {
     static let operations_authExpired = WMTErrorReason(rawValue: "operations_authExpired")
     /// Operation has expired when trying to reject the operation.
     static let operations_rejectExpired = WMTErrorReason(rawValue: "operations_rejectExpired")
-    /// Operation default failure for rejection and authorization.
+    /// Operation action failed.
     static let operations_failed = WMTErrorReason(rawValue: "operations_failed")
     
     /// Couldn't sign QR operation.
