@@ -27,11 +27,6 @@ public class WMTTOTPUtils {
             return nil
         }
         
-        guard let host = components.host else {
-            D.error("Failed to get URLComponents host")
-            return nil
-        }
-        
         guard let queryItems = components.queryItems else {
             D.error("Failed to get URLComponents queryItems")
             return nil
