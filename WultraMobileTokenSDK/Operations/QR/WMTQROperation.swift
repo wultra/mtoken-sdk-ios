@@ -55,10 +55,11 @@ public struct WMTQROperation {
     }
     
     internal var dataForOfflineSigning: Data {
-        guard let totp = totp else {
+        if let totp = totp {
+            return "\(operationId)&\(operationData.sourceString)&\(totp)".data(using: .utf8)!
+        } else {
             return "\(operationId)&\(operationData.sourceString)".data(using: .utf8)!
         }
-        return "\(operationId)&\(operationData.sourceString)&\(totp)".data(using: .utf8)!
     }
 }
 

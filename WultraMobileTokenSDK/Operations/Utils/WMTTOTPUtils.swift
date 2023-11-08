@@ -22,14 +22,26 @@ public class WMTTOTPUtils {
     /// Method accepts deeeplink URL and returns payload data
     public static func parseLoginDeeplink(url: URL) -> WMTOperationTOTPData? {
         
-        guard let components = URLComponents(string: url.absoluteString) else { return nil }
+        guard let components = URLComponents(string: url.absoluteString) else {
+            D.error("Failed to get URLComponents: URLString is malformed")
+            return nil
+        }
         
-        guard let host = components.host, host == "login" else { return nil }
+        guard let host = components.host else {
+            D.error("Failed to get URLComponents host")
+            return nil
+        }
         
-        guard let queryItems = components.queryItems else { return nil }
+        guard let queryItems = components.queryItems else {
+            D.error("Failed to get URLComponents queryItems")
+            return nil
+        }
         
-        guard let code = queryItems.first?.value else { return nil }
-        
+        guard let code = queryItems.first?.value else {
+            D.error("Failed to get Query Items value for parsing")
+            return nil
+        }
+                    
         guard let data = parseJWT(code: code) else { return nil }
         
         return data
@@ -48,11 +60,10 @@ public class WMTTOTPUtils {
         
         if let base64EncodedData = jwtBase64String.data(using: .utf8),
            let dataPayload = Data(base64Encoded: base64EncodedData) {
-            
             do {
                 return try JSONDecoder().decode(WMTOperationTOTPData.self, from: dataPayload)
             } catch {
-                D.error("Failed to decode QR JWT: \(code)")
+                D.error("Failed to decode JWT from: \(code)")
                 D.error("With error: \(error)")
                 return nil
             }
@@ -69,7 +80,7 @@ public struct WMTOperationTOTPData: Codable {
     /// The actual Time-based one time password
     public let totp: String
     
-    /// Id of the operations to which the otp belongs to
+    /// The ID of the operations associated with the TOTP
     public let operationId: String
     
     public enum Keys: String, CodingKey {
