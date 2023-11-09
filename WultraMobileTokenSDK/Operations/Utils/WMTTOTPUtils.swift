@@ -20,7 +20,7 @@ import Foundation
 public class WMTTOTPUtils {
     
     /// Method accepts deeeplink URL and returns payload data
-    public static func parseLoginDeeplink(url: URL) -> WMTOperationTOTPData? {
+    public static func parseDeeplink(url: URL) -> WMTOperationTOTPData? {
         
         guard let components = URLComponents(string: url.absoluteString) else {
             D.error("Failed to get URLComponents: URLString is malformed")
@@ -43,7 +43,7 @@ public class WMTTOTPUtils {
     }
     
     /// Method accepts scanned code as a String and returns payload data
-    public static func getTOTPFromQR(code: String) -> WMTOperationTOTPData? {
+    public static func parseQRCode(code: String) -> WMTOperationTOTPData? {
         return parseJWT(code: code)
     }
     

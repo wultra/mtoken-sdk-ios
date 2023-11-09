@@ -55,7 +55,7 @@ class WMTAuthorizationData: Codable {
 /// Internal proximity check data used for authorization
 struct WMTProximityCheckData: Codable {
     
-    /// Tha actual otp code
+    /// Tha actual OTP code
     let otp: String
     
     /// Type of the Proximity check
