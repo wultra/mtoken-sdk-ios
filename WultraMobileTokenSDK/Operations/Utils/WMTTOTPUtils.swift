@@ -69,7 +69,7 @@ public class WMTTOTPUtils {
     }
 }
 
-/// Data payload which is
+/// Data payload which is returned from JWT parser
 public struct WMTOperationTOTPData: Codable {
     
     /// The actual Time-based one time password
