@@ -140,7 +140,6 @@ class QROperationParserTests: XCTestCase {
         XCTAssertTrue(operation.operationData.sourceString == "A1*A100CZK*ICZ2730300000001165254011*D20180425*Thello world")
     }
     
-    
     func testForwardCompatibility() {
         let parser = WMTQROperationParser()
         let qrcode = makeCode(operationData:"B2*Xtest", otherAttrs:["12345678", "Some Additional Information"])

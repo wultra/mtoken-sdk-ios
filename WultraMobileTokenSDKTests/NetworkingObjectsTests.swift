@@ -262,7 +262,6 @@ class NetworkingObjectsTests: XCTestCase {
         XCTAssertEqual(proximityCheck?.otp, "12345678")
     }
     
-    
     func testOperationRejectionRequest() {
         
         let expectation = """
