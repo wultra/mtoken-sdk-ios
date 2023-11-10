@@ -622,8 +622,6 @@ Once the QR code is scanned or match from the deeplink is found, create a `WMTPr
 - Authorizing the WMTProximityCheck
 When authorization, the SDK will by default add `timestampSigned` to the `WMTProximityCheck` object. This timestamp indicates when the operation was signed.
 
-This TOTP-based WMTProximityCheck enhances the security of the approval process, providing a robust mechanism for 2FA in the Operations Service.
-
 ## Error handling
 
 Every error produced by the Operations Service is of a `WMTError` type. For more information see detailed [error handling documentation](Error-Handling.md).
