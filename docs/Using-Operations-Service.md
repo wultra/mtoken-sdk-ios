@@ -9,8 +9,9 @@
 - [Reject an Operation](#reject-an-operation)
 - [Off-line Authorization](#off-line-authorization)
 - [Operations API Reference](#operations-api-reference)
-- [WMTUserOperation](#WMTUserOperation)
+- [WMTUserOperation](#wmtuseroperation)
 - [Creating a Custom Operation](#creating-a-custom-operation)
+- [TOTP WMTProximityCheck](#totp-wmtproximitycheck)
 - [Error handling](#error-handling)
 
 ## Introduction
@@ -524,31 +525,6 @@ WMTProximityCheckType types:
 - `deeplink` TOTP was delivered to the app via Deeplink
 
 
-## TOTP WMTProximityCheck
-
-Two-Factor Authentication (2FA) using Time-Based One-Time Passwords (TOTP) in the Operations Service is facilitated through the use of WMTProximityCheck. This allows secure approval of operations through QR code scanning or deeplink handling.
-
-This TOTP-based WMTProximityCheck enhances the security of the approval process, providing a robust mechanism for 2FA in the Operations Service.
-
-- QR Code Flow:
-
-When the `WMTUserOperation` contains a `WMTPreApprovalScreen.qr`, the app should open the camera to scan the QR code before confirming the operation. Use the camera to scan the QR code containing the necessary data payload for the operation.
-
-- Deeplink Flow:
-
-When the app is launched via a deeplink, preserve the data from the deeplink to extract the relevant information. When operations are loaded compare the operation ID from the deeplink data to the operations within the app to find a match.
-
-- Assign TOTP and Type for the Operation
-Once the QR code is scanned or match from deeplink is found, create a `WMTProximityCheck` with:
-    - `totp`: The actual Time-Based One-Time Password.
-    - `type`: Set to `WMTProximityCheckType.qrCode` or `WMTProximityCheckType.deeplink`.
-    - `timestampRequested`: The timestamp when the QR code was scanned (by default, it is created as the current timestamp).
-
-- Authorizing the WMTProximityCheck
-When authorization, the SDK will by default add `timestampSigned` to the `WMTProximityCheck` object. This timestamp indicates when the operation was signed.
-
-This TOTP-based WMTProximityCheck enhances the security of the approval process, providing a robust mechanism for 2FA in the Operations Service.
-
 ### Subclassing WMTUserOperation
 
 `WMTUserOperation` class is `open` and can be subclassed. This is useful when your backend adds additional properties to operations retrieved via the `getOperations` API.
@@ -624,6 +600,29 @@ public extension WMTOperation {
     var proximityCheck: WMTProximityCheck? { nil }
 }
 ```
+
+## TOTP WMTProximityCheck
+
+Two-Factor Authentication (2FA) using Time-Based One-Time Passwords (TOTP) in the Operations Service is facilitated through the use of WMTProximityCheck. This allows secure approval of operations through QR code scanning or deeplink handling.
+
+- QR Code Flow:
+
+When the `WMTUserOperation` contains a `WMTPreApprovalScreen.qr`, the app should open the camera to scan the QR code before confirming the operation. Use the camera to scan the QR code containing the necessary data payload for the operation.
+
+- Deeplink Flow:
+
+When the app is launched via a deeplink, preserve the data from the deeplink and extract the relevant data. When operations are loaded compare the operation ID from the deeplink data to the operations within the app to find a match.
+
+- Assign TOTP and Type to the Operation
+Once the QR code is scanned or match from the deeplink is found, create a `WMTProximityCheck` with:
+    - `totp`: The actual Time-Based One-Time Password.
+    - `type`: Set to `WMTProximityCheckType.qrCode` or `WMTProximityCheckType.deeplink`.
+    - `timestampRequested`: The timestamp when the QR code was scanned (by default, it is created as the current timestamp).
+
+- Authorizing the WMTProximityCheck
+When authorization, the SDK will by default add `timestampSigned` to the `WMTProximityCheck` object. This timestamp indicates when the operation was signed.
+
+This TOTP-based WMTProximityCheck enhances the security of the approval process, providing a robust mechanism for 2FA in the Operations Service.
 
 ## Error handling
 
