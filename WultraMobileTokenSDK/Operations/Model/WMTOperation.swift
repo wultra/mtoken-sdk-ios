@@ -25,4 +25,12 @@ public protocol WMTOperation {
     
     /// Data for signing
     var data: String { get }
+    
+    /// Additional information with proximity check data
+    var proximityCheck: WMTProximityCheck? { get }
+}
+
+/// WMTOperation extension which sets proximityCheck to be nil for backwards compatibility
+public extension WMTOperation {
+    var proximityCheck: WMTProximityCheck? { nil }
 }

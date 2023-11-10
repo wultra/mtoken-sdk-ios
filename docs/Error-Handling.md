@@ -24,6 +24,7 @@ Every error produced by this library is of a `WMTError` type. This error contain
 |`operationAlreadyFailed`|Operation is already failed|
 |`operationAlreadyCancelled`|Operation is canceled|
 |`operationExpired`|Operation is expired|
+|`operationFailed`|Default operation action failure|
 
 ## WMTErrorReason
 

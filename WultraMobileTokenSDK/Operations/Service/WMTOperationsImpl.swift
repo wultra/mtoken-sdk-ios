@@ -82,6 +82,8 @@ public extension WMTErrorReason {
     static let operations_authExpired = WMTErrorReason(rawValue: "operations_authExpired")
     /// Operation has expired when trying to reject the operation.
     static let operations_rejectExpired = WMTErrorReason(rawValue: "operations_rejectExpired")
+    /// Operation action failed.
+    static let operations_failed = WMTErrorReason(rawValue: "operations_failed")
     
     /// Couldn't sign QR operation.
     static let operations_QROperationFailed = WMTErrorReason(rawValue: "operations_QRFailed")
@@ -241,7 +243,7 @@ class WMTOperationsImpl<T: WMTUserOperation>: WMTOperations, WMTService {
             return nil
         }
         
-        let data = WMTAuthorizationData(operationId: operation.id, operationData: operation.data)
+        let data = WMTAuthorizationData(operation: operation, timestampSigned: currentServerDate ?? Date())
         
         return networking.post(data: .init(data), signedWith: authentication, to: WMTOperationEndpoints.Authorize.endpoint) { response, error in
             self.processResult(response: response, error: error) { result in
@@ -436,6 +438,8 @@ class WMTOperationsImpl<T: WMTUserOperation>: WMTOperations, WMTService {
                 } else {
                     reason = .operations_rejectExpired
                 }
+            case .operationFailed:
+                reason = .operations_failed
             default:
                 break
             }

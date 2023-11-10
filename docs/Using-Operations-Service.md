@@ -9,8 +9,9 @@
 - [Reject an Operation](#reject-an-operation)
 - [Off-line Authorization](#off-line-authorization)
 - [Operations API Reference](#operations-api-reference)
-- [WMTUserOperation](#WMTUserOperation)
+- [WMTUserOperation](#wmtuseroperation)
 - [Creating a Custom Operation](#creating-a-custom-operation)
+- [TOTP WMTProximityCheck](#totp-wmtproximitycheck)
 - [Error handling](#error-handling)
 
 ## Introduction
@@ -436,6 +437,9 @@ class WMTUserOperation: WMTOperation {
     ///
     /// Additional UI data such as Pre-Approval Screen or Post-Approval Screen should be presented.
     public let ui: WMTOperationUIData?   
+    
+    /// Proximity Check Data to be passed when OTP is handed to the app
+    public var proximityCheck: WMTProximityCheck?
 }
 ```
 
@@ -492,7 +496,7 @@ PreApprovalScreen types:
 
 - `WARNING`
 - `INFO`
-- `QR_SCAN`
+- `QR_SCAN` this type indicates that the `WMTProximityCheck` must be used
 - `UNKNOWN` 
 
 PostApprovalScreen types:
@@ -501,6 +505,25 @@ PostApprovalScreen types:
 - `REVIEW` provides an array of operations attributes with data: type, id, label, and note
 - `REDIRECT` providing text for button, countdown, and redirection URL
 - `GENERIC` may contain any object
+
+Definition of `WMTProximityCheck`:
+
+```swift
+public class WMTProximityCheck: Codable {
+    /// Tha actual Time-based one time password
+    public let totp: String
+    /// Type of the Proximity check
+    public let type: WMTProximityCheckType
+    /// Timestamp when the operation was scanned (QR Code) or delivered to the device (Deeplink)
+    public let timestampRequested: Date
+}
+```
+
+WMTProximityCheckType types:
+
+- `qrCode` TOTP was scanned from QR code
+- `deeplink` TOTP was delivered to the app via Deeplink
+
 
 ### Subclassing WMTUserOperation
 
@@ -561,8 +584,43 @@ public protocol WMTOperation {
 
     /// Data for signing
     var data: String { get }
+    
+    /// Additional information with proximity check data
+    var proximityCheck: WMTProximityCheck? { get }
 }
 ```
+
+### Utilizing the Proximity Check
+When creating custom operations, you can now include proximity check data by conforming to the updated WMTOperation protocol. This enables you to enhance the security of your operations by considering proximity information during the authorization process.
+
+To maintain backward compatibility, a public extension has been added to the WMTOperation protocol. If your existing codebase does not require the use of the proximity check feature, the extension ensures seamless integration:
+
+```swift
+public extension WMTOperation {
+    var proximityCheck: WMTProximityCheck? { nil }
+}
+```
+
+## TOTP WMTProximityCheck
+
+Two-Factor Authentication (2FA) using Time-Based One-Time Passwords (TOTP) in the Operations Service is facilitated through the use of WMTProximityCheck. This allows secure approval of operations through QR code scanning or deeplink handling.
+
+- QR Code Flow:
+
+When the `WMTUserOperation` contains a `WMTPreApprovalScreen.qr`, the app should open the camera to scan the QR code before confirming the operation. Use the camera to scan the QR code containing the necessary data payload for the operation.
+
+- Deeplink Flow:
+
+When the app is launched via a deeplink, preserve the data from the deeplink and extract the relevant data. When operations are loaded compare the operation ID from the deeplink data to the operations within the app to find a match.
+
+- Assign TOTP and Type to the Operation
+Once the QR code is scanned or match from the deeplink is found, create a `WMTProximityCheck` with:
+    - `totp`: The actual Time-Based One-Time Password.
+    - `type`: Set to `WMTProximityCheckType.qrCode` or `WMTProximityCheckType.deeplink`.
+    - `timestampRequested`: The timestamp when the QR code was scanned (by default, it is created as the current timestamp).
+
+- Authorizing the WMTProximityCheck
+When authorization, the SDK will by default add `timestampSigned` to the `WMTProximityCheck` object. This timestamp indicates when the operation was signed.
 
 ## Error handling
 
