@@ -58,7 +58,10 @@ Note: If you want to use only operations, you can omit the Push dependency & Inb
 | `1.0.x` - `1.2.x` | `1.x.x` |
 | `1.3.x` | `1.6.x` |
 | `1.4.x` | `1.6.x` |
+| `1.5.x` | `1.6.x` |
+| `1.6.x` | `1.7.x` |
+| `1.7.x` | `1.7.x` |
 
 ## Xcode Compatibility
 
-We recommend using Xcode version 14.3 or newer.
+We recommend using Xcode version 15.0 or newer.
