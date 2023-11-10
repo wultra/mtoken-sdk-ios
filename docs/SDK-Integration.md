@@ -2,7 +2,7 @@
 
 ## Requirements
 
-- iOS 10.0+
+- iOS 12.0+
 - [PowerAuth Mobile SDK](https://github.com/wultra/powerauth-mobile-sdk) needs to be available in your project
 
 ## Swift Package Manager
@@ -17,7 +17,7 @@ import PackageDescription
 let package = Package(
     name: "YourLibrary",
     platforms: [
-        .iOS(.v11)
+        .iOS(.v12)
     ],
     products: [
         .library(
@@ -26,7 +26,7 @@ let package = Package(
         ),
     ],
     dependencies: [
-        .package(url: "https://github.com/wultra/mtoken-sdk-ios.git", .from("1.4.1"))
+        .package(url: "https://github.com/wultra/mtoken-sdk-ios.git", .from("1.7.0"))
     ],
     targets: [
         .target(
@@ -39,15 +39,16 @@ let package = Package(
 
 ## Cocoapods
 
-Ddd the following dependencies to your Podfile:
+Add the following dependencies to your Podfile:
 
 ```rb
 pod 'WultraMobileTokenSDK/Operations'
 pod 'WultraMobileTokenSDK/Push'
+pod 'WultraMobileTokenSDK/Inbox'
 ```
 
 <!-- begin box info -->
-Note: If you want to use only operations, you can omit the Push dependency.
+Note: If you want to use only operations, you can omit the Push dependency & Inbox dependency.
 <!-- end -->
 
 ## Guaranteed PowerAuth Compatibility
@@ -60,4 +61,4 @@ Note: If you want to use only operations, you can omit the Push dependency.
 
 ## Xcode Compatibility
 
-We recommend using Xcode version 13.2 or newer.
+We recommend using Xcode version 14.3 or newer.
