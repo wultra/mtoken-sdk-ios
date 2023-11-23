@@ -16,9 +16,7 @@ CL_AID=""
 ER_URL=""
 OP_URL=""
 IN_URL=""
-APPKEY=""
-APPSECRET=""
-MASTERSPK=""
+SDKCONFIG=""
 
 # Parse parameters of this script
 while [[ $# -gt 0 ]]
@@ -64,18 +62,8 @@ do
             shift
             shift
             ;;
-		-appkey)
-			APPKEY="$2"
-			shift
-			shift
-			;;
-		-appsecret)
-			APPSECRET="$2"
-			shift
-			shift
-			;;
-		-masterspk)
-			MASTERSPK="$2"
+		-sdkconfig)
+			SDKCONFIG="$2"
 			shift
 			shift
 			;;
@@ -102,9 +90,7 @@ echo """{
     \"enrollmentServerUrl\"   : \"${ER_URL}\",
     \"operationsServerUrl\"   : \"${OP_URL}\",
     \"inboxServerUrl\"        : \"${IN_URL}\",
-    \"appKey\"                : \"${APPKEY}\",
-    \"appSecret\"             : \"${APPSECRET}\",
-    \"masterServerPublicKey\" : \"${MASTERSPK}\"
+    \"sdkConfig\"             : \"${SDKCONFIG}\"
 }""" > "WultraMobileTokenSDKTests/Configs/config.json"
 
 xcrun xcodebuild \
