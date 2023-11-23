@@ -26,7 +26,7 @@ let package = Package(
         ),
     ],
     dependencies: [
-        .package(url: "https://github.com/wultra/mtoken-sdk-ios.git", .from("1.7.0"))
+        .package(url: "https://github.com/wultra/mtoken-sdk-ios.git", .from("1.8.0"))
     ],
     targets: [
         .target(
@@ -48,7 +48,7 @@ pod 'WultraMobileTokenSDK/Inbox'
 ```
 
 <!-- begin box info -->
-Note: If you want to use only operations, you can omit the Push dependency & Inbox dependency.
+Note: If you want to use only operations, you can omit the Push dependency and inbox dependency.
 <!-- end -->
 
 ## Guaranteed PowerAuth Compatibility
@@ -61,6 +61,7 @@ Note: If you want to use only operations, you can omit the Push dependency & Inb
 | `1.5.x` | `1.6.x` |
 | `1.6.x` | `1.7.x` |
 | `1.7.x` | `1.7.x` |
+| `1.8.x` | `1.8.x` |
 
 ## Xcode Compatibility
 
