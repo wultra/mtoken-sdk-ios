@@ -163,12 +163,11 @@ class IntegrationProxy {
     
     private func preparePAInstance() -> PowerAuthSDK {
         
-        let cfg = PowerAuthConfiguration()
-        cfg.instanceId = "tests"
-        cfg.baseEndpointUrl = config.enrollmentServerUrl
-        cfg.appKey = config.appKey
-        cfg.appSecret = config.appSecret
-        cfg.masterServerPublicKey = config.masterServerPublicKey
+        let cfg = PowerAuthConfiguration(
+            instanceId: "tests",
+            baseEndpointUrl: config.enrollmentServerUrl,
+            configuration: config.sdkConfig
+        )
         cfg.keychainKey_Biometry = "testsBiometry"
         
         return PowerAuthSDK(configuration: cfg)!
@@ -186,7 +185,7 @@ class IntegrationProxy {
                 return
             }
             do {
-                try pa.commitActivation(withPassword: pin)
+                try pa.persistActivation(withPassword: pin)
             } catch _ {
                 callback("Commit activation locally failed.")
                 return
@@ -253,9 +252,7 @@ private struct IntegrationConfig: Codable {
     let enrollmentServerUrl: String
     let operationsServerUrl: String
     let inboxServerUrl: String
-    let appKey: String
-    let appSecret: String
-    let masterServerPublicKey: String
+    let sdkConfig: String
 }
 
 struct QROperationData: Codable {

@@ -7,7 +7,7 @@ set -u # stop when undefined variable is used
 SCRIPT_FOLDER=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 
 IOS_VERSION=$(xcrun simctl list | grep "\-\- iOS" | tr -d - | tr -d " " | tr -d "iOS")
-DESTINATION="platform=iOS Simulator,OS=${IOS_VERSION},name=iPhone 13 mini"
+DESTINATION="platform=iOS Simulator,OS=${IOS_VERSION},name=iPhone 15"
 
 CL_URL=""
 CL_LGN=""
@@ -16,9 +16,7 @@ CL_AID=""
 ER_URL=""
 OP_URL=""
 IN_URL=""
-APPKEY=""
-APPSECRET=""
-MASTERSPK=""
+SDKCONFIG=""
 
 # Parse parameters of this script
 while [[ $# -gt 0 ]]
@@ -64,18 +62,8 @@ do
             shift
             shift
             ;;
-		-appkey)
-			APPKEY="$2"
-			shift
-			shift
-			;;
-		-appsecret)
-			APPSECRET="$2"
-			shift
-			shift
-			;;
-		-masterspk)
-			MASTERSPK="$2"
+		-sdkconfig)
+			SDKCONFIG="$2"
 			shift
 			shift
 			;;
@@ -102,9 +90,7 @@ echo """{
     \"enrollmentServerUrl\"   : \"${ER_URL}\",
     \"operationsServerUrl\"   : \"${OP_URL}\",
     \"inboxServerUrl\"        : \"${IN_URL}\",
-    \"appKey\"                : \"${APPKEY}\",
-    \"appSecret\"             : \"${APPSECRET}\",
-    \"masterServerPublicKey\" : \"${MASTERSPK}\"
+    \"sdkConfig\"             : \"${SDKCONFIG}\"
 }""" > "WultraMobileTokenSDKTests/Configs/config.json"
 
 xcrun xcodebuild \
