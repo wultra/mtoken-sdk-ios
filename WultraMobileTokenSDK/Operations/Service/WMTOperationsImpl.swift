@@ -237,6 +237,27 @@ class WMTOperationsImpl<T: WMTUserOperation>: WMTOperations, WMTService {
         }
     }
     
+    func claim(operationId: String, completion: @escaping(Result<WMTUserOperation, WMTError>) -> Void) -> Operation? {
+        
+        guard validateActivation(completion) else {
+            return nil
+        }
+        
+        let claimData = WMTClaimData(operationId: operationId)
+        
+        return networking.post(data: .init(claimData), to: WMTOperationEndpoints.Claim.endpoint) { response, error in
+            self.processResult(response: response, error: error) { result in
+                switch result {
+                case .success(let operation):
+                    self.operationsRegister.replace(with: [operation])
+                    completion(.success(operation))
+                case .failure(let err):
+                    completion(.failure(self.adjustOperationError(err, auth: false)))
+                }
+            }
+        }
+    }
+    
     func authorize(operation: WMTOperation, with authentication: PowerAuthAuthentication, completion: @escaping (Result<Void, WMTError>) -> Void) -> Operation? {
         
         guard validateActivation(completion) else {
