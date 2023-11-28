@@ -33,10 +33,12 @@ public class WMTPACUtils {
         }
         
         if let operationId = queryItems.first(where: { $0.name == "oid" })?.value {
-            let totp = queryItems.first(where: { $0.name == "totp" })?.value
+            let totp = queryItems.first(where: { $0.name == "potp" })?.value
             return WMTPACData(operationId: operationId, totp: totp)
+        } else if let code = queryItems.first?.value {
+            return parseJWT(code: code)
         } else {
-            D.error("Failed to get operationId from query items")
+            D.error("Failed to get Query Items values for parsing")
             return nil
         }
     }
@@ -46,14 +48,36 @@ public class WMTPACUtils {
         if let encodedURLString = code.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed), let url = URL(string: encodedURLString) {
             return parseDeeplink(url: url)
         } else {
-            D.error("Failed to created URL from QR code String.")
-            return nil
+            return parseJWT(code: code)
         }
     }
+    
+    private static func parseJWT(code: String) -> WMTPACData? {
+            let jwtParts = code.split(separator: ".")
+            
+            // At this moment we dont care about header, we want only payload which is the second part of JWT
+            let jwtBase64String = jwtParts.count > 1 ? String(jwtParts[1]) : ""
+            
+            if let base64EncodedData = jwtBase64String.data(using: .utf8),
+               let dataPayload = Data(base64Encoded: base64EncodedData) {
+                do {
+                    return try JSONDecoder().decode(WMTPACData.self, from: dataPayload)
+                } catch {
+                    D.error("Failed to decode JWT from: \(code)")
+                    D.error("With error: \(error)")
+                    return nil
+                }
+            }
+            
+            D.error("Failed to decode QR JWT from: \(jwtBase64String)")
+            return nil
+        }
+
+    
 }
 
 /// Data which is return after parsing PAC code
-public struct WMTPACData {
+public struct WMTPACData: Decodable {
     
     /// The ID of the operation associated with the PAC
     public let operationId: String
