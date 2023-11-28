@@ -32,6 +32,7 @@ public class WMTPACUtils {
             return nil
         }
         
+        // Deeplink can have two query items with operationId & optional totp or single query item with JWT value
         if let operationId = queryItems.first(where: { $0.name == "oid" })?.value {
             let totp = queryItems.first(where: { $0.name == "potp" })?.value
             return WMTPACData(operationId: operationId, totp: totp)
@@ -43,9 +44,13 @@ public class WMTPACUtils {
         }
     }
     
-    /// Method accepts scanned code as a String and returns PAC data
+    /// Method accepts scanned code as a String and returns PAC data - it can be in deeplink format or JWT
     public static func parseQRCode(code: String) -> WMTPACData? {
-        if let encodedURLString = code.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed), let url = URL(string: encodedURLString) {
+        guard let encodedURLString = code.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed), let url = URL(string: encodedURLString) else {
+            return parseJWT(code: code)
+        }
+        // if the QR code is in the deeplink format parse it the same way as the deeplink
+        if url.scheme != nil {
             return parseDeeplink(url: url)
         } else {
             return parseJWT(code: code)
@@ -53,27 +58,25 @@ public class WMTPACUtils {
     }
     
     private static func parseJWT(code: String) -> WMTPACData? {
-            let jwtParts = code.split(separator: ".")
-            
-            // At this moment we dont care about header, we want only payload which is the second part of JWT
-            let jwtBase64String = jwtParts.count > 1 ? String(jwtParts[1]) : ""
-            
-            if let base64EncodedData = jwtBase64String.data(using: .utf8),
-               let dataPayload = Data(base64Encoded: base64EncodedData) {
-                do {
-                    return try JSONDecoder().decode(WMTPACData.self, from: dataPayload)
-                } catch {
-                    D.error("Failed to decode JWT from: \(code)")
-                    D.error("With error: \(error)")
-                    return nil
-                }
+        let jwtParts = code.split(separator: ".")
+        
+        // At this moment we dont care about header, we want only payload which is the second part of JWT
+        let jwtBase64String = jwtParts.count > 1 ? String(jwtParts[1]) : ""
+        
+        if let base64EncodedData = jwtBase64String.data(using: .utf8),
+           let dataPayload = Data(base64Encoded: base64EncodedData) {
+            do {
+                return try JSONDecoder().decode(WMTPACData.self, from: dataPayload)
+            } catch {
+                D.error("Failed to decode JWT from: \(code)")
+                D.error("With error: \(error)")
+                return nil
             }
-            
-            D.error("Failed to decode QR JWT from: \(jwtBase64String)")
-            return nil
         }
-
-    
+        
+        D.error("Failed to decode QR JWT from: \(jwtBase64String)")
+        return nil
+    }
 }
 
 /// Data which is return after parsing PAC code
@@ -84,4 +87,20 @@ public struct WMTPACData: Decodable {
     
     /// Time-based one time password used for Proximity antifraud check
     public let totp: String?
+    
+    public enum Keys: String, CodingKey {
+        case totp = "potp"
+        case operationId = "oid"
+    }
+    
+    public init(operationId: String, totp: String?) {
+        self.operationId = operationId
+        self.totp = totp
+    }
+    
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: Keys.self)
+        operationId = try container.decode(String.self, forKey: .operationId)
+        totp = try container.decodeIfPresent(String.self, forKey: .totp)
+    }
 }

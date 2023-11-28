@@ -7,26 +7,20 @@ on:
       - master
       - releases/*
   pull_request:
-  schedule:
-    - cron:  '25 6 * * *'
 
 jobs:
   tests:
     name: Tests
-    runs-on: macos-12
+    runs-on: macos-13
     steps:
       - name: Checkout the repo
         uses: actions/checkout@v2
       - name: Set proper xcode version
-        uses: maxim-lobanov/setup-xcode@v1
-        with:
-          xcode-version: '14.0'
+        run: sh ./scripts/xcodeselect.sh
       - name: Runing Tests
         env:
           GITHUB_ACCESS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          APP_KEY: ${{ secrets.TESTS_APP_KEY }}
-          APP_SECRET: ${{ secrets.TESTS_APP_SECRET }}
-          MASTER_SERVER_PUBLIC_KEY : ${{ secrets.TESTS_MASTER_SERVER_PUBLIC_KEY }}
+          SDK_CONFIG : ${{ secrets.TESTS_SDK_CONFIG }}
           CL_URL: ${{ secrets.TESTS_CL_URL }}
           CL_LGN: ${{ secrets.TESTS_CL_LGN }}
           CL_PWD: ${{ secrets.TESTS_CL_PWD }}
@@ -34,4 +28,4 @@ jobs:
           OP_URL: ${{ secrets.TESTS_OP_URL }}
           ER_URL: ${{ secrets.TESTS_ER_URL }}
           IN_URL: ${{ secrets.TESTS_IN_URL }}
-        run: ./scripts/test.sh -appkey "$APP_KEY" -appsecret "$APP_SECRET" -masterspk "$MASTER_SERVER_PUBLIC_KEY" -er "$ER_URL" -op "$OP_URL" -in "$IN_URL" -cl "$CL_URL" -clu "$CL_LGN" -clp "$CL_PWD" -cla "$CL_AID"
+        run: ./scripts/test.sh -destination "platform=iOS Simulator,OS=17.0.1,name=iPhone 15" -sdkconfig "$SDK_CONFIG" -er "$ER_URL" -op "$OP_URL" -in "$IN_URL" -cl "$CL_URL" -clu "$CL_LGN" -clp "$CL_PWD" -cla "$CL_AID"

@@ -61,3 +61,6 @@ Carthage
 
 # test config file
 WultraMobileTokenSDKTests/Configs/*.json
+
+# swiftlint
+swiftlint
