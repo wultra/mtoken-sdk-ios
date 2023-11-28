@@ -237,6 +237,25 @@ class WMTOperationsImpl<T: WMTUserOperation>: WMTOperations, WMTService {
         }
     }
     
+    func getDetail(operationId: String, completion: @escaping (Result<WMTUserOperation, WMTError>) -> Void) -> Operation? {
+        guard validateActivation(completion) else {
+            return nil
+        }
+        
+        let detailData = WMTClaimData(operationId: operationId)
+        
+        return networking.post(data: .init(detailData), to: WMTOperationEndpoints.OperationClaim.endpoint) { response, error in
+            self.processResult(response: response, error: error) { result in
+                switch result {
+                case .success(let operation):
+                    completion(.success(operation))
+                case .failure(let err):
+                    completion(.failure(self.adjustOperationError(err, auth: false)))
+                }
+            }
+        }
+    }
+    
     func claim(operationId: String, completion: @escaping(Result<WMTUserOperation, WMTError>) -> Void) -> Operation? {
         
         guard validateActivation(completion) else {
@@ -245,7 +264,7 @@ class WMTOperationsImpl<T: WMTUserOperation>: WMTOperations, WMTService {
         
         let claimData = WMTClaimData(operationId: operationId)
         
-        return networking.post(data: .init(claimData), to: WMTOperationEndpoints.Claim.endpoint) { response, error in
+        return networking.post(data: .init(claimData), to: WMTOperationEndpoints.OperationClaim.endpoint) { response, error in
             self.processResult(response: response, error: error) { result in
                 switch result {
                 case .success(let operation):

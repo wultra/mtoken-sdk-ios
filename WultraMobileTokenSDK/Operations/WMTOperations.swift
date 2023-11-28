@@ -76,6 +76,15 @@ public protocol WMTOperations: AnyObject {
     @discardableResult
     func getHistory(authentication: PowerAuthAuthentication, completion: @escaping(Result<[WMTOperationHistoryEntry], WMTError>) -> Void) -> Operation?
     
+    /// Retrieves operation detail based on operation ID
+    /// - Parameters:
+    ///   - operationId: Operation ID to get
+    ///   - completion: Result completion.
+    ///                 This completion is always called on the main thread.
+    /// - Returns: Operation object for its state observation.
+    @discardableResult
+    func getDetail(operationId: String, completion: @escaping(Result<WMTUserOperation, WMTError>) -> Void) -> Operation?
+    
     /// Claims the "anonymous" operation to be assigned to the user
     /// - Parameters:
     ///   - operationId: Operation ID which will be claimed to belong to the user
