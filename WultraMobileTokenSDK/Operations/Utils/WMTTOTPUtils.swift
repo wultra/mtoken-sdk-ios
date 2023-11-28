@@ -79,7 +79,7 @@ public struct WMTOperationTOTPData: Codable {
     public let operationId: String
     
     public enum Keys: String, CodingKey {
-        case totp = "totp"
+        case totp = "potp"
         case operationId = "oid"
     }
     

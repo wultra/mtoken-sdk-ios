@@ -32,10 +32,10 @@ final class TOTPParserTest: XCTestCase {
     }
     
     func testQRTOTPParserWithValidCode() {
-        let code = "eyJhbGciOiJub25lIiwidHlwZSI6IkpXVCJ9.eyJvaWQiOiI2YTFjYjAwNy1mZjc1LTRmNDAtYTIxYi0wYjU0NmYwZjZjYWQiLCJ0b3RwIjoiNzM3NDMxOTQifQ=="
+        let code = "eyJhbGciOiJub25lIiwidHlwZSI6IkpXVCJ9.eyJvaWQiOiI5OWZjZjc5Mi1mMjhiLTRhZGEtYmVlNy1mYjY4ZDE5ZTA1OGYiLCJwb3RwIjoiNjI2NTY0MTMifQ=="
         
-        XCTAssertEqual(WMTTOTPUtils.parseQRCode(code: code)?.totp, "73743194", "Parsing of totp failed")
-        XCTAssertEqual(WMTTOTPUtils.parseQRCode(code: code)?.operationId, "6a1cb007-ff75-4f40-a21b-0b546f0f6cad", "Parsing of operationId failed")
+        XCTAssertEqual(WMTTOTPUtils.parseQRCode(code: code)?.totp, "62656413", "Parsing of totp failed")
+        XCTAssertEqual(WMTTOTPUtils.parseQRCode(code: code)?.operationId, "99fcf792-f28b-4ada-bee7-fb68d19e058f", "Parsing of operationId failed")
     }
 
     
@@ -51,9 +51,9 @@ final class TOTPParserTest: XCTestCase {
     }
     
     func testDeeplinkTOTPParserWithValidJWTCode() {
-        let url = URL(string: "mtoken://login?code=eyJhbGciOiJub25lIiwidHlwZSI6IkpXVCJ9.eyJvaWQiOiJkZjYxMjhmYy1jYTUxLTQ0YjctYmVmYS1jYTBlMTQwOGFhNjMiLCJ0b3RwIjoiNTY3MjU0OTQifQ==")!
+        let url = URL(string: "mtoken://login?code=eyJhbGciOiJub25lIiwidHlwZSI6IkpXVCJ9.eyJvaWQiOiI5OWZjZjc5Mi1mMjhiLTRhZGEtYmVlNy1mYjY4ZDE5ZTA1OGYiLCJwb3RwIjoiNjI2NTY0MTMifQ==")!
         
-        XCTAssertEqual(WMTTOTPUtils.parseDeeplink(url: url)?.totp, "56725494", "Parsing of totp failed")
-        XCTAssertEqual(WMTTOTPUtils.parseDeeplink(url: url)?.operationId, "df6128fc-ca51-44b7-befa-ca0e1408aa63", "Parsing of operationId failed")
+        XCTAssertEqual(WMTTOTPUtils.parseDeeplink(url: url)?.totp, "62656413", "Parsing of totp failed")
+        XCTAssertEqual(WMTTOTPUtils.parseDeeplink(url: url)?.operationId, "99fcf792-f28b-4ada-bee7-fb68d19e058f", "Parsing of operationId failed")
     }
 }
