@@ -633,11 +633,6 @@ When authorization, the SDK will by default add `timestampSigned` to the `WMTPro
         
         /// Time-based one time password used for Proximity antifraud check
         public let totp: String?
-        
-        public enum Keys: String, CodingKey {
-            case totp = "potp"
-            case operationId = "oid"
-        }
     }
 ```
 
@@ -645,7 +640,10 @@ When authorization, the SDK will by default add `timestampSigned` to the `WMTPro
     - `parseDeeplink(url: URL) -> WMTPACData?` - uri is expected to be in format `"scheme://code=$JWT"` or `scheme://operation?oid=5b753d0d-d59a-49b7-bec4-eae258566dbb&potp=12345678}`
     - `parseQRCode(code: String) -> WMTPACData?` - code is to be expected in the same format as deeplink formats or as a plain JWT
     - mentioned JWT should be in format `{“typ”:”JWT”, “alg”:”none”}.{“oid”:”5b753d0d-d59a-49b7-bec4-eae258566dbb”, “potp”:”12345678”} `
-
+  
+  - Accepted formats:
+        - notice that totp key in JWT and in query shall be `potp`!
+         
 ## Error handling
 
 Every error produced by the Operations Service is of a `WMTError` type. For more information see detailed [error handling documentation](Error-Handling.md).
