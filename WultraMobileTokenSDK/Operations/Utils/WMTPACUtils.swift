@@ -23,18 +23,18 @@ public class WMTPACUtils {
     public static func parseDeeplink(url: URL) -> WMTPACData? {
         
         guard let components = URLComponents(string: url.absoluteString) else {
-            D.error("Failed to get URLComponents: URLString is malformed")
+            D.error("Failed to get URLComponents: URLString is malformed \(url)")
             return nil
         }
         
         guard let queryItems = components.queryItems else {
-            D.error("Failed to get URLComponents queryItems")
+            D.error("Failed to get URLComponents queryItems for \(url)")
             return nil
         }
         
         // Deeplink can have two query items with operationId & optional totp or single query item with JWT value
-        if let operationId = queryItems.first(where: { $0.name == "oid" })?.value {
-            let totp = queryItems.first(where: { $0.name == "potp" })?.value
+        if let operationId = queryItems.first(where: { $0.name == "oid" })?.value?.removingPercentEncoding {
+            let totp = queryItems.first(where: { $0.name == "totp" || $0.name == "potp" })?.value?.removingPercentEncoding
             return WMTPACData(operationId: operationId, totp: totp)
         } else if let code = queryItems.first?.value {
             return parseJWT(code: code)
@@ -59,12 +59,11 @@ public class WMTPACUtils {
     
     private static func parseJWT(code: String) -> WMTPACData? {
         let jwtParts = code.split(separator: ".")
-        
+
         // At this moment we dont care about header, we want only payload which is the second part of JWT
         let jwtBase64String = jwtParts.count > 1 ? String(jwtParts[1]) : ""
-        
-        if let base64EncodedData = jwtBase64String.data(using: .utf8),
-           let dataPayload = Data(base64Encoded: base64EncodedData) {
+
+        if let dataPayload = Data(base64Encoded: jwtBase64String.addBase64Padding) {
             do {
                 return try JSONDecoder().decode(WMTPACData.self, from: dataPayload)
             } catch {
@@ -73,7 +72,7 @@ public class WMTPACUtils {
                 return nil
             }
         }
-        
+
         D.error("Failed to decode QR JWT from: \(jwtBase64String)")
         return nil
     }
@@ -88,8 +87,9 @@ public struct WMTPACData: Decodable {
     /// Time-based one time password used for Proximity antifraud check
     public let totp: String?
     
-    public enum Keys: String, CodingKey {
-        case totp = "potp"
+    enum Keys: String, CodingKey {
+        case totp = "totp"
+        case potp = "potp" // to keep backward compatibility
         case operationId = "oid"
     }
     
@@ -101,6 +101,22 @@ public struct WMTPACData: Decodable {
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: Keys.self)
         operationId = try container.decode(String.self, forKey: .operationId)
-        totp = try container.decodeIfPresent(String.self, forKey: .totp)
+        if let t = try container.decodeIfPresent(String.self, forKey: .totp) {
+            totp = t
+        } else if let p = try container.decodeIfPresent(String.self, forKey: .potp) {
+            totp = p
+        } else {
+            totp = nil
+        }
+    }
+}
+
+private extension String {
+    var addBase64Padding: String {
+        let offset = count % 4
+        if offset > 0 {
+            return padding(toLength: count + 4 - offset, withPad: "=", startingAt: 0)
+        }
+        return self
     }
 }
