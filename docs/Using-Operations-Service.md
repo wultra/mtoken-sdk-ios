@@ -624,25 +624,26 @@ When authorization, the SDK will by default add `timestampSigned` to the `WMTPro
 
 ### WMTPACUtils
 - For convenience, utility class for parsing and extracting data from QR codes and deeplinks used in the PAC (Proximity Anti-fraud Check), is provided.
+
 ```swift
-    /// Data which is returned from parsing PAC code
-    public struct WMTPACData: Decodable {
-        
-        /// The ID of the operation associated with the PAC
-        public let operationId: String
-        
-        /// Time-based one time password used for Proximity antifraud check
-        public let totp: String?
-    }
+/// Data which is returned from parsing PAC code
+public struct WMTPACData: Decodable {
+	        
+	/// The ID of the operation associated with the PAC
+	public let operationId: String
+	    
+	/// Time-based one time password used for Proximity antifraud check
+	public let totp: String?
+}
 ```
 
-  - two methods are provided:
+- two methods are provided:
     - `parseDeeplink(url: URL) -> WMTPACData?` - uri is expected to be in format `"scheme://code=$JWT"` or `scheme://operation?oid=5b753d0d-d59a-49b7-bec4-eae258566dbb&potp=12345678}`
     - `parseQRCode(code: String) -> WMTPACData?` - code is to be expected in the same format as deeplink formats or as a plain JWT
     - mentioned JWT should be in format `{“typ”:”JWT”, “alg”:”none”}.{“oid”:”5b753d0d-d59a-49b7-bec4-eae258566dbb”, “potp”:”12345678”} `
   
-  - Accepted formats:
-    - notice that totp key in JWT and in query shall be `potp`!
+- Accepted formats:
+  - notice that totp key in JWT and in query shall be `potp`!
          
 ## Error handling
 
