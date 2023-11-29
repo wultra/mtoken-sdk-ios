@@ -642,7 +642,7 @@ When authorization, the SDK will by default add `timestampSigned` to the `WMTPro
     - mentioned JWT should be in format `{“typ”:”JWT”, “alg”:”none”}.{“oid”:”5b753d0d-d59a-49b7-bec4-eae258566dbb”, “potp”:”12345678”} `
   
   - Accepted formats:
-        - notice that totp key in JWT and in query shall be `potp`!
+    - notice that totp key in JWT and in query shall be `potp`!
          
 ## Error handling
 
