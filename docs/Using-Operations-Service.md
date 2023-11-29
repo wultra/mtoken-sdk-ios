@@ -11,7 +11,7 @@
 - [Operations API Reference](#operations-api-reference)
 - [WMTUserOperation](#wmtuseroperation)
 - [Creating a Custom Operation](#creating-a-custom-operation)
-- [TOTP WMTProximityCheck](#totp-wmtproximitycheck)
+- [WMTProximityCheck](#wmtproximitycheck)
 - [Error handling](#error-handling)
 
 ## Introduction
@@ -601,7 +601,7 @@ public extension WMTOperation {
 }
 ```
 
-## TOTP WMTProximityCheck
+## WMTProximityCheck
 
 Two-Factor Authentication (2FA) using Time-Based One-Time Passwords (TOTP) in the Operations Service is facilitated through the use of WMTProximityCheck. This allows secure approval of operations through QR code scanning or deeplink handling.
 
@@ -622,6 +622,29 @@ Once the QR code is scanned or match from the deeplink is found, create a `WMTPr
 - Authorizing the WMTProximityCheck
 When authorization, the SDK will by default add `timestampSigned` to the `WMTProximityCheck` object. This timestamp indicates when the operation was signed.
 
+### WMTPACUtils
+- For convenience, utility class for parsing and extracting data from QR codes and deeplinks used in the PAC (Proximity Anti-fraud Check), is provided.
+
+```swift
+/// Data which is returned from parsing PAC code
+public struct WMTPACData: Decodable {
+	        
+	/// The ID of the operation associated with the PAC
+	public let operationId: String
+	    
+	/// Time-based one time password used for Proximity antifraud check
+	public let totp: String?
+}
+```
+
+- two methods are provided:
+    - `parseDeeplink(url: URL) -> WMTPACData?` - uri is expected to be in format `"scheme://code=$JWT"` or `scheme://operation?oid=5b753d0d-d59a-49b7-bec4-eae258566dbb&potp=12345678}`
+    - `parseQRCode(code: String) -> WMTPACData?` - code is to be expected in the same format as deeplink formats or as a plain JWT
+    - mentioned JWT should be in format `{“typ”:”JWT”, “alg”:”none”}.{“oid”:”5b753d0d-d59a-49b7-bec4-eae258566dbb”, “potp”:”12345678”} `
+  
+- Accepted formats:
+  - notice that totp key in JWT and in query shall be `potp`!
+         
 ## Error handling
 
 Every error produced by the Operations Service is of a `WMTError` type. For more information see detailed [error handling documentation](Error-Handling.md).
