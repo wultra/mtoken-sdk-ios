@@ -36,13 +36,58 @@ final class TOTPParserTest: XCTestCase {
         
         XCTAssertEqual(WMTPACUtils.parseQRCode(code: code)?.totp, "73743194", "Parsing of totp failed")
         XCTAssertEqual(WMTPACUtils.parseQRCode(code: code)?.operationId, "6a1cb007-ff75-4f40-a21b-0b546f0f6cad", "Parsing of operationId failed")
-	}
+    }
+    
+    func testQRTPACParserWithValidDeeplinkCodeAndBase64OID() {
+        let code = "scheme://operation?oid=E/+DRFVmd4iZABEiM0RVZneImQARIjNEVWZ3iJkAESIzRFVmd4iZAA=&totp=12345678"
+        
+        XCTAssertEqual(WMTPACUtils.parseQRCode(code: code)?.totp, "12345678", "Parsing of totp failed")
+        XCTAssertEqual(WMTPACUtils.parseQRCode(code: code)?.operationId, "E/+DRFVmd4iZABEiM0RVZneImQARIjNEVWZ3iJkAESIzRFVmd4iZAA=", "Parsing of operationId failed")
+    }
+    
+    func testQRTPACParserWithValidDeeplinkCodeAndBase64EncodedOID() {
+        let code = "scheme://operation?oid=E%2F%2BDRFVmd4iZABEiM0RVZneImQARIjNEVWZ3iJkAESIzRFVmd4iZAA%3D&totp=12345678"
+        
+        XCTAssertEqual(WMTPACUtils.parseQRCode(code: code)?.totp, "12345678", "Parsing of totp failed")
+        XCTAssertEqual(WMTPACUtils.parseQRCode(code: code)?.operationId, "E/+DRFVmd4iZABEiM0RVZneImQARIjNEVWZ3iJkAESIzRFVmd4iZAA=", "Parsing of operationId failed")
+    }
 
 	func testQRPACParserWithValidJWT() {
         let code = "eyJhbGciOiJub25lIiwidHlwZSI6IkpXVCJ9.eyJvaWQiOiIzYjllZGZkMi00ZDgyLTQ3N2MtYjRiMy0yMGZhNWM5OWM5OTMiLCJwb3RwIjoiMTQzNTc0NTgifQ=="
-        
-        XCTAssertEqual(WMTPACUtils.parseQRCode(code: code)?.totp, "14357458", "Parsing of totp failed")
+        let parsed = WMTPACUtils.parseQRCode(code: code)
+        XCTAssertEqual(parsed?.totp, "14357458", "Parsing of totp failed")
         XCTAssertEqual(WMTPACUtils.parseQRCode(code: code)?.operationId, "3b9edfd2-4d82-477c-b4b3-20fa5c99c993", "Parsing of operationId failed")
+    }
+    
+    func testQRPACParserWithValidJWTWithoutPadding() {
+        let code = "eyJ0eXAiOiJKV1QiLCJhbGciOiJub25lIn0.eyJvaWQiOiJMRG5JY0NjRGhjRHdHNVNLejhLeWdQeG9PbXh3dHpJc29zMEUrSFBYUHlvIiwicG90cCI6IjU4NTkwMDU5In0"
+        let parsed = WMTPACUtils.parseQRCode(code: code)
+        XCTAssertEqual(parsed?.totp, "58590059", "Parsing of totp failed")
+        XCTAssertEqual(parsed?.operationId, "LDnIcCcDhcDwG5SKz8KygPxoOmxwtzIsos0E+HPXPyo", "Parsing of operationId failed")
+    }
+    
+    func testQRPACParserWithInvalidJWT() {
+        let code = "eyJhbGciOiJub25lIiwidHlwZSI6IkpXVCJ9eyJvaWQiOiIzYjllZGZkMi00ZDgyLTQ3N2MtYjRiMy0yMGZhNWM5OWM5OTMiLCJwb3RwIjoiMTQzNTc0NTgifQ=="
+        let parsed = WMTPACUtils.parseQRCode(code: code)
+        XCTAssertNil(parsed, "Parsing of should fail")
+    }
+    
+    func testQRPACParserWithInvalidJWT2() {
+        let code = "eyJ0eXAiOiJKV1QiLCJhbGciOiJub25lIn0.1eyJvaWQiOiJMRG5JY0NjRGhjRHdHNVNLejhLeWdQeG9PbXh3dHpJc29zMEUrSFBYUHlvIiwicG90cCI6IjU4NTkwMDU5In0"
+        let parsed = WMTPACUtils.parseQRCode(code: code)
+        XCTAssertNil(parsed, "Parsing of should fail")
+    }
+    
+    func testQRPACParserWithInvalidJWT3() {
+        let code = ""
+        let parsed = WMTPACUtils.parseQRCode(code: code)
+        XCTAssertNil(parsed, "Parsing of should fail")
+    }
+    
+    func testQRPACParserWithInvalidJWT4() {
+        let code = "eyJ0eXAiOiJKV1QiLCJhbGciOiJub25lIn0.1eyJvaWQiOiJMRG5JY0NjR.GhjRHdHNVNLejhLeWdQeG9PbXh3dHpJc29zMEUrSFBYUHlvIiwicG90cCI6IjU4NTkwMDU5In0====="
+        let parsed = WMTPACUtils.parseQRCode(code: code)
+        XCTAssertNil(parsed, "Parsing of should fail")
     }
     
     func testDeeplinkParserWithInvalidPACCode() {
