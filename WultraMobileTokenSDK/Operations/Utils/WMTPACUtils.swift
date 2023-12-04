@@ -78,7 +78,7 @@ public class WMTPACUtils {
     }
 }
 
-/// Data which is return after parsing PAC code
+/// Data which is returned from parsing PAC code
 public struct WMTPACData: Decodable {
     
     /// The ID of the operation associated with the PAC

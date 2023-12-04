@@ -17,7 +17,7 @@
 import XCTest
 import WultraMobileTokenSDK
 
-final class TOTPParserTest: XCTestCase {
+final class PACParserTest: XCTestCase {
 
     func testQRPACParserWithEmptyCode() {
         let code = ""
@@ -52,7 +52,7 @@ final class TOTPParserTest: XCTestCase {
         XCTAssertEqual(WMTPACUtils.parseQRCode(code: code)?.operationId, "E/+DRFVmd4iZABEiM0RVZneImQARIjNEVWZ3iJkAESIzRFVmd4iZAA=", "Parsing of operationId failed")
     }
 
-	func testQRPACParserWithValidJWT() {
+    func testQRPACParserWithValidJWT() {
         let code = "eyJhbGciOiJub25lIiwidHlwZSI6IkpXVCJ9.eyJvaWQiOiIzYjllZGZkMi00ZDgyLTQ3N2MtYjRiMy0yMGZhNWM5OWM5OTMiLCJwb3RwIjoiMTQzNTc0NTgifQ=="
         let parsed = WMTPACUtils.parseQRCode(code: code)
         XCTAssertEqual(parsed?.totp, "14357458", "Parsing of totp failed")
@@ -112,7 +112,7 @@ final class TOTPParserTest: XCTestCase {
         
         XCTAssertEqual(WMTPACUtils.parseDeeplink(url: url)?.totp, "14357458", "Parsing of totp failed")
         XCTAssertEqual(WMTPACUtils.parseDeeplink(url: url)?.operationId, "3b9edfd2-4d82-477c-b4b3-20fa5c99c993", "Parsing of operationId failed")
-	}
+    }
 
     func testDeeplinkParserWithValidPACCode() {
         let url = URL(string: "scheme://operation?oid=df6128fc-ca51-44b7-befa-ca0e1408aa63&potp=56725494")!
