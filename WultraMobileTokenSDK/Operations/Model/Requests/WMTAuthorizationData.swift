@@ -46,7 +46,7 @@ class WMTAuthorizationData: Codable {
         self.proximityCheck = WMTProximityCheckData(
             otp: proximityCheck.totp,
             type: proximityCheck.type,
-            timestampRecieved: proximityCheck.timestampRecieved,
+            timestampReceived: proximityCheck.timestampReceived,
             timestampSent: timestampSent
         )
     }
@@ -62,7 +62,7 @@ struct WMTProximityCheckData: Codable {
     let type: WMTProximityCheckType
     
     /// Timestamp when the operation was delivered to the app
-    let timestampRecieved: Date
+    let timestampReceived: Date
     
     /// Timestamp when the operation was signed
     let timestampSent: Date
