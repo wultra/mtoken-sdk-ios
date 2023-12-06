@@ -89,6 +89,28 @@ class IntegrationProxy {
         }
     }
     
+    func createNonPersonalisedOperation(_ factors: Factors = .F_2FA, completion: @escaping (NonPersonalisedOperationObject?) -> Void) {
+        DispatchQueue.global().async {
+            let opBody: String
+            switch factors {
+            case .F_2FA:
+                opBody = """
+                {
+                  "template": "login",
+                   "parameters": {
+                     "party.id": "666",
+                     "party.name": "Datová schránka",
+                         "session.id": "123",
+                         "session.ip-address": "192.168.0.1"
+                   }
+                }
+                """
+            }
+            
+            completion(self.makeRequest(url: URL(string: "\(self.config.cloudServerUrl)/v2/operations")!, body: opBody))
+        }
+    }
+    
     func getQROperation(operation: OperationObject, completion: @escaping (QROperationData?) -> Void) {
         DispatchQueue.global().async {
             completion(self.makeRequest(url: URL(string: "\(self.config.cloudServerUrl)/v2/operations/\(operation.operationId)/offline/qr?registrationId=\(self.registrationId)")!, body: "", httpMethod: "GET"))
@@ -238,6 +260,16 @@ struct OperationObject: Codable {
     let status: String
     let operationType: String
     //let parameters: [] // not needed for test right now
+    let failureCount: Int
+    let maxFailureCount: Int
+    let timestampCreated: Int
+    let timestampExpires: Int
+}
+
+struct NonPersonalisedOperationObject: Codable {
+    let operationId: String
+    let status: String
+    let operationType: String
     let failureCount: Int
     let maxFailureCount: Int
     let timestampCreated: Int
