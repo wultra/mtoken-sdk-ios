@@ -242,9 +242,9 @@ class WMTOperationsImpl<T: WMTUserOperation>: WMTOperations, WMTService {
             return nil
         }
         
-        let detailData = WMTClaimData(operationId: operationId)
+        let detailData = WMTOperationDetailRequest(operationId: operationId)
         
-        return networking.post(data: .init(detailData), to: WMTOperationEndpoints.OperationClaim.endpoint) { response, error in
+        return networking.post(data: .init(detailData), signedWith: .possession(), to: WMTOperationEndpoints.OperationDetail.endpoint) { response, error in
             self.processResult(response: response, error: error) { result in
                 switch result {
                 case .success(let operation):
@@ -262,13 +262,13 @@ class WMTOperationsImpl<T: WMTUserOperation>: WMTOperations, WMTService {
             return nil
         }
         
-        let claimData = WMTClaimData(operationId: operationId)
+        let claimData = WMTOperationDetailRequest(operationId: operationId)
         
-        return networking.post(data: .init(claimData), to: WMTOperationEndpoints.OperationClaim.endpoint) { response, error in
+        return networking.post(data: .init(claimData), signedWith: .possession(), to: WMTOperationEndpoints.OperationClaim.endpoint) { response, error in
             self.processResult(response: response, error: error) { result in
                 switch result {
                 case .success(let operation):
-                    self.operationsRegister.replace(with: [operation])
+                    self.operationsRegister.add(operation)
                     completion(.success(operation))
                 case .failure(let err):
                     completion(.failure(self.adjustOperationError(err, auth: false)))
@@ -512,6 +512,17 @@ private class OperationsRegister {
         onChangeCallback = callback
     }
     
+    /// Adds an operation from register
+    func add(_ operation: WMTUserOperation) {
+        
+        //  Check if the ID of the operation is already in the list otherwise add it
+        if currentOperations.contains(where: { $0.id == operation.id }) == false {
+            currentOperations.append(operation)
+            currentOperationsSet.insert(operation.id)
+            onChangeCallback(currentOperations, [operation], [])
+        }
+    }
+    
     /// Adds a multiple operations to the register.
     /// Returns list of added and removed operations.
     @discardableResult
@@ -543,7 +554,7 @@ private class OperationsRegister {
         currentOperations.append(contentsOf: addedOperations)
         currentOperationsSet.formUnion(addedOperationsSet)
         
-        // we need to call onChanged even if nothing changed, because the objects are replaced by different insntances
+        // we need to call onChanged even if nothing changed, because the objects are replaced by different instances
         onChangeCallback(currentOperations, addedOperations, removedOperations)
         // Returns list of operations
         return (addedOperations, removedOperations)

@@ -17,12 +17,16 @@
 import Foundation
 
 /// Claim payload
-class WMTClaimData: Codable {
+class WMTOperationDetailRequest: Codable {
     
     /// Operation Id
     let operationId: String
     
     init(operationId: String) {
         self.operationId = operationId
+    }
+    
+    enum CodingKeys: String, CodingKey {
+        case operationId = "id"
     }
 }
