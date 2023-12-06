@@ -28,12 +28,12 @@ public class WMTProximityCheck: Codable {
     public let type: WMTProximityCheckType
     
     /// Timestamp when the operation was scanned (qrCode) or delivered to the device (deeplink)
-    public let timestampRequested: Date
+    public let timestampRecieved: Date
     
-    public init(totp: String, type: WMTProximityCheckType, timestampRequested: Date = Date()) {
+    public init(totp: String, type: WMTProximityCheckType, timestampRecieved: Date = Date()) {
         self.totp = totp
         self.type = type
-        self.timestampRequested = timestampRequested
+        self.timestampRecieved = timestampRecieved
     }
 }
 
