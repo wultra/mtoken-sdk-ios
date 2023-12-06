@@ -7,6 +7,8 @@
 - [Start Periodic Polling](#start-periodic-polling)
 - [Approve an Operation](#approve-an-operation)
 - [Reject an Operation](#reject-an-operation)
+- [Detail of an Operation](#detail-of-an-operation)
+- [Claim an Operation](#claim-an-operation)
 - [Off-line Authorization](#off-line-authorization)
 - [Operations API Reference](#operations-api-reference)
 - [WMTUserOperation](#wmtuseroperation)
@@ -193,6 +195,49 @@ func approveWithBiometry(operation: WMTOperation) {
 ## Reject an Operation
 
 To reject an operation use `WMTOperations.reject`. Operation rejection is confirmed by possession factor so there is no need for creating  `PowerAuthAuthentication` object. You can simply use it with the following example.
+
+```swift
+import WultraMobileTokenSDK
+import PowerAuth2
+
+// Reject operation with some reason
+func reject(operation: WMTOperation, reason: WMTRejectionReason) {
+    operationService.reject(operation: operation, reason: reason) { error in
+        if let error = error {
+            // show error UI
+        } else {
+            // show success UI
+        }
+    }
+}
+```
+
+## Detail of an Operation
+
+To get a detail of an operation based on operation ID use `WMTOperations.getDetail`. Operation detail is confirmed by the possession factor so there is no need for creating  `PowerAuthAuthentication` object. The returned result is the operation and its current status.
+
+```swift
+import WultraMobileTokenSDK
+import PowerAuth2
+
+// Reject operation with some reason
+func getDetail(operationId: String, reason: WMTRejectionReason) {
+    operationService.getDetail(operationId: operationId) { error in
+        switch result {
+        case .success(let operation):
+            // process operation
+            break
+        case .failure(let error):
+            // process error
+            break
+        }
+    }
+}
+```
+
+## Claim an Operation
+
+To claim a non-persolized operation use `WMTOperations.claim`. Operation claim is confirmed by the possession factor so there is no need for creating  `PowerAuthAuthentication` object. The returned result is the operation and its current status and also the claimed operation is inserted into the operation list. You can simply use it with the following example.
 
 ```swift
 import WultraMobileTokenSDK
