@@ -89,14 +89,15 @@ class IntegrationProxy {
         }
     }
     
-    func createNonPersonalisedOperation(_ factors: Factors = .F_2FA, completion: @escaping (NonPersonalisedOperationObject?) -> Void) {
+    func createNonPersonalisedPACOperation(_ factors: Factors = .F_2FA, completion: @escaping (NonPersonalisedTOTPOperationObject?) -> Void) {
         DispatchQueue.global().async {
             let opBody: String
             switch factors {
             case .F_2FA:
                 opBody = """
                 {
-                  "template": "login",
+                  "template": "login_preApproval",
+                  "proximityCheckEnabled": true,
                    "parameters": {
                      "party.id": "666",
                      "party.name": "Datová schránka",
@@ -108,6 +109,12 @@ class IntegrationProxy {
             }
             
             completion(self.makeRequest(url: URL(string: "\(self.config.cloudServerUrl)/v2/operations")!, body: opBody))
+        }
+    }
+    
+    func getOperation(operation: NonPersonalisedTOTPOperationObject, completion: @escaping (NonPersonalisedTOTPOperationObject?) -> Void) {
+        DispatchQueue.global().async {
+            completion(self.makeRequest(url: URL(string: "\(self.config.cloudServerUrl)/v2/operations/\(operation.operationId)")!, body: "", httpMethod: "GET"))
         }
     }
     
@@ -266,7 +273,7 @@ struct OperationObject: Codable {
     let timestampExpires: Int
 }
 
-struct NonPersonalisedOperationObject: Codable {
+struct NonPersonalisedTOTPOperationObject: Codable {
     let operationId: String
     let status: String
     let operationType: String
@@ -274,6 +281,7 @@ struct NonPersonalisedOperationObject: Codable {
     let maxFailureCount: Int
     let timestampCreated: Int
     let timestampExpires: Int
+    let proximityOtp: String?
 }
 
 private struct IntegrationConfig: Codable {
