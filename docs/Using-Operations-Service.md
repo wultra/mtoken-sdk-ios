@@ -515,7 +515,7 @@ public class WMTProximityCheck: Codable {
     /// Type of the Proximity check
     public let type: WMTProximityCheckType
     /// Timestamp when the operation was scanned (QR Code) or delivered to the device (Deeplink)
-    public let timestampRequested: Date
+    public let timestampReceived: Date
 }
 ```
 
@@ -617,10 +617,10 @@ When the app is launched via a deeplink, preserve the data from the deeplink and
 Once the QR code is scanned or match from the deeplink is found, create a `WMTProximityCheck` with:
     - `totp`: The actual Time-Based One-Time Password.
     - `type`: Set to `WMTProximityCheckType.qrCode` or `WMTProximityCheckType.deeplink`.
-    - `timestampRequested`: The timestamp when the QR code was scanned (by default, it is created as the current timestamp).
+    - `timestampReceived`: The timestamp when the QR code was scanned (by default, it is created as the current timestamp).
 
 - Authorizing the WMTProximityCheck
-When authorization, the SDK will by default add `timestampSigned` to the `WMTProximityCheck` object. This timestamp indicates when the operation was signed.
+When authorization, the SDK will by default add `timestampSent` to the `WMTProximityCheck` object. This timestamp indicates when the operation was signed.
 
 ### WMTPACUtils
 - For convenience, utility class for parsing and extracting data from QR codes and deeplinks used in the PAC (Proximity Anti-fraud Check), is provided.
