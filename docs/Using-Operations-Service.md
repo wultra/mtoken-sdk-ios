@@ -7,8 +7,8 @@
 - [Start Periodic Polling](#start-periodic-polling)
 - [Approve an Operation](#approve-an-operation)
 - [Reject an Operation](#reject-an-operation)
-- [Detail of an Operation](#detail-of-an-operation)
-- [Claim an Operation](#claim-an-operation)
+- [Operation detail](#operation-detail)
+- [Claim the Operation](#claim-the-operation)
 - [Off-line Authorization](#off-line-authorization)
 - [Operations API Reference](#operations-api-reference)
 - [WMTUserOperation](#wmtuseroperation)
@@ -212,7 +212,7 @@ func reject(operation: WMTOperation, reason: WMTRejectionReason) {
 }
 ```
 
-## Detail of an Operation
+## Operation detail
 
 To get a detail of an operation based on operation ID use `WMTOperations.getDetail`. Operation detail is confirmed by the possession factor so there is no need for creating  `PowerAuthAuthentication` object. The returned result is the operation and its current status.
 
@@ -220,9 +220,9 @@ To get a detail of an operation based on operation ID use `WMTOperations.getDeta
 import WultraMobileTokenSDK
 import PowerAuth2
 
-// Reject operation with some reason
-func getDetail(operationId: String, reason: WMTRejectionReason) {
-    operationService.getDetail(operationId: operationId) { error in
+// Retrieve operation details based on the operation ID.
+func getDetail(operationId: String) {
+    operationService.getDetail(operationId: operationId) { result in
         switch result {
         case .success(let operation):
             // process operation
@@ -235,21 +235,28 @@ func getDetail(operationId: String, reason: WMTRejectionReason) {
 }
 ```
 
-## Claim an Operation
+## Claim the Operation
 
-To claim a non-persolized operation use `WMTOperations.claim`. Operation claim is confirmed by the possession factor so there is no need for creating  `PowerAuthAuthentication` object. The returned result is the operation and its current status and also the claimed operation is inserted into the operation list. You can simply use it with the following example.
+To claim a non-persolized operation use `WMTOperations.claim`. 
+
+A non-personalized operation refers to an operation that is initiated without a specific operationId. In this state, the operation is not tied to a particular user and lacks a unique identifier. 
+
+Operation claim is confirmed by the possession factor so there is no need for creating  `PowerAuthAuthentication` object. The returned result is the operation and its current status and also the claimed operation **is inserted into the operation list**. You can simply use it with the following example.
 
 ```swift
 import WultraMobileTokenSDK
 import PowerAuth2
 
-// Reject operation with some reason
-func reject(operation: WMTOperation, reason: WMTRejectionReason) {
-    operationService.reject(operation: operation, reason: reason) { error in
-        if let error = error {
-            // show error UI
-        } else {
-            // show success UI
+// Assigns the 'non-personalized' operation to the user
+func claim(operationId: String) {
+    operationService.claim(operation: operation, reason: reason) { result in
+        switch result {
+        case .success(let operation):
+            // process operation
+            break
+        case .failure(let error):
+            // process error
+            break
         }
     }
 }

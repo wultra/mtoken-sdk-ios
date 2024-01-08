@@ -85,7 +85,7 @@ public protocol WMTOperations: AnyObject {
     @discardableResult
     func getDetail(operationId: String, completion: @escaping(Result<WMTUserOperation, WMTError>) -> Void) -> Operation?
     
-    /// Claims the "anonymous" operation to be assigned to the user
+    /// Assigns the 'non-personalized' operation to the user
     /// - Parameters:
     ///   - operationId: Operation ID which will be claimed to belong to the user
     ///   - completion: Result completion.
