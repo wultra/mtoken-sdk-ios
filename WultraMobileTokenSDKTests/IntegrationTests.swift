@@ -91,6 +91,86 @@ class IntegrationTests: XCTestCase {
         waitForExpectations(timeout: 20, handler: nil)
     }
     
+    /// Operation IDs should be equal
+    func testDetail() {
+        let exp = expectation(description: "Operation detail")
+        
+        proxy.createNonPersonalisedPACOperation { op in
+            if let op {
+                DispatchQueue.main.async {
+                    _ = self.ops.getDetail(operationId: op.operationId) { result in
+                        switch result {
+                        case .success(let operation):
+                            XCTAssertEqual(op.operationId, operation.id)
+                        case .failure(let err):
+                            XCTFail(err.description)
+                        }
+                        exp.fulfill()
+                    }
+                }
+            } else {
+                XCTFail("Failed to get operation detail")
+                exp.fulfill()
+            }
+        }
+        
+        waitForExpectations(timeout: 20, handler: nil)
+    }
+    
+    /// Operation IDs should be equal
+    func testClaim() {
+        let exp = expectation(description: "Operation Claim should return UserOperation with operation.id")
+        
+        proxy.createNonPersonalisedPACOperation { op in
+            if let op {
+                DispatchQueue.main.async {
+                    _ = self.ops.claim(operationId: op.operationId) { result in
+                        switch result {
+                        case .success(let operation):
+                            if operation.ui?.preApprovalScreen?.type == .qr {
+                                self.proxy.getOperation(operation: op) { totpOP in
+                                    XCTAssertNotNil(totpOP?.proximityOtp, "Even with proximityCheckEnabled: true, in proximityOtp nil")
+                                    if let totpOP = totpOP, let proximityOtp = totpOP.proximityOtp {
+                                        operation.proximityCheck = WMTProximityCheck(totp: proximityOtp, type: .qrCode)
+                                        //  wrong password on purpose
+                                        let auth = PowerAuthAuthentication.possessionWithPassword(password: "xxxx")
+                                        self.ops.authorize(operation: operation, with: auth) { result in
+                                            switch result {
+                                            case .failure:
+                                                let auth = PowerAuthAuthentication.possessionWithPassword(password: self.pin)
+                                                self.ops.authorize(operation: operation, with: auth) { result in
+                                                    if case .failure(let error) = result {
+                                                        XCTFail("Failed to authorize op: \(error.description)")
+                                                    }
+                                                    exp.fulfill()
+                                                }
+                                            case .success:
+                                                XCTFail("Operation approved with wrong password")
+                                                exp.fulfill()
+                                            }
+                                        }
+                                    } else {
+                                        XCTFail("Operation or TOTP is NIL")
+                                        exp.fulfill()
+                                    }
+                                }
+                            }
+  
+                            case .failure(let err):
+                                XCTFail(err.description)
+                                exp.fulfill()
+                            }
+                        }
+                    }
+            } else {
+                XCTFail("Failed to get operation detail")
+                exp.fulfill()
+            }
+        }
+        
+        waitForExpectations(timeout: 20, handler: nil)
+    }
+    
     /// `currentServerDate` is nil by default and after ops fetch, it should be set
     func testCurrentServerDate() {
         let exp = expectation(description: "Server date should be set after operation fetch")
