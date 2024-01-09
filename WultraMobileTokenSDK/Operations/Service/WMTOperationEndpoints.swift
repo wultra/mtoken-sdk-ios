@@ -38,4 +38,14 @@ enum WMTOperationEndpoints {
         typealias EndpointType = WPNEndpointSigned<WPNRequest<WMTRejectionData>, WPNResponseBase>
         static let endpoint: EndpointType = WPNEndpointSigned(endpointURLPath: "/api/auth/token/app/operation/cancel", uriId: "/operation/cancel")
     }
+    
+    enum OperationDetail {
+        typealias EndpointType = WPNEndpointSignedWithToken<WPNRequest<WMTOperationDetailRequest>, WPNResponse<WMTUserOperation>>
+        static let endpoint: EndpointType = WPNEndpointSignedWithToken(endpointURLPath: "/api/auth/token/app/operation/detail", tokenName: "possession_universal")
+    }
+    
+    enum OperationClaim {
+        typealias EndpointType = WPNEndpointSignedWithToken<WPNRequest<WMTOperationDetailRequest>, WPNResponse<WMTUserOperation>>
+        static let endpoint: EndpointType = WPNEndpointSignedWithToken(endpointURLPath: "/api/auth/token/app/operation/detail/claim", tokenName: "possession_universal")
+    }
 }
