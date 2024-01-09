@@ -249,7 +249,7 @@ import PowerAuth2
 
 // Assigns the 'non-personalized' operation to the user
 func claim(operationId: String) {
-    operationService.claim(operation: operation, reason: reason) { result in
+    operationService.claim(operationId: operationId) { result in
         switch result {
         case .success(let operation):
             // process operation
