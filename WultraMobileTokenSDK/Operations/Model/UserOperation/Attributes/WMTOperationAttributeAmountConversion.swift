@@ -42,7 +42,6 @@ public class WMTOperationAttributeAmountConversion: WMTOperationAttribute {
         /// Currency
         public let currency: String?
 
-        
         /// Formatted currency and amount to the locale based on acceptLanguage
         ///
         /// Both amount and currency are formatted, String will show e.g. "€" in front of the amount
