@@ -21,26 +21,27 @@ public class WMTOperationAttributeAmountConversion: WMTOperationAttribute {
     
     public struct Money {
         
-        /// Payment amount
-        ///
-        /// Amount might not be precise (due to floating point conversion during deserialization from json)
-        /// use amountFormatted property instead when available
-        public let amount: Decimal
-        
-        /// Currency
-        public let currency: String
-        
         /// Formatted amount for presentation.
         ///
         /// This property will be properly formatted based on the response language.
         /// For example when amount is 100 and the acceptLanguage is "cs" for czech,
         /// the amountFormatted will be "100,00".
-        public let amountFormatted: String?
+        public let amountFormatted: String
         
         /// Formatted currency to the locale based on acceptLanguage
         ///
         /// For example when the currency is CZK, this property will be "Kč"
-        public let currencyFormatted: String?
+        public let currencyFormatted: String
+
+        /// Payment amount
+        ///
+        /// Amount might not be precise (due to floating point conversion during deserialization from json)
+        /// use amountFormatted property instead when available
+        public let amount: Decimal?
+        
+        /// Currency
+        public let currency: String?
+
         
         /// Formatted currency and amount to the locale based on acceptLanguage
         ///
@@ -75,18 +76,22 @@ public class WMTOperationAttributeAmountConversion: WMTOperationAttribute {
         let c = try decoder.container(keyedBy: Keys.self)
         
         self.dynamic = try c.decode(Bool.self, forKey: .dynamic)
+        // For backward compatibility with legacy implementation, where the `sourceAmountFormatted` and `sourceCurrencyFormatted` values might not be present,
+        // we directly decode from `sourceAmount` and `sourceCurrency`.
         self.source = .init(
-            amount: try c.decode(Decimal.self, forKey: .sourceAmount),
-            currency: try c.decode(String.self, forKey: .sourceCurrency),
-            amountFormatted: try? c.decode(String.self, forKey: .sourceAmountFormatted),
-            currencyFormatted: try? c.decode(String.self, forKey: .sourceCurrencyFormatted),
+            amountFormatted: try c.decodeIfPresent(String.self, forKey: .sourceAmountFormatted) ?? String(c.decode(Double.self, forKey: .sourceAmount)),
+            currencyFormatted: try c.decodeIfPresent(String.self, forKey: .sourceCurrencyFormatted) ?? c.decode(String.self, forKey: .sourceCurrency),
+            amount: try? c.decode(Decimal.self, forKey: .sourceAmount),
+            currency: try? c.decode(String.self, forKey: .sourceCurrency),
             valueFormatted: try? c.decode(String.self, forKey: .sourceValueFormatted)
         )
+        // For backward compatibility with legacy implementation, where the `targetAmountFormatted` and `targetCurrencyFormatted` values might not be present,
+        // we directly decode from `targetAmount` and `targetCurrency`.
         self.target = .init(
-            amount: try c.decode(Decimal.self, forKey: .targetAmount),
-            currency: try c.decode(String.self, forKey: .targetCurrency),
-            amountFormatted: try? c.decode(String.self, forKey: .targetAmountFormatted),
-            currencyFormatted: try? c.decode(String.self, forKey: .targetCurrencyFormatted),
+            amountFormatted: try c.decodeIfPresent(String.self, forKey: .targetAmountFormatted) ?? String(c.decode(Double.self, forKey: .targetAmount)),
+            currencyFormatted: try c.decodeIfPresent(String.self, forKey: .targetCurrencyFormatted) ?? c.decode(String.self, forKey: .targetCurrency),
+            amount: try? c.decode(Decimal.self, forKey: .targetAmount),
+            currency: try? c.decode(String.self, forKey: .targetCurrency),
             valueFormatted: try? c.decode(String.self, forKey: .targetValueFormatted)
         )
         
