@@ -19,26 +19,26 @@ import Foundation
 /// Amount attribute is 1 row in operation, that represents "Payment Amount"
 public class WMTOperationAttributeAmount: WMTOperationAttribute {
 
-    /// Payment amount
-    ///
-    /// Amount might not be precise (due to floating point conversion during deserialization from json)
-    /// use amountFormatted property instead when available
-    public let amount: Decimal
-    
-    /// Currency
-    public let currency: String
-    
     /// Formatted amount for presentation.
     ///
     /// This property will be properly formatted based on the response language.
     /// For example when amount is 100 and the acceptLanguage is "cs" for czech,
     /// the amountFormatted will be "100,00".
-    public let amountFormatted: String?
+    public let amountFormatted: String
     
     /// Formatted currency to the locale based on acceptLanguage
     ///
     /// For example when the currency is CZK, this property will be "Kč"
-    public let currencyFormatted: String?
+    public let currencyFormatted: String
+    
+    /// Payment amount
+    ///
+    /// Amount might not be precise (due to floating point conversion during deserialization from json)
+    /// use amountFormatted property instead when available
+    public let amount: Decimal?
+    
+    /// Currency
+    public let currency: String?
 
     /// Formatted value and currency to the locale based on acceptLanguage
     ///
@@ -52,12 +52,12 @@ public class WMTOperationAttributeAmount: WMTOperationAttribute {
         case amount, amountFormatted, currency, currencyFormatted, valueFormatted
     }
     
-    public init(label: AttributeLabel, amount: Decimal, currency: String, amountFormatted: String?, currencyFormatted: String?, valueFormatted: String?) {
-        self.amount = amount
-        self.currency = currency
+    public init(label: AttributeLabel, amountFormatted: String, currencyFormatted: String, valueFormatted: String?, amount: Decimal?, currency: String? ) {
         self.amountFormatted = amountFormatted
         self.currencyFormatted = currencyFormatted
         self.valueFormatted = valueFormatted
+        self.amount = amount
+        self.currency = currency
         super.init(type: .amount, label: label)
     }
     
@@ -65,10 +65,14 @@ public class WMTOperationAttributeAmount: WMTOperationAttribute {
         
         let c = try decoder.container(keyedBy: Keys.self)
         
-        amount = (try c.decode(Double.self, forKey: .amount) as NSNumber).decimalValue
-        currency = try c.decode(String.self, forKey: .currency)
-        amountFormatted = try? c.decode(String.self, forKey: .amountFormatted)
-        currencyFormatted = try? c.decode(String.self, forKey: .currencyFormatted)
+        // For backward compatibility with legacy implementation, where the `amountFormatted` and `currencyFormatted` values might not be present,
+        // we directly decode from `amount` and `currency`.
+        amountFormatted = try c.decodeIfPresent(String.self, forKey: .amountFormatted) ?? String(c.decode(Double.self, forKey: .amount))
+        currencyFormatted = try c.decodeIfPresent(String.self, forKey: .currencyFormatted) ?? c.decode(String.self, forKey: .currency)
+
+        amount = (try? c.decode(Double.self, forKey: .amount) as NSNumber)?.decimalValue
+        currency = try? c.decode(String.self, forKey: .currency)
+        
         valueFormatted = try? c.decode(String.self, forKey: .valueFormatted)
         try super.init(from: decoder)
     }
