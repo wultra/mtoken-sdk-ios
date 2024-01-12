@@ -78,20 +78,20 @@ public class WMTOperationAttributeAmountConversion: WMTOperationAttribute {
         // For backward compatibility with legacy implementation, where the `sourceAmountFormatted` and `sourceCurrencyFormatted` values might not be present,
         // we directly decode from `sourceAmount` and `sourceCurrency`.
         self.source = .init(
-            amountFormatted: try c.decodeIfPresent(String.self, forKey: .sourceAmountFormatted) ?? String(c.decode(Double.self, forKey: .sourceAmount)),
+            amountFormatted: try c.decodeIfPresent(String.self, forKey: .sourceAmountFormatted) ?? c.decode(Decimal.self, forKey: .sourceAmount).description,
             currencyFormatted: try c.decodeIfPresent(String.self, forKey: .sourceCurrencyFormatted) ?? c.decode(String.self, forKey: .sourceCurrency),
-            amount: try? c.decode(Decimal.self, forKey: .sourceAmount),
-            currency: try? c.decode(String.self, forKey: .sourceCurrency),
-            valueFormatted: try? c.decode(String.self, forKey: .sourceValueFormatted)
+            amount: try c.decodeIfPresent(Decimal.self, forKey: .sourceAmount),
+            currency: try c.decodeIfPresent(String.self, forKey: .sourceCurrency),
+            valueFormatted: try c.decodeIfPresent(String.self, forKey: .sourceValueFormatted)
         )
         // For backward compatibility with legacy implementation, where the `targetAmountFormatted` and `targetCurrencyFormatted` values might not be present,
         // we directly decode from `targetAmount` and `targetCurrency`.
         self.target = .init(
-            amountFormatted: try c.decodeIfPresent(String.self, forKey: .targetAmountFormatted) ?? String(c.decode(Double.self, forKey: .targetAmount)),
+            amountFormatted: try c.decodeIfPresent(String.self, forKey: .targetAmountFormatted) ?? c.decode(Decimal.self, forKey: .targetAmount).description,
             currencyFormatted: try c.decodeIfPresent(String.self, forKey: .targetCurrencyFormatted) ?? c.decode(String.self, forKey: .targetCurrency),
-            amount: try? c.decode(Decimal.self, forKey: .targetAmount),
-            currency: try? c.decode(String.self, forKey: .targetCurrency),
-            valueFormatted: try? c.decode(String.self, forKey: .targetValueFormatted)
+            amount: try c.decodeIfPresent(Decimal.self, forKey: .targetAmount),
+            currency: try c.decodeIfPresent(String.self, forKey: .targetCurrency),
+            valueFormatted: try c.decodeIfPresent(String.self, forKey: .targetValueFormatted)
         )
         
         try super.init(from: decoder)

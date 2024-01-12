@@ -67,13 +67,11 @@ public class WMTOperationAttributeAmount: WMTOperationAttribute {
         
         // For backward compatibility with legacy implementation, where the `amountFormatted` and `currencyFormatted` values might not be present,
         // we directly decode from `amount` and `currency`.
-        amountFormatted = try c.decodeIfPresent(String.self, forKey: .amountFormatted) ?? String(c.decode(Double.self, forKey: .amount))
+        amountFormatted = try c.decodeIfPresent(String.self, forKey: .amountFormatted) ?? c.decode(Decimal.self, forKey: .amount).description
         currencyFormatted = try c.decodeIfPresent(String.self, forKey: .currencyFormatted) ?? c.decode(String.self, forKey: .currency)
-
-        amount = (try? c.decode(Double.self, forKey: .amount) as NSNumber)?.decimalValue
-        currency = try? c.decode(String.self, forKey: .currency)
-        
-        valueFormatted = try? c.decode(String.self, forKey: .valueFormatted)
+        valueFormatted = try c.decodeIfPresent(String.self, forKey: .valueFormatted)
+        amount = try c.decodeIfPresent(Decimal.self, forKey: .amount)
+        currency = try c.decodeIfPresent(String.self, forKey: .currency)
         try super.init(from: decoder)
     }
 }
