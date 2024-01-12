@@ -295,6 +295,20 @@ class NetworkingObjectsTests: XCTestCase {
             XCTAssert(obj.filter({ $0.status == val }).count == 1)
         }
     }
+    
+    func testAttributesDeserializationNotInterupted() {
+        // Non-optional amount removed from AMOUNT Attribute
+        let response = """
+{"status":"OK", "currentTimestamp":"2023-02-10T12:30:42+0000", "responseObject":[{"id":"930febe7-f350-419a-8bc0-c8883e7f71e3", "name":"authorize_payment", "data":"A1*A100CZK*Q238400856/0300**D20170629*NUtility Bill Payment - 05/2017", "operationCreated":"2018-08-08T12:30:42+0000", "operationExpires":"2018-08-08T12:35:43+0000", "allowedSignatureType": {"type":"2FA", "variants": ["possession_knowledge", "possession_biometry"]}, "formData": {"title":"Potvrzení platby", "message":"Dobrý den,prosíme o potvrzení následující platby:", "attributes": [{"type":"AMOUNT", "id":"operation.amount", "label":"Částka", "currency":"CZK"}, { "type": "AMOUNT_CONVERSION", "id": "operation.conversion", "label": "Conversion", "dynamic": true, "sourceAmount": 1.26, "sourceCurrency": "ETC", "targetAmount": 1710.98, "targetCurrency": "USD"}]}}]}
+"""
+
+        guard let result = try? jsonDecoder.decode(WPNResponseArray<WMTUserOperation>.self, from: response.data(using: .utf8)!) else {
+            XCTFail("Failed to parse JSON data")
+            return
+        }
+
+        XCTAssert(result.responseObject?[0].formData.attributes.isEmpty == false, "There should be a Conversion Attribute, but attributes are empty.")
+    }
 }
 
 extension WPNRequestBase {
