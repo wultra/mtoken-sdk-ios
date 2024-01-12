@@ -378,8 +378,21 @@ class NetworkingObjectsTests: XCTestCase {
             XCTFail("Failed to parse JSON data")
             return
         }
-
-        XCTAssert(result.responseObject?[0].formData.attributes.isEmpty == false, "There should be a Conversion Attribute, but attributes are empty.")
+        
+        guard let attributes = result.responseObject?[0].formData.attributes else {
+            XCTFail("Failed to get attributes")
+            return
+        }
+        
+        XCTAssertFalse(attributes.count == 0, "There should be a Conversion Attribute, but attributes are empty.")
+        XCTAssertFalse(attributes.count > 1, "There should be only a Conversion Attribute, so the amount attribute deserialization changed so also this test should change")
+        
+        if let conversion = attributes.first as? WMTOperationAttributeAmountConversion {
+            XCTAssertEqual(conversion.type, .amountConversion, "The First attribute should be a Conversion Attribute.")
+        } else {
+            XCTFail("Failed to cast to WMTOperationAttributeAmountConversion")
+        }
+        
     }
 }
 
