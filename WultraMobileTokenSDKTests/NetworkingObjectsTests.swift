@@ -170,6 +170,78 @@ class NetworkingObjectsTests: XCTestCase {
         XCTAssert(op2.allowedSignatureType.signatureFactors.count == 1 && op2.allowedSignatureType.signatureFactors.contains(.possessionKnowledge))
     }
     
+    func testOnlyAmountAndConversionAttributesLegacyBackend() {
+        let json = """
+        {"status":"OK", "currentTimestamp":"2023-02-10T12:30:42+0000", "responseObject":[{"id":"930febe7-f350-419a-8bc0-c8883e7f71e3", "name":"authorize_payment", "data":"A1*A100CZK*Q238400856/0300**D20170629*NUtility Bill Payment - 05/2017", "operationCreated":"2018-08-08T12:30:42+0000", "operationExpires":"2018-08-08T12:35:43+0000", "allowedSignatureType": {"type":"2FA", "variants": ["possession_knowledge", "possession_biometry"]}, "formData": {"title":"Potvrzení platby", "message":"Dobrý den,prosíme o potvrzení následující platby:", "attributes": [{"type":"AMOUNT", "id":"operation.amount", "label":"Částka", "amount":965165234082.23, "currency":"CZK"}, { "type": "AMOUNT_CONVERSION", "id": "operation.conversion", "label": "Conversion", "dynamic": true, "sourceAmount": 1.26, "sourceCurrency": "ETC", "targetAmount": 1710.98, "targetCurrency": "USD"}]}}]}
+        """
+        
+        guard let result = try? jsonDecoder.decode(WPNResponseArray<WMTUserOperation>.self, from: json.data(using: .utf8)!) else {
+            XCTFail("Failed to parse JSON data")
+            return
+        }
+        
+        guard let amountAttr = result.responseObject?[0].formData.attributes[0] as? WMTOperationAttributeAmount  else {
+            XCTFail("amount attribute not recognized")
+            return
+        }
+        XCTAssertEqual(Decimal(string: "965165234082.23"), amountAttr.amount)
+        XCTAssertEqual("CZK", amountAttr.currency)
+        XCTAssertEqual("965165234082.23", amountAttr.amountFormatted)
+        XCTAssertEqual("CZK", amountAttr.currencyFormatted)
+        
+        
+        guard let conversionAttr = result.responseObject?[0].formData.attributes[1] as? WMTOperationAttributeAmountConversion else {
+            XCTFail("conversion attribute not recognized")
+            return
+        }
+    
+        XCTAssertEqual(Decimal(string: "1.26"), conversionAttr.source.amount)
+        XCTAssertEqual("ETC", conversionAttr.source.currency)
+        XCTAssertEqual(Decimal(string: "1710.98"), conversionAttr.target.amount)
+        XCTAssertEqual("USD", conversionAttr.target.currency)
+        
+        XCTAssertEqual("1.26", conversionAttr.source.amountFormatted)
+        XCTAssertEqual("ETC", conversionAttr.source.currencyFormatted)
+        XCTAssertEqual("1710.98", conversionAttr.target.amountFormatted)
+        XCTAssertEqual("USD", conversionAttr.target.currencyFormatted)
+    }
+
+        func testAmountAndConversionAttributesOnlyFormattedValues() {
+            let json = """
+            {"status":"OK", "currentTimestamp":"2023-02-10T12:30:42+0000", "responseObject":[{"id":"930febe7-f350-419a-8bc0-c8883e7f71e3", "name":"authorize_payment", "data":"A1*A100CZK*Q238400856/0300**D20170629*NUtility Bill Payment - 05/2017", "operationCreated":"2018-08-08T12:30:42+0000", "operationExpires":"2018-08-08T12:35:43+0000", "allowedSignatureType": {"type":"2FA", "variants": ["possession_knowledge", "possession_biometry"]}, "formData": {"title":"Potvrzení platby", "message":"Dobrý den,prosíme o potvrzení následující platby:", "attributes": [{"type":"AMOUNT", "id":"operation.amount", "label":"Částka", "amountFormatted":"965165234082.23", "currencyFormatted":"CZK"}, { "type": "AMOUNT_CONVERSION", "id": "operation.conversion", "label": "Conversion", "dynamic": true, "sourceAmountFormatted": "1.26", "sourceCurrencyFormatted": "ETC", "targetAmountFormatted": "1710.98", "targetCurrencyFormatted": "USD"}]}}]}
+            """.trimmingCharacters(in: .whitespacesAndNewlines)
+
+            guard let result = try? jsonDecoder.decode(WPNResponseArray<WMTUserOperation>.self, from: json.data(using: .utf8)!) else {
+                XCTFail("Failed to parse JSON data")
+                return
+            }
+
+            guard let amountAttr = result.responseObject?[0].formData.attributes[0] as? WMTOperationAttributeAmount else {
+                XCTFail("amount attribute not recognized")
+                return
+            }
+
+            XCTAssertNil(amountAttr.amount)
+            XCTAssertNil(amountAttr.currency)
+            XCTAssertEqual("965165234082.23", amountAttr.amountFormatted)
+            XCTAssertEqual("CZK", amountAttr.currencyFormatted)
+
+            guard let conversionAttr = result.responseObject?[0].formData.attributes[1] as? WMTOperationAttributeAmountConversion else {
+                XCTFail("conversion attribute not recognized")
+                return
+            }
+
+            XCTAssertNil(conversionAttr.source.amount)
+            XCTAssertNil(conversionAttr.source.currency)
+            XCTAssertNil(conversionAttr.target.amount)
+            XCTAssertNil(conversionAttr.target.currency)
+
+            XCTAssertEqual("1.26", conversionAttr.source.amountFormatted)
+            XCTAssertEqual("ETC", conversionAttr.source.currencyFormatted)
+            XCTAssertEqual("1710.98", conversionAttr.target.amountFormatted)
+            XCTAssertEqual("USD", conversionAttr.target.currencyFormatted)
+        }
+    
     func testErrorResponse() {
         
         let response = """
