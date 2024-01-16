@@ -384,15 +384,8 @@ class NetworkingObjectsTests: XCTestCase {
             return
         }
         
-        XCTAssertFalse(attributes.count == 0, "There should be a Conversion Attribute, but attributes are empty.")
-        XCTAssertFalse(attributes.count > 1, "There should be only a Conversion Attribute, so the amount attribute deserialization changed so also this test should change")
-        
-        if let conversion = attributes.first as? WMTOperationAttributeAmountConversion {
-            XCTAssertEqual(conversion.type, .amountConversion, "The First attribute should be a Conversion Attribute.")
-        } else {
-            XCTFail("Failed to cast to WMTOperationAttributeAmountConversion")
-        }
-        
+        XCTAssertTrue(attributes.count == 1, "There should be one Conversion Attribute but the count is: \(attributes.count)")
+        XCTAssert(attributes.first is WMTOperationAttributeAmountConversion, "The First attribute should be a Conversion Attribute.")
     }
 }
 
