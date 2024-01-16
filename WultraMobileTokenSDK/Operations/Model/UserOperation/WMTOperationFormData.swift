@@ -39,8 +39,24 @@ public class WMTOperationFormData: Codable {
         let c = try decoder.container(keyedBy: Keys.self)
         title = try c.decode(String.self, forKey: .title)
         message = try c.decode(String.self, forKey: .message)
-        // attributes are optional
-        attributes = (try? c.decode([WMTOperationAttributeDecodable].self, forKey: .attributes).map { $0.attrObject }) ?? []
+        
+        var operationAttributes: [WMTOperationAttribute] = []
+        do {
+            var container = try c.nestedUnkeyedContainer(forKey: .attributes)
+            // If decoding fails log it and continue decoding until the end of container
+            while container.isAtEnd == false {
+                do {
+                    let attribute = try WMTOperationAttributeDecodable(from: container.superDecoder())
+                    operationAttributes.append(attribute.attrObject)
+                } catch {
+                    D.error("Error decoding WMTOperationFormData attribute: \(error)")
+                }
+            }
+        } catch {
+            D.print("No attributes in WMTOperationFormData: \(error)")
+        }
+        
+        attributes = operationAttributes
     }
     
     public init(title: String, message: String, attributes: [WMTOperationAttribute]) {
