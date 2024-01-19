@@ -341,7 +341,7 @@ class IntegrationTests: XCTestCase {
                             exp.fulfill()
                             return
                         }
-                        self.ops.reject(operation: opToReject, with: .unexpectedOperation) { result in
+                        self.ops.reject(operation: opToReject, reason: "UNEXPECTED_OPERATION") { result in
                             if case .failure(let error) = result {
                                 XCTFail("Failed to reject op: \(error.description)")
                             }
@@ -577,7 +577,7 @@ class IntegrationTests: XCTestCase {
                     }
                     self.ops.delegate = d3
                     
-                    self.ops.reject(operation: ops[0], with: .unknown) { result in
+                    self.ops.reject(operation: ops[0], reason: "UNKNOWN") { result in
                         
                         switch result {
                         case .failure(let error):

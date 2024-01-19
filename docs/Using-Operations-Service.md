@@ -194,14 +194,14 @@ func approveWithBiometry(operation: WMTOperation) {
 
 ## Reject an Operation
 
-To reject an operation use `WMTOperations.reject`. Operation rejection is confirmed by possession factor so there is no need for creating  `PowerAuthAuthentication` object. You can simply use it with the following example.
+To reject an operation use `WMTOperations.reject`. Operation rejection is confirmed by a possession factor, so there is no need for creating a `PowerAuthAuthentication` object. You can simply use it with the following example.
 
 ```swift
 import WultraMobileTokenSDK
 import PowerAuth2
 
 // Reject operation with some reason
-func reject(operation: WMTOperation, reason: WMTRejectionReason) {
+func reject(operation: WMTOperation, reason: String) {
     operationService.reject(operation: operation, reason: reason) { error in
         if let error = error {
             // show error UI

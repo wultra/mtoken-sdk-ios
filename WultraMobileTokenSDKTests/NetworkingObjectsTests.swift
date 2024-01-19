@@ -340,7 +340,7 @@ class NetworkingObjectsTests: XCTestCase {
                           {"requestObject":{"id":"95e51995-fa60-4018-bd87-43a58f098570","reason":"UNEXPECTED_OPERATION"}}
                           """
         
-        let request = WMTOperationEndpoints.Reject.EndpointType.RequestData(.init(operationId: "95e51995-fa60-4018-bd87-43a58f098570", reason: .unexpectedOperation))
+        let request = WMTOperationEndpoints.RejectV2.EndpointType.RequestData(.init(operationId: "95e51995-fa60-4018-bd87-43a58f098570", reason: "UNEXPECTED_OPERATION"))
         request.testSerialization(expectation: expectation)
     }
     

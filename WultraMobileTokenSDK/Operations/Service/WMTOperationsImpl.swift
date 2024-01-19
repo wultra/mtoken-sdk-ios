@@ -298,6 +298,7 @@ class WMTOperationsImpl<T: WMTUserOperation>: WMTOperations, WMTService {
         }
     }
     
+    @available(*, deprecated, message: "WMTRejectionReason is deprecated. Use String reason instead")
     func reject(operation: WMTOperation, with reason: WMTRejectionReason, completion: @escaping(Result<Void, WMTError>) -> Void) -> Operation? {
         
         guard validateActivation(completion) else {
@@ -308,6 +309,29 @@ class WMTOperationsImpl<T: WMTUserOperation>: WMTOperations, WMTService {
             data: .init(.init(operationId: operation.id, reason: reason)),
             signedWith: .possession(),
             to: WMTOperationEndpoints.Reject.endpoint
+        ) { response, error in
+            self.processResult(response: response, error: error) { result in
+                switch result {
+                case .success:
+                    self.operationsRegister.remove(operation: operation)
+                    completion(.success(()))
+                case .failure(let err):
+                    completion(.failure(self.adjustOperationError(err, auth: false)))
+                }
+            }
+        }
+    }
+    
+    func reject(operation: WMTOperation, reason: String, completion: @escaping(Result<Void, WMTError>) -> Void) -> Operation? {
+        
+        guard validateActivation(completion) else {
+            return nil
+        }
+                
+        return networking.post(
+            data: .init(.init(operationId: operation.id, reason: reason)),
+            signedWith: .possession(),
+            to: WMTOperationEndpoints.RejectV2.endpoint
         ) { response, error in
             self.processResult(response: response, error: error) { result in
                 switch result {

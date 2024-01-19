@@ -130,7 +130,19 @@ public protocol WMTOperations: AnyObject {
     ///                 This completion is always called on the main thread.
     /// - Returns: Operation object for its state observation.
     @discardableResult
+    @available(*, deprecated, message: "WMTRejectionReason is deprecated. Use method with String reason instead")
     func reject(operation: WMTOperation, with: WMTRejectionReason, completion: @escaping(Result<Void, WMTError>) -> Void) -> Operation?
+    
+    /// Reject operation with a reason.
+    ///
+    /// - Parameters:
+    ///   - operation: Operation that should be rejected.
+    ///   - reason: Reason for the rejection.
+    ///   - completion: Result callback.
+    ///                 This completion is always called on the main thread.
+    /// - Returns: Operation object for its state observation.
+    @discardableResult
+    func reject(operation: WMTOperation, reason: String, completion: @escaping(Result<Void, WMTError>) -> Void) -> Operation?
     
     /// If the service is polling operations
     var isPollingOperations: Bool { get }
