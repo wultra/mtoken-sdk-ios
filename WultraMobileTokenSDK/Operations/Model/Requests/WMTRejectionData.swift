@@ -23,25 +23,10 @@ class WMTRejectionData: Codable {
     let id: String
     
     /// Rejection reason
-    let reason: WMTRejectionReason
+    let reason: String
     
     init(operationId: String, reason: WMTRejectionReason) {
         self.id     = operationId
-        self.reason = reason
-    }
-}
-
-/// Backend payload
-class WMTRejectionDataV2: Codable {
-    
-    /// Operation id
-    let id: String
-    
-    /// Rejection reason
-    let reason: String
-    
-    init(operationId: String, reason: String) {
-        self.id     = operationId
-        self.reason = reason
+        self.reason = reason.serialized
     }
 }

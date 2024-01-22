@@ -17,11 +17,22 @@
 import Foundation
 
 /// Reason why the operation will be rejected
-public enum WMTRejectionReason: String, Codable {
-    /// User don't want to provide the reason.
-    case unknown = "UNKNOWN"
+public enum WMTRejectionReason {
+    /// User doesn't want to provide the reason.
+    case unknown
     /// Operation data does not match (for example when user found a typo or other mistake)
-    case incorrectData = "INCORRECT_DATA"
+    case incorrectData
     /// User didn't started this operation
-    case unexpectedOperation = "UNEXPECTED_OPERATION"
+    case unexpectedOperation // = "UNEXPECTED_OPERATION"
+    /// Custom reason of rejection
+    case custom(_ reason: String)
+    
+    var serialized: String {
+        return switch self {
+        case .unknown: "UNKNOWN"
+        case .incorrectData: "INCORRECT_DATA"
+        case .unexpectedOperation: "UNEXPECTED_OPERATION"
+        case .custom(let reason): reason
+        }
+    }
 }

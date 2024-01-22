@@ -337,10 +337,10 @@ class NetworkingObjectsTests: XCTestCase {
     func testOperationRejectionRequest() {
         
         let expectation = """
-                          {"requestObject":{"id":"95e51995-fa60-4018-bd87-43a58f098570","reason":"UNEXPECTED_OPERATION"}}
+                          {"requestObject":{"id":"95e51995-fa60-4018-bd87-43a58f098570","reason":"COMPLETELLY_CUSTOM_REJECT_REASON"}}
                           """
         
-        let request = WMTOperationEndpoints.RejectV2.EndpointType.RequestData(.init(operationId: "95e51995-fa60-4018-bd87-43a58f098570", reason: "UNEXPECTED_OPERATION"))
+        let request = WMTOperationEndpoints.Reject.EndpointType.RequestData(.init(operationId: "95e51995-fa60-4018-bd87-43a58f098570", reason: .custom("COMPLETELLY_CUSTOM_REJECT_REASON")))
         request.testSerialization(expectation: expectation)
     }
     

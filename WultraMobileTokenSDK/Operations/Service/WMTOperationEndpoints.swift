@@ -36,12 +36,6 @@ enum WMTOperationEndpoints {
     
     enum Reject {
         typealias EndpointType = WPNEndpointSigned<WPNRequest<WMTRejectionData>, WPNResponseBase>
-        @available(*, deprecated, message: "Reject is deprecated. Use RejectV2 instead")
-        static let endpoint: EndpointType = WPNEndpointSigned(endpointURLPath: "/api/auth/token/app/operation/cancel", uriId: "/operation/cancel")
-    }
-    
-    enum RejectV2 {
-        typealias EndpointType = WPNEndpointSigned<WPNRequest<WMTRejectionDataV2>, WPNResponseBase>
         static let endpoint: EndpointType = WPNEndpointSigned(endpointURLPath: "/api/auth/token/app/operation/cancel", uriId: "/operation/cancel")
     }
     
