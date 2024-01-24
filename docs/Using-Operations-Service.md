@@ -201,7 +201,7 @@ import WultraMobileTokenSDK
 import PowerAuth2
 
 // Reject operation with some reason
-func reject(operation: WMTOperation, reason: String) {
+func reject(operation: WMTOperation, reason: WMTRejectionReason) {
     operationService.reject(operation: operation, reason: reason) { error in
         if let error = error {
             // show error UI
