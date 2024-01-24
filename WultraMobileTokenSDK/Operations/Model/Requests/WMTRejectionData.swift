@@ -23,10 +23,10 @@ class WMTRejectionData: Codable {
     let id: String
     
     /// Rejection reason
-    let reason: WMTRejectionReason
+    let reason: String
     
     init(operationId: String, reason: WMTRejectionReason) {
         self.id     = operationId
-        self.reason = reason
+        self.reason = reason.serialized
     }
 }
