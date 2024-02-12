@@ -241,7 +241,7 @@ To claim a non-persolized operation use `WMTOperations.claim`.
 
 A non-personalized operation refers to an operation that is initiated without a specific userId. In this state, the operation is not tied to a particular user. 
 
-Operation claim is confirmed by the possession factor so there is no need for creating  `PowerAuthAuthentication` object. The returned result is the operation and its current status and also the claimed operation **is inserted into the operation list**. You can simply use it with the following example.
+Operation claim is confirmed by the possession factor so there is no need for creating a `PowerAuthAuthentication` object. The returned result is the operation and its current status and also the claimed operation **is inserted into the operation list**. You can simply use it with the following example.
 
 ```swift
 import WultraMobileTokenSDK
