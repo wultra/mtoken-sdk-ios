@@ -14,7 +14,7 @@ If you're creating your own custom operation by implementing the `WMTOperation` 
 
 If the device is [registered to receive push notifications](Using-Push-Service.md), it will receive an [`operationFinished`](https://github.com/wultra/mtoken-sdk-ios/blob/develop/WultraMobileTokenSDK/Push/WMTPushParser.swift#L77#docucheck-keep-link) notification with the [`timeout`](https://github.com/wultra/mtoken-sdk-ios/blob/develop/WultraMobileTokenSDK/Push/WMTPushParser.swift#L86#docucheck-keep-link) result when the operation expires.
 
-Operation list should be refreshed on such notification.
+The operation list should be refreshed on such notification.
 
 Please be aware that push notifications are not guaranteed to be received. There are several scenarios where push notification delivery will fail, such as:
 
@@ -31,7 +31,7 @@ Server and client device time could differ! You should never remove the operatio
 
 ### WMTOperationExpirationWatcher
 
-Utility class that will observe operations and informs you when it expired.
+Utility class that will observe operations and inform you when it expires.
 
 #### Sample Implementation
 
@@ -64,7 +64,7 @@ class MyOperationsService: WMTOperationsDelegate, WMTOperationExpirationWatcherD
     }
 
     func operationsChanged(operations: [UserOperation], removed: [UserOperation], added: [UserOperation]) {
-        // simplified but working example how operations can be observed for expiration
+        // simplified but working example of how operations can be observed for expiration
         expirationWatcher.removeAll()
         expirationWatcher.add(operations)
 
@@ -78,7 +78,7 @@ class MyOperationsService: WMTOperationsDelegate, WMTOperationExpirationWatcherD
         // some operation expired, refresh the list
         refreshOperations()
         // this behavior could be improved for example with
-        // checking if the expired operations is currently displayed etc..
+        // checking if the expired operations are currently displayed etc..
     }
 }
 ```

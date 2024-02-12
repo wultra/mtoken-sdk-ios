@@ -62,6 +62,7 @@ Note: If you want to use only operations, you can omit the Push dependency and i
 | `1.6.x` | `1.7.x` |
 | `1.7.x` | `1.7.x` |
 | `1.8.x` | `1.8.x` |
+| `1.9.x` | `1.8.x` |
 
 ## Xcode Compatibility
 

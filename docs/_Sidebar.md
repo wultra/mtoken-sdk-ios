@@ -7,4 +7,7 @@
 - [Error Handling](./Error-Handling.md)
 - [Language Configuration](./Language-Configuration.md)
 - [Logging](./Logging.md)
+
+**Other**
+
 - [Changelog](./Changelog.md)
