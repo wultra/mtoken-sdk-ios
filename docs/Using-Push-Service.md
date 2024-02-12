@@ -14,7 +14,7 @@
 Push Service is responsible for registering the device for the push notifications about the Operations that are tied to the current PowerAuth activation.
 
 <!-- begin box warning -->
-Note: Before using Push Service, you need to have a `PowerAuthSDK` object available and initialized with a valid activation. Without a valid PowerAuth activation, service will return an error
+Note: Before using Push Service, you need to have a `PowerAuthSDK` object available and initialized with a valid activation. Without a valid PowerAuth activation, the service will return an error
 <!-- end -->
 
 Push Service communicates with [Mobile Push Registration API](https://github.com/wultra/powerauth-webflow/blob/develop/docs/Mobile-Push-Registration-API.md).
@@ -46,11 +46,11 @@ let pushService = networkingService.createWMTPush()
 
 All available methods of the `WMTPush` API are:
 
-- `pushNotificationsRegisteredOnServer` - If there was already made an successful request.
+- `pushNotificationsRegisteredOnServer` - If there was already made a successful request.
 - `acceptLanguage` - Language settings, that will be sent along with each request.
 - `registerDeviceTokenForPushNotifications(token: Data, completionHandler: @escaping (_ success: Bool, _ error: WMTError?) -> Void)` - Registers push token on the backend.
     - `token` - token data retrieved from APNS.
-    - `completionHandler` - Called when request finishes. Always called on the main thread.
+    - `completionHandler` - Called when the request finishes. Always called on the main thread.
 
 ## Registering to WMT Push Notifications
 
@@ -74,7 +74,7 @@ The above method will get called only if you registered the app to receive push 
 
 ## Receiving WMT Push Notifications
 
-To process the raw notification obtained from Apple Push Notification service (APNs), you can use `WMTPushParser` helper class that will parse the notification into a `WMTPushMessage` result.
+To process the raw notification obtained from the Apple Push Notification Service (APNS), you can use `WMTPushParser` helper class that will parse the notification into a `WMTPushMessage` result.
 
 The `WMTPushMessage` can be following values
 
@@ -83,7 +83,7 @@ The `WMTPushMessage` can be following values
   -  `name` of the operation
   -  `content` _(optional)_ of the message presented to the user.
   -  `originalData` - data on which was the push message constructed
-- `operationFinished` - an operation was finished, successfully or non-successfully with following parameters
+- `operationFinished` - an operation was finished, successfully or non-successfully with the following parameters
   -  `id` of the operation
   -  `name` of the operation
   -  `result` of the operation (for example that the operation was canceled by the user).

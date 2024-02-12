@@ -19,7 +19,7 @@
 ## Introduction
 <!-- end -->
 
-Operations Service is responsible for fetching the operation list and for approving or rejecting operations.
+The Operations Service is responsible for fetching the operation list and for approving or rejecting operations.
 
 An operation can be anything you need to be approved or rejected by the user. It can be for example money transfer, login request, access approval, ...
 
@@ -59,7 +59,7 @@ The `pollingOptions` parameter is used for polling feature configuration. The de
 
 ### With custom WMTUserOperation objects
 
-To retreive custom user operations, both `createWMTOperations` methods offer optional parameter `customUserOperationType` where you can setup requested type.
+To retrieve custom user operations, both `createWMTOperations` methods offer the optional parameter `customUserOperationType` where you can set up the requested type.
 
 ```swift
 // networkingService is instance of WPNNetworkingService
@@ -88,10 +88,10 @@ DispatchQueue.main.async {
 }
 ```
 
-After you retrieve the pending operations, you can render them in the UI, for example, as a list of items with a detail of operation shown after a tap.
+After you retrieve the pending operations, you can render them in the UI, for example, as a list of items with a detail of the operation shown after a tap.
 
 <!-- begin box warning -->
-Note: Language of the UI data inside the operation depends on the configuration of the `WMTOperation.acceptLanguage`.
+Note: The language of the UI data inside the operation depends on the configuration of the `WMTOperation.acceptLanguage`.
 <!-- end -->
 
 ## Start Periodic Polling
@@ -150,7 +150,7 @@ Polling behavior can be adjusted by the `pollingOptions` parameter when [creatin
 
 ## Approve an Operation
 
-To approve an operation use `WMTOperations.authorize`. You can simply use it with following examples:
+To approve an operation use `WMTOperations.authorize`. You can simply use it with the following examples:
 
 ```swift
 import WultraMobileTokenSDK
@@ -171,7 +171,7 @@ func approve(operation: WMTOperation, password: String) {
 }
 ```
 
-To approve offline operations with biometry, your PowerAuth instance [need to be configured with biometry factor](https://github.com/wultra/powerauth-mobile-sdk/blob/develop/docs/PowerAuth-SDK-for-iOS.md#biometry-setup).
+To approve offline operations with biometry, your PowerAuth instance [needs to be configured with biometry factor](https://github.com/wultra/powerauth-mobile-sdk/blob/develop/docs/PowerAuth-SDK-for-iOS.md#biometry-setup).
 
 ```swift
 import WultraMobileTokenSDK
@@ -239,9 +239,9 @@ func getDetail(operationId: String) {
 
 To claim a non-persolized operation use `WMTOperations.claim`. 
 
-A non-personalized operation refers to an operation that is initiated without a specific operationId. In this state, the operation is not tied to a particular user and lacks a unique identifier. 
+A non-personalized operation refers to an operation that is initiated without a specific userId. In this state, the operation is not tied to a particular user. 
 
-Operation claim is confirmed by the possession factor so there is no need for creating  `PowerAuthAuthentication` object. The returned result is the operation and its current status and also the claimed operation **is inserted into the operation list**. You can simply use it with the following example.
+Operation claim is confirmed by the possession factor so there is no need for creating a `PowerAuthAuthentication` object. The returned result is the operation and its current status and also the claimed operation **is inserted into the operation list**. You can simply use it with the following example.
 
 ```swift
 import WultraMobileTokenSDK
@@ -292,7 +292,7 @@ Note that the operation history availability depends on the backend implementati
 
 ## Off-line Authorization
 
-In case the user is not online, you can use off-line authorizations. In this operation mode, the user needs to scan a QR code, enter PIN code or use biometry, and rewrite the resulting code. Wultra provides a special format for [the operation QR codes](https://github.com/wultra/powerauth-webflow/blob/develop/docs/Off-line-Signatures-QR-Code.md), that is automatically processed with the SDK.
+In case the user is not online, you can use off-line authorizations. In this operation mode, the user needs to scan a QR code, enter a PIN code, or use biometry, and rewrite the resulting code. Wultra provides a special format for [the operation QR codes](https://github.com/wultra/powerauth-webflow/blob/develop/docs/Off-line-Signatures-QR-Code.md), that is automatically processed with the SDK.
 
 ### Processing Scanned QR Operation
 
@@ -308,20 +308,20 @@ case .success(let op):
         // failed to verify signature
         return
     }
-    // opeartion is parsed and verify
+    // operation is parsed and verify
 case .failure(let error):
-    // failed to parse. See error for more info.
+    // failed to parse. See the error for more info.
 }
 ```
 
 ### Authorizing Scanned QR Operation
 
 <!-- begin box info -->
-An offline operation needs to be __always__ approved with __2-factor scheme__ (password or biometry).
+An offline operation needs to be __always__ approved with __a 2-factor scheme__ (password or biometry).
 <!-- end -->
 
 <!-- begin box info -->
-Each offline operation created on the server has an __URI ID__ to define its purpose and configuration. The default value used here is `/operation/authorize/offline` and can be modified with the `uriId` parameter in the `authrorize` method.
+Each offline operation created on the server has an __URI ID__ to define its purpose and configuration. The default value used here is `/operation/authorize/offline` and can be modified with the `uriId` parameter in the `authorize` method.
 <!-- end -->
 
 #### With Password
@@ -375,7 +375,7 @@ func approveQROperation(operation: WMTQROperation, password: String) {
 
 #### With Biometry
 
-To approve offline operations with biometry, your PowerAuth instance [need to be configured with biometry factor](https://github.com/wultra/powerauth-mobile-sdk/blob/develop/docs/PowerAuth-SDK-for-iOS.md#biometry-setup).
+To approve offline operations with biometry, your PowerAuth instance [needs to be configured with biometry factor](https://github.com/wultra/powerauth-mobile-sdk/blob/develop/docs/PowerAuth-SDK-for-iOS.md#biometry-setup).
 
 ```swift
 import WultraMobileTokenSDK
@@ -413,10 +413,10 @@ All available methods and attributes of `WMTOperations` API are:
 - `isLoadingOperations` - Indicates if the service is loading pending operations.
 - `refreshOperations` - Async "fire and forget" request to refresh pending operations.
 - `getOperations(completion: @escaping GetOperationsCompletion)` - Retrieves pending operations from the server.
-    - `completion` - Called when operation finishes. Always called on the main thread.
+    - `completion` - Called when the operation finishes. Always called on the main thread.
 - `isPollingOperations` - If the app is periodically polling for the operations from the server.
 - `pollingOptions` - Configuration of the polling feature
-    - `pauseWhenOnBackground` - Polling will be paused when your app is on the background.
+    - `pauseWhenOnBackground` - Polling will be paused when your app is in the background.
 - `startPollingOperations(interval: TimeInterval, delayStart: Bool)` - Starts the periodic operation polling.
     - `interval` - How often should operations be refreshed.
     - `delayStart` - When true, polling starts after the first `interval` time passes.
@@ -438,7 +438,7 @@ All available methods and attributes of `WMTOperations` API are:
     - `completion` - Called when authentication finishes. Always called on the main thread.
 - `authorize(qrOperation: WMTQROperation, uriId: String, authentication: PowerAuthAuthentication, completion: @escaping(Result<String, WMTError>) -> Void)` - Sign offline (QR) operation.
     - `qrOperation ` - Offline operation that can be retrieved via `WMTQROperationParser.parse` method.
-    - `uriId` - Custom signature URI ID of the operation. Use URI ID under which the operation was created on the server. Usually something like `/confirm/offline/operation`.
+    - `uriId` - Custom signature URI ID of the operation. Use the URI ID under which the operation was created on the server. Usually something like `/confirm/offline/operation`.
     - `authentication` - PowerAuth authentication object for operation signing.
     - `completion` - Called when authentication finishes. Always called on the main thread.
 
@@ -448,7 +448,7 @@ Operations objects retrieved through the `getOperations` API method are called "
 
 Under this abstract name, you can imagine for example "Login operation", which is a request for signing in to the online account in a web browser on another device. **In general, it can be any operation that can be either approved or rejected by the user.**
 
-Visually, the operation should be displayed as an info page with all the attributes (rows) of such operation, where the user can decide if he wants to approve or reject it.
+Visually, the operation should be displayed as an info page with all the attributes (rows) of such an operation, where the user can decide if he wants to approve or reject it.
 
 Definition of the `WMTUserOperation`:
 
@@ -508,7 +508,7 @@ public class WMTOperationFormData {
 
     /// Other attributes.
     ///
-    /// Each attribute presents one line in the UI. Attributes are differentiated by type property
+    /// Each attribute presents one line in the UI. Attributes are differentiated by `type` property
     /// and specific classes such as WMTOperationAttributeNote or WMTOperationAttributeAmount.
     public let attributes: [WMTOperationAttribute]
 }
@@ -516,13 +516,13 @@ public class WMTOperationFormData {
 
 Attributes types:  
 - `AMOUNT` like "100.00 CZK"  
-- `KEY_VALUE` any key value pair  
+- `KEY_VALUE` any key-value pair  
 - `NOTE` just like `KEY_VALUE`, emphasizing that the value is a note or message  
 - `HEADING` single highlighted text, written in a larger font, used as a section heading  
 - `PARTY_INFO` providing structured information about third-party data (for example known e-shop)  
-- `AMOUNT_CONVERSION` providing data about Money conversion  
+- `AMOUNT_CONVERSION` provides data about Money conversion  
 - `IMAGE` image row  
-- `UNKNOWN` fallback option when unknown attribute type is passed. Such attribute only contains the label.
+- `UNKNOWN` fallback option when an unknown attribute type is passed. Such an attribute only contains the label.
 
 Definition of `WMTOperationUIData`:
 
@@ -562,7 +562,7 @@ Definition of `WMTProximityCheck`:
 
 ```swift
 public class WMTProximityCheck: Codable {
-    /// Tha actual Time-based one time password
+    /// The actual Time-based one-time password
     public let totp: String
     /// Type of the Proximity check
     public let type: WMTProximityCheckType
@@ -573,7 +573,7 @@ public class WMTProximityCheck: Codable {
 
 WMTProximityCheckType types:
 
-- `qrCode` TOTP was scanned from QR code
+- `qrCode` TOTP was scanned from the QR code
 - `deeplink` TOTP was delivered to the app via Deeplink
 
 
@@ -623,7 +623,7 @@ opsService.getOperations { result in
 In some specific scenarios, you might need to approve or reject an operation that you received through a different channel than `getOperations`. In such cases, you can implement the `WMTOperation` protocol in your custom class and then feed created objects to both `authorize` and `reject` methods.
 
 <!-- begin box success -->
-You can use concrete convenient class `WMTLocalOperation`, that implements the `WMTOperation` protocol.
+You can use the concrete convenient class `WMTLocalOperation`, which implements the `WMTOperation` protocol.
 <!-- end -->
 
 Definition of the `WMTOperation`:
@@ -666,16 +666,16 @@ When the `WMTUserOperation` contains a `WMTPreApprovalScreen.qr`, the app should
 When the app is launched via a deeplink, preserve the data from the deeplink and extract the relevant data. When operations are loaded compare the operation ID from the deeplink data to the operations within the app to find a match.
 
 - Assign TOTP and Type to the Operation
-Once the QR code is scanned or match from the deeplink is found, create a `WMTProximityCheck` with:
+Once the QR code is scanned or a match from the deeplink is found, create a `WMTProximityCheck` with:
     - `totp`: The actual Time-Based One-Time Password.
     - `type`: Set to `WMTProximityCheckType.qrCode` or `WMTProximityCheckType.deeplink`.
     - `timestampReceived`: The timestamp when the QR code was scanned (by default, it is created as the current timestamp).
 
 - Authorizing the WMTProximityCheck
-When authorization, the SDK will by default add `timestampSent` to the `WMTProximityCheck` object. This timestamp indicates when the operation was signed.
+When authorized, the SDK will by default add `timestampSent` to the `WMTProximityCheck` object. This timestamp indicates when the operation was signed.
 
 ### WMTPACUtils
-- For convenience, utility class for parsing and extracting data from QR codes and deeplinks used in the PAC (Proximity Anti-fraud Check), is provided.
+- For convenience, a utility class for parsing and extracting data from QR codes and deeplinks used in the PAC (Proximity Anti-fraud Check), is provided.
 
 ```swift
 /// Data which is returned from parsing PAC code
@@ -684,15 +684,15 @@ public struct WMTPACData: Decodable {
 	/// The ID of the operation associated with the PAC
 	public let operationId: String
 	    
-	/// Time-based one time password used for Proximity antifraud check
+	/// Time-based one-time password used for Proximity antifraud check
 	public let totp: String?
 }
 ```
 
 - two methods are provided:
-    - `parseDeeplink(url: URL) -> WMTPACData?` - uri is expected to be in format `"scheme://code=$JWT"` or `scheme://operation?oid=5b753d0d-d59a-49b7-bec4-eae258566dbb&potp=12345678}`
+    - `parseDeeplink(url: URL) -> WMTPACData?` - URI is expected to be in the format `"scheme://code=$JWT"` or `scheme://operation?oid=5b753d0d-d59a-49b7-bec4-eae258566dbb&potp=12345678}`
     - `parseQRCode(code: String) -> WMTPACData?` - code is to be expected in the same format as deeplink formats or as a plain JWT
-    - mentioned JWT should be in format `{“typ”:”JWT”, “alg”:”none”}.{“oid”:”5b753d0d-d59a-49b7-bec4-eae258566dbb”, “potp”:”12345678”} `
+    - mentioned JWT should be in the format `{“typ”:”JWT”, “alg”:”none”}.{“oid”:”5b753d0d-d59a-49b7-bec4-eae258566dbb”, “potp”:”12345678”} `
   
 - Accepted formats:
   - notice that totp key in JWT and in query shall be `potp`!
