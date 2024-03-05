@@ -171,24 +171,16 @@ class IntegrationTests: XCTestCase {
         waitForExpectations(timeout: 20, handler: nil)
     }
     
-    /// `currentServerDate` is nil by default and after ops fetch, it should be set
+    /// `currentServerDate` was removed from WMTOperations in favor of more precise powerAuth timeService
     func testCurrentServerDate() {
-        let exp = expectation(description: "Server date should be set after operation fetch")
+        var synchronizedServerDate: Date? = nil
         
-        XCTAssertNil(self.ops.currentServerDate)
-        
-        _ = ops.getOperations { result in
-            
-            switch result {
-            case .success:
-                XCTAssertNotNil(self.ops.currentServerDate)
-            case .failure(let err):
-                XCTFail(err.description)
-            }
-            exp.fulfill()
+        let timeService = pa.timeSynchronizationService
+        if timeService.isTimeSynchronized {
+            synchronizedServerDate = Date(timeIntervalSince1970: timeService.currentTime())
         }
         
-        waitForExpectations(timeout: 20, handler: nil)
+        XCTAssertNotNil(synchronizedServerDate)
     }
     
     /// Test of Login operation approval (1FA)
