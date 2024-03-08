@@ -2,7 +2,7 @@
 
 ## 1.10.0
 
-- Removed `currentServerTime` method [(#148)](https://github.com/wultra/mtoken-sdk-android/pull/139)
+- Removed `currentServerTime` property [(#148)](https://github.com/wultra/mtoken-sdk-android/pull/139)
 
 ## 1.9.0 (Jan 24, 2024)
 
