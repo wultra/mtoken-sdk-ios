@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.10.0
+
+- Removed `currentServerTime` method [(#148)](https://github.com/wultra/mtoken-sdk-android/pull/139)
+
 ## 1.9.0 (Jan 24, 2024)
 
 - Added possibility for custom reject reason [(#143)](https://github.com/wultra/mtoken-sdk-ios/pull/143)
