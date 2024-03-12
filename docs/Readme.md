@@ -15,6 +15,12 @@ Remarks:
 - This library does not contain any UI.
 - We also provide an [Android version of this library](https://github.com/wultra/mtoken-sdk-android). 
 
+## Migration Guides
+
+If you need to upgrade the Wultra Mobile Token SDK for iOS to a newer version, you can check the following migration guides:
+
+- [Migration from version `1.9.x` to `1.10.x`](Migration-1.10.md)
+
 <!-- begin remove -->
 ## Integration Tutorials
 - [SDK Integration](SDK-Integration.md)
