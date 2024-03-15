@@ -368,7 +368,7 @@ class WMTOperationsImpl<T: WMTUserOperation>: WMTOperations, WMTService {
         // Set the minimum TimeInterval
         var adjustedInterval: TimeInterval
         if interval < minimumTimePollingInterval {
-            D.warning("Operations polling interval: \(interval), must not be set below 5 to prevent server overload.")
+            D.warning("Operations polling interval: \(interval), must not be set below \(minimumTimePollingInterval) to prevent server overload.")
             adjustedInterval = minimumTimePollingInterval
         } else {
             adjustedInterval = interval
