@@ -155,6 +155,18 @@ public extension WMTOperations {
     func authorize(qrOperation: WMTQROperation, authentication: PowerAuthAuthentication, completion: @escaping (Result<String, WMTError>) -> Void) -> Operation {
         return authorize(qrOperation: qrOperation, uriId: "/operation/authorize/offline", authentication: authentication, completion: completion)
     }
+    
+    /// Starts the operations polling.
+    ///
+    /// The default value for `interval` is 7 seconds
+    ///
+    /// If operations are already polling this call is ignored and
+    /// polling interval won't be changed.
+    /// - Parameter delayStart: When true, polling starts after
+    ///                         the first `interval` time passes
+    func startPollingOperations(delayStart: Bool) {
+        return startPollingOperations(interval: TimeInterval(7), delayStart: delayStart)
+    }
 }
 
 public typealias GetOperationsResult = Result<[WMTUserOperation], WMTError>
