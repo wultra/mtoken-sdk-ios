@@ -3,7 +3,7 @@
 ## 1.10.0
 
 - Removed `currentServerTime` property [(#148)](https://github.com/wultra/mtoken-sdk-android/pull/139)
-- Implemented default and minimum pollingInterval [(#151)](https://github.com/wultra/mtoken-sdk-ios/pull/151)
+- Added default and minimum pollingInterval [(#151)](https://github.com/wultra/mtoken-sdk-ios/pull/151)
 
 ## 1.9.0 (Jan 24, 2024)
 

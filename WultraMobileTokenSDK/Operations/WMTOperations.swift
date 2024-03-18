@@ -127,7 +127,7 @@ public protocol WMTOperations: AnyObject {
     ///
     /// If operations are already polling this call is ignored and
     /// polling interval won't be changed.
-    /// - Parameter interval: Polling interval
+    /// - Parameter interval: Polling interval, minimum is 5s
     /// - Parameter delayStart: When true, polling starts after
     ///                         the first `interval` time passes
     func startPollingOperations(interval: TimeInterval, delayStart: Bool)
@@ -158,14 +158,14 @@ public extension WMTOperations {
     
     /// Starts the operations polling.
     ///
-    /// The default value for `interval` is 7 seconds
+    /// Deafula implementation of startPollingOperations
+    /// The `interval` is set to 7 seconds, with a minimum value of 5 seconds.
     ///
-    /// If operations are already polling this call is ignored and
-    /// polling interval won't be changed.
-    /// - Parameter delayStart: When true, polling starts after
-    ///                         the first `interval` time passes
-    func startPollingOperations(delayStart: Bool) {
-        return startPollingOperations(interval: TimeInterval(7), delayStart: delayStart)
+    /// - Parameters:
+    ///   - interval: Default is set to 7 seconds, with a minimum value of 5 seconds.
+    ///   - delayStart: Default is set to true. Polling starts after the first `interval` time passes
+    func startPollingOperations() {
+        return startPollingOperations(interval: 7, delayStart: true)
     }
 }
 
