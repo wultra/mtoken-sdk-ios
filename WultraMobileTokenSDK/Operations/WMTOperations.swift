@@ -163,9 +163,9 @@ public extension WMTOperations {
     ///
     /// - Parameters:
     ///   - interval: Default is set to 7 seconds, with a minimum value of 5 seconds.
-    ///   - delayStart: Default is set to true. Polling starts after the first `interval` time passes
+    ///   - delayStart: Default is set to false and polling starts immediately.
     func startPollingOperations() {
-        return startPollingOperations(interval: 7, delayStart: true)
+        return startPollingOperations(interval: 7, delayStart: false)
     }
 }
 
