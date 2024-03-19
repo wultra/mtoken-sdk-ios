@@ -131,6 +131,7 @@ class WMTOperationsImpl<T: WMTUserOperation>: WMTOperations, WMTService {
     private var isPollingPaused: Bool { return pollingTimer?.isValid == false }
     private let pollingLock = WMTLock()
     private var notificationObservers = [NSObjectProtocol]()
+    private let minimumTimePollingInterval = 5.0
     
     /// Operation register holds operations in order
     private lazy var operationsRegister = OperationsRegister { [weak self] ops, added, removed in
@@ -364,8 +365,17 @@ class WMTOperationsImpl<T: WMTUserOperation>: WMTOperations, WMTService {
             refreshOperations()
         }
         
-        D.print("Operations polling started with \(interval) seconds interval")
-        pollingTimer = Timer.scheduledTimer(withTimeInterval: interval, repeats: true) { [weak self] _ in
+        // Set the minimum TimeInterval
+        var adjustedInterval: TimeInterval
+        if interval < minimumTimePollingInterval {
+            D.warning("Operations polling interval: \(interval), must not be set below \(minimumTimePollingInterval) to prevent server overload.")
+            adjustedInterval = minimumTimePollingInterval
+        } else {
+            adjustedInterval = interval
+        }
+        
+        D.print("Operations polling started with \(adjustedInterval) seconds interval")
+        pollingTimer = Timer.scheduledTimer(withTimeInterval: adjustedInterval, repeats: true) { [weak self] _ in
             self?.refreshOperations()
         }
     }
@@ -395,8 +405,6 @@ class WMTOperationsImpl<T: WMTUserOperation>: WMTOperations, WMTService {
         guard validateActivation(completion) else {
             return
         }
-        
-        let requestStartDate = Date()
         
         networking.post(data: .init(), signedWith: .possession(), to: WMTOperationEndpoints.List<T>.endpoint) { response, error in
             

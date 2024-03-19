@@ -356,16 +356,16 @@ class IntegrationTests: XCTestCase {
         XCTAssertFalse(ops.isPollingOperations)
         let delegate = OpDelegate()
         delegate.loadingCountCallback = { count in
-            if count == 4 {
+            if count == 3 {
                 self.ops.stopPollingOperations()
                 exp.fulfill()
             }
         }
         ops.delegate = delegate
-        ops.startPollingOperations(interval: 1, delayStart: false)
+        ops.startPollingOperations()
         XCTAssertTrue(ops.isPollingOperations)
 
-        waitForExpectations(timeout: 20, handler: nil)
+        waitForExpectations(timeout: 30, handler: nil)
         
         XCTAssertFalse(ops.isPollingOperations)
     }

@@ -127,7 +127,7 @@ public protocol WMTOperations: AnyObject {
     ///
     /// If operations are already polling this call is ignored and
     /// polling interval won't be changed.
-    /// - Parameter interval: Polling interval
+    /// - Parameter interval: Polling interval, minimum is 5s
     /// - Parameter delayStart: When true, polling starts after
     ///                         the first `interval` time passes
     func startPollingOperations(interval: TimeInterval, delayStart: Bool)
@@ -154,6 +154,18 @@ public extension WMTOperations {
     /// - Returns: Operation object for its state observation.
     func authorize(qrOperation: WMTQROperation, authentication: PowerAuthAuthentication, completion: @escaping (Result<String, WMTError>) -> Void) -> Operation {
         return authorize(qrOperation: qrOperation, uriId: "/operation/authorize/offline", authentication: authentication, completion: completion)
+    }
+    
+    /// Starts the operations polling.
+    ///
+    /// Deafula implementation of startPollingOperations
+    /// The `interval` is set to 7 seconds, with a minimum value of 5 seconds.
+    ///
+    /// - Parameters:
+    ///   - interval: Default is set to 7 seconds, with a minimum value of 5 seconds.
+    ///   - delayStart: Default is set to false and polling starts immediately.
+    func startPollingOperations() {
+        return startPollingOperations(interval: 7, delayStart: false)
     }
 }
 
