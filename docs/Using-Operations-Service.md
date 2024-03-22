@@ -9,6 +9,8 @@
 - [Reject an Operation](#reject-an-operation)
 - [Operation detail](#operation-detail)
 - [Claim the Operation](#claim-the-operation)
+- [Operation History](#operation-history)
+- [Cancelling Operations](#cancelling-operations)
 - [Off-line Authorization](#off-line-authorization)
 - [Operations API Reference](#operations-api-reference)
 - [WMTUserOperation](#wmtuseroperation)
@@ -299,6 +301,21 @@ func history(password: String) {
 <!-- begin box warning -->
 Note that the operation history availability depends on the backend implementation and might not be available. Please consult this with your backend developers.
 <!-- end -->
+
+## Cancelling Operations
+
+Additionally, please note that WMTCancellable or Operation objects retrieved from the Operations Service methods (getOperations, getHistory, getDetail, claim, authorize and reject) can be canceled using the cancel() method. This allows you to interrupt ongoing operations as needed.
+
+You can do so as shown below:
+
+```swift
+ let list = operationsService.getOperations { _ in }
+ list.cancel()
+
+```
+
+For more examples refer to `IntegrationTests` in this repository.
+
 
 ## Off-line Authorization
 

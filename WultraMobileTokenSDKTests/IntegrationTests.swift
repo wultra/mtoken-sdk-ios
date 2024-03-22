@@ -91,6 +91,27 @@ class IntegrationTests: XCTestCase {
         waitForExpectations(timeout: 20, handler: nil)
     }
     
+    
+    /// Test of the getOperations WMTCancellable
+    func testCancelList() {
+        let exp = expectation(description: "Cancel list of operations")
+        
+        let list = ops.getOperations { result in
+            XCTFail("Operation should be already canceled")
+            exp.fulfill()
+        }
+        
+        list.cancel()
+        
+        // Allowing most of the timeout duration for potential completion of the getOperations call.
+        DispatchQueue.main.asyncAfter(deadline: .now() + 4) {
+            XCTAssertTrue(list.isCanceled, "WMTCancellable should be cancelled")
+            exp.fulfill()
+        }
+        
+        waitForExpectations(timeout: 5, handler: nil)
+    }
+    
     /// Operation IDs should be equal
     func testDetail() {
         let exp = expectation(description: "Operation detail")
@@ -115,6 +136,37 @@ class IntegrationTests: XCTestCase {
         }
         
         waitForExpectations(timeout: 20, handler: nil)
+    }
+    
+    /// Test of the Operation cancel
+    func testDetailCancel() {
+        let exp = expectation(description: "Cancel operation detail")
+        
+        proxy.createNonPersonalisedPACOperation { op in
+            if let op {
+                DispatchQueue.main.async {
+                    guard let operation = self.ops.getDetail(operationId: op.operationId, completion: { _ in
+                        XCTFail("Operation should be already canceled")
+                        exp.fulfill()
+                    }) else {
+                        XCTFail("Failed to create operation")
+                        exp.fulfill()
+                        return
+                    }
+                    
+                    operation.cancel()
+                    
+                    // Allowing most of the timeout duration for potential completion of the getDetail call.
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 4) {
+                        XCTAssertTrue(operation.isCancelled, "Operation should be cancelled")
+                        exp.fulfill()
+                    }
+                }
+            }
+        }
+        
+        // Wait for expectation to be fulfilled
+        waitForExpectations(timeout: 5, handler: nil)
     }
     
     /// Operation IDs should be equal
