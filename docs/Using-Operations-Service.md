@@ -520,9 +520,9 @@ class WMTUserOperation: WMTOperation {
     /// Proximity Check Data to be passed when OTP is handed to the app
     public var proximityCheck: WMTProximityCheck?
     
-    /// Optional details why the status has changed by backend services.
+    /// Enum-like reason why the status has changed.
     ///
-    /// The value is more about code than free-text detail. Shall be max 32 chars long.
+    /// Max 32 characters are expected. Possible values depend on the backend implementation and configuration.
     public let statusReason: String?
 }
 ```
