@@ -61,4 +61,9 @@ open class WMTUserOperation: WMTOperation, Codable {
     
     /// Proximity Check Data to be passed when OTP is handed to the app
     public var proximityCheck: WMTProximityCheck?
+    
+    /// Optional details why the status has changed by backend services.
+    ///
+    /// The value is more about code than free-text detail. Shall be max 32 chars long.
+    public let statusReason: String?
 }

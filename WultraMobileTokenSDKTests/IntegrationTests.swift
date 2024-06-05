@@ -169,6 +169,43 @@ class IntegrationTests: XCTestCase {
         waitForExpectations(timeout: 5, handler: nil)
     }
     
+    func testOperationCanceledWithReason() {
+        let exp = expectation(description: "Cancel operation with reason")
+        let cancelReason = "PREARRANGED_REASON"
+        
+        proxy.createOperation { op in
+            guard let op else {
+                XCTFail("Failed to create operation")
+                exp.fulfill()
+                return
+            }
+            self.proxy.cancelOperation(operationId: op.operationId, reason: cancelReason) { cancelOp in
+                if cancelOp != nil {
+                    let auth = PowerAuthAuthentication.possessionWithPassword(password: self.pin)
+                    DispatchQueue.main.async {
+                        _ = self.ops.getHistory(authentication: auth) { result in
+                            switch result {
+                            case .success(let ops):
+                                if let opFromList = ops.first(where: { $0.operation.id == op.operationId }) {
+                                    XCTAssertEqual(opFromList.operation.statusReason, cancelReason, "statusReason and cancelReason must be the same")
+                                } else {
+                                    XCTFail("Created operation was not in the history")
+                                }
+                            case .failure:
+                                XCTFail("History was not retrieved")
+                            }
+                            exp.fulfill()
+                        }
+                    }
+                } else {
+                    XCTFail("Failed to cancel operation")
+                    exp.fulfill()
+                }
+            }
+        }
+        waitForExpectations(timeout: 20, handler: nil)
+    }
+    
     /// Operation IDs should be equal
     func testClaim() {
         let exp = expectation(description: "Operation Claim should return UserOperation with operation.id")
