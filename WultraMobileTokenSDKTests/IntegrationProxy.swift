@@ -89,6 +89,12 @@ class IntegrationProxy {
         }
     }
     
+    func cancelOperation(operationId: String, reason: String, completion: @escaping (CancelObject?) -> Void) {
+        DispatchQueue.global().async {
+            completion(self.makeRequest(url: URL(string: "\(self.config.cloudServerUrl)/v2/operations/\(operationId)?statusReason=\(reason)")!, body: "", httpMethod: "DELETE"))
+        }
+    }
+    
     func createNonPersonalisedPACOperation(_ factors: Factors = .F_2FA, completion: @escaping (NonPersonalisedTOTPOperationObject?) -> Void) {
         DispatchQueue.global().async {
             let opBody: String
@@ -258,6 +264,10 @@ private struct RegistrationObject: Codable {
 }
 
 private struct CommitObject: Codable {
+    let status: String
+}
+
+struct CancelObject: Codable {
     let status: String
 }
 
