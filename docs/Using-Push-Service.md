@@ -88,6 +88,9 @@ The `WMTPushMessage` can be following values
   -  `name` of the operation
   -  `result` of the operation (for example that the operation was canceled by the user).
   -  `originalData` - data on which was the push message constructed
+- `inboxMessageReceived` - a new inbox message was triggered.
+  -  `id` of the message
+  -  `originalData` - data on which was the push message constructed
 
 Example push notification processing:
 

@@ -33,43 +33,65 @@ public class WMTPushParser {
     /// - Parameter userInfo: user info of received notification
     /// - Returns: returns a parsed known WMTPushMessage or nil
     public static func parseNotification(_ userInfo: [AnyHashable: Any]) -> WMTPushMessage? {
-        
-        guard let messageType = userInfo["messageType"] as? String,
-              let operationId = userInfo["operationId"] as? String,
-            let operationName = userInfo["operationName"] as? String else {
-                return nil
+        guard let messageType = userInfo["messageType"] as? String else {
+            return nil
         }
         
         switch messageType {
         case "mtoken.operationInit":
-            
-            var content: WMTPushContent?
-            
-            if let alert = (userInfo["aps"] as? NSDictionary)?["alert"] as? NSDictionary,
-               let title = alert["title"] as? String,
-               let body = alert["body"] as? String {
-                
-                content = (title, body)
-            }
-            
-            return .operationCreated(id: operationId, name: operationName, content: content, originalData: userInfo)
+            return parseOperationCreated(userInfo)
         case "mtoken.operationFinished":
-            guard let result = userInfo["mtokenOperationResult"] as? String else {
-                return nil
-            }
-            let opResult: WMTPushOperationFinishedResult
-            switch result {
-            case "authentication.success": opResult = .success
-            case "authentication.fail": opResult = .fail
-            case "operation.timeout": opResult = .timeout
-            case "operation.canceled": opResult = .canceled
-            case "operation.methodNotAvailable": opResult = .methodNotAvailable
-            default: opResult = .unknown // to be forward compatible
-            }
-            return .operationFinished(id: operationId, name: operationName, result: opResult, originalData: userInfo)
+            return parseOperationFinished(userInfo)
+        case "mtoken.inboxMessage.new":
+            return parseInboxMessage(userInfo)
         default:
             return nil
         }
+    }
+
+    // Helper methods
+    private static func parseOperationCreated(_ userInfo: [AnyHashable: Any]) -> WMTPushMessage? {
+        guard let operationId = userInfo["operationId"] as? String,
+              let operationName = userInfo["operationName"] as? String else {
+            return nil
+        }
+
+        var content: WMTPushContent?
+
+        if let alert = (userInfo["aps"] as? NSDictionary)?["alert"] as? NSDictionary,
+           let title = alert["title"] as? String,
+           let body = alert["body"] as? String {
+            content = (title, body)
+        }
+
+        return .operationCreated(id: operationId, name: operationName, content: content, originalData: userInfo)
+    }
+
+    private static func parseOperationFinished(_ userInfo: [AnyHashable: Any]) -> WMTPushMessage? {
+        guard let operationId = userInfo["operationId"] as? String,
+              let operationName = userInfo["operationName"] as? String,
+              let result = userInfo["mtokenOperationResult"] as? String else {
+            return nil
+        }
+
+        let opResult: WMTPushOperationFinishedResult
+        switch result {
+        case "authentication.success": opResult = .success
+        case "authentication.fail": opResult = .fail
+        case "operation.timeout": opResult = .timeout
+        case "operation.canceled": opResult = .canceled
+        case "operation.methodNotAvailable": opResult = .methodNotAvailable
+        default: opResult = .unknown // to be forward compatible
+        }
+
+        return .operationFinished(id: operationId, name: operationName, result: opResult, originalData: userInfo)
+    }
+
+    private static func parseInboxMessage(_ userInfo: [AnyHashable: Any]) -> WMTPushMessage? {
+        guard let inboxId = userInfo["inboxId"] as? String else {
+            return nil
+        }
+        return .inboxMessageReceived(id: inboxId, originalData: userInfo)
     }
 }
 
@@ -80,6 +102,9 @@ public enum WMTPushMessage {
     
     /// An operation was finished, successfully or non-successfully.
     case operationFinished(id: String, name: String, result: WMTPushOperationFinishedResult, originalData: [AnyHashable: Any])
+    
+    /// A new inbox message was triggered.
+    case inboxMessageReceived(id: String, originalData: [AnyHashable: Any])
 }
 
 /// Action which finished the operation.
