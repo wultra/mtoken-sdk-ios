@@ -118,13 +118,18 @@ class PushParserTests: XCTestCase {
         XCTAssertNil(makePush(type: "mtoken.operationFinished", id: "1", name: nil, title: nil, message: nil, opResult: nil))
     }
     
+    func testInboxNewMessage() {
+        XCTAssertNotNil(makePush(type: "mtoken.inboxMessage.new", id: nil, name: nil, title: nil, message: nil, opResult: nil, inboxId: "666"))
+    }
+    
     // helper methods
     
-    private func makePush(type: String?, id: String?, name: String?, title: String?, message: String?, opResult: String?) -> WMTPushMessage? {
+    private func makePush(type: String?, id: String?, name: String?, title: String?, message: String?, opResult: String?, inboxId: String? = nil) -> WMTPushMessage? {
         var userInfo = [AnyHashable: Any]()
         userInfo["messageType"] = type
         userInfo["operationId"] = id
         userInfo["operationName"] = name
+        userInfo["inboxId"] = inboxId
         userInfo["aps"] = ["alert": ["title": title, "body": message]]
         userInfo["mtokenOperationResult"] = opResult
         return WMTPushParser.parseNotification(userInfo)
