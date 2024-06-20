@@ -1,6 +1,11 @@
 # Changelog
 
-## 1.10.0
+## 1.11.0 (TBA)
+
+- Extended PushParser to support parsing of inbox notifications [(#158)](https://github.com/wultra/mtoken-sdk-ios/pull/158)
+- Added statusReason to UserOperation [(#156)](https://github.com/wultra/mtoken-sdk-ios/pull/156)
+
+## 1.10.0 (Apr 18, 2024)
 
 - Removed `currentServerTime` property [(#148)](https://github.com/wultra/mtoken-sdk-android/pull/139)
 - Added default and minimum pollingInterval [(#151)](https://github.com/wultra/mtoken-sdk-ios/pull/151)
