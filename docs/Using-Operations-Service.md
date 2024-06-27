@@ -537,12 +537,33 @@ public class WMTOperationFormData {
 
     /// Message for the user
     public let message: String
+    
+    /// Texts for the result of the operation
+    ///
+    /// This includes messages for different outcomes of the operation such as success, rejection, and failure.
+    public let resultTexts: WMTResultTexts?
 
     /// Other attributes.
     ///
     /// Each attribute presents one line in the UI. Attributes are differentiated by `type` property
     /// and specific classes such as WMTOperationAttributeNote or WMTOperationAttributeAmount.
     public let attributes: [WMTOperationAttribute]
+}
+```
+
+Definition of `WMTResultTexts`:
+
+```swift
+public class WMTResultTexts: Codable {
+    
+    /// Optional message to be displayed when the approval of the operation is successful.
+    public let success: String?
+    
+    /// Optional message to be displayed when the operation approval fails.
+    public let failure: String?
+    
+    /// Optional message to be displayed when the operation is rejected.
+    public let reject: String?
 }
 ```
 
