@@ -27,6 +27,11 @@ public class WMTOperationFormData: Codable {
     /// Message for the user
     public let message: String
     
+    /// Texts for the result of the operation
+    ///
+    /// This includes messages for different outcomes of the operation such as success, rejection, and failure.
+    public let resultTexts: WMTResultTexts?
+    
     /// Other attributes.
     ///
     /// Note that attributes can be presented with different classes (Starting with `WMTOperationAttribute*`) based on the attribute type.
@@ -39,6 +44,7 @@ public class WMTOperationFormData: Codable {
         let c = try decoder.container(keyedBy: Keys.self)
         title = try c.decode(String.self, forKey: .title)
         message = try c.decode(String.self, forKey: .message)
+        resultTexts = try? c.decode(WMTResultTexts.self, forKey: .resultTexts)
         
         var operationAttributes: [WMTOperationAttribute] = []
         do {
@@ -59,14 +65,15 @@ public class WMTOperationFormData: Codable {
         attributes = operationAttributes
     }
     
-    public init(title: String, message: String, attributes: [WMTOperationAttribute]) {
+    public init(title: String, message: String, attributes: [WMTOperationAttribute], resultTexts: WMTResultTexts? = nil) {
         self.title = title
         self.message = message
         self.attributes = attributes
+        self.resultTexts = resultTexts
     }
     
     private enum Keys: CodingKey {
-        case title, message, attributes
+        case title, message, attributes, resultTexts
     }
 }
 
