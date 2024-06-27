@@ -573,6 +573,11 @@ open class WMTOperationUIData: Codable {
     ///
     /// Type of PostApprovalScrren is presented with different classes (Starting with `WMTPostApprovalScreen*`)
     public let postApprovalScreen: WMTPostApprovalScreen?
+    
+    /// Detailed information about displaying the operation data
+    ///
+    /// Contains prearranged styles for the operation attributes for the app to display
+    public let templates: WMTTemplates?
 }
 ```
 
@@ -728,6 +733,107 @@ public struct WMTPACData: Decodable {
   
 - Accepted formats:
   - notice that totp key in JWT and in query shall be `potp`!
+
+
+## WMTTemplates
+
+`WMTTemplates` is part of `WMTOperationUIData`.
+`WMTTemplates` class provides detailed information about displaying operation data within the application.
+
+
+`typealias AttributeName = String` is used across the `WMTTemplates`. It explicitly says that the String that will be assigned to properties is actually `WMTOperationAttributes.AttributeLabel.id` and its **value** shall displayed.
+
+Definition of the `WMTTemplates `:
+
+```swift
+public class WMTTemplates: Codable {
+    /// The template how the operation should look like in the list of operations
+    let list: ListTemplate?
+    
+    /// The template for how the operation data should look like
+    let detail: DetailTemplate? 
+}
+```
+
+`ListTemplate` and `DetailTemplate` go as follows:
+
+```swift
+public class ListTemplate: Codable {
+    
+    /// Prearranged name which can be processed by the app
+    let style: String?
+    
+    /// Attribute which will be used for the header
+    let header: AttributeName?
+    
+    /// Attribute which will be used for the title
+    let title: AttributeName?
+    
+    /// Attribute which will be used for the message
+    let message: AttributeName?
+    
+    /// Attribute which will be used for the image
+    let image: AttributeName?
+}
+
+public class DetailTemplate: Codable {
+    
+    /// Predefined style name that can be processed by the app to customize the overall look of the operation.
+    let style: String?
+    
+    /// Indicates if the header should be created from form data (title, message, image) or customized for a specific operation
+    let automaticHeaderSection: Bool?
+    
+    /// Sections of the operation data.
+    let sections: [Section]?
+    
+    /// Operation data can be divided into sections
+    public class Section: Codable {
+        
+        /// Prearranged name which can be processed by the app to customize the section
+        let style: String?
+        
+        /// Attribute for section title
+        let title: AttributeName?
+        
+        /// Each section can have multiple cells of data
+        let cells: [Cell]?
+        
+        /// Each section can have multiple cells of data
+        public class Cell: Codable {
+            
+            /// Prearranged name which can be processed by the app to customize the cell
+            let style: String?
+            
+            /// Which attribute shall be used
+            let name: AttributeName?
+            
+            /// Should be the title visible or hidden
+            let visibleTitle: Bool?
+            
+            /// Should be the content copyable
+            let canCopy: Bool?
+            
+            /// Define if the cell should be collapsable
+            let collapsable: Collapsable?
+            
+            public enum Collapsable: String, Codable {
+                /// The cell should not be collapsable
+                case no = "NO"
+                
+                /// The cell should be collapsable and in collapsed state
+                case collapsed = "COLLAPSED"
+                
+                /// The cell should be collapsable and in expanded state
+                case yes = "YES"
+            }
+        }
+    }
+}
+
+```
+
+
          
 ## Error handling
 

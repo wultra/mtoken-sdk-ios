@@ -33,10 +33,15 @@ open class WMTOperationUIData: Codable {
     /// Type of PostApprovalScrren is presented with different classes (Starting with `WMTPostApprovalScreen*`)
     public let postApprovalScreen: WMTPostApprovalScreen?
     
+    /// Detailed information about displaying the operation data
+    ///
+    /// Contains prearranged styles for the operation attributes for the app to display
+    public let templates: WMTTemplates?
+    
     // MARK: - INTERNALS
     
     private enum Keys: String, CodingKey {
-        case flipButtons, blockApprovalOnCall, preApprovalScreen, postApprovalScreen
+        case flipButtons, blockApprovalOnCall, preApprovalScreen, postApprovalScreen, templates
     }
     
     public required init(from decoder: Decoder) throws {
@@ -45,13 +50,15 @@ open class WMTOperationUIData: Codable {
         blockApprovalOnCall = try? c.decode(Bool.self, forKey: .blockApprovalOnCall)
         preApprovalScreen = try? c.decode(WMTPreApprovalScreen.self, forKey: .preApprovalScreen)
         postApprovalScreen = try? c.decode(WMTPostApprovalScreenDecodable.self, forKey: .postApprovalScreen).postApprovalObject
+        templates = try? c.decode(WMTTemplates.self, forKey: .templates)
     }
     
-    public init(flipButtons: Bool?, blockApprovalOnCall: Bool?, preApprovalScreen: WMTPreApprovalScreen?, postApprovalScreen: WMTPostApprovalScreen?) {
+    public init(flipButtons: Bool?, blockApprovalOnCall: Bool?, preApprovalScreen: WMTPreApprovalScreen?, postApprovalScreen: WMTPostApprovalScreen?, templates: WMTTemplates? = nil) {
         self.flipButtons = flipButtons
         self.blockApprovalOnCall = blockApprovalOnCall
         self.preApprovalScreen = preApprovalScreen
         self.postApprovalScreen = postApprovalScreen
+        self.templates = templates
     }
 }
 
