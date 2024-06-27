@@ -194,16 +194,18 @@ class OperationUIDataTests: XCTestCase {
     }
     
     func testTemplates() {
-        guard let uiResult = prepareUIData(response: operationWithTemplates) else {
+        guard let uiResult = prepareUIData(response: uiDataWithTemplates) else {
             XCTFail("Failed to parse JSON data")
             return
         }
         
-        // Anything in templates can be nil -> the app should handle nils/defaults
         XCTAssertEqual(uiResult.templates?.list?.style, "POSITIVE")
-        XCTAssertEqual(uiResult.templates?.list?.header, nil)
-        XCTAssertEqual(uiResult.templates?.list?.title, "operation.account")
-        XCTAssertEqual(uiResult.templates?.list?.message, "operation.amount")
+        XCTAssertEqual(uiResult.templates?.list?.header?.type, .formatted)
+        XCTAssertEqual(uiResult.templates?.list?.header?.value, "${operation.request_no} Withdrawal Initiation")
+        XCTAssertEqual(uiResult.templates?.list?.title?.type, .plain)
+        XCTAssertEqual(uiResult.templates?.list?.title?.value, "operation.amount")
+        XCTAssertEqual(uiResult.templates?.list?.message?.type, .formatted)
+        XCTAssertEqual(uiResult.templates?.list?.message?.value, "${operation.date} - ${operation.place}")
         XCTAssertEqual(uiResult.templates?.list?.image, "operation.image")
         
         XCTAssertEqual(uiResult.templates?.detail?.style, nil)
@@ -462,7 +464,7 @@ class OperationUIDataTests: XCTestCase {
     """
     }()
     
-    private let operationWithTemplates: String = {
+    private let uiDataWithTemplates: String = {
     """
         {
             "flipButtons": false,
@@ -470,9 +472,18 @@ class OperationUIDataTests: XCTestCase {
             "templates": {
                 "list": {
                     "style": "POSITIVE",
-                    "header": null,
-                    "title": "operation.account",
-                    "message": "operation.amount",
+                    "header": {
+                        "type": "FORMATTED",
+                        "value": "${operation.request_no} Withdrawal Initiation"
+                    },
+                    "title": {
+                        "type": "PLAIN",
+                        "value": "operation.amount"
+                    },
+                    "message": {
+                        "type": "FORMATTED",
+                        "value": "${operation.date} - ${operation.place}"
+                    },
                     "image": "operation.image"
                 },
                 "detail": {

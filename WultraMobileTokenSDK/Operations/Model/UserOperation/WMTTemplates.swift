@@ -46,8 +46,8 @@ public class WMTTemplates: Codable {
 
     /// This typealias specifies that attributes using it should refer to `WMTOperationAttributes`.
     ///
-    /// AttributeName is supposed to be `WMTOperationAttribute.AttributeLabel.id`
-    public typealias AttributeName = String
+    /// AttributeId is supposed to be `WMTOperationAttribute.AttributeLabel.id`
+    public typealias AttributeId = String
  
     /// ListTemplate defines how the operation should look in the list (active operations, history)
     ///
@@ -58,16 +58,52 @@ public class WMTTemplates: Codable {
         let style: String?
         
         /// Attribute which will be used for the header
-        let header: AttributeName?
+        let header: AttributeFormatted?
         
         /// Attribute which will be used for the title
-        let title: AttributeName?
+        let title: AttributeFormatted?
         
         /// Attribute which will be used for the message
-        let message: AttributeName?
+        let message: AttributeFormatted?
         
         /// Attribute which will be used for the image
-        let image: AttributeName?
+        let image: AttributeId?
+        
+        /// AttributeId with additional text
+        ///
+        /// Processing of the value depends on the `type`
+        public class AttributeFormatted: Codable {
+            
+            /// Type describes if there is additional parsing required
+            let type: AttributeType
+            
+            /// This value might contain AttributeId and additional characters and might require additional parsing
+            ///
+            /// Example might be `"${operation.date} - ${operation.place}"`
+            let value: String
+            
+            public enum AttributeType: String, Codable {
+                /// Plain means that value contains only AttributeId
+                case plain = "PLAIN"
+                /// Formatted means that value requires additional parsing
+                case formatted = "FORMATTED"
+            }
+            
+            enum Keys: String, CodingKey {
+                case type, value
+            }
+            
+            public init(type: AttributeType, value: String) {
+                self.type = type
+                self.value = value
+            }
+            
+            public required init(from decoder: any Decoder) throws {
+                let c = try decoder.container(keyedBy: Keys.self)
+                self.type = try c.decode(AttributeType.self, forKey: .type)
+                self.value = try c.decode(String.self, forKey: .value)
+            }
+        }
         
         // MARK: - Internals
         
@@ -78,13 +114,13 @@ public class WMTTemplates: Codable {
         public required init(from decoder: any Decoder) throws {
             let c = try decoder.container(keyedBy: Keys.self)
             self.style = try? c.decode(String.self, forKey: .style)
-            self.header = try? c.decode(AttributeName.self, forKey: .header)
-            self.title = try? c.decode(AttributeName.self, forKey: .title)
-            self.message = try? c.decode(AttributeName.self, forKey: .message)
-            self.image = try? c.decode(AttributeName.self, forKey: .image)
+            self.header = try? c.decode(AttributeFormatted.self, forKey: .header)
+            self.title = try? c.decode(AttributeFormatted.self, forKey: .title)
+            self.message = try? c.decode(AttributeFormatted.self, forKey: .message)
+            self.image = try? c.decode(AttributeId.self, forKey: .image)
         }
         
-        public init(style: String?, header: AttributeName?, title: AttributeName?, message: AttributeName?, image: AttributeName?) {
+        public init(style: String?, header: AttributeFormatted?, title: AttributeFormatted?, message: AttributeFormatted?, image: AttributeId?) {
             self.style = style
             self.header = header
             self.title = title
@@ -135,7 +171,7 @@ public class WMTTemplates: Codable {
             let style: String?
             
             /// Attribute for section title
-            let title: AttributeName?
+            let title: AttributeId?
             
             /// Each section can have multiple cells of data
             let cells: [Cell]?
@@ -149,11 +185,11 @@ public class WMTTemplates: Codable {
             public required init(from decoder: Decoder) throws {
                 let c = try decoder.container(keyedBy: Keys.self)
                 style = try? c.decode(String.self, forKey: .style)
-                title = try? c.decode(AttributeName.self, forKey: .title)
+                title = try? c.decode(AttributeId.self, forKey: .title)
                 cells = try? c.decode([Cell].self, forKey: .cells)
             }
             
-            public init(style: String?, title: AttributeName?, cells: [Cell]?) {
+            public init(style: String?, title: AttributeId?, cells: [Cell]?) {
                 self.style = style
                 self.title = title
                 self.cells = cells
@@ -166,7 +202,7 @@ public class WMTTemplates: Codable {
                 let style: String?
                 
                 /// Which attribute shall be used
-                let name: AttributeName?
+                let name: AttributeId?
                 
                 /// Should be the title visible or hidden
                 let visibleTitle: Bool?
@@ -197,13 +233,13 @@ public class WMTTemplates: Codable {
                 public required init(from decoder: Decoder) throws {
                     let c = try decoder.container(keyedBy: Keys.self)
                     style = try? c.decode(String.self, forKey: .style)
-                    name = try? c.decode(AttributeName.self, forKey: .name)
+                    name = try? c.decode(AttributeId.self, forKey: .name)
                     visibleTitle = try? c.decode(Bool.self, forKey: .visibleTitle)
                     canCopy = try? c.decode(Bool.self, forKey: .canCopy)
                     collapsable = try? c.decode(Collapsable.self, forKey: .collapsable)
                 }
                 
-                public init(style: String?, name: AttributeName?, visibleTitle: Bool?, canCopy: Bool?, collapsable: Collapsable?) {
+                public init(style: String?, name: AttributeId?, visibleTitle: Bool?, canCopy: Bool?, collapsable: Collapsable?) {
                     self.style = style
                     self.name = name
                     self.visibleTitle = visibleTitle
@@ -214,4 +250,3 @@ public class WMTTemplates: Codable {
         }
     }
 }
-
