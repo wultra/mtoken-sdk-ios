@@ -414,9 +414,11 @@ class NetworkingObjectsTests: XCTestCase {
             return
         }
         
-        XCTAssertEqual(resultTexts2.success, "Payment of was confirmed")
-        XCTAssertEqual(resultTexts2.reject, "Payment was rejected")
-        XCTAssertEqual(resultTexts2.failure, "Payment approval failed")
+        let createdTexts = WMTResultTexts(success: "Payment of was confirmed", failure: "Payment approval failed", reject: "Payment was rejected")
+        
+        XCTAssertEqual(resultTexts2.success, createdTexts.success)
+        XCTAssertEqual(resultTexts2.reject, createdTexts.reject)
+        XCTAssertEqual(resultTexts2.failure, createdTexts.failure)
     }
 }
 

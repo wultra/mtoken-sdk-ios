@@ -29,4 +29,23 @@ public class WMTResultTexts: Codable {
     
     /// Optional message to be displayed when the operation is rejected.
     public let reject: String?
+    
+    // MARK: - INTERNALS
+    
+    private enum Keys: CodingKey {
+        case success, failure, reject
+    }
+    
+    public required init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: Keys.self)
+        success = try? c.decode(String.self, forKey: .success)
+        failure = try? c.decode(String.self, forKey: .failure)
+        reject = try? c.decode(String.self, forKey: .reject)
+    }
+    
+    public init(success: String?, failure: String?, reject: String?) {
+        self.success = success
+        self.failure = failure
+        self.reject = reject
+    }
 }
