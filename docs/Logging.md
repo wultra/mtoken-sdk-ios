@@ -1,26 +1,19 @@
 # Logging
 
-For logging purposes, WMT uses `WMTLogger` class that prints to the console.
-
-<!-- begin box info -->
-Note that logging to the console is available only when the library is compiled in the `Debug` mode or with `WMT_ENABLE_LOGGING` Swift compile condition.
-<!-- end -->
+You can set up logging for the library using the `WMTLogger` class.
 
 ### Verbosity Level
 
-You can limit the amount of logged information via `verboseLevel` property.
+You can limit the amount of logged information via the `verboseLevel` property.
 
-| Level | Description |
-| --- | --- |
-| `off` | Silences all messages. |
-| `errors` | Only errors will be printed to the debug console. |
-| `warnings` _(default)_ | Errors and warnings will be printed to the debug console. |
-| `all` | All messages will be printed to the debug console. |
+| Level                  | Description                                       |
+| ---------------------- | ------------------------------------------------- |
+| `off`                  | Silences all messages.                            |
+| `errors`               | Only errors will be logged.                       |
+| `warnings` _(default)_ | Errors and warnings will be logged.               |
+| `info`                 | Error, warning and info messages will be logged.  |
+| `all`                  | All messages will be logged.                      |
 
-Example configuration:
+### Logger Delegate
 
-```swift
-import WultraMobileTokenSDK
-
-WMTLogger.verboseLevel = .all
-```
+In case you want to process logs on your own (for example log into a file or some cloud service), you can set `WMTLogger.delegate`.
