@@ -22,10 +22,10 @@ import Foundation
 public class WMTTemplates: Codable {
     
     /// The template how the operation should look like in the list of operations
-    let list: ListTemplate?
+    public let list: ListTemplate?
     
     /// The template for how the operation data should look like
-    let detail: DetailTemplate?
+    public let detail: DetailTemplate?
     
     // MARK: - Internals
     
@@ -35,6 +35,7 @@ public class WMTTemplates: Codable {
     
     public required init(from decoder: Decoder) throws {
         let c = try decoder.container(keyedBy: Keys.self)
+        
         list = try? c.decode(ListTemplate.self, forKey: .list)
         detail = try? c.decode(DetailTemplate.self, forKey: .detail)
     }
@@ -55,19 +56,19 @@ public class WMTTemplates: Codable {
     public class ListTemplate: Codable {
         
         /// Prearranged name which can be processed by the app
-        let style: String?
+        public let style: String?
         
         /// Attribute which will be used for the header
-        let header: AttributeFormatted?
+        public let header: AttributeFormatted?
         
         /// Attribute which will be used for the title
-        let title: AttributeFormatted?
+        public let title: AttributeFormatted?
         
         /// Attribute which will be used for the message
-        let message: AttributeFormatted?
+        public let message: AttributeFormatted?
         
         /// Attribute which will be used for the image
-        let image: AttributeId?
+        public let image: AttributeId?
         
         /// AttributeId with additional text
         ///
@@ -75,12 +76,12 @@ public class WMTTemplates: Codable {
         public class AttributeFormatted: Codable {
             
             /// Type describes if there is additional parsing required
-            let type: AttributeType
+            public let type: AttributeType
             
             /// This value might contain AttributeId and additional characters and might require additional parsing
             ///
             /// Example might be `"${operation.date} - ${operation.place}"`
-            let value: String
+            public let value: String
             
             public enum AttributeType: String, Codable {
                 /// Plain means that value contains only AttributeId
@@ -136,19 +137,18 @@ public class WMTTemplates: Codable {
     public class DetailTemplate: Codable {
         
         /// Predefined style name that can be processed by the app to customize the overall look of the operation.
-        let style: String?
+        public let style: String?
         
         /// Indicates if the header should be created from form data (title, message, image) or customized for a specific operation
-        let automaticHeaderSection: Bool?
+        public let automaticHeaderSection: Bool?
         
         /// Sections of the operation data.
-        let sections: [Section]?
+        public let sections: [Section]?
         
         // MARK: - Internals
         
         private enum Keys: String, CodingKey {
-            case style, sections
-            case automaticHeaderSection = "headerSection"
+            case style, sections, automaticHeaderSection
         }
         
         public required init(from decoder: Decoder) throws {
@@ -168,13 +168,13 @@ public class WMTTemplates: Codable {
         public class Section: Codable {
             
             /// Prearranged name which can be processed by the app to customize the section
-            let style: String?
+            public let style: String?
             
             /// Attribute for section title
-            let title: AttributeId?
+            public let title: AttributeId?
             
             /// Each section can have multiple cells of data
-            let cells: [Cell]?
+            public let cells: [Cell]?
             
             // MARK: - Internals
             
@@ -198,20 +198,20 @@ public class WMTTemplates: Codable {
             /// Each section can have multiple cells of data
             public class Cell: Codable {
                 
-                /// Prearranged name which can be processed by the app to customize the cell
-                let style: String?
-                
                 /// Which attribute shall be used
-                let name: AttributeId?
+                public let name: AttributeId
+                
+                /// Prearranged name which can be processed by the app to customize the cell
+                public let style: String?
                 
                 /// Should be the title visible or hidden
-                let visibleTitle: Bool?
+                public let visibleTitle: Bool?
                 
                 /// Should be the content copyable
-                let canCopy: Bool?
+                public let canCopy: Bool?
                 
                 /// Define if the cell should be collapsable
-                let collapsable: Collapsable?
+                public let collapsable: Collapsable?
                 
                 public enum Collapsable: String, Codable {
                     /// The cell should not be collapsable
@@ -233,15 +233,15 @@ public class WMTTemplates: Codable {
                 public required init(from decoder: Decoder) throws {
                     let c = try decoder.container(keyedBy: Keys.self)
                     style = try? c.decode(String.self, forKey: .style)
-                    name = try? c.decode(AttributeId.self, forKey: .name)
+                    name = try c.decode(AttributeId.self, forKey: .name)
                     visibleTitle = try? c.decode(Bool.self, forKey: .visibleTitle)
                     canCopy = try? c.decode(Bool.self, forKey: .canCopy)
                     collapsable = try? c.decode(Collapsable.self, forKey: .collapsable)
                 }
                 
-                public init(style: String?, name: AttributeId?, visibleTitle: Bool?, canCopy: Bool?, collapsable: Collapsable?) {
-                    self.style = style
+                public init(style: String?, name: AttributeId, visibleTitle: Bool?, canCopy: Bool?, collapsable: Collapsable?) {
                     self.name = name
+                    self.style = style
                     self.visibleTitle = visibleTitle
                     self.canCopy = canCopy
                     self.collapsable = collapsable

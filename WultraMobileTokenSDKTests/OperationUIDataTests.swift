@@ -488,7 +488,7 @@ class OperationUIDataTests: XCTestCase {
                 },
                 "detail": {
                     "style": null,
-                    "headerSection": false,
+                    "automaticHeaderSection": false,
                     "sections": [
                         {
                             "style": "MONEY",
