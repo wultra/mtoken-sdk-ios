@@ -5,6 +5,7 @@
 - Added resultTexts to UserOperation [(#160)](https://github.com/wultra/mtoken-sdk-ios/pull/160)
 - Extended PushParser to support parsing of inbox notifications [(#158)](https://github.com/wultra/mtoken-sdk-ios/pull/158)
 - Added statusReason to UserOperation [(#156)](https://github.com/wultra/mtoken-sdk-ios/pull/156)
+- Improved logging options [(#164)](https://github.com/wultra/mtoken-sdk-ios/pull/164)
 
 ## 1.10.0 (Apr 18, 2024)
 
