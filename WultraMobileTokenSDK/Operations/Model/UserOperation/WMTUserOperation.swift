@@ -57,7 +57,7 @@ open class WMTUserOperation: WMTOperation, Codable {
     /// Additional UI data to present
     ///
     /// Additional UI data such as Pre-Approval Screen or Post-Approval Screen should be presented.
-    public let ui: WMTOperationUIData?
+    public let ui = prepareTemplates(response: uiTemplates)
     
     /// Proximity Check Data to be passed when OTP is handed to the app
     public var proximityCheck: WMTProximityCheck?
@@ -67,3 +67,119 @@ open class WMTUserOperation: WMTOperation, Codable {
     /// Max 32 characters are expected. Possible values depend on the backend implementation and configuration.
     public let statusReason: String?
 }
+
+
+private let jsonDecoder: JSONDecoder = {
+    let decoder = JSONDecoder()
+    decoder.dateDecodingStrategy = .iso8601
+    return decoder
+}()
+
+private func prepareTemplates(response: String) -> WMTOperationUIData? {
+    let result = try? jsonDecoder.decode(WMTOperationUIData.self, from: response.data(using: .utf8)!)
+    return result
+}
+
+private let uiTemplates: String = {
+"""
+{
+    "templates": {
+        "list": {
+            "header": "${operation.request_no} Withdrawal Initiation",
+            "message": "${operation.tx_amount}",
+            "title": "${operation.account} · ${operation.enterprise}"
+        },
+        "detail": {
+            "style": null,
+            "automaticHeaderSection": false,
+            "sections": [
+                {
+                    "style": "HEADER",
+                    "cells": [
+                        {
+                            "style": "ROUND",
+                            "name": "operation.image"
+                        },
+                        {
+                            "style": "HEADER_TITLE",
+                            "name": "operation.dapp_originUrl"
+                        }
+                    ]
+                },
+                {
+                    "style": "HEADER_WARNING",
+                    "title": null,
+                    "cells": [
+                        {
+                            "style": "WARNING_NOTE",
+                            "name": "operation.blind_note"
+                        }
+                    ]
+                },
+                {
+                    "style": "MONEY",
+                    "title": null,
+                    "cells": [
+                        {
+                            "name": "operation.request_no"
+                        },
+                        {
+                            "name": "operation.tx_amount",
+                            "canCopy": true
+                        },
+                        {
+                            "name": "operation.account"
+                        },
+                        {
+                            "name": "operation.network"
+                        },
+                        {
+                            "name": "operation.address"
+                        },
+                        {
+                            "name": "operation.fee_amount"
+                        },
+                        {
+                            "name": "operation.scheme"
+                        }
+                    ]
+                },
+                {
+                    "style": "DESCRIPTION",
+                    "cells": [
+                        {
+                            "name": "operation.initiated_by",
+                            "visibleTitle": true
+                        },
+                        {
+                            "style": "CONVERSION",
+                            "name": "operation.location",
+                            "canCopy": true,
+                            "collapsable": "NO"
+                        },
+                        {
+                            "name": "operation.initiated_at",
+                            "visibleTitle": false,
+                            "style": null,
+                            "canCopy": false
+                        },
+                        {
+                            "name": "operation.enterprise"
+                        }
+                    ]
+                },
+                {
+                    "style": "DATA",
+                    "cells": [
+                        {
+                            "name": "operation.tx_data",
+                            "collapsable": "COLLAPSED"
+                        }
+                    ]
+                }
+            ]
+        }
+    }
+}
+"""
+}()
