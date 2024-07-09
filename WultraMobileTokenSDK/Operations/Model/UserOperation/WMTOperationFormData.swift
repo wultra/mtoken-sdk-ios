@@ -59,7 +59,7 @@ public class WMTOperationFormData: Codable {
                 }
             }
         } catch {
-            D.error("No attributes in WMTOperationFormData: \(error)")
+            D.print("No attributes in WMTOperationFormData: \(error)")
         }
         
         attributes = operationAttributes

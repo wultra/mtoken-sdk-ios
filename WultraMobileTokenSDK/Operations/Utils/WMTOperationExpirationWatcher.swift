@@ -134,7 +134,7 @@ public class WMTOperationExpirationWatcher {
             if opsToWatch.isEmpty {
                 D.warning("WMTOperationExpirationWatcher: All operations are already watched")
             } else {
-                D.debug("WMTOperationExpirationWatcher: Adding \(opsToWatch.count) operation to watch.")
+                D.print("WMTOperationExpirationWatcher: Adding \(opsToWatch.count) operation to watch.")
                 self.operationsToWatch.append(contentsOf: opsToWatch)
                 self.prepareTimer()
             }
@@ -175,10 +175,10 @@ public class WMTOperationExpirationWatcher {
                 // when nil is provided, we consider it as "stop all"
                 if let operations = operations {
                     self.operationsToWatch.removeAll(where: { current in operations.contains(where: { toRemove in toRemove.equals(other: current) }) })
-                    D.debug("WMTOperationExpirationWatcher: Stoped watching \(operations.count) operations.")
+                    D.print("WMTOperationExpirationWatcher: Stoped watching \(operations.count) operations.")
                 } else {
                     self.operationsToWatch.removeAll()
-                    D.debug("WMTOperationExpirationWatcher: Stoped watching all operations.")
+                    D.print("WMTOperationExpirationWatcher: Stoped watching all operations.")
                 }
                 self.prepareTimer()
             }
@@ -194,7 +194,7 @@ public class WMTOperationExpirationWatcher {
         timer = nil
         
         guard operationsToWatch.isEmpty == false else {
-            D.debug("WMTOperationExpirationWatcher: No operations to watch.")
+            D.print("WMTOperationExpirationWatcher: No operations to watch.")
             return
         }
         
@@ -211,7 +211,7 @@ public class WMTOperationExpirationWatcher {
             // The 0.1 addition is a correction of the Timer class which can fire slightly (in order of 0.000x seconds) earlier than scheduled.
             let interval = max(5, firstOp.operationExpires.timeIntervalSince1970 - self.currentDateProvider.currentDate.timeIntervalSince1970) + 0.1
             
-            D.debug("WMTOperationExpirationWatcher: Scheduling operation expire check in \(Int(interval)) seconds.")
+            D.print("WMTOperationExpirationWatcher: Scheduling operation expire check in \(Int(interval)) seconds.")
             self.timer = Timer.scheduledTimer(withTimeInterval: interval, repeats: false) { [weak self] _ in
                 
                 guard let self = self else {
@@ -230,7 +230,7 @@ public class WMTOperationExpirationWatcher {
                     self.operationsToWatch.removeAll(where: { $0.isExpired(currentDate) })
                     self.prepareTimer()
                     DispatchQueue.main.async {
-                        D.info("WMTOperationExpirationWatcher: Reporting \(expiredOps.count) expired operations.")
+                        D.print("WMTOperationExpirationWatcher: Reporting \(expiredOps.count) expired operations.")
                         self.delegate?.operationsExpired(expiredOps)
                     }
                 }

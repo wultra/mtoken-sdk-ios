@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name = 'WultraMobileTokenSDK'
-  s.version = '1.12.0'
+  s.version = '1.8.0'
   # Metadata
   s.license = { :type => 'Apache License, Version 2.0', :file => 'LICENSE' }
   s.summary = 'High level PowerAuth based library written in swift'
@@ -19,7 +19,7 @@ Pod::Spec.new do |s|
   s.subspec 'Common' do |sub|
     sub.source_files = 'WultraMobileTokenSDK/Common/**/*.swift'
     sub.dependency 'PowerAuth2', '~> 1.8.0'
-    sub.dependency 'WultraPowerAuthNetworking', '~> 1.4.0'
+    sub.dependency 'WultraPowerAuthNetworking', '~> 1.3.0'
   end
   
   # 'Operations' subspec

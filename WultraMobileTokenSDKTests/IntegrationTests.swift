@@ -35,7 +35,7 @@ class IntegrationTests: XCTestCase {
     
     override func setUp() {
         super.setUp()
-        WMTLogger.verboseLevel = .debug
+        WMTLogger.verboseLevel = .all
         proxy = IntegrationProxy()
         
         let exp = XCTestExpectation(description: "setup expectation")

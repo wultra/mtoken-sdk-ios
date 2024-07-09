@@ -374,7 +374,7 @@ class WMTOperationsImpl<T: WMTUserOperation>: WMTOperations, WMTService {
             adjustedInterval = interval
         }
         
-        D.info("Operations polling started with \(adjustedInterval) seconds interval")
+        D.print("Operations polling started with \(adjustedInterval) seconds interval")
         pollingTimer = Timer.scheduledTimer(withTimeInterval: adjustedInterval, repeats: true) { [weak self] _ in
             self?.refreshOperations()
         }
@@ -393,7 +393,7 @@ class WMTOperationsImpl<T: WMTUserOperation>: WMTOperations, WMTService {
         }
         pollingTimer = nil
         timer.invalidate()
-        D.info("Operations polling stopped")
+        D.print("Operations polling stopped")
     }
     
     // MARK: - private functions
