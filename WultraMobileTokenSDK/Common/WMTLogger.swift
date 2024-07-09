@@ -16,49 +16,67 @@
 
 import Foundation
 
-/// WMTLogger provides simple logging facility available for DEBUG build of the library.
+/// WMTLogger provides simple logging facility.
+///
+/// Note that HTTP logs are managed by the underlying Networking library (via `WPNLogger` class).
 public class WMTLogger {
     
-    /// Defines verbose level for this simple debugging facility.
+    /// Verbose level of the logger.
     public enum VerboseLevel: Int {
         /// Silences all messages.
         case off = 0
-        /// Only errors will be printed to the debug console.
+        /// Only errors will be logged.
         case errors = 1
-        /// Errors and warnings will be printed to the debug console.
+        /// Errors and warnings will be logged.
         case warnings = 2
-        /// All messages will be printed to the debug console.
-        case all = 3
+        /// Error, warning and info messages will be logged.
+        case info = 3
+        /// All messages will logged - including debug messages
+        case debug = 4
     }
     
-    /// Current verbose level. Note that value is ignored for non-DEBUG builds.
+    /// Logger delegate
+    public static weak var delegate: WMTLoggerDelegate?
+    
+    /// Current verbose level. `warnings` by default
     public static var verboseLevel: VerboseLevel = .warnings
     
-    /// Prints simple message to the debug console.
-    static func print(_ message: @autoclosure () -> String) {
-        #if DEBUG || WMT_ENABLE_LOGGING
-        if verboseLevel == .all {
-            Swift.print("[WMT] \(message())")
-        }
-        #endif
-    }
-
-    /// Prints warning message to the debug console.
-    static func warning(_ message: @autoclosure () -> String) {
-        #if DEBUG || WMT_ENABLE_LOGGING
-        if verboseLevel.rawValue >= VerboseLevel.warnings.rawValue {
-            Swift.print("[WMT] WARNING: \(message())")
-        }
-        #endif
+    /// Prints simple message to the system console.
+    static func debug(_ message: @autoclosure () -> String) {
+        log(message(), level: .debug)
     }
     
-    /// Prints error message to the debug console.
+    /// Prints simple message to the system console.
+    static func info(_ message: @autoclosure () -> String) {
+        log(message(), level: .info)
+    }
+
+    /// Prints warning message to the system console.
+    static func warning(_ message: @autoclosure () -> String) {
+        log(message(), level: .warning)
+    }
+    
+    /// Prints error message to the system console.
     static func error(_ message: @autoclosure () -> String) {
-        #if DEBUG || WMT_ENABLE_LOGGING
-        if verboseLevel != .off {
-            Swift.print("[WMT] ERROR: \(message())")
+        log(message(), level: .error)
+    }
+    
+    private static func log(_ message: @autoclosure () -> String, level: WMTLogLevel) {
+        let levelAllowed = level.minVerboseLevel.rawValue <= verboseLevel.rawValue
+        let forceReport = delegate?.wmtFollowVerboseLevel == false
+        guard levelAllowed || forceReport else {
+            // not logging
+            return
         }
-        #endif
+        
+        let msg = message()
+        
+        if levelAllowed {
+            print("[WMT:\(level.logName)] \(msg)")
+        }
+        if levelAllowed || forceReport {
+            delegate?.wmtLog(message: msg, logLevel: level)
+        }
     }
     
     #if DEBUG
@@ -82,6 +100,53 @@ public class WMTLogger {
         Swift.fatalError(message(), file: file, line: line)
     }
     #endif
+}
+
+/// Delegate that can further process logs from the library
+public protocol WMTLoggerDelegate: AnyObject {
+    
+    /// If the delegate should follow selected verbosity level.
+    ///
+    /// When set to true, then (for example) if `errors` is selected as a `verboseLevel`, only `error` logLevel will be called.
+    /// When set to false, all methods might be called no matter the selected `verboseLevel`.
+    var wmtFollowVerboseLevel: Bool { get }
+    
+    /// Log was recorded
+    /// - Parameters:
+    ///   - message: Message of the log
+    ///   - logLevel: Log level
+    func wmtLog(message: String, logLevel: WMTLogLevel)
+}
+
+/// Level of the log
+public enum WMTLogLevel {
+    /// Debug logs. Might contain sensitive data like body of the request etc.
+    /// You should only use this level during development.
+    case debug
+    /// Regular library logic logs
+    case info
+    /// Non-critical warning
+    case warning
+    /// Error happened
+    case error
+    
+    fileprivate var minVerboseLevel: WMTLogger.VerboseLevel {
+        return switch self {
+        case .debug: .debug
+        case .info: .info
+        case .warning: .warnings
+        case .error: .errors
+        }
+    }
+    
+    fileprivate var logName: String {
+        return switch self {
+        case .debug: "DEBUG"
+        case .info: "INFO"
+        case .warning: "WARNING"
+        case .error: "ERROR"
+        }
+    }
 }
 
 internal typealias D = WMTLogger
