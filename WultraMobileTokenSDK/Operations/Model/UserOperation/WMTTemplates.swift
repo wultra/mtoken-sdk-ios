@@ -76,7 +76,6 @@ public class WMTTemplates: Codable {
         /// Attribute which will be used for the image
         public let image: AttributeFormatted?
 
-        
         // MARK: - Internals
         
         private enum Keys: CodingKey {

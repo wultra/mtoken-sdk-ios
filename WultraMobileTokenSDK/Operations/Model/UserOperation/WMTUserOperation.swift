@@ -68,7 +68,6 @@ open class WMTUserOperation: WMTOperation, Codable {
     public let statusReason: String?
 }
 
-
 private let jsonDecoder: JSONDecoder = {
     let decoder = JSONDecoder()
     decoder.dateDecodingStrategy = .iso8601

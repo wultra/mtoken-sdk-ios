@@ -200,12 +200,9 @@ class OperationUIDataTests: XCTestCase {
         }
         
         XCTAssertEqual(uiResult.templates?.list?.style, "POSITIVE")
-        XCTAssertEqual(uiResult.templates?.list?.header?.type, .formatted)
-        XCTAssertEqual(uiResult.templates?.list?.header?.value, "${operation.request_no} Withdrawal Initiation")
-        XCTAssertEqual(uiResult.templates?.list?.title?.type, .plain)
-        XCTAssertEqual(uiResult.templates?.list?.title?.value, "operation.amount")
-        XCTAssertEqual(uiResult.templates?.list?.message?.type, .formatted)
-        XCTAssertEqual(uiResult.templates?.list?.message?.value, "${operation.date} - ${operation.place}")
+        XCTAssertEqual(uiResult.templates?.list?.header, "${operation.request_no} Withdrawal Initiation")
+        XCTAssertEqual(uiResult.templates?.list?.title, "operation.amount")
+        XCTAssertEqual(uiResult.templates?.list?.message, "${operation.date} - ${operation.place}")
         XCTAssertEqual(uiResult.templates?.list?.image, "operation.image")
         
         XCTAssertEqual(uiResult.templates?.detail?.style, nil)
