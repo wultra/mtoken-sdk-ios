@@ -48,7 +48,13 @@ public class WMTTemplates: Codable {
     /// This typealias specifies that attributes using it should refer to `WMTOperationAttributes`.
     ///
     /// AttributeId is supposed to be `WMTOperationAttribute.AttributeLabel.id`
-    public typealias AttributeId = String
+    public typealias AttributeId = String    
+    
+    /// This typealias specifies that attributes using might refer to `WMTOperationAttributes`
+    /// and additional characters and micht require additional parsing .
+    ///
+    /// Example might be `"${operation.date} - ${operation.place}"`
+    public typealias AttributeFormatted = String
  
     /// ListTemplate defines how the operation should look in the list (active operations, history)
     ///
@@ -68,43 +74,8 @@ public class WMTTemplates: Codable {
         public let message: AttributeFormatted?
         
         /// Attribute which will be used for the image
-        public let image: AttributeId?
-        
-        /// AttributeId with additional text
-        ///
-        /// Processing of the value depends on the `type`
-        public class AttributeFormatted: Codable {
-            
-            /// Type describes if there is additional parsing required
-            public let type: AttributeType
-            
-            /// This value might contain AttributeId and additional characters and might require additional parsing
-            ///
-            /// Example might be `"${operation.date} - ${operation.place}"`
-            public let value: String
-            
-            public enum AttributeType: String, Codable {
-                /// Plain means that value contains only AttributeId
-                case plain = "PLAIN"
-                /// Formatted means that value requires additional parsing
-                case formatted = "FORMATTED"
-            }
-            
-            enum Keys: String, CodingKey {
-                case type, value
-            }
-            
-            public init(type: AttributeType, value: String) {
-                self.type = type
-                self.value = value
-            }
-            
-            public required init(from decoder: any Decoder) throws {
-                let c = try decoder.container(keyedBy: Keys.self)
-                self.type = try c.decode(AttributeType.self, forKey: .type)
-                self.value = try c.decode(String.self, forKey: .value)
-            }
-        }
+        public let image: AttributeFormatted?
+
         
         // MARK: - Internals
         
