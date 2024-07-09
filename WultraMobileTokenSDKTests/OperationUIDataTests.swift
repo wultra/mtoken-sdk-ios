@@ -201,12 +201,12 @@ class OperationUIDataTests: XCTestCase {
         
         XCTAssertEqual(uiResult.templates?.list?.style, "POSITIVE")
         XCTAssertEqual(uiResult.templates?.list?.header, "${operation.request_no} Withdrawal Initiation")
-        XCTAssertEqual(uiResult.templates?.list?.title, "operation.amount")
-        XCTAssertEqual(uiResult.templates?.list?.message, "${operation.date} - ${operation.place}")
+        XCTAssertEqual(uiResult.templates?.list?.title, "${operation.account} · ${operation.enterprise}")
+        XCTAssertEqual(uiResult.templates?.list?.message, "${operation.tx_amount}")
         XCTAssertEqual(uiResult.templates?.list?.image, "operation.image")
         
         XCTAssertEqual(uiResult.templates?.detail?.style, nil)
-        XCTAssertEqual(uiResult.templates?.detail?.automaticHeaderSection, false)
+        XCTAssertEqual(uiResult.templates?.detail?.showTitleAndMessage, false)
         
         XCTAssertEqual(uiResult.templates?.detail?.sections?[0].style, "MONEY")
         XCTAssertEqual(uiResult.templates?.detail?.sections?[0].title, "operation.money.header")
@@ -469,18 +469,9 @@ class OperationUIDataTests: XCTestCase {
             "templates": {
                 "list": {
                     "style": "POSITIVE",
-                    "header": {
-                        "type": "FORMATTED",
-                        "value": "${operation.request_no} Withdrawal Initiation"
-                    },
-                    "title": {
-                        "type": "PLAIN",
-                        "value": "operation.amount"
-                    },
-                    "message": {
-                        "type": "FORMATTED",
-                        "value": "${operation.date} - ${operation.place}"
-                    },
+                    "header": "${operation.request_no} Withdrawal Initiation",
+                    "message": "${operation.tx_amount}",
+                    "title": "${operation.account} · ${operation.enterprise}",
                     "image": "operation.image"
                 },
                 "detail": {

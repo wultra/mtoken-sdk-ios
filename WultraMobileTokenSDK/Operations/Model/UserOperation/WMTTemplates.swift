@@ -74,7 +74,7 @@ public class WMTTemplates: Codable {
         public let message: AttributeFormatted?
         
         /// Attribute which will be used for the image
-        public let image: AttributeFormatted?
+        public let image: AttributeId?
 
         // MARK: - Internals
         
@@ -110,7 +110,7 @@ public class WMTTemplates: Codable {
         public let style: String?
         
         /// Indicates if the header should be created from form data (title, message, image) or customized for a specific operation
-        public let automaticHeaderSection: Bool?
+        public let showTitleAndMessage: Bool?
         
         /// Sections of the operation data.
         public let sections: [Section]?
@@ -118,19 +118,19 @@ public class WMTTemplates: Codable {
         // MARK: - Internals
         
         private enum Keys: String, CodingKey {
-            case style, sections, automaticHeaderSection
+            case style, sections, showTitleAndMessage
         }
         
         public required init(from decoder: Decoder) throws {
             let c = try decoder.container(keyedBy: Keys.self)
             style = try? c.decode(String.self, forKey: .style)
-            automaticHeaderSection = try? c.decode(Bool.self, forKey: .automaticHeaderSection)
+            showTitleAndMessage = try? c.decode(Bool.self, forKey: .showTitleAndMessage)
             sections = try? c.decode([Section].self, forKey: .sections)
         }
 
         public init(style: String?, automaticHeaderSection: Bool?, sections: [Section]?) {
             self.style = style
-            self.automaticHeaderSection = automaticHeaderSection
+            self.showTitleAndMessage = automaticHeaderSection
             self.sections = sections
         }
         
