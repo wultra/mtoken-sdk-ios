@@ -26,7 +26,7 @@ let package = Package(
         ),
     ],
     dependencies: [
-        .package(url: "https://github.com/wultra/mtoken-sdk-ios.git", .from("1.8.0"))
+        .package(url: "https://github.com/wultra/mtoken-sdk-ios.git", .from("1.11.0"))
     ],
     targets: [
         .target(
@@ -64,6 +64,7 @@ Note: If you want to use only operations, you can omit the Push dependency and i
 | `1.8.x` | `1.8.x` |
 | `1.9.x` | `1.8.x` |
 | `1.10.x` | `1.8.x` |
+| `1.11.x` | `1.8.x` |
 
 ## Xcode Compatibility
 
