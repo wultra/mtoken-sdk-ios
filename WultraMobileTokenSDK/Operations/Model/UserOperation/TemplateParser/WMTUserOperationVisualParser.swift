@@ -44,23 +44,25 @@ extension WMTUserOperation {
         
         let headerAtrr = listTemplate.header?.replacePlaceholders(from: attributes)
         
-        var title: String? = nil
+        var title: String?
         if let titleAttr = listTemplate.title?.replacePlaceholders(from: attributes) {
             title = titleAttr
         } else if !self.formData.message.isEmpty {
             title = self.formData.title
         }
         
-        var message: String? = nil
+        var message: String?
         if let messageAttr = listTemplate.message?.replacePlaceholders(from: attributes) {
             message = messageAttr
         } else if !self.formData.message.isEmpty {
             message = self.formData.message
         }
         
-        var imageUrl: URL? = nil
+        var imageUrl: URL?
         if let imgAttr = listTemplate.image, let imgAttrCell = self.formData.attributes.first(where: { $0.label.id == imgAttr }) as? WMTOperationAttributeImage {
-            let imageUrl = URL(string: imgAttrCell.thumbnailUrl)
+            imageUrl = URL(string: imgAttrCell.thumbnailUrl)
+        } else {
+            imageUrl = nil
         }
         
         return WMTUserOperationListVisual(
@@ -73,7 +75,6 @@ extension WMTUserOperation {
         )
     }
 }
-
 
 struct WMTUserOperationListVisual {
     let header: String?
@@ -90,7 +91,7 @@ extension WMTUserOperation {
     func provideData() -> WMTUserOperationVisual? {
 
         guard let detailTemplate = self.ui?.templates?.detail else {
-            var attrs = self.formData.attributes
+            let attrs = self.formData.attributes
             if attrs.isEmpty {
                 return WMTUserOperationVisual(sections: [createHeaderVisual()])
             } else {
@@ -171,7 +172,7 @@ public struct WMTUserOperationMessageVisualCell: WMTUserOperationVisualCell {
     let value: String
 }
 
-public struct WMTUserOperationStringValueAttributeVisualCell: WMTUserOperationVisualCell {
+public struct WMTUserOperationValueAttributeVisualCell: WMTUserOperationVisualCell {
     let header: String
     let defaultFormattedStringValue: String
     let attribute: WMTOperationAttribute
@@ -193,7 +194,6 @@ extension WMTUserOperationImageVisualCell {
         // ImageDownloader.shared. ....
     }
 }
-
 
 // MARK: Helpers
 
@@ -239,11 +239,11 @@ private extension String {
         for attribute in attributes where attribute.label.id == attributeId {
             switch attribute.type {
             case .amount:
-                let attr = attribute as! WMTOperationAttributeAmount
+                guard let attr = attribute as? WMTOperationAttributeAmount else { return nil }
                 return attr.valueFormatted ?? "\(attr.amountFormatted) \(attr.currencyFormatted)"
 
             case .amountConversion:
-                let attr = attribute as! WMTOperationAttributeAmountConversion
+                guard let attr = attribute as? WMTOperationAttributeAmountConversion else { return nil }
                 if let sourceValue = attr.source.valueFormatted,
                    let targetValue = attr.target.valueFormatted {
                    return "\(sourceValue) → \(targetValue)"
@@ -254,11 +254,14 @@ private extension String {
                }
                           
             case .keyValue:
-                return (attribute as! WMTOperationAttributeKeyValue).value
+                guard let attr = attribute as? WMTOperationAttributeKeyValue else { return nil }
+                return attr.value
             case .note:
-                return (attribute as! WMTOperationAttributeNote).note
+                guard let attr = attribute as? WMTOperationAttributeNote else { return nil }
+                return attr.note
             case .heading:
-                return (attribute as! WMTOperationAttributeHeading).label.value
+                guard let attr = attribute as? WMTOperationAttributeHeading else { return nil }
+                return attr.label.value
             case .partyInfo, .image, .unknown:
                 return nil
             }
@@ -266,7 +269,6 @@ private extension String {
         return nil
     }
 }
-
 
 private extension Array where Element: WMTOperationAttribute {
     
@@ -365,10 +367,10 @@ private extension Array where Element: WMTOperationAttribute {
         
         switch attr.type {
         case .amount:
-            let amount = attr as! WMTOperationAttributeAmount
+            guard let amount = attr as? WMTOperationAttributeAmount else { return nil }
             value = amount.valueFormatted ?? "\(amount.amountFormatted) \(amount.currencyFormatted)"
         case .amountConversion:
-            let conversion = attr as! WMTOperationAttributeAmountConversion
+            guard let conversion = attr as? WMTOperationAttributeAmountConversion else { return nil }
             if let sourceValue = conversion.source.valueFormatted, let targetValue = conversion.target.valueFormatted {
                 value = "\(sourceValue) → \(targetValue)"
             } else {
@@ -377,13 +379,13 @@ private extension Array where Element: WMTOperationAttribute {
                 value = "\(source) → \(target)"
             }
         case .keyValue:
-            let keyValue = attr as! WMTOperationAttributeKeyValue
+            guard let keyValue = attr as? WMTOperationAttributeKeyValue else { return nil}
             value = keyValue.value
         case .note:
-            let note = attr as! WMTOperationAttributeNote
+            guard let note = attr as? WMTOperationAttributeNote else { return nil }
             value = note.note
         case .image:
-            let image = attr as! WMTOperationAttributeImage
+            guard let image = attr as? WMTOperationAttributeImage else { return nil }
             return WMTUserOperationImageVisualCell(
                 urlThumbnail: URL(string: image.thumbnailUrl) ?? URL(string: "error")!,
                 urlFull: image.originalUrl != nil ? URL(string: image.originalUrl!) : nil,
@@ -397,7 +399,7 @@ private extension Array where Element: WMTOperationAttribute {
             value = ""
         }
         
-        return WMTUserOperationStringValueAttributeVisualCell(
+        return WMTUserOperationValueAttributeVisualCell(
             header: attr.label.value,
             defaultFormattedStringValue: value,
             attribute: attr,

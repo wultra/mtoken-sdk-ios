@@ -73,6 +73,7 @@
 		EA6DDF1C29F807230011E234 /* OperationUIDataTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA6DDF1B29F807230011E234 /* OperationUIDataTests.swift */; };
 		EA74F7B32C2561BB004340B9 /* WMTResultTexts.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA74F7B22C2561BB004340B9 /* WMTResultTexts.swift */; };
 		EA7A6E582B0E639800C1D4F4 /* WMTOperationDetailRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA7A6E572B0E639800C1D4F4 /* WMTOperationDetailRequest.swift */; };
+		EA951B502C412E43006C76B5 /* WMTUserOperationVisualParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA951B4F2C412E43006C76B5 /* WMTUserOperationVisualParser.swift */; };
 		EA9795132C2C18450073E861 /* WMTTemplates.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA9795122C2C18450073E861 /* WMTTemplates.swift */; };
 		EA9CE2BE2AEAA9FD00FE4E35 /* WMTProximityCheck.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA9CE2BD2AEAA9FD00FE4E35 /* WMTProximityCheck.swift */; };
 		EA9CE2C22AEBDB0D00FE4E35 /* WMTPACUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA9CE2C12AEBDB0D00FE4E35 /* WMTPACUtils.swift */; };
@@ -162,6 +163,7 @@
 		EA6DDF1B29F807230011E234 /* OperationUIDataTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OperationUIDataTests.swift; sourceTree = "<group>"; };
 		EA74F7B22C2561BB004340B9 /* WMTResultTexts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTResultTexts.swift; sourceTree = "<group>"; };
 		EA7A6E572B0E639800C1D4F4 /* WMTOperationDetailRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTOperationDetailRequest.swift; sourceTree = "<group>"; };
+		EA951B4F2C412E43006C76B5 /* WMTUserOperationVisualParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTUserOperationVisualParser.swift; sourceTree = "<group>"; };
 		EA9795122C2C18450073E861 /* WMTTemplates.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTTemplates.swift; sourceTree = "<group>"; };
 		EA9CE2BD2AEAA9FD00FE4E35 /* WMTProximityCheck.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WMTProximityCheck.swift; sourceTree = "<group>"; };
 		EA9CE2C12AEBDB0D00FE4E35 /* WMTPACUtils.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WMTPACUtils.swift; sourceTree = "<group>"; };
@@ -228,6 +230,7 @@
 		DC3D0B352480F368000DC4D9 /* UserOperation */ = {
 			isa = PBXGroup;
 			children = (
+				EA951B512C412F84006C76B5 /* TemplateParser */,
 				EA6DDF0D29F8031F0011E234 /* Screens */,
 				DC059A3C244DD30900B24878 /* Attributes */,
 				DCC5CCAD2449F7AC004679AC /* WMTUserOperation.swift */,
@@ -458,6 +461,14 @@
 			path = Screens;
 			sourceTree = "<group>";
 		};
+		EA951B512C412F84006C76B5 /* TemplateParser */ = {
+			isa = PBXGroup;
+			children = (
+				EA951B4F2C412E43006C76B5 /* WMTUserOperationVisualParser.swift */,
+			);
+			path = TemplateParser;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
@@ -608,6 +619,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				DC81D1C9244F38DB00F80CD6 /* WMTPushEndpoints.swift in Sources */,
+				EA951B502C412E43006C76B5 /* WMTUserOperationVisualParser.swift in Sources */,
 				DC0268DF29965495000BB9FA /* WMTOperationListResponse.swift in Sources */,
 				DC8CB202244DCBE2009DDAA3 /* WMTOperations.swift in Sources */,
 				DC48803E292282FF00DB844B /* WMTInboxMessage.swift in Sources */,
