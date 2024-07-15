@@ -21,10 +21,10 @@ import Foundation
 /// Contains prearranged styles for the operation attributes for the app to display
 public class WMTTemplates: Codable {
     
-    /// The template how the operation should look like in the list of operations
+    /// How the operation should look like in the list of operations
     public let list: ListTemplate?
     
-    /// The template for how the operation data should look like
+    /// How the operation detail should look like
     public let detail: DetailTemplate?
     
     // MARK: - Internals
@@ -45,15 +45,14 @@ public class WMTTemplates: Codable {
         self.detail = detail
     }
 
-    /// This typealias specifies that attributes using it should refer to `WMTOperationAttributes`.
-    ///
-    /// AttributeId is supposed to be `WMTOperationAttribute.AttributeLabel.id`
-    public typealias AttributeId = String    
+    /// Value of the `AttributeId` is referencing an existing `WMTOperationAttribute` by `WMTOperationAttribute.AttributeLabel.id`
+    public typealias AttributeId = String
     
-    /// This typealias specifies that attributes using might refer to `WMTOperationAttributes`
-    /// and additional characters and micht require additional parsing .
+    /// Value of the `AttributeFormatted` typealias contains placeholders for operation attributes,
+    /// which are specified using the syntax `${operation.attribute}`.
     ///
     /// Example might be `"${operation.date} - ${operation.place}"`
+    /// Placeholders in `AttributeFormatted` need to be parsed and replaced with actual attribute values.
     public typealias AttributeFormatted = String
  
     /// ListTemplate defines how the operation should look in the list (active operations, history)

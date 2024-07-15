@@ -129,17 +129,16 @@ extension WMTUserOperation {
         
         var sections = [WMTUserOperationVisualSection]()
         
-        if detailTemplate.showTitleAndMessage == true {
+        if detailTemplate.showTitleAndMessage == false {
+            let dataSections = attrs.popSections(from: sectionsTemplate)
+            sections.append(contentsOf: dataSections)
+            sections.append(.init(cells: attrs.getRemainingCells()))
+            return .init(sections: sections)
+        } else {
             let headerSection = createHeaderVisual(style: detailTemplate.style)
             let dataSection = attrs.popSections(from: sectionsTemplate)
             sections.append(headerSection)
             sections.append(contentsOf: dataSection)
-            sections.append(.init(cells: attrs.getRemainingCells()))
-            return .init(sections: sections)
-            
-        } else {
-            let dataSections = attrs.popSections(from: sectionsTemplate)
-            sections.append(contentsOf: dataSections)
             sections.append(.init(cells: attrs.getRemainingCells()))
             return .init(sections: sections)
         }
