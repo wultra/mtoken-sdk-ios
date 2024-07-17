@@ -87,11 +87,12 @@ private let uiTemplates: String = {
         "list": {
             "header": "${operation.request_no} Withdrawal Initiation",
             "message": "${operation.tx_amount}",
-            "title": "${operation.account} · ${operation.enterprise}"
+            "title": "${operation.account} · ${operation.enterprise}",
+            "image": "operation.image"
         },
         "detail": {
             "style": null,
-            "automaticHeaderSection": false,
+            "showTitleAndMessage": false,
             "sections": [
                 {
                     "style": "HEADER",

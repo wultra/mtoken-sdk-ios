@@ -16,27 +16,20 @@
 
 import UIKit
 
-class WMTUserOperationVisualParser {
-    static func prepareDetail(operation: WMTUserOperation) -> WMTUserOperationVisual? {
-        return operation.prepareVisualDetail()
-    }
-    
-    static func prepareList(operation: WMTUserOperation) -> WMTUserOperationListVisual? {
+public class WMTUserOperationVisualParser {
+    public static func prepareForList(operation: WMTUserOperation) -> WMTUserOperationListVisual? {
         return operation.prepareVisualListDetail()
     }
-}
-
-// MARK: WMTUserOperation Detail Visual preparation extension
-extension WMTUserOperation {
-    func prepareVisualDetail() -> WMTUserOperationVisual? {
-        return WMTUserOperationVisual(sections: [])
+    
+    public static func prepareForDetail(operation: WMTUserOperation) -> WMTUserOperationVisual? {
+        return operation.prepareVisualDetail()
     }
 }
 
 // MARK: WMTUserOperation List Visual preparation extension
 extension WMTUserOperation {
 
-    func prepareVisualListDetail() -> WMTUserOperationListVisual? {
+    internal func prepareVisualListDetail() -> WMTUserOperationListVisual? {
         guard let listTemplate = self.ui?.templates?.list else {
             return nil
         }
@@ -70,25 +63,37 @@ extension WMTUserOperation {
             title: title,
             message: message,
             style: self.ui?.templates?.list?.style,
-            thumbnailImage: imageUrl,
+            thumbnailImageURL: imageUrl,
             template: listTemplate
         )
     }
 }
 
-struct WMTUserOperationListVisual {
-    let header: String?
-    let title: String?
-    let message: String?
-    let style: String?
-    let thumbnailImage: URL?
+public struct WMTUserOperationListVisual {
+    public let header: String?
+    public let title: String?
+    public let message: String?
+    public let style: String?
+    public let thumbnailImageURL: URL?
     
-    let template: WMTTemplates.ListTemplate
+    public let template: WMTTemplates.ListTemplate
 }
 
+extension WMTUserOperationListVisual {
+    func downloadThumbnail(callback: @escaping (UIImage?) -> Void) {
+        if let thumbnailImageURL {
+            ImageDownloader.shared.downloadImage(at: thumbnailImageURL, ImageDownloader.Callback(callback: callback))
+        } else {
+            callback(nil)
+        }
+        
+    }
+}
+
+// MARK: WMTUserOperation Detail Visual preparation extension
 extension WMTUserOperation {
  
-    func provideData() -> WMTUserOperationVisual? {
+    internal func prepareVisualDetail() -> WMTUserOperationVisual? {
 
         guard let detailTemplate = self.ui?.templates?.detail else {
             let attrs = self.formData.attributes
@@ -106,7 +111,7 @@ extension WMTUserOperation {
     }
     
     // Default header
-    func createHeaderVisual(style: String? = nil) -> WMTUserOperationVisualSection {
+    private func createHeaderVisual(style: String? = nil) -> WMTUserOperationVisualSection {
         let defaultHeaderCell = WMTUserOperationHeaderVisualCell(value: self.formData.title)
         let defaultMessageCell = WMTUserOperationMessageVisualCell(value: self.formData.message)
         
@@ -117,7 +122,7 @@ extension WMTUserOperation {
         )
     }
     
-    func createTemplateRichData(from detailTemplate: WMTTemplates.DetailTemplate) -> WMTUserOperationVisual {
+    private func createTemplateRichData(from detailTemplate: WMTTemplates.DetailTemplate) -> WMTUserOperationVisual {
         var attrs = self.formData.attributes
         
         guard let sectionsTemplate = detailTemplate.sections else {
@@ -147,15 +152,15 @@ extension WMTUserOperation {
 }
 
 public struct WMTUserOperationVisual {
-    let sections: [WMTUserOperationVisualSection]
+    public let sections: [WMTUserOperationVisualSection]
 }
 
 public struct WMTUserOperationVisualSection {
-    let style: String?
-    let title: String? // not an id, actual value
-    let cells: [WMTUserOperationVisualCell]
+    public let style: String?
+    public let title: String? // not an id, actual value
+    public let cells: [WMTUserOperationVisualCell]
     
-    init(style: String? = nil, title: String? = nil, cells: [WMTUserOperationVisualCell]) {
+    public init(style: String? = nil, title: String? = nil, cells: [WMTUserOperationVisualCell]) {
         self.style = style
         self.title = title
         self.cells = cells
@@ -165,25 +170,27 @@ public struct WMTUserOperationVisualSection {
 public protocol WMTUserOperationVisualCell { }
 
 public struct WMTUserOperationHeaderVisualCell: WMTUserOperationVisualCell {
-    let value: String
+    public let value: String
 }
 
 public struct WMTUserOperationMessageVisualCell: WMTUserOperationVisualCell {
-    let value: String
+    public let value: String
 }
 
 public struct WMTUserOperationValueAttributeVisualCell: WMTUserOperationVisualCell {
-    let header: String
-    let defaultFormattedStringValue: String
-    let attribute: WMTOperationAttribute
-    let cellTemplate: WMTTemplates.DetailTemplate.Section.Cell?
+    public let header: String
+    public let defaultFormattedStringValue: String
+    public let style: String?
+    public let attribute: WMTOperationAttribute
+    public let cellTemplate: WMTTemplates.DetailTemplate.Section.Cell?
 }
 
 public struct WMTUserOperationImageVisualCell: WMTUserOperationVisualCell {
-    let urlThumbnail: URL
-    let urlFull: URL?
-    let attribute: WMTOperationAttributeImage
-    let cellTemplate: WMTTemplates.DetailTemplate.Section.Cell?
+    public let urlThumbnail: URL
+    public let urlFull: URL?
+    public let style: String?
+    public let attribute: WMTOperationAttributeImage
+    public let cellTemplate: WMTTemplates.DetailTemplate.Section.Cell?
 }
 
 extension WMTUserOperationImageVisualCell {
@@ -389,6 +396,7 @@ private extension Array where Element: WMTOperationAttribute {
             return WMTUserOperationImageVisualCell(
                 urlThumbnail: URL(string: image.thumbnailUrl) ?? URL(string: "error")!,
                 urlFull: image.originalUrl != nil ? URL(string: image.originalUrl!) : nil,
+                style: templateCell?.style,
                 attribute: image,
                 cellTemplate: templateCell
             )
@@ -402,8 +410,99 @@ private extension Array where Element: WMTOperationAttribute {
         return WMTUserOperationValueAttributeVisualCell(
             header: attr.label.value,
             defaultFormattedStringValue: value,
+            style: templateCell?.style,
             attribute: attr,
             cellTemplate: templateCell
         )
+    }
+}
+
+
+/// Simple image URL downloader with a simple cache implementation
+public class ImageDownloader {
+    
+    public static let shared = ImageDownloader()
+    
+    public class Callback {
+        
+        fileprivate let callback: (UIImage?) -> Void
+        fileprivate(set) var canceled = false
+        
+        public init(callback: @escaping (UIImage?) -> Void) {
+            self.callback = callback
+        }
+        
+        public func cancel() {
+            canceled = true
+        }
+        
+        fileprivate func setResult(_ image: UIImage?) {
+            guard canceled == false else {
+                return
+            }
+            callback(image)
+        }
+    }
+    
+    private var cache: NSCache<NSString, UIImage>
+    
+    private var waitingList = [URL: [Callback]]()
+    private let lock = WMTLock()
+    
+    public init(byteCacheSize: Int = 20_000_000) { // ~20 mb
+        cache = NSCache()
+        cache.totalCostLimit = byteCacheSize
+    }
+    
+    /// Downloads image for given URL
+    /// - Parameters:
+    ///   - url: URL where the image is
+    ///   - allowCache: If the image can be cached or loaded from cache
+    ///   - delayError: Should error be delayed? For example, when the URL does not exist (404), it will fail in almost instant and it's better
+    ///   for the UI to "simulate communication".
+    ///   - completion: Completion with nil on error. Always invoked on main thread
+    public func downloadImage(at url: URL, allowCache: Bool = true, delayError: Bool = true, _ callback: Callback) {
+        
+        if allowCache, let cached = cache.object(forKey: NSString(string: url.absoluteString)) {
+            callback.setResult(cached)
+            return
+        }
+        
+        lock.synchronized {
+            if var list = waitingList[url] {
+                list.append(callback)
+                waitingList[url] = list
+            } else {
+                waitingList[url] = [callback]
+            }
+        }
+        
+        DispatchQueue.global().async { [weak self] in
+            
+            let started = Date()
+            let data = try? Data(contentsOf: url)
+            let elapsed = Date().timeIntervalSince(started)
+            let delay = delayError && data == nil && elapsed < 0.8
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + (delay ? 0.7 : 0) ) {
+                
+                guard let self else {
+                    return
+                }
+                
+                self.lock.synchronized {
+                    if let data, let image = UIImage(data: data) {
+                        if allowCache {
+                            self.cache.setObject(image, forKey: NSString(string: url.absoluteString), cost: data.count)
+                        }
+                        self.waitingList[url]?.forEach { $0.setResult(image) }
+                    } else {
+                        self.waitingList[url]?.forEach { $0.setResult(nil) }
+                    }
+                    
+                    self.waitingList.removeValue(forKey: url)
+                }
+            }
+        }
     }
 }
