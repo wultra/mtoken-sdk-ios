@@ -476,7 +476,7 @@ class OperationUIDataTests: XCTestCase {
                 },
                 "detail": {
                     "style": null,
-                    "automaticHeaderSection": false,
+                    "showTitleAndMessage": false,
                     "sections": [
                         {
                             "style": "MONEY",
