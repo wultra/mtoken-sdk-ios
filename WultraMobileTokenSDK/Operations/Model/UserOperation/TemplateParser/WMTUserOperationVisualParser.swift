@@ -235,13 +235,13 @@ extension WMTUserOperation {
         var sections = [WMTUserOperationVisualSection]()
         
         if detailTemplate.showTitleAndMessage == false {
-            let dataSections = attrs.popSections(from: sectionsTemplate)
+            let dataSections = attrs.popCells(from: sectionsTemplate)
             sections.append(contentsOf: dataSections)
             sections.append(.init(cells: attrs.getRemainingCells()))
             return .init(sections: sections)
         } else {
             let headerSection = createHeaderVisual(style: detailTemplate.style)
-            let dataSection = attrs.popSections(from: sectionsTemplate)
+            let dataSection = attrs.popCells(from: sectionsTemplate)
             sections.append(headerSection)
             sections.append(contentsOf: dataSection)
             sections.append(.init(cells: attrs.getRemainingCells()))
@@ -385,48 +385,11 @@ private extension Array where Element: WMTOperationAttribute {
         return attr
     }
     
-    mutating func pop(ids: [String]) -> [WMTOperationAttribute] {
-        var result = [WMTOperationAttribute]()
-        for id in ids {
-            guard let index = firstIndex(where: { $0.label.id == id }) else {
-                continue
-            }
-            result.append(self[index])
-            remove(at: index)
-        }
-        return result
+    mutating func popCells(from sections: [WMTTemplates.DetailTemplate.Section]) -> [WMTUserOperationVisualSection] {
+        return sections.map { popCells(from: $0) }
     }
     
-    mutating func popFirst(ids: [String]) -> WMTOperationAttribute? {
-        for id in ids {
-            guard let index = firstIndex(where: { $0.label.id == id }) else {
-                continue
-            }
-            remove(at: index)
-            return self[index]
-        }
-        return nil
-    }
-    
-    mutating func popFirstGen<T: WMTOperationAttribute>(ids: [String]) -> T? {
-        for id in ids {
-            guard let index = firstIndex(where: { $0.label.id == id }) else {
-                continue
-            }
-            guard let attr = self[index] as? T else {
-                continue
-            }
-            remove(at: index)
-            return attr
-        }
-        return nil
-    }
-    
-    mutating func popSections(from sections: [WMTTemplates.DetailTemplate.Section]) -> [WMTUserOperationVisualSection] {
-        return sections.map { popSection(from: $0) }
-    }
-    
-    mutating func popSection(from section: WMTTemplates.DetailTemplate.Section) -> WMTUserOperationVisualSection {
+    mutating func popCells(from section: WMTTemplates.DetailTemplate.Section) -> WMTUserOperationVisualSection {
         let sectionFilled = WMTUserOperationVisualSection(
             style: section.style,
             title: pop(id: section.title)?.label.value,
@@ -436,7 +399,15 @@ private extension Array where Element: WMTOperationAttribute {
     }
     
     mutating func popCells(from section: WMTTemplates.DetailTemplate.Section) -> [WMTUserOperationVisualCell] {
-        return section.cells?.compactMap { createCellAndPopAttr(from: $0) } ?? []
+        return section.cells?.compactMap { createCellFromTemplateCell($0) } ?? []
+    }
+    
+    mutating func createCellFromTemplateCell(_ templateCell: WMTTemplates.DetailTemplate.Section.Cell) -> WMTUserOperationVisualCell? {
+        guard let attr = pop(id: templateCell.name) else {
+            D.warning("Template Attribute '\(templateCell.name)', not found in FormData Attributes")
+            return nil
+        }
+        return createCell(from: attr, templateCell: templateCell)
     }
     
     func getRemainingCells() -> [WMTUserOperationVisualCell] {
@@ -447,14 +418,6 @@ private extension Array where Element: WMTOperationAttribute {
             }
         }
         return cells
-    }
-        
-    mutating func createCellAndPopAttr(from templateCell: WMTTemplates.DetailTemplate.Section.Cell) -> WMTUserOperationVisualCell? {
-        guard let attr = pop(id: templateCell.name) else {
-            D.warning("Template Attribute '\(templateCell.name)', not found in FormData Attributes")
-            return nil
-        }
-        return createCell(from: attr, templateCell: templateCell)
     }
     
     private func createCell(from attr: WMTOperationAttribute, templateCell: WMTTemplates.DetailTemplate.Section.Cell? = nil) -> WMTUserOperationVisualCell? {
