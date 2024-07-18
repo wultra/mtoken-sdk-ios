@@ -57,9 +57,9 @@ open class WMTUserOperation: WMTOperation, Codable {
     /// Additional UI data to present
     ///
     /// Additional UI data such as Pre-Approval Screen or Post-Approval Screen should be presented.
-    //TODO: remove before merging
-//    public let ui = prepareTemplates(response: uiTemplates)
     public let ui: WMTOperationUIData?
+    // TODO: remove before merging
+    ///    public let ui = prepareTemplates(response: uiTemplates)
     
     /// Proximity Check Data to be passed when OTP is handed to the app
     public var proximityCheck: WMTProximityCheck?
