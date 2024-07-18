@@ -17,47 +17,138 @@
 import UIKit
 
 public class WMTUserOperationVisualParser {
-    public static func prepareForList(operation: WMTUserOperation) -> WMTUserOperationListVisual? {
+    public static func prepareForList(operation: WMTUserOperation) -> WMTUserOperationListVisual {
         return operation.prepareVisualListDetail()
     }
     
-    public static func prepareForDetail(operation: WMTUserOperation) -> WMTUserOperationVisual? {
+    public static func prepareForDetail(operation: WMTUserOperation) -> WMTUserOperationVisual {
         return operation.prepareVisualDetail()
     }
 }
 
+public struct WMTUserOperationListVisual {
+    public let header: String?
+    public let title: String?
+    public let message: String?
+    public let style: String?
+    public let thumbnailImageURL: URL?
+    public let template: WMTTemplates.ListTemplate?
+    
+    private let downloader = ImageDownloader.shared
+    
+    init(
+        header: String? = nil,
+        title: String? = nil,
+        message: String? = nil,
+        style: String? = nil,
+        thumbnailImageURL: URL? = nil,
+        template: WMTTemplates.ListTemplate? = nil
+    ) {
+        self.header = header
+        self.title = title
+        self.message = message
+        self.style = style
+        self.thumbnailImageURL = thumbnailImageURL
+        self.template = template
+    }
+}
+
+public struct WMTUserOperationVisual {
+    public let sections: [WMTUserOperationVisualSection]
+}
+
+public struct WMTUserOperationVisualSection {
+    public let style: String?
+    public let title: String? // not an id, actual value
+    public let cells: [WMTUserOperationVisualCell]
+    
+    public init(style: String? = nil, title: String? = nil, cells: [WMTUserOperationVisualCell]) {
+        self.style = style
+        self.title = title
+        self.cells = cells
+    }
+}
+
+public protocol WMTUserOperationVisualCell { }
+
+public struct WMTUserOperationHeaderVisualCell: WMTUserOperationVisualCell {
+    public let value: String
+}
+
+public struct WMTUserOperationMessageVisualCell: WMTUserOperationVisualCell {
+    public let value: String
+}
+
+public struct WMTUserOperationValueAttributeVisualCell: WMTUserOperationVisualCell {
+    public let header: String
+    public let defaultFormattedStringValue: String
+    public let style: String?
+    public let attribute: WMTOperationAttribute
+    public let cellTemplate: WMTTemplates.DetailTemplate.Section.Cell?
+}
+
+public struct WMTUserOperationImageVisualCell: WMTUserOperationVisualCell {
+    public let urlThumbnail: URL
+    public let urlFull: URL?
+    public let style: String?
+    public let attribute: WMTOperationAttributeImage
+    public let cellTemplate: WMTTemplates.DetailTemplate.Section.Cell?
+    
+    private let downloader = ImageDownloader.shared
+}
+
+
+
 // MARK: WMTUserOperation List Visual preparation extension
 extension WMTUserOperation {
 
-    internal func prepareVisualListDetail() -> WMTUserOperationListVisual? {
-        guard let listTemplate = self.ui?.templates?.list else {
+    internal func prepareVisualListDetail() -> WMTUserOperationListVisual {
+        let listTemplate = self.ui?.templates?.list
+        let attributes = self.formData.attributes
+        let headerAtrr = listTemplate?.header?.replacePlaceholders(from: attributes)
+        
+        var title: String? {
+            if let titleAttr = listTemplate?.title?.replacePlaceholders(from: attributes) {
+                return titleAttr
+            }
+            
+            if !self.formData.message.isEmpty {
+                return self.formData.title
+            }
+            
             return nil
         }
-        let attributes = self.formData.attributes
-        
-        let headerAtrr = listTemplate.header?.replacePlaceholders(from: attributes)
-        
-        var title: String?
-        if let titleAttr = listTemplate.title?.replacePlaceholders(from: attributes) {
-            title = titleAttr
-        } else if !self.formData.message.isEmpty {
-            title = self.formData.title
+
+        var message: String? {
+            if let messageAttr = listTemplate?.message?.replacePlaceholders(from: attributes) {
+                return messageAttr
+            }
+            
+            if !self.formData.message.isEmpty {
+                return self.formData.message
+            }
+            
+            return nil
         }
+
         
-        var message: String?
-        if let messageAttr = listTemplate.message?.replacePlaceholders(from: attributes) {
-            message = messageAttr
-        } else if !self.formData.message.isEmpty {
-            message = self.formData.message
+        var imageUrl: URL? {
+            if let imgAttr = listTemplate?.image,
+               let imgAttrCell = self.formData.attributes
+                                        .compactMap({ $0 as? WMTOperationAttributeImage })
+                                        .first(where: { $0.label.id == imgAttr }) {
+                return URL(string: imgAttrCell.thumbnailUrl)
+            }
+
+            if let imgAttrCell = self.formData.attributes
+                                        .compactMap({ $0 as? WMTOperationAttributeImage })
+                                        .first {
+                return URL(string: imgAttrCell.thumbnailUrl)
+            }
+
+            return nil
         }
-        
-        var imageUrl: URL?
-        if let imgAttr = listTemplate.image, let imgAttrCell = self.formData.attributes.first(where: { $0.label.id == imgAttr }) as? WMTOperationAttributeImage {
-            imageUrl = URL(string: imgAttrCell.thumbnailUrl)
-        } else {
-            imageUrl = nil
-        }
-        
+
         return WMTUserOperationListVisual(
             header: headerAtrr,
             title: title,
@@ -69,31 +160,39 @@ extension WMTUserOperation {
     }
 }
 
-public struct WMTUserOperationListVisual {
-    public let header: String?
-    public let title: String?
-    public let message: String?
-    public let style: String?
-    public let thumbnailImageURL: URL?
-    
-    public let template: WMTTemplates.ListTemplate
-}
 
 extension WMTUserOperationListVisual {
-    func downloadThumbnail(callback: @escaping (UIImage?) -> Void) {
-        if let thumbnailImageURL {
-            ImageDownloader.shared.downloadImage(at: thumbnailImageURL, ImageDownloader.Callback(callback: callback))
-        } else {
+    public func downloadThumbnail(callback: @escaping (UIImage?) -> Void) {
+        
+        guard let url = thumbnailImageURL else {
             callback(nil)
+            return
         }
         
+        // Use ImageDownloader to download the image
+        downloader.downloadImage(
+            at: url,
+            ImageDownloader.Callback { img in
+                if let img {
+                    callback(img)
+                } else {
+                    callAgain(callback: callback)
+                }
+            }
+        )
+    }
+    
+    private func callAgain(callback: @escaping (UIImage?) -> Void) {
+        DispatchQueue.global().asyncAfter(deadline: .now() + 1) {
+            self.downloadThumbnail(callback: callback)
+        }
     }
 }
 
 // MARK: WMTUserOperation Detail Visual preparation extension
 extension WMTUserOperation {
  
-    internal func prepareVisualDetail() -> WMTUserOperationVisual? {
+    internal func prepareVisualDetail() -> WMTUserOperationVisual {
 
         guard let detailTemplate = self.ui?.templates?.detail else {
             let attrs = self.formData.attributes
@@ -151,54 +250,43 @@ extension WMTUserOperation {
     }
 }
 
-public struct WMTUserOperationVisual {
-    public let sections: [WMTUserOperationVisualSection]
-}
-
-public struct WMTUserOperationVisualSection {
-    public let style: String?
-    public let title: String? // not an id, actual value
-    public let cells: [WMTUserOperationVisualCell]
-    
-    public init(style: String? = nil, title: String? = nil, cells: [WMTUserOperationVisualCell]) {
-        self.style = style
-        self.title = title
-        self.cells = cells
-    }
-}
-
-public protocol WMTUserOperationVisualCell { }
-
-public struct WMTUserOperationHeaderVisualCell: WMTUserOperationVisualCell {
-    public let value: String
-}
-
-public struct WMTUserOperationMessageVisualCell: WMTUserOperationVisualCell {
-    public let value: String
-}
-
-public struct WMTUserOperationValueAttributeVisualCell: WMTUserOperationVisualCell {
-    public let header: String
-    public let defaultFormattedStringValue: String
-    public let style: String?
-    public let attribute: WMTOperationAttribute
-    public let cellTemplate: WMTTemplates.DetailTemplate.Section.Cell?
-}
-
-public struct WMTUserOperationImageVisualCell: WMTUserOperationVisualCell {
-    public let urlThumbnail: URL
-    public let urlFull: URL?
-    public let style: String?
-    public let attribute: WMTOperationAttributeImage
-    public let cellTemplate: WMTTemplates.DetailTemplate.Section.Cell?
-}
-
 extension WMTUserOperationImageVisualCell {
-    func downloadFull(callback: (Result<UIImage, Error>) -> Void) {
-        // ImageDownloader.shared. ....
+    func downloadFull(callback: @escaping (UIImage?) -> Void) {
+        guard let url = urlFull else {
+            callback(nil)
+            return
+        }
+        
+        // Use ImageDownloader to download the image
+        downloader.downloadImage(
+            at: url,
+            ImageDownloader.Callback { img in
+                if let img {
+                    callback(img)
+                } else {
+                    callAgain(callback: callback)
+                }
+            }
+        )
     }
-    func downloadThumbnail(callback: (Result<UIImage, Error>) -> Void) {
-        // ImageDownloader.shared. ....
+
+    func downloadThumbnail(callback: @escaping (UIImage?) -> Void) {
+        downloader.downloadImage(
+            at: urlThumbnail,
+            ImageDownloader.Callback { img in
+                if let img {
+                    callback(img)
+                } else {
+                    callAgain(callback: callback)
+                }
+            }
+        )
+    }
+
+    private func callAgain(callback: @escaping (UIImage?) -> Void) {
+        DispatchQueue.global().asyncAfter(deadline: .now() + 1) {
+            self.downloadFull(callback: callback)
+        }
     }
 }
 
