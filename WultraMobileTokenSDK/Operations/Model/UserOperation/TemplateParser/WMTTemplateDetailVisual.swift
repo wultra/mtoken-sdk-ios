@@ -14,15 +14,29 @@
 // and limitations under the License.
 //
 
-import UIKit
+import Foundation
 
-public struct WMTUserOperationVisual {
+/// This holds the visual data for displaying a detailed view of a user operation.
+public struct WMTTemplateDetailVisual {
+    
+    /// An array of `WMTUserOperationVisualSection` defining the sections of the detailed view.
     public let sections: [WMTUserOperationVisualSection]
+    
+    public init(sections: [WMTUserOperationVisualSection]) {
+        self.sections = sections
+    }
 }
 
+/// This struct defines one section in the detailed view of a user operation.
 public struct WMTUserOperationVisualSection {
+    
+    /// Predefined style of the section to which the app can react and adjust the operation visual
     public let style: String?
-    public let title: String? // not an id, actual value
+    
+    /// The title value for the section
+    public let title: String?
+    
+    /// An array of  cells with `WMTOperationFormData` header and message or visual cells based on `WMTOperationAttributes`
     public let cells: [WMTUserOperationVisualCell]
     
     public init(style: String? = nil, title: String? = nil, cells: [WMTUserOperationVisualCell]) {
@@ -32,56 +46,150 @@ public struct WMTUserOperationVisualSection {
     }
 }
 
+/// A protocol for visual cells in a user operation's detailed view.
 public protocol WMTUserOperationVisualCell { }
 
+/// `WMTUserOperationHeaderVisualCell` contains a header  in a user operation's detail header view.
+///
+/// This struct is used to distinguish between the default header section and custom `WMTUserOperationAttribute` sections.
 public struct WMTUserOperationHeaderVisualCell: WMTUserOperationVisualCell {
+    
+    /// This value corresponds to `WMTOperationFormData.title`
     public let value: String
+    
+    public init(value: String) {
+        self.value = value
+    }
 }
 
+/// `WMTUserOperationMessageVisualCell` is a message cell in a user operation's header view.
+///
+/// This struct is used within default header section and is used to distinguished from custom `WMTUserOperationAttribute` sections.
 public struct WMTUserOperationMessageVisualCell: WMTUserOperationVisualCell {
+    
+    /// This value corresponds to `WMTOperationFormData.message`
     public let value: String
+    
+    public init(value: String) {
+        self.value = value
+    }
+}
+
+/// `WMTUserOperationHeadingVisualCell` defines a heading cell in a user operation's detailed view.
+public struct WMTUserOperationHeadingVisualCell: WMTUserOperationVisualCell {
+    
+    /// Single highlighted text used as a section heading
+    public let header: String
+
+    /// Predefined style of the section cell, app shall react to it and should change the visual of the cell
+    public let style: String?
+    
+    /// The source user operation attribute.
+    public let attribute: WMTOperationAttribute
+
+    /// The template the cell was made from.
+    public let cellTemplate: WMTTemplates.DetailTemplate.Section.Cell?
+    
+    public init(
+        header: String,
+        style: String? = nil,
+        attribute: WMTOperationAttribute,
+        cellTemplate: WMTTemplates.DetailTemplate.Section.Cell? = nil
+    ) {
+        self.header = header
+        self.style = style
+        self.attribute = attribute
+        self.cellTemplate = cellTemplate
+    }
 }
 
 public struct WMTUserOperationValueAttributeVisualCell: WMTUserOperationVisualCell {
+    /// The header text value
     public let header: String
+    
+    /// The text value preformatted for the cell (if preformatted value isn't suficcient value from attribute can be used)
     public let defaultFormattedStringValue: String
+    
+    /// Predefined style of the section cell, app shall react to it and should change the visual of the cell
     public let style: String?
+    
+    /// The source user operation attribute.
     public let attribute: WMTOperationAttribute
-    public let cellTemplate: WMTTemplates.DetailTemplate.Section.Cell?
-}
-
-public struct WMTUserOperationImageVisualCell: WMTUserOperationVisualCell {
-    public let urlThumbnail: URL
-    public let urlFull: URL?
-    public let style: String?
-    public let attribute: WMTOperationAttributeImage
+    
+    /// The template the cell was made from.
     public let cellTemplate: WMTTemplates.DetailTemplate.Section.Cell?
     
-    private let downloader = ImageDownloader.shared
+    public init(
+        header: String,
+        defaultFormattedStringValue: String,
+        style: String?,
+        attribute: WMTOperationAttribute,
+        cellTemplate: WMTTemplates.DetailTemplate.Section.Cell?
+    ) {
+        self.header = header
+        self.defaultFormattedStringValue = defaultFormattedStringValue
+        self.style = style
+        self.attribute = attribute
+        self.cellTemplate = cellTemplate
+    }
+}
+
+/// `WMTUserOperationImageVisualCell` defines an image cell in a user operation's detailed view.
+public struct WMTUserOperationImageVisualCell: WMTUserOperationVisualCell {
+    /// The URL of the thumbnail image
+    public let urlThumbnail: URL
+    
+    /// The URL of the full size image
+    public let urlFull: URL?
+    
+    /// Predefined style of the section cell, app shall react to it and should change the visual of the cell
+    public let style: String?
+    
+    /// The source user operation attribute.
+    public let attribute: WMTOperationAttributeImage
+    
+    /// The template the cell was made from.
+    public let cellTemplate: WMTTemplates.DetailTemplate.Section.Cell?
+    
+    public init(
+        urlThumbnail: URL,
+        urlFull: URL?,
+        style: String?,
+        attribute: WMTOperationAttributeImage,
+        cellTemplate: WMTTemplates.DetailTemplate.Section.Cell?
+    ) {
+        self.urlThumbnail = urlThumbnail
+        self.urlFull = urlFull
+        self.style = style
+        self.attribute = attribute
+        self.cellTemplate = cellTemplate
+    }
+
 }
 
 // MARK: WMTUserOperation Detail Visual preparation extension
 extension WMTUserOperation {
  
-    internal func prepareVisualDetail() -> WMTUserOperationVisual {
+    internal func prepareVisualDetail() -> WMTTemplateDetailVisual {
 
+        // If templates don't contain detail return default header from `WMTOperationFormData`
         guard let detailTemplate = self.ui?.templates?.detail else {
             let attrs = self.formData.attributes
             if attrs.isEmpty {
-                return WMTUserOperationVisual(sections: [createHeaderVisual()])
+                return WMTTemplateDetailVisual(sections: [createDefaultHeaderVisual()])
             } else {
-                let headerSection = createHeaderVisual()
+                let headerSection = createDefaultHeaderVisual()
                 let dataSections: WMTUserOperationVisualSection = .init(cells: attrs.getRemainingCells())
                 
-                return WMTUserOperationVisual(sections: [headerSection, dataSections])
+                return WMTTemplateDetailVisual(sections: [headerSection, dataSections])
             }
         }
         
         return createTemplateRichData(from: detailTemplate)
     }
     
-    // Default header
-    private func createHeaderVisual(style: String? = nil) -> WMTUserOperationVisualSection {
+    // Default header visual
+    private func createDefaultHeaderVisual(style: String? = nil) -> WMTUserOperationVisualSection {
         let defaultHeaderCell = WMTUserOperationHeaderVisualCell(value: self.formData.title)
         let defaultMessageCell = WMTUserOperationMessageVisualCell(value: self.formData.message)
         
@@ -92,26 +200,30 @@ extension WMTUserOperation {
         )
     }
     
-    private func createTemplateRichData(from detailTemplate: WMTTemplates.DetailTemplate) -> WMTUserOperationVisual {
+    // Creates WMTTemplateDetailVisual which contains cells divided in sections
+    private func createTemplateRichData(from detailTemplate: WMTTemplates.DetailTemplate) -> WMTTemplateDetailVisual {
         var attrs = self.formData.attributes
         
         guard let sectionsTemplate = detailTemplate.sections else {
             // Sections not specified, but style might be
-            let headerSection = createHeaderVisual(style: detailTemplate.style)
+            let headerSection = createDefaultHeaderVisual(style: detailTemplate.style)
             let dataSections: WMTUserOperationVisualSection = .init(cells: attrs.getRemainingCells())
             
-            return WMTUserOperationVisual(sections: [headerSection, dataSections])
+            return WMTTemplateDetailVisual(sections: [headerSection, dataSections])
         }
         
         var sections = [WMTUserOperationVisualSection]()
         
+        // If showTitleAndMessage is explicitly false don't create default header
+        // this means that the whole operation is defined by templates
+        // AND `WMTOperationFormData` title and message will be ignored in visual object!!!
         if detailTemplate.showTitleAndMessage == false {
             let dataSections = attrs.popCells(from: sectionsTemplate)
             sections.append(contentsOf: dataSections)
             sections.append(.init(cells: attrs.getRemainingCells()))
             return .init(sections: sections)
         } else {
-            let headerSection = createHeaderVisual(style: detailTemplate.style)
+            let headerSection = createDefaultHeaderVisual(style: detailTemplate.style)
             let dataSection = attrs.popCells(from: sectionsTemplate)
             sections.append(headerSection)
             sections.append(contentsOf: dataSection)
@@ -121,48 +233,12 @@ extension WMTUserOperation {
     }
 }
 
-extension WMTUserOperationImageVisualCell {
-    func downloadFull(callback: @escaping (UIImage?) -> Void) {
-        guard let url = urlFull else {
-            callback(nil)
-            return
-        }
-        
-        // Use ImageDownloader to download the image
-        downloader.downloadImage(
-            at: url,
-            ImageDownloader.Callback { img in
-                if let img {
-                    callback(img)
-                } else {
-                    callAgain(callback: callback)
-                }
-            }
-        )
-    }
-
-    func downloadThumbnail(callback: @escaping (UIImage?) -> Void) {
-        downloader.downloadImage(
-            at: urlThumbnail,
-            ImageDownloader.Callback { img in
-                if let img {
-                    callback(img)
-                } else {
-                    callAgain(callback: callback)
-                }
-            }
-        )
-    }
-
-    private func callAgain(callback: @escaping (UIImage?) -> Void) {
-        DispatchQueue.global().asyncAfter(deadline: .now() + 1) {
-            self.downloadFull(callback: callback)
-        }
-    }
-}
-
+// MARK: - Array Extension for WMTOperationAttribute
 private extension Array where Element: WMTOperationAttribute {
     
+    /// Pops an attribute of the specified type by its ID.
+    /// - Parameter id: The ID of the attribute.
+    /// - Returns: The attribute if found, otherwise nil.
     mutating func pop<T: WMTOperationAttribute>(id: String?) -> T? {
         guard let id = id else {
             return nil
@@ -181,10 +257,14 @@ private extension Array where Element: WMTOperationAttribute {
         return attr
     }
     
+    /// Pops cells from the sections of the detail template.
+    /// - Parameter sections: The sections of the detail template.
+    /// - Returns: An array of `WMTUserOperationVisualSection` objects.
     mutating func popCells(from sections: [WMTTemplates.DetailTemplate.Section]) -> [WMTUserOperationVisualSection] {
         return sections.map { popCells(from: $0) }
     }
     
+    // Note that section title is already a string value
     mutating func popCells(from section: WMTTemplates.DetailTemplate.Section) -> WMTUserOperationVisualSection {
         let sectionFilled = WMTUserOperationVisualSection(
             style: section.style,
@@ -248,7 +328,12 @@ private extension Array where Element: WMTOperationAttribute {
                 cellTemplate: templateCell
             )
         case .heading:
-            value = ""
+            return WMTUserOperationHeadingVisualCell(
+                header: attr.label.value,
+                style: templateCell?.style,
+                attribute: attr,
+                cellTemplate: templateCell
+            )
         case .partyInfo, .unknown:
             D.warning("Using unsuported Attribute in Templates")
             value = ""

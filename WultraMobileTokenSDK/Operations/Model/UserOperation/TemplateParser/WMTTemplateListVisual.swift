@@ -14,17 +14,28 @@
 // and limitations under the License.
 //
 
-import UIKit
+import Foundation
 
-public struct WMTUserOperationListVisual {
-    public let header: String?
-    public let title: String?
-    public let message: String?
-    public let style: String?
-    public let thumbnailImageURL: URL?
-    public let template: WMTTemplates.ListTemplate?
+/// `WMTTemplateListVisual` holds the visual data for displaying a user operation in a list view (table view/collection view)
+public struct WMTTemplateListVisual {
     
-    private let downloader = ImageDownloader.shared
+    /// The header of the cell
+    public let header: String?
+    
+    /// The title of the cell
+    public let title: String?
+    
+    /// The message (subtitle) of the cell
+    public let message: String?
+    
+    /// Predefined style of the cell on which the implementation can react
+    public let style: String?
+    
+    /// URL of the cell thumbnail
+    public let thumbnailImageURL: URL?
+    
+    /// Complete template from which the WMTTemplateListVisual was created
+    public let template: WMTTemplates.ListTemplate?
     
     public init(
         header: String? = nil,
@@ -41,37 +52,12 @@ public struct WMTUserOperationListVisual {
         self.thumbnailImageURL = thumbnailImageURL
         self.template = template
     }
-    
-    public func downloadThumbnail(callback: @escaping (UIImage?) -> Void) {
-        
-        guard let url = thumbnailImageURL else {
-            callback(nil)
-            return
-        }
-        
-        downloader.downloadImage(
-            at: url,
-            ImageDownloader.Callback { img in
-                if let img {
-                    callback(img)
-                } else {
-                    callAgain(callback: callback)
-                }
-            }
-        )
-    }
-    
-    public func callAgain(callback: @escaping (UIImage?) -> Void) {
-        DispatchQueue.global().asyncAfter(deadline: .now() + 1) {
-            self.downloadThumbnail(callback: callback)
-        }
-    }
 }
 
 // MARK: WMTUserOperation List Visual preparation extension
 extension WMTUserOperation {
 
-    internal func prepareVisualListDetail() -> WMTUserOperationListVisual {
+    internal func prepareVisualListDetail() -> WMTTemplateListVisual {
         let listTemplate = self.ui?.templates?.list
         let attributes = self.formData.attributes
         let headerAtrr = listTemplate?.header?.replacePlaceholders(from: attributes)
@@ -117,7 +103,7 @@ extension WMTUserOperation {
             return nil
         }
 
-        return WMTUserOperationListVisual(
+        return WMTTemplateListVisual(
             header: headerAtrr,
             title: title,
             message: message,
