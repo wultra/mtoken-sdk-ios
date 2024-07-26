@@ -31,7 +31,7 @@ class IntegrationProxy {
     typealias Callback = (_ error: String?) -> Void
     
     func prepareActivation(pin: String, callback: @escaping Callback) {
-        WPNLogger.verboseLevel = .debug
+        WPNLogger.verboseLevel = .all
         guard let configPath = Bundle.init(for: IntegrationProxy.self).path(forResource: "config", ofType: "json", inDirectory: "Configs") else {
             callback("Config file config.json is not present.")
             return

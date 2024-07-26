@@ -318,6 +318,9 @@ public class WMTTemplates: Codable {
                 /// Define if the cell should be collapsable
                 public let collapsable: Collapsable?
                 
+                /// If value should be centered
+                public let centered: Bool?
+                
                 public enum Collapsable: String, Codable {
                     /// The cell should not be collapsable
                     case no = "NO"
@@ -332,7 +335,7 @@ public class WMTTemplates: Codable {
                 // MARK: - Internals
                 
                 private enum Keys: String, CodingKey {
-                    case style, name, visibleTitle, canCopy, collapsable
+                    case style, name, visibleTitle, canCopy, collapsable, centered
                 }
                 
                 public required init(from decoder: Decoder) throws {
@@ -382,14 +385,26 @@ public class WMTTemplates: Codable {
                     } else {
                         collapsable = nil
                     }
+                    
+                    if c.contains(.centered) {
+                        do {
+                            centered = try c.decode(Bool.self, forKey: .centered)
+                        } catch {
+                            D.error("Failed to decode \(Keys.centered) - \(error), setting to null")
+                            centered = nil
+                        }
+                    } else {
+                        centered = nil
+                    }
                 }
                 
-                public init(style: String?, name: AttributeId, visibleTitle: Bool?, canCopy: Bool?, collapsable: Collapsable?) {
+                public init(style: String?, name: AttributeId, visibleTitle: Bool?, canCopy: Bool?, collapsable: Collapsable?, centered: Bool?) {
                     self.name = name
                     self.style = style
                     self.visibleTitle = visibleTitle
                     self.canCopy = canCopy
                     self.collapsable = collapsable
+                    self.centered = centered
                 }
             }
         }

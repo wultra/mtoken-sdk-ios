@@ -212,6 +212,7 @@ class OperationUIDataTests: XCTestCase {
         XCTAssertEqual(uiResult.templates?.detail?.sections?[0].title, "operation.money.header")
         XCTAssertEqual(uiResult.templates?.detail?.sections?[0].cells?[0].style, nil)
         XCTAssertEqual(uiResult.templates?.detail?.sections?[0].cells?[0].name, "operation.amount")
+        XCTAssertEqual(uiResult.templates?.detail?.sections?[0].cells?[0].centered, true)
         XCTAssertEqual(uiResult.templates?.detail?.sections?[0].cells?[0].visibleTitle, false)
         XCTAssertEqual(uiResult.templates?.detail?.sections?[0].cells?[0].canCopy, true)
         XCTAssertEqual(uiResult.templates?.detail?.sections?[0].cells?[0].collapsable, .no)
@@ -489,7 +490,8 @@ class OperationUIDataTests: XCTestCase {
                                     "visibleTitle": false,
                                     "style": null,
                                     "canCopy": true,
-                                    "collapsable": "NO"
+                                    "collapsable": "NO",
+                                    "centered": true
                                 },
                                 {
                                     "style": "CONVERSION",
