@@ -36,8 +36,27 @@ public class WMTTemplates: Codable {
     public required init(from decoder: Decoder) throws {
         let c = try decoder.container(keyedBy: Keys.self)
         
-        list = try? c.decode(ListTemplate.self, forKey: .list)
-        detail = try? c.decode(DetailTemplate.self, forKey: .detail)
+        if c.contains(.list) {
+            do {
+                list = try c.decode(ListTemplate.self, forKey: .list)
+            } catch {
+                D.error("Failed to decode \(Keys.list) - \(error), setting to null")
+                list = nil
+            }
+        } else {
+            list = nil
+        }
+        
+        if c.contains(.detail) {
+            do {
+                detail = try c.decode(DetailTemplate.self, forKey: .detail)
+            } catch {
+                D.error("Failed to decode \(Keys.detail) - \(error), setting to null")
+                detail = nil
+            }
+        } else {
+            detail = nil
+        }
     }
     
     public init(list: ListTemplate?, detail: DetailTemplate?) {
@@ -83,11 +102,61 @@ public class WMTTemplates: Codable {
         
         public required init(from decoder: any Decoder) throws {
             let c = try decoder.container(keyedBy: Keys.self)
-            self.style = try? c.decode(String.self, forKey: .style)
-            self.header = try? c.decode(AttributeFormatted.self, forKey: .header)
-            self.title = try? c.decode(AttributeFormatted.self, forKey: .title)
-            self.message = try? c.decode(AttributeFormatted.self, forKey: .message)
-            self.image = try? c.decode(AttributeId.self, forKey: .image)
+            
+            if c.contains(.style) {
+                do {
+                    style = try c.decode(String.self, forKey: .style)
+                } catch {
+                    D.error("Failed to decode \(Keys.style) - \(error), setting to null")
+                    style = nil
+                }
+            } else {
+                style = nil
+            }
+            
+            if c.contains(.header) {
+                do {
+                    header = try c.decode(AttributeFormatted.self, forKey: .header)
+                } catch {
+                    D.error("Failed to decode \(Keys.header) - \(error), setting to null")
+                    header = nil
+                }
+            } else {
+                header = nil
+            }
+            
+            if c.contains(.title) {
+                do {
+                    title = try c.decode(AttributeFormatted.self, forKey: .title)
+                } catch {
+                    D.error("Failed to decode \(Keys.title) - \(error), setting to null")
+                    title = nil
+                }
+            } else {
+                title = nil
+            }
+            
+            if c.contains(.message) {
+                do {
+                    message = try c.decode(AttributeFormatted.self, forKey: .message)
+                } catch {
+                    D.error("Failed to decode \(Keys.message) - \(error), setting to null")
+                    message = nil
+                }
+            } else {
+                message = nil
+            }
+            
+            if c.contains(.image) {
+                do {
+                    image = try c.decode(AttributeId.self, forKey: .image)
+                } catch {
+                    D.error("Failed to decode \(Keys.image) - \(error), setting to null")
+                    image = nil
+                }
+            } else {
+                image = nil
+            }
         }
         
         public init(style: String?, header: AttributeFormatted?, title: AttributeFormatted?, message: AttributeFormatted?, image: AttributeId?) {
@@ -122,9 +191,39 @@ public class WMTTemplates: Codable {
         
         public required init(from decoder: Decoder) throws {
             let c = try decoder.container(keyedBy: Keys.self)
-            style = try? c.decode(String.self, forKey: .style)
-            showTitleAndMessage = try? c.decode(Bool.self, forKey: .showTitleAndMessage)
-            sections = try? c.decode([Section].self, forKey: .sections)
+            
+            if c.contains(.style) {
+                do {
+                    style = try c.decode(String.self, forKey: .style)
+                } catch {
+                    D.error("Failed to decode \(Keys.style) - \(error), setting to null")
+                    style = nil
+                }
+            } else {
+                style = nil
+            }
+            
+            if c.contains(.showTitleAndMessage) {
+                do {
+                    showTitleAndMessage = try c.decode(Bool.self, forKey: .showTitleAndMessage)
+                } catch {
+                    D.error("Failed to decode \(Keys.showTitleAndMessage) - \(error), setting to null")
+                    showTitleAndMessage = nil
+                }
+            } else {
+                showTitleAndMessage = nil
+            }
+            
+            if c.contains(.sections) {
+                do {
+                    sections = try c.decode([Section].self, forKey: .sections)
+                } catch {
+                    D.error("Failed to decode \(Keys.sections) - \(error), setting to null")
+                    sections = nil
+                }
+            } else {
+                sections = nil
+            }
         }
 
         public init(style: String?, automaticHeaderSection: Bool?, sections: [Section]?) {
@@ -153,9 +252,46 @@ public class WMTTemplates: Codable {
             
             public required init(from decoder: Decoder) throws {
                 let c = try decoder.container(keyedBy: Keys.self)
-                style = try? c.decode(String.self, forKey: .style)
-                title = try? c.decode(AttributeId.self, forKey: .title)
-                cells = try? c.decode([Cell].self, forKey: .cells)
+                
+                if c.contains(.style) {
+                    do {
+                        style = try c.decode(String.self, forKey: .style)
+                    } catch {
+                        D.error("Failed to decode \(Keys.style) - \(error), setting to null")
+                        style = nil
+                    }
+                } else {
+                    style = nil
+                }
+                
+                if c.contains(.title) {
+                    do {
+                        title = try c.decode(AttributeId.self, forKey: .title)
+                    } catch {
+                        D.error("Failed to decode \(Keys.title) - \(error), setting to null")
+                        title = nil
+                    }
+                } else {
+                    title = nil
+                }
+                
+                if c.contains(.cells) {
+                    var decodedCells: [Cell] = []
+
+                    var nestedContainer = try c.nestedUnkeyedContainer(forKey: .cells)
+                    while nestedContainer.isAtEnd == false {
+                        do {
+                            let cell = try Cell(from: nestedContainer.superDecoder())
+                            decodedCells.append(cell)
+                        } catch {
+                            D.error("Failed to decode \(Keys.cells) - \(error), setting to null")
+                        }
+                    }
+
+                    cells = decodedCells
+                } else {
+                    cells = nil
+                }
             }
             
             public init(style: String?, title: AttributeId?, cells: [Cell]?) {
@@ -201,11 +337,51 @@ public class WMTTemplates: Codable {
                 
                 public required init(from decoder: Decoder) throws {
                     let c = try decoder.container(keyedBy: Keys.self)
-                    style = try? c.decode(String.self, forKey: .style)
                     name = try c.decode(AttributeId.self, forKey: .name)
-                    visibleTitle = try? c.decode(Bool.self, forKey: .visibleTitle)
-                    canCopy = try? c.decode(Bool.self, forKey: .canCopy)
-                    collapsable = try? c.decode(Collapsable.self, forKey: .collapsable)
+                    
+                    if c.contains(.style) {
+                        do {
+                            style = try c.decode(String.self, forKey: .style)
+                        } catch {
+                            D.error("Failed to decode \(Keys.style) - \(error), setting to null")
+                            style = nil
+                        }
+                    } else {
+                        style = nil
+                    }
+
+                    if c.contains(.visibleTitle) {
+                        do {
+                            visibleTitle = try c.decode(Bool.self, forKey: .visibleTitle)
+                        } catch {
+                            D.error("Failed to decode \(Keys.visibleTitle) - \(error), setting to null")
+                            visibleTitle = nil
+                        }
+                    } else {
+                        visibleTitle = nil
+                    }
+                    
+                    if c.contains(.canCopy) {
+                        do {
+                            canCopy = try c.decode(Bool.self, forKey: .canCopy)
+                        } catch {
+                            D.error("Failed to decode \(Keys.canCopy) - \(error), setting to null")
+                            canCopy = nil
+                        }
+                    } else {
+                        canCopy = nil
+                    }
+                    
+                    if c.contains(.collapsable) {
+                        do {
+                            collapsable = try c.decode(Collapsable.self, forKey: .collapsable)
+                        } catch {
+                            D.error("Failed to decode \(Keys.collapsable) - \(error), setting to null")
+                            collapsable = nil
+                        }
+                    } else {
+                        collapsable = nil
+                    }
                 }
                 
                 public init(style: String?, name: AttributeId, visibleTitle: Bool?, canCopy: Bool?, collapsable: Collapsable?) {

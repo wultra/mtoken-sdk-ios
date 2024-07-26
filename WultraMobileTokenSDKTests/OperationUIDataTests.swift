@@ -227,6 +227,8 @@ class OperationUIDataTests: XCTestCase {
         XCTAssertEqual(uiResult.templates?.detail?.sections?[0].cells?[2].visibleTitle, true)
         XCTAssertEqual(uiResult.templates?.detail?.sections?[0].cells?[2].canCopy, false)
         XCTAssertEqual(uiResult.templates?.detail?.sections?[0].cells?[2].collapsable, .collapsed)
+        
+        XCTAssertEqual(uiResult.templates?.detail?.sections?[0].cells?.count, 3)
     }
     
     
@@ -501,6 +503,9 @@ class OperationUIDataTests: XCTestCase {
                                     "style": null,
                                     "canCopy": false,
                                     "collapsable": "COLLAPSED"
+                                },
+                                {
+                                    "visibleTitle": true
                                 }
                             ]
                         }

@@ -46,11 +46,61 @@ open class WMTOperationUIData: Codable {
     
     public required init(from decoder: Decoder) throws {
         let c = try decoder.container(keyedBy: Keys.self)
-        flipButtons = try? c.decode(Bool.self, forKey: .flipButtons)
-        blockApprovalOnCall = try? c.decode(Bool.self, forKey: .blockApprovalOnCall)
-        preApprovalScreen = try? c.decode(WMTPreApprovalScreen.self, forKey: .preApprovalScreen)
-        postApprovalScreen = try? c.decode(WMTPostApprovalScreenDecodable.self, forKey: .postApprovalScreen).postApprovalObject
-        templates = try? c.decode(WMTTemplates.self, forKey: .templates)
+        
+        if c.contains(.flipButtons) {
+            do {
+                flipButtons = try c.decode(Bool.self, forKey: .flipButtons)
+            } catch {
+                D.error("Failed to decode \(Keys.flipButtons) - \(error), setting to null")
+                flipButtons = nil
+            }
+        } else {
+            flipButtons = nil
+        }
+        
+        if c.contains(.blockApprovalOnCall) {
+            do {
+                blockApprovalOnCall = try c.decode(Bool.self, forKey: .blockApprovalOnCall)
+            } catch {
+                D.error("Failed to decode \(Keys.blockApprovalOnCall) - \(error), setting to null")
+                blockApprovalOnCall = nil
+            }
+        } else {
+            blockApprovalOnCall = nil
+        }
+        
+        if c.contains(.preApprovalScreen) {
+            do {
+                preApprovalScreen = try c.decode(WMTPreApprovalScreen.self, forKey: .preApprovalScreen)
+            } catch {
+                D.error("Failed to decode \(Keys.preApprovalScreen) - \(error), setting to null")
+                preApprovalScreen = nil
+            }
+        } else {
+            preApprovalScreen = nil
+        }
+        
+        if c.contains(.postApprovalScreen) {
+            do {
+                postApprovalScreen = try c.decode(WMTPostApprovalScreenDecodable.self, forKey: .postApprovalScreen).postApprovalObject
+            } catch {
+                D.error("Failed to decode \(Keys.postApprovalScreen) - \(error), setting to null")
+                postApprovalScreen = nil
+            }
+        } else {
+            postApprovalScreen = nil
+        }
+        
+        if c.contains(.templates) {
+            do {
+                templates = try c.decode(WMTTemplates.self, forKey: .templates)
+            } catch {
+                D.error("Failed to decode \(Keys.templates) - \(error), setting to null")
+                templates = nil
+            }
+        } else {
+            templates = nil
+        }
     }
     
     public init(flipButtons: Bool?, blockApprovalOnCall: Bool?, preApprovalScreen: WMTPreApprovalScreen?, postApprovalScreen: WMTPostApprovalScreen?, templates: WMTTemplates? = nil) {
