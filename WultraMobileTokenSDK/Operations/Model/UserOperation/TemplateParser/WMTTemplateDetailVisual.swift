@@ -107,7 +107,7 @@ public struct WMTUserOperationValueAttributeVisualCell: WMTUserOperationVisualCe
     /// The header text value
     public let header: String
     
-    /// The text value preformatted for the cell (if preformatted value isn't suficcient value from attribute can be used)
+    /// The text value preformatted for the cell (if the preformatted value isn't sufficient, the value from the attribute can be used)
     public let defaultFormattedStringValue: String
     
     /// Predefined style of the section cell, app shall react to it and should change the visual of the cell
@@ -164,7 +164,6 @@ public struct WMTUserOperationImageVisualCell: WMTUserOperationVisualCell {
         self.attribute = attribute
         self.cellTemplate = cellTemplate
     }
-
 }
 
 // MARK: WMTUserOperation Detail Visual preparation extension
@@ -174,18 +173,14 @@ extension WMTUserOperation {
 
         // If templates don't contain detail return default header from `WMTOperationFormData`
         guard let detailTemplate = self.ui?.templates?.detail else {
-            let attrs = self.formData.attributes
-            if attrs.isEmpty {
-                return WMTTemplateDetailVisual(sections: [createDefaultHeaderVisual()])
-            } else {
-                let headerSection = createDefaultHeaderVisual()
-                let dataSections: WMTUserOperationVisualSection = .init(cells: attrs.getRemainingCells())
-                
-                return WMTTemplateDetailVisual(sections: [headerSection, dataSections])
+            var sections = [createDefaultHeaderVisual()]
+            if formData.attributes.isEmpty == false {
+                sections.append(.init(cells: formData.attributes.getRemainingCells()))
             }
+            return WMTTemplateDetailVisual(sections: sections)
         }
         
-        return createTemplateRichData(from: detailTemplate)
+        return createDetailVisual(from: detailTemplate)
     }
     
     // Default header visual
@@ -201,7 +196,7 @@ extension WMTUserOperation {
     }
     
     // Creates WMTTemplateDetailVisual which contains cells divided in sections
-    private func createTemplateRichData(from detailTemplate: WMTTemplates.DetailTemplate) -> WMTTemplateDetailVisual {
+    private func createDetailVisual(from detailTemplate: WMTTemplates.DetailTemplate) -> WMTTemplateDetailVisual {
         var attrs = self.formData.attributes
         
         guard let sectionsTemplate = detailTemplate.sections else {

@@ -94,12 +94,6 @@ extension WMTUserOperation {
                 return URL(string: imgAttrCell.thumbnailUrl)
             }
 
-            if let imgAttrCell = self.formData.attributes
-                                        .compactMap({ $0 as? WMTOperationAttributeImage })
-                                        .first {
-                return URL(string: imgAttrCell.thumbnailUrl)
-            }
-
             return nil
         }
 
