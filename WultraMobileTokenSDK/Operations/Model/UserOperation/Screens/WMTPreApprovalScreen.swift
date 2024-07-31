@@ -57,25 +57,17 @@ public class WMTPreApprovalScreen: Codable {
         heading = try c.decode(String.self, forKey: .heading)
         message = try c.decode(String.self, forKey: .message)
         
-        if c.contains(.items) {
-            do {
-                items = try c.decode([String].self, forKey: .items)
-            } catch {
-                D.error("Failed to decode \(Keys.items) - \(error), setting to null")
-                items = nil
-            }
-        } else {
+        do {
+            items = try c.decodeIfPresent([String].self, forKey: .items)
+        } catch {
+            D.error("Failed to decode \(Keys.items) - \(error), setting to null")
             items = nil
         }
         
-        if c.contains(.approvalType) {
-            do {
-                approvalType = try c.decode(WMTPreApprovalScreenConfirmAction.self, forKey: .approvalType)
-            } catch {
-                D.error("Failed to decode \(Keys.approvalType) - \(error), setting to null")
-                approvalType = nil
-            }
-        } else {
+        do {
+            approvalType = try c.decodeIfPresent(WMTPreApprovalScreenConfirmAction.self, forKey: .approvalType)
+        } catch {
+            D.error("Failed to decode \(Keys.approvalType) - \(error), setting to null")
             approvalType = nil
         }
     }

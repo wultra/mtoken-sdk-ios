@@ -230,6 +230,9 @@ class OperationUIDataTests: XCTestCase {
         XCTAssertEqual(uiResult.templates?.detail?.sections?[0].cells?[2].collapsable, .collapsed)
         
         XCTAssertEqual(uiResult.templates?.detail?.sections?[0].cells?.count, 3)
+        
+        XCTAssertNil(uiResult.templates?.detail?.sections?[1].cells)
+        XCTAssertNil(uiResult.templates?.detail?.sections?[2].cells)
     }
     
     
@@ -510,6 +513,23 @@ class OperationUIDataTests: XCTestCase {
                                     "visibleTitle": true
                                 }
                             ]
+                        },
+                        {
+                            "style": "FOOTER",
+                            "title": "operation.footer"
+                        },
+                        {
+                            "style": "FOOTER",
+                            "title": "operation.footer",
+                            "cells":
+                                {
+                                    "name": "operation.amount",
+                                    "visibleTitle": false,
+                                    "style": null,
+                                    "canCopy": true,
+                                    "collapsable": "NO",
+                                    "centered": true
+                                }
                         }
                     ]
                 }

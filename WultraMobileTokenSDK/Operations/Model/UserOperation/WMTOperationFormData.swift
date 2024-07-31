@@ -45,14 +45,10 @@ public class WMTOperationFormData: Codable {
         title = try c.decode(String.self, forKey: .title)
         message = try c.decode(String.self, forKey: .message)
         
-        if c.contains(.resultTexts) {
-            do {
-                resultTexts = try c.decode(WMTResultTexts.self, forKey: .resultTexts)
-            } catch {
-                D.error("Failed to decode \(Keys.resultTexts) - \(error), setting to null")
-                resultTexts = nil
-            }
-        } else {
+        do {
+            resultTexts = try c.decodeIfPresent(WMTResultTexts.self, forKey: .resultTexts)
+        } catch {
+            D.error("Failed to decode \(Keys.resultTexts) - \(error), setting to null")
             resultTexts = nil
         }
         

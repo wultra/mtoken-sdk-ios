@@ -43,14 +43,10 @@ public class WMTOperationAttributeImage: WMTOperationAttribute {
         
         self.thumbnailUrl = try c.decode(String.self, forKey: .thumbnailUrl)
         
-        if c.contains(.originalUrl) {
-            do {
-                originalUrl = try c.decode(String.self, forKey: .originalUrl)
-            } catch {
-                D.error("Failed to decode \(Keys.originalUrl) - \(error), setting to null")
-                originalUrl = nil
-            }
-        } else {
+        do {
+            originalUrl = try c.decodeIfPresent(String.self, forKey: .originalUrl)
+        } catch {
+            D.error("Failed to decode \(Keys.originalUrl) - \(error), setting to null")
             originalUrl = nil
         }
         

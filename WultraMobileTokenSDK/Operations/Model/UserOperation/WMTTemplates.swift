@@ -36,25 +36,17 @@ public class WMTTemplates: Codable {
     public required init(from decoder: Decoder) throws {
         let c = try decoder.container(keyedBy: Keys.self)
         
-        if c.contains(.list) {
-            do {
-                list = try c.decode(ListTemplate.self, forKey: .list)
-            } catch {
-                D.error("Failed to decode \(Keys.list) - \(error), setting to null")
-                list = nil
-            }
-        } else {
+        do {
+            list = try c.decodeIfPresent(ListTemplate.self, forKey: .list)
+        } catch {
+            D.error("Failed to decode \(Keys.list) - \(error), setting to null")
             list = nil
         }
         
-        if c.contains(.detail) {
-            do {
-                detail = try c.decode(DetailTemplate.self, forKey: .detail)
-            } catch {
-                D.error("Failed to decode \(Keys.detail) - \(error), setting to null")
-                detail = nil
-            }
-        } else {
+        do {
+            detail = try c.decodeIfPresent(DetailTemplate.self, forKey: .detail)
+        } catch {
+            D.error("Failed to decode \(Keys.detail) - \(error), setting to null")
             detail = nil
         }
     }
@@ -103,58 +95,38 @@ public class WMTTemplates: Codable {
         public required init(from decoder: any Decoder) throws {
             let c = try decoder.container(keyedBy: Keys.self)
             
-            if c.contains(.style) {
-                do {
-                    style = try c.decode(String.self, forKey: .style)
-                } catch {
-                    D.error("Failed to decode \(Keys.style) - \(error), setting to null")
-                    style = nil
-                }
-            } else {
+            do {
+                style = try c.decodeIfPresent(String.self, forKey: .style)
+            } catch {
+                D.error("Failed to decode \(Keys.style) - \(error), setting to null")
                 style = nil
             }
-            
-            if c.contains(.header) {
-                do {
-                    header = try c.decode(AttributeFormatted.self, forKey: .header)
-                } catch {
-                    D.error("Failed to decode \(Keys.header) - \(error), setting to null")
-                    header = nil
-                }
-            } else {
+        
+            do {
+                header = try c.decodeIfPresent(AttributeFormatted.self, forKey: .header)
+            } catch {
+                D.error("Failed to decode \(Keys.header) - \(error), setting to null")
                 header = nil
             }
-            
-            if c.contains(.title) {
-                do {
-                    title = try c.decode(AttributeFormatted.self, forKey: .title)
-                } catch {
-                    D.error("Failed to decode \(Keys.title) - \(error), setting to null")
-                    title = nil
-                }
-            } else {
+        
+            do {
+                title = try c.decodeIfPresent(AttributeFormatted.self, forKey: .title)
+            } catch {
+                D.error("Failed to decode \(Keys.title) - \(error), setting to null")
                 title = nil
             }
-            
-            if c.contains(.message) {
-                do {
-                    message = try c.decode(AttributeFormatted.self, forKey: .message)
-                } catch {
-                    D.error("Failed to decode \(Keys.message) - \(error), setting to null")
-                    message = nil
-                }
-            } else {
+        
+            do {
+                message = try c.decodeIfPresent(AttributeFormatted.self, forKey: .message)
+            } catch {
+                D.error("Failed to decode \(Keys.message) - \(error), setting to null")
                 message = nil
             }
-            
-            if c.contains(.image) {
-                do {
-                    image = try c.decode(AttributeId.self, forKey: .image)
-                } catch {
-                    D.error("Failed to decode \(Keys.image) - \(error), setting to null")
-                    image = nil
-                }
-            } else {
+        
+            do {
+                image = try c.decodeIfPresent(AttributeId.self, forKey: .image)
+            } catch {
+                D.error("Failed to decode \(Keys.image) - \(error), setting to null")
                 image = nil
             }
         }
@@ -192,36 +164,24 @@ public class WMTTemplates: Codable {
         public required init(from decoder: Decoder) throws {
             let c = try decoder.container(keyedBy: Keys.self)
             
-            if c.contains(.style) {
-                do {
-                    style = try c.decode(String.self, forKey: .style)
-                } catch {
-                    D.error("Failed to decode \(Keys.style) - \(error), setting to null")
-                    style = nil
-                }
-            } else {
+            do {
+                style = try c.decodeIfPresent(String.self, forKey: .style)
+            } catch {
+                D.error("Failed to decode \(Keys.style) - \(error), setting to null")
                 style = nil
             }
             
-            if c.contains(.showTitleAndMessage) {
-                do {
-                    showTitleAndMessage = try c.decode(Bool.self, forKey: .showTitleAndMessage)
-                } catch {
-                    D.error("Failed to decode \(Keys.showTitleAndMessage) - \(error), setting to null")
-                    showTitleAndMessage = nil
-                }
-            } else {
+            do {
+                showTitleAndMessage = try c.decodeIfPresent(Bool.self, forKey: .showTitleAndMessage)
+            } catch {
+                D.error("Failed to decode \(Keys.showTitleAndMessage) - \(error), setting to null")
                 showTitleAndMessage = nil
             }
             
-            if c.contains(.sections) {
-                do {
-                    sections = try c.decode([Section].self, forKey: .sections)
-                } catch {
-                    D.error("Failed to decode \(Keys.sections) - \(error), setting to null")
-                    sections = nil
-                }
-            } else {
+            do {
+                sections = try c.decodeIfPresent([Section].self, forKey: .sections)
+            } catch {
+                D.error("Failed to decode \(Keys.sections) - \(error), setting to null")
                 sections = nil
             }
         }
@@ -253,42 +213,37 @@ public class WMTTemplates: Codable {
             public required init(from decoder: Decoder) throws {
                 let c = try decoder.container(keyedBy: Keys.self)
                 
-                if c.contains(.style) {
-                    do {
-                        style = try c.decode(String.self, forKey: .style)
-                    } catch {
-                        D.error("Failed to decode \(Keys.style) - \(error), setting to null")
-                        style = nil
-                    }
-                } else {
+                do {
+                    style = try c.decodeIfPresent(String.self, forKey: .style)
+                } catch {
+                    D.error("Failed to decode \(Keys.style) - \(error), setting to null")
                     style = nil
                 }
-                
-                if c.contains(.title) {
-                    do {
-                        title = try c.decode(AttributeId.self, forKey: .title)
-                    } catch {
-                        D.error("Failed to decode \(Keys.title) - \(error), setting to null")
-                        title = nil
-                    }
-                } else {
+            
+                do {
+                    title = try c.decodeIfPresent(AttributeId.self, forKey: .title)
+                } catch {
+                    D.error("Failed to decode \(Keys.title) - \(error), setting to null")
                     title = nil
                 }
                 
                 if c.contains(.cells) {
                     var decodedCells: [Cell] = []
-
-                    var nestedContainer = try c.nestedUnkeyedContainer(forKey: .cells)
-                    while nestedContainer.isAtEnd == false {
-                        do {
-                            let cell = try Cell(from: nestedContainer.superDecoder())
-                            decodedCells.append(cell)
-                        } catch {
-                            D.error("Failed to decode \(Keys.cells) - \(error), setting to null")
+                    do {
+                        var nestedContainer = try c.nestedUnkeyedContainer(forKey: .cells)
+                        while nestedContainer.isAtEnd == false {
+                            do {
+                                let cell = try Cell(from: nestedContainer.superDecoder())
+                                decodedCells.append(cell)
+                            } catch {
+                                D.error("Failed to decode \(Keys.cells) - \(error), setting to null")
+                            }
                         }
+                        cells = decodedCells
+                    } catch {
+                        D.error("Failed to decode nested container for \(Keys.cells) - \(error), setting to null")
+                        cells = nil
                     }
-
-                    cells = decodedCells
                 } else {
                     cells = nil
                 }
@@ -342,58 +297,38 @@ public class WMTTemplates: Codable {
                     let c = try decoder.container(keyedBy: Keys.self)
                     name = try c.decode(AttributeId.self, forKey: .name)
                     
-                    if c.contains(.style) {
-                        do {
-                            style = try c.decode(String.self, forKey: .style)
-                        } catch {
-                            D.error("Failed to decode \(Keys.style) - \(error), setting to null")
-                            style = nil
-                        }
-                    } else {
+                    do {
+                        style = try c.decodeIfPresent(String.self, forKey: .style)
+                    } catch {
+                        D.error("Failed to decode \(Keys.style) - \(error), setting to null")
                         style = nil
                     }
-
-                    if c.contains(.visibleTitle) {
-                        do {
-                            visibleTitle = try c.decode(Bool.self, forKey: .visibleTitle)
-                        } catch {
-                            D.error("Failed to decode \(Keys.visibleTitle) - \(error), setting to null")
-                            visibleTitle = nil
-                        }
-                    } else {
+                
+                    do {
+                        visibleTitle = try c.decodeIfPresent(Bool.self, forKey: .visibleTitle)
+                    } catch {
+                        D.error("Failed to decode \(Keys.visibleTitle) - \(error), setting to null")
                         visibleTitle = nil
                     }
-                    
-                    if c.contains(.canCopy) {
-                        do {
-                            canCopy = try c.decode(Bool.self, forKey: .canCopy)
-                        } catch {
-                            D.error("Failed to decode \(Keys.canCopy) - \(error), setting to null")
-                            canCopy = nil
-                        }
-                    } else {
+                
+                    do {
+                        canCopy = try c.decodeIfPresent(Bool.self, forKey: .canCopy)
+                    } catch {
+                        D.error("Failed to decode \(Keys.canCopy) - \(error), setting to null")
                         canCopy = nil
                     }
-                    
-                    if c.contains(.collapsable) {
-                        do {
-                            collapsable = try c.decode(Collapsable.self, forKey: .collapsable)
-                        } catch {
-                            D.error("Failed to decode \(Keys.collapsable) - \(error), setting to null")
-                            collapsable = nil
-                        }
-                    } else {
+                
+                    do {
+                        collapsable = try c.decodeIfPresent(Collapsable.self, forKey: .collapsable)
+                    } catch {
+                        D.error("Failed to decode \(Keys.collapsable) - \(error), setting to null")
                         collapsable = nil
                     }
-                    
-                    if c.contains(.centered) {
-                        do {
-                            centered = try c.decode(Bool.self, forKey: .centered)
-                        } catch {
-                            D.error("Failed to decode \(Keys.centered) - \(error), setting to null")
-                            centered = nil
-                        }
-                    } else {
+                
+                    do {
+                        centered = try c.decodeIfPresent(Bool.self, forKey: .centered)
+                    } catch {
+                        D.error("Failed to decode \(Keys.centered) - \(error), setting to null")
                         centered = nil
                     }
                 }

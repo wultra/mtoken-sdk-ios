@@ -30,17 +30,12 @@ public class WMTOperationListResponse<T: WMTUserOperation>: WPNResponseArray<T> 
         
         let c = try decoder.container(keyedBy: Keys.self)
         
-        if c.contains(.currentTimestamp) {
-            do {
-                currentTimestamp = try c.decode(Date.self, forKey: .currentTimestamp)
-            } catch {
-                D.error("Failed to decode \(Keys.currentTimestamp) - \(error), setting to null")
-                currentTimestamp = nil
-            }
-        } else {
+        do {
+            currentTimestamp = try c.decodeIfPresent(Date.self, forKey: .currentTimestamp)
+        } catch {
+            D.error("Failed to decode \(Keys.currentTimestamp) - \(error), setting to null")
             currentTimestamp = nil
         }
-        
         try super.init(from: decoder)
     }
     
