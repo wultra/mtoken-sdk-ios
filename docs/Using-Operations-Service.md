@@ -771,7 +771,7 @@ public class WMTTemplates: Codable {
     /// The template how the operation should look like in the list of operations
     let list: ListTemplate?
     
-    /// The template for how the operation data should look like
+    /// How the operation detail should look like when viewed individually.
     let detail: DetailTemplate? 
 }
 ```
@@ -794,7 +794,7 @@ public class ListTemplate: Codable {
     let message: AttributeName?
     
     /// Attribute which will be used for the image
-    let image: AttributeName?
+    let image: AttributeId?
 }
 
 public class DetailTemplate: Codable {
@@ -802,8 +802,8 @@ public class DetailTemplate: Codable {
     /// Predefined style name that can be processed by the app to customize the overall look of the operation.
     let style: String?
     
-    /// Indicates if the header should be created from form data (title, message, image) or customized for a specific operation
-    let automaticHeaderSection: Bool?
+    /// Indicates if the header should be created from form data (title, message) or customized for a specific operation
+    let showTitleAndMessage: Bool?
     
     /// Sections of the operation data.
     let sections: [Section]?
@@ -837,6 +837,9 @@ public class DetailTemplate: Codable {
             
             /// Define if the cell should be collapsable
             let collapsable: Collapsable?
+            
+            /// If value should be centered
+            let centered: Bool?
             
             public enum Collapsable: String, Codable {
                 /// The cell should not be collapsable

@@ -24,7 +24,7 @@ public class WMTTemplates: Codable {
     /// How the operation should look like in the list of operations
     public let list: ListTemplate?
     
-    /// How the operation detail should look like
+    /// How the operation detail should look like when viewed individually.
     public let detail: DetailTemplate?
     
     // MARK: - Internals
@@ -149,7 +149,7 @@ public class WMTTemplates: Codable {
         /// Predefined style name that can be processed by the app to customize the overall look of the operation.
         public let style: String?
         
-        /// Indicates if the header should be created from form data (title, message, image) or customized for a specific operation
+        /// Indicates if the header should be created from form data (title, message) or customized for a specific operation
         public let showTitleAndMessage: Bool?
         
         /// Sections of the operation data.
