@@ -19,10 +19,14 @@ import Foundation
 /// This holds the visual data for displaying a detailed view of a user operation.
 public struct WMTTemplateDetailVisual {
     
+    /// Predefined style of the whole operation detail to which the app can react and adjust the operation visual
+    public let style: String?
+    
     /// An array of `WMTUserOperationVisualSection` defining the sections of the detailed view.
     public let sections: [WMTUserOperationVisualSection]
     
-    public init(sections: [WMTUserOperationVisualSection]) {
+    public init(style: String?, sections: [WMTUserOperationVisualSection]) {
+        self.style = style
         self.sections = sections
     }
 }
@@ -36,7 +40,7 @@ public struct WMTUserOperationVisualSection {
     /// The title value for the section
     public let title: String?
     
-    /// An array of  cells with `WMTOperationFormData` header and message or visual cells based on `WMTOperationAttributes`
+    /// An array of cells with `WMTOperationFormData` header and message or visual cells based on `WMTOperationAttributes`
     public let cells: [WMTUserOperationVisualCell]
     
     public init(style: String? = nil, title: String? = nil, cells: [WMTUserOperationVisualCell]) {
@@ -103,6 +107,7 @@ public struct WMTUserOperationHeadingVisualCell: WMTUserOperationVisualCell {
     }
 }
 
+/// `WMTUserOperationValueAttributeVisualCell` defines a key-value cell in a user operation's detailed view.
 public struct WMTUserOperationValueAttributeVisualCell: WMTUserOperationVisualCell {
     /// The header text value
     public let header: String
@@ -177,19 +182,19 @@ extension WMTUserOperation {
             if formData.attributes.isEmpty == false {
                 sections.append(.init(cells: formData.attributes.getRemainingCells()))
             }
-            return WMTTemplateDetailVisual(sections: sections)
+            return WMTTemplateDetailVisual(style: nil, sections: sections)
         }
         
         return createDetailVisual(from: detailTemplate)
     }
     
     // Default header visual
-    private func createDefaultHeaderVisual(style: String? = nil) -> WMTUserOperationVisualSection {
+    private func createDefaultHeaderVisual() -> WMTUserOperationVisualSection {
         let defaultHeaderCell = WMTUserOperationHeaderVisualCell(value: self.formData.title)
         let defaultMessageCell = WMTUserOperationMessageVisualCell(value: self.formData.message)
         
         return WMTUserOperationVisualSection(
-            style: style,
+            style: nil,
             title: nil,
             cells: [defaultHeaderCell, defaultMessageCell]
         )
@@ -201,10 +206,10 @@ extension WMTUserOperation {
         
         guard let sectionsTemplate = detailTemplate.sections else {
             // Sections not specified, but style might be
-            let headerSection = createDefaultHeaderVisual(style: detailTemplate.style)
+            let headerSection = createDefaultHeaderVisual()
             let dataSections: WMTUserOperationVisualSection = .init(cells: attrs.getRemainingCells())
             
-            return WMTTemplateDetailVisual(sections: [headerSection, dataSections])
+            return WMTTemplateDetailVisual(style: detailTemplate.style, sections: [headerSection, dataSections])
         }
         
         var sections = [WMTUserOperationVisualSection]()
@@ -216,14 +221,14 @@ extension WMTUserOperation {
             let dataSections = attrs.popCells(from: sectionsTemplate)
             sections.append(contentsOf: dataSections)
             sections.append(.init(cells: attrs.getRemainingCells()))
-            return .init(sections: sections)
+            return .init(style: detailTemplate.style, sections: sections)
         } else {
-            let headerSection = createDefaultHeaderVisual(style: detailTemplate.style)
+            let headerSection = createDefaultHeaderVisual()
             let dataSection = attrs.popCells(from: sectionsTemplate)
             sections.append(headerSection)
             sections.append(contentsOf: dataSection)
             sections.append(.init(cells: attrs.getRemainingCells()))
-            return .init(sections: sections)
+            return .init(style: detailTemplate.style, sections: sections)
         }
     }
 }
