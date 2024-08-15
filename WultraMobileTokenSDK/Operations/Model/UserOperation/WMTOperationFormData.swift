@@ -44,7 +44,13 @@ public class WMTOperationFormData: Codable {
         let c = try decoder.container(keyedBy: Keys.self)
         title = try c.decode(String.self, forKey: .title)
         message = try c.decode(String.self, forKey: .message)
-        resultTexts = try? c.decode(WMTResultTexts.self, forKey: .resultTexts)
+        
+        do {
+            resultTexts = try c.decodeIfPresent(WMTResultTexts.self, forKey: .resultTexts)
+        } catch {
+            D.error("Failed to decode \(Keys.resultTexts) - \(error), setting to null")
+            resultTexts = nil
+        }
         
         var operationAttributes: [WMTOperationAttribute] = []
         do {

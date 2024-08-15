@@ -193,6 +193,48 @@ class OperationUIDataTests: XCTestCase {
         XCTAssertEqual(resultAttributeLabel?.value, uiAttributeLabel?.value)
     }
     
+    func testTemplates() {
+        guard let uiResult = prepareUIData(response: uiDataWithTemplates) else {
+            XCTFail("Failed to parse JSON data")
+            return
+        }
+        
+        XCTAssertEqual(uiResult.templates?.list?.style, "POSITIVE")
+        XCTAssertEqual(uiResult.templates?.list?.header, "${operation.request_no} Withdrawal Initiation")
+        XCTAssertEqual(uiResult.templates?.list?.title, "${operation.account} · ${operation.enterprise}")
+        XCTAssertEqual(uiResult.templates?.list?.message, "${operation.tx_amount}")
+        XCTAssertEqual(uiResult.templates?.list?.image, "operation.image")
+        
+        XCTAssertEqual(uiResult.templates?.detail?.style, nil)
+        XCTAssertEqual(uiResult.templates?.detail?.showTitleAndMessage, false)
+        
+        XCTAssertEqual(uiResult.templates?.detail?.sections?[0].style, "MONEY")
+        XCTAssertEqual(uiResult.templates?.detail?.sections?[0].title, "operation.money.header")
+        XCTAssertEqual(uiResult.templates?.detail?.sections?[0].cells?[0].style, nil)
+        XCTAssertEqual(uiResult.templates?.detail?.sections?[0].cells?[0].name, "operation.amount")
+        XCTAssertEqual(uiResult.templates?.detail?.sections?[0].cells?[0].centered, true)
+        XCTAssertEqual(uiResult.templates?.detail?.sections?[0].cells?[0].visibleTitle, false)
+        XCTAssertEqual(uiResult.templates?.detail?.sections?[0].cells?[0].canCopy, true)
+        XCTAssertEqual(uiResult.templates?.detail?.sections?[0].cells?[0].collapsable, .no)
+        
+        XCTAssertEqual(uiResult.templates?.detail?.sections?[0].cells?[1].style, "CONVERSION")
+        XCTAssertEqual(uiResult.templates?.detail?.sections?[0].cells?[1].name, "operation.conversion")
+        XCTAssertEqual(uiResult.templates?.detail?.sections?[0].cells?[1].visibleTitle, nil)
+        XCTAssertEqual(uiResult.templates?.detail?.sections?[0].cells?[1].canCopy, true)
+        XCTAssertEqual(uiResult.templates?.detail?.sections?[0].cells?[1].collapsable, .no)
+        
+        XCTAssertEqual(uiResult.templates?.detail?.sections?[0].cells?[2].style, nil)
+        XCTAssertEqual(uiResult.templates?.detail?.sections?[0].cells?[2].name, "operation.conversion2")
+        XCTAssertEqual(uiResult.templates?.detail?.sections?[0].cells?[2].visibleTitle, true)
+        XCTAssertEqual(uiResult.templates?.detail?.sections?[0].cells?[2].canCopy, false)
+        XCTAssertEqual(uiResult.templates?.detail?.sections?[0].cells?[2].collapsable, .collapsed)
+        
+        XCTAssertEqual(uiResult.templates?.detail?.sections?[0].cells?.count, 3)
+        
+        XCTAssertNil(uiResult.templates?.detail?.sections?[1].cells)
+        XCTAssertNil(uiResult.templates?.detail?.sections?[2].cells)
+    }
+    
     
     // MARK: Helpers
     private func prepareResult(response: String) -> WMTUserOperation? {
@@ -202,6 +244,11 @@ class OperationUIDataTests: XCTestCase {
     
     private func prepareGenericPostApproval(response: String) -> WMTPostApprovalScreenGeneric? {
         let result = try? jsonDecoder.decode(WMTPostApprovalScreenGeneric.self, from: response.data(using: .utf8)!)
+        return result
+    }
+        
+    private func prepareUIData(response: String) -> WMTOperationUIData? {
+        let result = try? jsonDecoder.decode(WMTOperationUIData.self, from: response.data(using: .utf8)!)
         return result
     }
     
@@ -417,6 +464,77 @@ class OperationUIDataTests: XCTestCase {
             }
         }
     }
+    """
+    }()
+    
+    private let uiDataWithTemplates: String = {
+    """
+        {
+            "flipButtons": false,
+            "blockApprovalOnCall": true,
+            "templates": {
+                "list": {
+                    "style": "POSITIVE",
+                    "header": "${operation.request_no} Withdrawal Initiation",
+                    "message": "${operation.tx_amount}",
+                    "title": "${operation.account} · ${operation.enterprise}",
+                    "image": "operation.image"
+                },
+                "detail": {
+                    "style": null,
+                    "showTitleAndMessage": false,
+                    "sections": [
+                        {
+                            "style": "MONEY",
+                            "title": "operation.money.header",
+                            "cells": [
+                                {
+                                    "name": "operation.amount",
+                                    "visibleTitle": false,
+                                    "style": null,
+                                    "canCopy": true,
+                                    "collapsable": "NO",
+                                    "centered": true
+                                },
+                                {
+                                    "style": "CONVERSION",
+                                    "name": "operation.conversion",
+                                    "canCopy": true,
+                                    "collapsable": "NO"
+                                },
+                                {
+                                    "name": "operation.conversion2",
+                                    "visibleTitle": true,
+                                    "style": null,
+                                    "canCopy": false,
+                                    "collapsable": "COLLAPSED"
+                                },
+                                {
+                                    "visibleTitle": true
+                                }
+                            ]
+                        },
+                        {
+                            "style": "FOOTER",
+                            "title": "operation.footer"
+                        },
+                        {
+                            "style": "FOOTER",
+                            "title": "operation.footer",
+                            "cells":
+                                {
+                                    "name": "operation.amount",
+                                    "visibleTitle": false,
+                                    "style": null,
+                                    "canCopy": true,
+                                    "collapsable": "NO",
+                                    "centered": true
+                                }
+                        }
+                    ]
+                }
+            }
+        }
     """
     }()
 }

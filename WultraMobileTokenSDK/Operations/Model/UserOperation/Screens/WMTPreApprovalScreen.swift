@@ -56,8 +56,20 @@ public class WMTPreApprovalScreen: Codable {
         type = ScreenType(rawValue: t) ?? .unknown
         heading = try c.decode(String.self, forKey: .heading)
         message = try c.decode(String.self, forKey: .message)
-        items = try? c.decode([String].self, forKey: .items)
-        approvalType = try? c.decode(WMTPreApprovalScreenConfirmAction.self, forKey: .approvalType)
+        
+        do {
+            items = try c.decodeIfPresent([String].self, forKey: .items)
+        } catch {
+            D.error("Failed to decode \(Keys.items) - \(error), setting to null")
+            items = nil
+        }
+        
+        do {
+            approvalType = try c.decodeIfPresent(WMTPreApprovalScreenConfirmAction.self, forKey: .approvalType)
+        } catch {
+            D.error("Failed to decode \(Keys.approvalType) - \(error), setting to null")
+            approvalType = nil
+        }
     }
     
     public init(type: ScreenType, heading: String, message: String, items: [String]? = nil, approvalType: WMTPreApprovalScreenConfirmAction?) {

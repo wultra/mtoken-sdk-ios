@@ -16,6 +16,8 @@
 - [WMTUserOperation](#wmtuseroperation)
 - [Creating a Custom Operation](#creating-a-custom-operation)
 - [WMTProximityCheck](#wmtproximitycheck)
+- [WMTTemplates](#wmttemplates)
+- [WMTTemplateVisualParser](#wmttemplatevisualparser)
 - [Error handling](#error-handling)
 
 ## Introduction
@@ -594,6 +596,11 @@ open class WMTOperationUIData: Codable {
     ///
     /// Type of PostApprovalScrren is presented with different classes (Starting with `WMTPostApprovalScreen*`)
     public let postApprovalScreen: WMTPostApprovalScreen?
+    
+    /// Detailed information about displaying the operation data
+    ///
+    /// Contains prearranged styles for the operation attributes for the app to display
+    public let templates: WMTTemplates?
 }
 ```
 
@@ -749,6 +756,207 @@ public struct WMTPACData: Decodable {
   
 - Accepted formats:
   - notice that totp key in JWT and in query shall be `potp`!
+
+
+## WMTTemplates
+
+`WMTTemplates` is part of `WMTOperationUIData`.
+`WMTTemplates` class provides detailed information about displaying operation data within the application.
+
+
+`typealias AttributeName = String` is used across the `WMTTemplates`. It explicitly says that the String that will be assigned to properties is actually `WMTOperationAttributes.AttributeLabel.id` and its **value** shall displayed.
+
+Definition of the `WMTTemplates `:
+
+```swift
+public class WMTTemplates: Codable {
+    /// The template how the operation should look like in the list of operations
+    let list: ListTemplate?
+    
+    /// How the operation detail should look like when viewed individually.
+    let detail: DetailTemplate? 
+}
+```
+
+`ListTemplate` and `DetailTemplate` go as follows:
+
+```swift
+public class ListTemplate: Codable {
+    
+    /// Prearranged name which can be processed by the app
+    let style: String?
+    
+    /// Attribute which will be used for the header
+    let header: AttributeName?
+    
+    /// Attribute which will be used for the title
+    let title: AttributeName?
+    
+    /// Attribute which will be used for the message
+    let message: AttributeName?
+    
+    /// Attribute which will be used for the image
+    let image: AttributeId?
+}
+
+public class DetailTemplate: Codable {
+    
+    /// Predefined style name that can be processed by the app to customize the overall look of the operation.
+    let style: String?
+    
+    /// Indicates if the header should be created from form data (title, message) or customized for a specific operation
+    let showTitleAndMessage: Bool?
+    
+    /// Sections of the operation data.
+    let sections: [Section]?
+    
+    /// Operation data can be divided into sections
+    public class Section: Codable {
+        
+        /// Prearranged name which can be processed by the app to customize the section
+        let style: String?
+        
+        /// Attribute for section title
+        let title: AttributeName?
+        
+        /// Each section can have multiple cells of data
+        let cells: [Cell]?
+        
+        /// Each section can have multiple cells of data
+        public class Cell: Codable {
+            
+            /// Prearranged name which can be processed by the app to customize the cell
+            let style: String?
+            
+            /// Which attribute shall be used
+            let name: AttributeName?
+            
+            /// Should be the title visible or hidden
+            let visibleTitle: Bool?
+            
+            /// Should be the content copyable
+            let canCopy: Bool?
+            
+            /// Define if the cell should be collapsable
+            let collapsable: Collapsable?
+            
+            /// If value should be centered
+            let centered: Bool?
+            
+            public enum Collapsable: String, Codable {
+                /// The cell should not be collapsable
+                case no = "NO"
+                
+                /// The cell should be collapsable and in collapsed state
+                case collapsed = "COLLAPSED"
+                
+                /// The cell should be collapsable and in expanded state
+                case yes = "YES"
+            }
+        }
+    }
+}
+
+```
+
+
+###WMTTemplateVisualParser
+
+For convenience we provide a utility class responsible for preparing visual representations of `WMTUserOperation` from received `WMTTemplates`. The parser translates `AttributeNames` from templates and returnes usable Strings values instead. Parser also always returns the source template from which the data was created.
+
+```swift
+public class WMTTemplateVisualParser {
+    
+    /// Prepares the visual representation for the given `WMTUserOperation` in a list.
+    public static func prepareForList(operation: WMTUserOperation) -> WMTTemplateListVisual {
+        return operation.prepareVisualListDetail()
+    }
+    
+    /// Prepares the visual representation for a detail view of the given user operation.
+    public static func prepareForDetail(operation: WMTUserOperation) -> WMTTemplateDetailVisual {
+        return operation.prepareVisualDetail()
+    }
+}
+
+```
+
+
+#### WMTTemplateListVisual
+
+`WMTTemplateListVisual` holds the visual data for displaying a `WMTUserOperation` in a list.
+
+```swift
+public struct TemplateListVisual(
+
+    /// The header of the cell
+    public let header: String?
+
+    /// The title of the cell
+    public let title: String?
+    
+    /// The message (subtitle) of the cell
+    public let message: String?
+    
+    /// Predefined style of the cell on which the implementation can react
+    public let style: String?
+    
+    /// URL of the cell thumbnail
+    public let thumbnailImageURL: URL?
+    
+    /// Complete template from which the WMTTemplateListVisual was created
+    public let template: WMTTemplates.ListTemplate?
+
+)
+```
+
+#### WMTTemplateDetailVisual
+
+`WMTTemplateDetailVisual` holds the visual data for displaying a detailed view of a `WMTUserOperation`. It contains style to which the app can react and adjust the operation style. It also contains list of `WMTUserOperationVisualSection `. 
+
+```kotlin
+data class TemplateDetailVisual(
+
+    /** Predefined style of the whole operation detail to which the app can react and adjust the operation visual */
+    val style: String?,
+
+    /** An array of `UserOperationVisualSection` defining the sections of the detailed view. */
+    val sections: List<UserOperationVisualSection>
+)
+```
+
+Sections contain style, title and cells properties.
+
+```swift
+public struct WMTUserOperationVisualSection {
+    
+    /// Predefined style of the section to which the app can react and adjust the operation visual
+    public let style: String?
+    
+    /// The title value for the section
+    public let title: String?
+    
+    /// An array of cells with `WMTOperationFormData` header and message or visual cells based on `WMTOperationAttributes`
+    public let cells: [WMTUserOperationVisualCell]
+)
+```
+
+`WMTUserOperationVisualCell ` is the basic building block of the UserOperation. We differentiate between 5 different cell types:
+<ol>
+  <li>`WMTUserOperationHeaderVisualCell` - is a header in a user operation's detail header view.</li>
+  - it is created from UserOperation FormData title
+  <li>`WMTUserOperationMessageVisualCell` - is a message cell in a user operation's header view.</li>
+  - it is created from UserOperation FormData message
+  <li>`WMTUserOperationHeadingVisualCell` - is a heading ("section separator") cell in a user operation's detailed view.</li>
+  - it is created from `HEADING` FormData attribute
+  <li>`WMTUserOperationImageVisualCell` -  is an image cell in a user operation's detailed view.</li>
+  - it is created from `IMAGE` FormData attribute
+  <li>`WMTUserOperationValueAttributeVisualCell` - is value attribute cell in a user operation's detailed view.</li>
+  - it is created from the remaining (`AMOUNT`, `AMOUNT_CONVERSION `, `KEY_VALUE`, `NOTE`) FormData attribute
+</ol>
+
+> [!WARNING]
+> At this moment `PARTY_INFO` & `UNKNOWN` attributes are not supported
+
          
 ## Error handling
 

@@ -42,7 +42,13 @@ public class WMTOperationAttributeImage: WMTOperationAttribute {
         let c = try decoder.container(keyedBy: Keys.self)
         
         self.thumbnailUrl = try c.decode(String.self, forKey: .thumbnailUrl)
-        self.originalUrl = try? c.decode(String.self, forKey: .originalUrl)
+        
+        do {
+            originalUrl = try c.decodeIfPresent(String.self, forKey: .originalUrl)
+        } catch {
+            D.error("Failed to decode \(Keys.originalUrl) - \(error), setting to null")
+            originalUrl = nil
+        }
         
         try super.init(from: decoder)
     }

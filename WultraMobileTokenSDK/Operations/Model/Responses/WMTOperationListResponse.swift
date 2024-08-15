@@ -29,8 +29,13 @@ public class WMTOperationListResponse<T: WMTUserOperation>: WPNResponseArray<T> 
     public required init(from decoder: Decoder) throws {
         
         let c = try decoder.container(keyedBy: Keys.self)
-        currentTimestamp = try? c.decode(Date.self, forKey: Keys.currentTimestamp)
         
+        do {
+            currentTimestamp = try c.decodeIfPresent(Date.self, forKey: .currentTimestamp)
+        } catch {
+            D.error("Failed to decode \(Keys.currentTimestamp) - \(error), setting to null")
+            currentTimestamp = nil
+        }
         try super.init(from: decoder)
     }
     

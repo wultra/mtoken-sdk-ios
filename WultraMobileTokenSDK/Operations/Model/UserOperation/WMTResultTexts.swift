@@ -38,9 +38,27 @@ public class WMTResultTexts: Codable {
     
     public required init(from decoder: Decoder) throws {
         let c = try decoder.container(keyedBy: Keys.self)
-        success = try? c.decode(String.self, forKey: .success)
-        failure = try? c.decode(String.self, forKey: .failure)
-        reject = try? c.decode(String.self, forKey: .reject)
+        
+        do {
+            success = try c.decodeIfPresent(String.self, forKey: .success)
+        } catch {
+            D.error("Failed to decode \(Keys.success) - \(error), setting to null")
+            success = nil
+        }
+        
+        do {
+            failure = try c.decodeIfPresent(String.self, forKey: .failure)
+        } catch {
+            D.error("Failed to decode \(Keys.failure) - \(error), setting to null")
+            failure = nil
+        }
+        
+        do {
+            reject = try c.decodeIfPresent(String.self, forKey: .reject)
+        } catch {
+            D.error("Failed to decode \(Keys.reject) - \(error), setting to null")
+            reject = nil
+        }
     }
     
     public init(success: String?, failure: String?, reject: String?) {
