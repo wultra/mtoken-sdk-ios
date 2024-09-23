@@ -61,7 +61,6 @@
 		DCC5CCD8244DBBBD004679AC /* WMTAuthorizationData.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCC5CCD7244DBBBD004679AC /* WMTAuthorizationData.swift */; };
 		DCC5CCDA244DBBE2004679AC /* WMTRejectionData.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCC5CCD9244DBBE2004679AC /* WMTRejectionData.swift */; };
 		DCD8B336246C1BAF00385F02 /* WMTRejectionReason.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCD8B335246C1BAF00385F02 /* WMTRejectionReason.swift */; };
-		DCE5EAB026BD81150061861A /* WMTOperationHistoryEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCE5EAAF26BD81150061861A /* WMTOperationHistoryEntry.swift */; };
 		DCE660D124CEBECA00870E53 /* IntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCE660D024CEBECA00870E53 /* IntegrationTests.swift */; };
 		DCE660D324CEF56400870E53 /* IntegrationProxy.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCE660D224CEF56400870E53 /* IntegrationProxy.swift */; };
 		EA294F3D29F6A07A00A0494E /* WMTOperationUIData.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA294F3C29F6A07A00A0494E /* WMTOperationUIData.swift */; };
@@ -149,7 +148,6 @@
 		DCC5CCD7244DBBBD004679AC /* WMTAuthorizationData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTAuthorizationData.swift; sourceTree = "<group>"; };
 		DCC5CCD9244DBBE2004679AC /* WMTRejectionData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTRejectionData.swift; sourceTree = "<group>"; };
 		DCD8B335246C1BAF00385F02 /* WMTRejectionReason.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTRejectionReason.swift; sourceTree = "<group>"; };
-		DCE5EAAF26BD81150061861A /* WMTOperationHistoryEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTOperationHistoryEntry.swift; sourceTree = "<group>"; };
 		DCE660D024CEBECA00870E53 /* IntegrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntegrationTests.swift; sourceTree = "<group>"; };
 		DCE660D224CEF56400870E53 /* IntegrationProxy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntegrationProxy.swift; sourceTree = "<group>"; };
 		EA294F3C29F6A07A00A0494E /* WMTOperationUIData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTOperationUIData.swift; sourceTree = "<group>"; };
@@ -231,7 +229,6 @@
 				DCC5CCAD2449F7AC004679AC /* WMTUserOperation.swift */,
 				DCC5CCB02449F81C004679AC /* WMTOperationFormData.swift */,
 				DC8CB205244DD007009DDAA3 /* WMTAllowedOperationSignature.swift */,
-				DCE5EAAF26BD81150061861A /* WMTOperationHistoryEntry.swift */,
 				EA294F3C29F6A07A00A0494E /* WMTOperationUIData.swift */,
 				EA9CE2BD2AEAA9FD00FE4E35 /* WMTProximityCheck.swift */,
 				EA74F7B22C2561BB004340B9 /* WMTResultTexts.swift */,
@@ -646,7 +643,6 @@
 				DC8CB206244DD007009DDAA3 /* WMTAllowedOperationSignature.swift in Sources */,
 				DCC3420424E3DB310045D27D /* WMTPushParser.swift in Sources */,
 				BFEEB20529379C700047941D /* WMTInboxGetMessageDetail.swift in Sources */,
-				DCE5EAB026BD81150061861A /* WMTOperationHistoryEntry.swift in Sources */,
 				EACAF7B02A126B7D0021CA54 /* WMTJsonValue.swift in Sources */,
 				DCAB7BCA24580BAC0006989D /* WMTQROperation.swift in Sources */,
 				DCC5CCBF2449F981004679AC /* WMTOperationAttributePartyInfo.swift in Sources */,

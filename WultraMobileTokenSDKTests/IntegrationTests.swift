@@ -186,8 +186,8 @@ class IntegrationTests: XCTestCase {
                         _ = self.ops.getHistory(authentication: auth) { result in
                             switch result {
                             case .success(let ops):
-                                if let opFromList = ops.first(where: { $0.operation.id == op.operationId }) {
-                                    XCTAssertEqual(opFromList.operation.statusReason, cancelReason, "statusReason and cancelReason must be the same")
+                                if let opFromList = ops.first(where: { $0.id == op.operationId }) {
+                                    XCTAssertEqual(opFromList.statusReason, cancelReason, "statusReason and cancelReason must be the same")
                                 } else {
                                     XCTFail("Created operation was not in the history")
                                 }
@@ -475,7 +475,7 @@ class IntegrationTests: XCTestCase {
             self.ops.getHistory(authentication: auth) { result in
                 switch result {
                 case .success(let ops):
-                    if let opFromList = ops.first(where: { $0.operation.id == op.operationId }) {
+                    if let opFromList = ops.first(where: { $0.id == op.operationId }) {
                         XCTAssertEqual(opFromList.status, .pending)
                     } else {
                         XCTFail("Created operation was not in the history")

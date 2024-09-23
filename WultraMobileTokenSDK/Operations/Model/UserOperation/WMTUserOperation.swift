@@ -66,4 +66,23 @@ open class WMTUserOperation: WMTOperation, Codable {
     ///
     /// Max 32 characters are expected. Possible values depend on the backend implementation and configuration.
     public let statusReason: String?
+    
+    /// Processing status of the operation
+    public let status: Status
+    
+    /// Processing status of the operation
+    public enum Status: String, Codable, CaseIterable {
+        /// Operation was approved
+        case approved = "APPROVED"
+        /// Operation was rejected
+        case rejected = "REJECTED"
+        /// Operation is pending its resolution
+        case pending = "PENDING"
+        /// Operation was canceled
+        case canceled = "CANCELED"
+        /// Operation expired
+        case expired = "EXPIRED"
+        /// Operation failed
+        case failed = "FAILED"
+    }
 }

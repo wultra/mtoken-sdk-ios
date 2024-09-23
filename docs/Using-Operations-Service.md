@@ -276,7 +276,7 @@ func claim(operationId: String) {
 
 ## Operation History
 
-You can retrieve an operation history via the `WMTOperations.getHistory` method. The returned result is operations and their current status.
+You can retrieve an operation history via the `WMTOperations.getHistory` method. The returned result is operations
 
 ```swift
 import WultraMobileTokenSDK
@@ -456,7 +456,7 @@ All available methods and attributes of `WMTOperations` API are:
     - `operation` - An operation to reject, retrieved from `getOperations` call or [created locally](#creating-a-custom-operation).
     - `with` - Rejection reason
     - `completion` - Called when rejection request finishes. Always called on the main thread.
-- `getHistory(authentication: PowerAuthAuthentication, completion: @escaping(Result<[WMTOperationHistoryEntry],WMTError>) -> Void)` - Retrieves operation history
+- `getHistory(authentication: PowerAuthAuthentication, completion: @escaping(Result<[WMTUserOperation],WMTError>) -> Void)` - Retrieves list of operations
   - `authentication` - PowerAuth authentication object for operation signing.
   - `completion` - Called when rejection request finishes. Always called on the main thread.
 - `authorize(qrOperation: WMTQROperation, authentication: PowerAuthAuthentication, completion: @escaping(Result<String, WMTError>) -> Void)` - Sign offline (QR) operation.
@@ -524,6 +524,25 @@ class WMTUserOperation: WMTOperation {
     ///
     /// Max 32 characters are expected. Possible values depend on the backend implementation and configuration.
     public let statusReason: String?
+    
+    /// Processing status of the operation
+    public let status: Status
+    
+    /// Processing status of the operation
+    public enum Status: String, Codable, CaseIterable {
+        /// Operation was approved
+        case approved = "APPROVED"
+        /// Operation was rejected
+        case rejected = "REJECTED"
+        /// Operation is pending its resolution
+        case pending = "PENDING"
+        /// Operation was canceled
+        case canceled = "CANCELED"
+        /// Operation expired
+        case expired = "EXPIRED"
+        /// Operation failed
+        case failed = "FAILED"
+    }
 }
 ```
 

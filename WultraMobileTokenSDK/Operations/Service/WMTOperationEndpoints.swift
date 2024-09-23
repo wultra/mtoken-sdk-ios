@@ -25,7 +25,7 @@ enum WMTOperationEndpoints {
     }
     
     enum History {
-        typealias EndpointType = WPNEndpointSigned<WPNRequestBase, WPNResponseArray<WMTOperationHistoryEntry>>
+        typealias EndpointType = WPNEndpointSigned<WPNRequestBase, WPNResponseArray<WMTUserOperation>>
         static let endpoint: EndpointType = WPNEndpointSigned(endpointURLPath: "/api/auth/token/app/operation/history", uriId: "/operation/history")
     }
     
