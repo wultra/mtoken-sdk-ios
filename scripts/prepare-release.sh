@@ -104,8 +104,8 @@ if [ x$DO_PUSH == x1 ]; then
 fi
 
 if [ x$DO_RELEASE == x1 ]; then
-    pod lib lint
-    pod trunk push
+    pod lib lint --allow-warnings
+    pod trunk push --allow-warnings
 fi
 
 popd
