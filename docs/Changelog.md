@@ -1,11 +1,14 @@
 # Changelog
 
+## 1.12.1 (October 2024)
+
+- Added status to `UserOperation` and removed redundant `OperationHistoryEntry` [(#171)](https://github.com/wultra/mtoken-sdk-ios/pull/171)
+
 ## 1.12.0 (October 2024)
 
 - PowerAuth "server stack" `1.9+` is now required
 - Dependency `powerauth-mobile-sdk` is now required in version `1.9.x`
 - Dependency `networking-apple` is now required in version `1.5.x`
-- Added status to `UserOperation` and removed redundant `OperationHistoryEntry` [(#171)](https://github.com/wultra/mtoken-sdk-ios/pull/171)
 
 ## 1.11.1 (July 2024)
 
