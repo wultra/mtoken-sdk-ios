@@ -29,7 +29,7 @@ An operation can be anything you need to be approved or rejected by the user. It
 Note: Before using Operations Service, you need to have a `PowerAuthSDK` object available and initialized with a valid activation. Without a valid PowerAuth activation, all endpoints will return an error
 <!-- end -->
 
-Operations Service communicates with a backend via [Mobile Token API endpoints](https://github.com/wultra/powerauth-webflow/blob/develop/docs/Mobile-Token-API.md).
+Operations Service communicates with the [Mobile Token API](https://developers.wultra.com/components/enrollment-server/develop/documentation/Mobile-Token-API).
 
 ## Creating an Instance
 
@@ -319,7 +319,7 @@ For more examples refer to `IntegrationTests` in this repository.
 
 ## Off-line Authorization
 
-In case the user is not online, you can use off-line authorizations. In this operation mode, the user needs to scan a QR code, enter a PIN code, or use biometry, and rewrite the resulting code. Wultra provides a special format for [the operation QR codes](https://github.com/wultra/powerauth-webflow/blob/develop/docs/Off-line-Signatures-QR-Code.md), that is automatically processed with the SDK.
+In case the user is not online, you can use off-line authorizations. In this operation mode, the user needs to scan a QR code, enter a PIN code, or use biometrics, and rewrite the resulting code. Wultra provides a special format for [the operation QR codes](https://github.com/wultra/enrollment-server/blob/develop/docs/Offline-Signatures-QR-Code.md), which are automatically processed with the SDK.
 
 ### Processing Scanned QR Operation
 
@@ -764,10 +764,10 @@ public struct WMTPACData: Decodable {
 - two methods are provided:
     - `parseDeeplink(url: URL) -> WMTPACData?` - URI is expected to be in the format `scheme://code=$JWT` or `scheme://operation?oid=5b753d0d-d59a-49b7-bec4-eae258566dbb&potp=12345678`
     - `parseQRCode(code: String) -> WMTPACData?` - code is to be expected in the same format as deeplink formats or as a plain JWT
-    - mentioned JWT should be in the format `{“typ”:”JWT”, “alg”:”none”}.{“oid”:”5b753d0d-d59a-49b7-bec4-eae258566dbb”, “potp”:”12345678”} `
+    - mentioned JWT should be in the format `{"type":"JWT", "alg":"none"}.{"oid":"5b753d0d-d59a-49b7-bec4-eae258566dbb", "potp":"12345678"} `
   
 - Accepted formats:
-  - notice that totp key in JWT and in query shall be `potp`!
+  - notice that the totp key in JWT and query shall be `potp`!
          
 ## Error handling
 

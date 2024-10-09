@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.12.0 (October 2024)
+
+- PowerAuth "server stack" `1.9+` is now required
+- Dependency `powerauth-mobile-sdk` is now required in version `1.9.x`
+- Dependency `networking-apple` is now required in version `1.5.x`
+
 ## 1.11.1 (July 2024)
 
 - Dependency `networking-apple` is now required in version `1.4.x`
