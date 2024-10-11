@@ -226,7 +226,7 @@ class WMTOperationsImpl<T: WMTUserOperation>: WMTOperations, WMTService {
         return task
     }
     
-    func getHistory(authentication: PowerAuthAuthentication, completion: @escaping (Result<[WMTOperationHistoryEntry], WMTError>) -> Void) -> Operation? {
+    func getHistory(authentication: PowerAuthAuthentication, completion: @escaping (Result<[WMTUserOperation], WMTError>) -> Void) -> Operation? {
         
         guard validateActivation(completion) else {
             return nil

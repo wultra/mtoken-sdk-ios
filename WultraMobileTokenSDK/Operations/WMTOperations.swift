@@ -62,7 +62,7 @@ public protocol WMTOperations: AnyObject {
     ///                 This completion is always called on the main thread.
     /// - Returns: Operation object for its state observation.
     @discardableResult
-    func getHistory(authentication: PowerAuthAuthentication, completion: @escaping(Result<[WMTOperationHistoryEntry], WMTError>) -> Void) -> Operation?
+    func getHistory(authentication: PowerAuthAuthentication, completion: @escaping(Result<[WMTUserOperation], WMTError>) -> Void) -> Operation?
     
     /// Retrieves operation detail based on operation ID
     /// - Parameters:
