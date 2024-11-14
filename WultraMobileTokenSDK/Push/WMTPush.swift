@@ -29,11 +29,38 @@ public protocol WMTPush: AnyObject {
     
     /// Registers the current powerauth activation for push notifications.
     ///
+    /// This method is compatible with server stack `1.9.x`
+    ///
     /// - Parameters:
     ///   - token: Push token.
     ///   - completion: Completion handler.
     ///                 This completion is always called on the main thread.
     /// - Returns: Operation object for its state observation.
     @discardableResult
+    @available(*, deprecated, renamed: "register", message: "This method is deprecated since server version 1.10.0. Use register(token:completion:) instead.")
     func registerDeviceTokenForPushNotifications(token: Data, completion: @escaping (Result<Void, WMTError>) -> Void) -> Operation?
+    
+    /// Registers the current powerauth activation for push notifications.
+    ///
+    /// - Parameters:
+    ///   - platform: Platform that you're registering to
+    ///   - completion: Completion handler.
+    ///                 This completion is always called on the main thread.
+    /// - Returns: Operation object for its state observation.
+    @discardableResult
+    func register(to platform: WMTPushPlatform, completion: @escaping (Result<Void, WMTError>) -> Void) -> Operation?
+}
+
+/// Push platform that is used for push notifications
+public enum WMTPushPlatform {
+    
+    /// Apple Push Notification Service - when you're using directly Apple Push Service for push notifications
+    /// - Parameters:
+    ///   - token: APNS push token data retrieved from the system
+    case apns(token: Data)
+    
+    /// Firebase Cloud Messaging - when you're using Firebase to send push notifications
+    /// - Parameters:
+    ///   - token: FCM token retrieved from the Firebase SDK
+    case fcm(token: String)
 }

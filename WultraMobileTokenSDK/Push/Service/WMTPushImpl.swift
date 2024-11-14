@@ -62,6 +62,29 @@ class WMTPushImpl: WMTPush, WMTService {
     
     @discardableResult
     func registerDeviceTokenForPushNotifications(token: Data, completion: @escaping (Result<Void, WMTError>) -> Void) -> Operation? {
+        // ios for backwards compatibility
+        return registerPush(platform: .ios, token: HexadecimalString.encodeData(token), completion: completion)
+    }
+    
+    @discardableResult
+    func register(to platform: WMTPushPlatform, completion: @escaping (Result<Void, WMTError>) -> Void) -> Operation? {
+        
+        let payloadPlatform: WMTPushRegistrationPlatform
+        let payloadToken: String
+        
+        switch platform {
+        case .apns(let data):
+            payloadPlatform = .apns
+            payloadToken = HexadecimalString.encodeData(data)
+        case .fcm(let token):
+            payloadPlatform = .fcm
+            payloadToken = token
+        }
+        
+        return registerPush(platform: payloadPlatform, token: payloadToken, completion: completion)
+    }
+    
+    private func registerPush(platform: WMTPushRegistrationPlatform, token: String, completion: @escaping (Result<Void, WMTError>) -> Void) -> Operation? {
         
         guard validateActivation(completion) else {
             return nil
@@ -77,7 +100,7 @@ class WMTPushImpl: WMTPush, WMTService {
         pendingRegistrationForRemotePushNotifications = true
         pushNotificationsRegisteredOnServer = false
         
-        let data = WMTPushRegistrationData(token: HexadecimalString.encodeData(token))
+        let data = WMTPushRegistrationData(platform: platform, token: token)
         
         return networking.post(data: .init(data), signedWith: .possession(), to: WMTPushEndpoints.RegisterDevice.endpoint) { _, error in
             self.pendingRegistrationForRemotePushNotifications = false

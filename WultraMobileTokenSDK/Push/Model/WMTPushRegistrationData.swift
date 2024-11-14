@@ -18,11 +18,18 @@ import Foundation
 
 class WMTPushRegistrationData: Codable {
     
-    let platform: String
+    let platform: WMTPushRegistrationPlatform
     let token: String
     
-    init(token: String) {
-        self.platform = "ios"
+    init(platform: WMTPushRegistrationPlatform, token: String) {
+        self.platform = platform
         self.token    = token
     }
+}
+
+enum WMTPushRegistrationPlatform: String, Codable {
+    case ios // for backwards compatibility
+    case apns
+    case fcm
+    // case hms - Huawei Messaging Service not available for iOS
 }

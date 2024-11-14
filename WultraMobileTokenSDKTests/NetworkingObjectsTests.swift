@@ -34,11 +34,29 @@ class NetworkingObjectsTests: XCTestCase {
         super.tearDown()
     }
     
-    func testTokenRequest() {
+    func testTokenRequestLegacy() {
         let expectation = """
                           {"requestObject":{"platform":"ios","token":"5FBC85D026945C48A17FE1327C68C77F7793FEBFE23FF5850224BEE4215C5525"}}
                           """
-        let r = WMTPushEndpoints.RegisterDevice.EndpointType.RequestData(WMTPushRegistrationData(token: "5FBC85D026945C48A17FE1327C68C77F7793FEBFE23FF5850224BEE4215C5525"))
+        let r = WMTPushEndpoints.RegisterDevice.EndpointType.RequestData(WMTPushRegistrationData(platform: .ios, token: "5FBC85D026945C48A17FE1327C68C77F7793FEBFE23FF5850224BEE4215C5525"))
+        
+        r.testSerialization(expectation: expectation)
+    }
+    
+    func testTokenRequestApns() {
+        let expectation = """
+                          {"requestObject":{"platform":"apns","token":"5FBC85D026945C48A17FE1327C68C77F7793FEBFE23FF5850224BEE4215C5525"}}
+                          """
+        let r = WMTPushEndpoints.RegisterDevice.EndpointType.RequestData(WMTPushRegistrationData(platform: .apns, token: "5FBC85D026945C48A17FE1327C68C77F7793FEBFE23FF5850224BEE4215C5525"))
+        
+        r.testSerialization(expectation: expectation)
+    }
+    
+    func testTokenRequestFcm() {
+        let expectation = """
+                          {"requestObject":{"platform":"fcm","token":"bk3RNwTe3H0:CI2k_HHwgIpoDKCIZvvDMExUdFQ3P1"}}
+                          """
+        let r = WMTPushEndpoints.RegisterDevice.EndpointType.RequestData(WMTPushRegistrationData(platform: .fcm, token: "bk3RNwTe3H0:CI2k_HHwgIpoDKCIZvvDMExUdFQ3P1"))
         
         r.testSerialization(expectation: expectation)
     }
@@ -206,41 +224,41 @@ class NetworkingObjectsTests: XCTestCase {
         XCTAssertEqual("USD", conversionAttr.target.currencyFormatted)
     }
 
-        func testAmountAndConversionAttributesOnlyFormattedValues() {
-            let json = """
-            {"status":"OK", "currentTimestamp":"2023-02-10T12:30:42+0000", "responseObject":[{"id":"930febe7-f350-419a-8bc0-c8883e7f71e3", "name":"authorize_payment", "status":"PENDING", "data":"A1*A100CZK*Q238400856/0300**D20170629*NUtility Bill Payment - 05/2017", "operationCreated":"2018-08-08T12:30:42+0000", "operationExpires":"2018-08-08T12:35:43+0000", "allowedSignatureType": {"type":"2FA", "variants": ["possession_knowledge", "possession_biometry"]}, "formData": {"title":"Potvrzení platby", "message":"Dobrý den,prosíme o potvrzení následující platby:", "attributes": [{"type":"AMOUNT", "id":"operation.amount", "label":"Částka", "amountFormatted":"965165234082.23", "currencyFormatted":"CZK"}, { "type": "AMOUNT_CONVERSION", "id": "operation.conversion", "label": "Conversion", "dynamic": true, "sourceAmountFormatted": "1.26", "sourceCurrencyFormatted": "ETC", "targetAmountFormatted": "1710.98", "targetCurrencyFormatted": "USD"}]}}]}
-            """.trimmingCharacters(in: .whitespacesAndNewlines)
+    func testAmountAndConversionAttributesOnlyFormattedValues() {
+        let json = """
+        {"status":"OK", "currentTimestamp":"2023-02-10T12:30:42+0000", "responseObject":[{"id":"930febe7-f350-419a-8bc0-c8883e7f71e3", "name":"authorize_payment", "status":"PENDING", "data":"A1*A100CZK*Q238400856/0300**D20170629*NUtility Bill Payment - 05/2017", "operationCreated":"2018-08-08T12:30:42+0000", "operationExpires":"2018-08-08T12:35:43+0000", "allowedSignatureType": {"type":"2FA", "variants": ["possession_knowledge", "possession_biometry"]}, "formData": {"title":"Potvrzení platby", "message":"Dobrý den,prosíme o potvrzení následující platby:", "attributes": [{"type":"AMOUNT", "id":"operation.amount", "label":"Částka", "amountFormatted":"965165234082.23", "currencyFormatted":"CZK"}, { "type": "AMOUNT_CONVERSION", "id": "operation.conversion", "label": "Conversion", "dynamic": true, "sourceAmountFormatted": "1.26", "sourceCurrencyFormatted": "ETC", "targetAmountFormatted": "1710.98", "targetCurrencyFormatted": "USD"}]}}]}
+        """.trimmingCharacters(in: .whitespacesAndNewlines)
 
-            guard let result = try? jsonDecoder.decode(WPNResponseArray<WMTUserOperation>.self, from: json.data(using: .utf8)!) else {
-                XCTFail("Failed to parse JSON data")
-                return
-            }
-
-            guard let amountAttr = result.responseObject?[0].formData.attributes[0] as? WMTOperationAttributeAmount else {
-                XCTFail("amount attribute not recognized")
-                return
-            }
-
-            XCTAssertNil(amountAttr.amount)
-            XCTAssertNil(amountAttr.currency)
-            XCTAssertEqual("965165234082.23", amountAttr.amountFormatted)
-            XCTAssertEqual("CZK", amountAttr.currencyFormatted)
-
-            guard let conversionAttr = result.responseObject?[0].formData.attributes[1] as? WMTOperationAttributeAmountConversion else {
-                XCTFail("conversion attribute not recognized")
-                return
-            }
-
-            XCTAssertNil(conversionAttr.source.amount)
-            XCTAssertNil(conversionAttr.source.currency)
-            XCTAssertNil(conversionAttr.target.amount)
-            XCTAssertNil(conversionAttr.target.currency)
-
-            XCTAssertEqual("1.26", conversionAttr.source.amountFormatted)
-            XCTAssertEqual("ETC", conversionAttr.source.currencyFormatted)
-            XCTAssertEqual("1710.98", conversionAttr.target.amountFormatted)
-            XCTAssertEqual("USD", conversionAttr.target.currencyFormatted)
+        guard let result = try? jsonDecoder.decode(WPNResponseArray<WMTUserOperation>.self, from: json.data(using: .utf8)!) else {
+            XCTFail("Failed to parse JSON data")
+            return
         }
+
+        guard let amountAttr = result.responseObject?[0].formData.attributes[0] as? WMTOperationAttributeAmount else {
+            XCTFail("amount attribute not recognized")
+            return
+        }
+
+        XCTAssertNil(amountAttr.amount)
+        XCTAssertNil(amountAttr.currency)
+        XCTAssertEqual("965165234082.23", amountAttr.amountFormatted)
+        XCTAssertEqual("CZK", amountAttr.currencyFormatted)
+
+        guard let conversionAttr = result.responseObject?[0].formData.attributes[1] as? WMTOperationAttributeAmountConversion else {
+            XCTFail("conversion attribute not recognized")
+            return
+        }
+
+        XCTAssertNil(conversionAttr.source.amount)
+        XCTAssertNil(conversionAttr.source.currency)
+        XCTAssertNil(conversionAttr.target.amount)
+        XCTAssertNil(conversionAttr.target.currency)
+
+        XCTAssertEqual("1.26", conversionAttr.source.amountFormatted)
+        XCTAssertEqual("ETC", conversionAttr.source.currencyFormatted)
+        XCTAssertEqual("1710.98", conversionAttr.target.amountFormatted)
+        XCTAssertEqual("USD", conversionAttr.target.currencyFormatted)
+    }
     
     func testErrorResponse() {
         

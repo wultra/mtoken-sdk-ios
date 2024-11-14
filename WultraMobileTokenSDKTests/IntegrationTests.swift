@@ -30,6 +30,7 @@ class IntegrationTests: XCTestCase {
     private var pa: PowerAuthSDK! { proxy.powerAuth }
     private var ops: WMTOperations! { proxy.operations }
     private var inbox: WMTInbox! { proxy.inbox }
+    private var push: WMTPush! { proxy.push}
     
     private let pin = "1234"
     
@@ -42,7 +43,7 @@ class IntegrationTests: XCTestCase {
         
         // Integration Utils prepares an valid activation and sets is as primary
         // token activation on nextstep server
-        proxy.prepareActivation(pin: pin) { error in
+        proxy.prepareActivation(pin: pin/*, configFileName: "config-stable"*/) { error in
             if let error = error {
                 XCTFail(error)
             }
@@ -767,6 +768,41 @@ class IntegrationTests: XCTestCase {
         }
         // there are 3 backend calls, give it some time...
         waitForExpectations(timeout: 20, handler: nil)
+    }
+    
+    // MARK: - Push
+    
+    func testRegisterPushLegacy() {
+        let expect = expectation(description: "Register push legacy")
+        push.registerDeviceTokenForPushNotifications(token: "testtoken".data(using: .utf8)!) { result in
+            if case .failure(let error) = result {
+                XCTFail("Failed to register push legacy: \(error.description)")
+            }
+            expect.fulfill()
+        }
+        XCTWaiter().wait(for: [expect], timeout: 20)
+    }
+    
+    func testRegisterPushApns() {
+        let expect = expectation(description: "Register push APNS")
+        push.register(to: .apns(token: "testtoken".data(using: .utf8)!)) { result in
+            if case .failure(let error) = result {
+                XCTFail("Failed to register APNS push: \(error)")
+            }
+            expect.fulfill()
+        }
+        XCTWaiter().wait(for: [expect], timeout: 20)
+    }
+    
+    func testRegisterPushFcm() {
+        let expect = expectation(description: "Register push APNS")
+        push.register(to: .fcm(token: "testtoken")) { result in
+            if case .failure(let error) = result {
+                XCTFail("Failed to register FCM push: \(error)")
+            }
+            expect.fulfill()
+        }
+        XCTWaiter().wait(for: [expect], timeout: 20)
     }
     
     // MARK: - Inbox
