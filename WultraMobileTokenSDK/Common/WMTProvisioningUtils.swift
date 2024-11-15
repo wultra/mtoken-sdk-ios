@@ -18,17 +18,17 @@ import Foundation
 
 class WMTProvisioningUtils {
     
-    static func parseProvisioningProfile(_ profile: Data) -> [String: String]? {
+    static func parseProvisioningProfile(_ profile: Data) -> WMTProvision? {
         do {
-            let items = try PropertyListDecoder().decode([String: String].self, from: profile)
-            return items
+            let provision = try PropertyListDecoder().decode(WMTProvision.self, from: profile)
+            return provision
         } catch let e {
-            D.error("Failedto parse provisioning profile: \(e)")
+            D.error("Failed to parse provisioning profile: \(e)")
             return nil
         }
     }
     
-    static func getMainProvisioningProfile() -> [String: String]? {
+    static func getMainProvisioningProfile() -> WMTProvision? {
         guard let filePath = Bundle.main.path(forResource: "embedded", ofType: "mobileprovision") else {
             D.debug("Missing embedded provisioning profile in the main bundle.")
             return nil
@@ -36,25 +36,108 @@ class WMTProvisioningUtils {
         let url = URL(fileURLWithPath: filePath)
         do {
             let data = try Data(contentsOf: url)
-            return parseProvisioningProfile(data)
+            guard let string = String(data: data, encoding: .isoLatin1) else {
+                D.error("Failed to decode provisioning profile data in ISO Latin 1.")
+                return nil
+            }
+            let scanner = Scanner(string: string as String)
+            guard scanner.scanUpTo("<plist", into: nil) != false else {
+                D.error("Search for provisioning profile plist start tag failed.")
+                return nil
+            }
+             
+            var extractedPlist: NSString?
+            guard scanner.scanUpTo("</plist>", into: &extractedPlist) != false else {
+                D.error("Search for provisioning profile plist end tag failed.")
+                return nil
+            }
+             
+            guard let plist = extractedPlist?.appending("</plist>").data(using: .isoLatin1) else {
+                D.error("Failed to convert provisioning profile plist to data.")
+                return nil
+            }
+
+            return parseProvisioningProfile(plist)
         } catch let e {
             D.error("Failed to load provisioning profile: \(e)")
             return nil
         }
     }
     
-    static func getApnsEnvironment(profileDict: [String: String]?) -> WMTPushRegistrationEnvironment? {
-        let value = profileDict?["aps-environment"]
-        switch value {
-        case "development":
+    static func getApnsEnvironment(profile: WMTProvision?) -> WMTPushRegistrationEnvironment? {
+        switch profile?.entitlements.apsEnvironment {
+        case .development:
             return  .development
-        case "production":
+        case .production:
             return .production
         case nil:
             return nil
-        default:
-            D.warning("Unknown APNS environment: \(value ?? "")")
-            return nil
+        }
+    }
+}
+
+/// Provisioning profile plist structure. Note that we need only entitlements for now.
+/// The rest of the struct is commented out in case something changes so it does not break the parser unnecesarilly
+struct WMTProvision: Decodable {
+    /*
+    var name: String
+    var appIDName: String
+    var platform: [String]
+    var isXcodeManaged: Bool? = false
+    var creationDate: Date
+    var expirationDate: Date
+     */
+    var entitlements: Entitlements
+    
+    private enum CodingKeys: String, CodingKey {
+        /*
+        case name = "Name"
+        case appIDName = "AppIDName"
+        case platform = "Platform"
+        case isXcodeManaged = "IsXcodeManaged"
+        case creationDate = "CreationDate"
+        case expirationDate = "ExpirationDate"
+        */
+        case entitlements = "Entitlements"
+    }
+    
+    struct Entitlements: Decodable {
+        /*
+        let keychainAccessGroups: [String]
+        let getTaskAllow: Bool
+        */
+        let apsEnvironment: Environment?
+        
+        private enum CodingKeys: String, CodingKey {
+            /*
+            case keychainAccessGroups = "keychain-access-groups"
+            case getTaskAllow = "get-task-allow"
+            */
+            case apsEnvironment = "aps-environment"
+        }
+        
+        enum Environment: String, Decodable {
+            case development
+            case production
+        }
+        
+        init(/*keychainAccessGroups: [String], getTaskAllow: Bool,*/ apsEnvironment: Environment?) {
+            /*
+            self.keychainAccessGroups = keychainAccessGroups
+            self.getTaskAllow = getTaskAllow
+            */
+            self.apsEnvironment = apsEnvironment
+        }
+        
+        init(from decoder: Decoder) throws {
+            let container = try decoder.container(keyedBy: CodingKeys.self)
+            /*
+            let keychainAccessGroups: [String] = (try? container.decode([String].self, forKey: .keychainAccessGroups)) ?? []
+            let getTaskAllow: Bool = (try? container.decode(Bool.self, forKey: .getTaskAllow)) ?? false
+            */
+            let apsEnvironment = try? container.decode(Environment.self, forKey: .apsEnvironment)
+            
+            self.init(/*keychainAccessGroups: keychainAccessGroups, getTaskAllow: getTaskAllow,*/ apsEnvironment: apsEnvironment)
         }
     }
 }

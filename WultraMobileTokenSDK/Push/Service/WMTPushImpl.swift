@@ -129,7 +129,7 @@ class WMTPushImpl: WMTPush, WMTService {
         case .production:
             return .production
         case .automatic:
-            return WMTProvisioningUtils.getApnsEnvironment(profileDict: WMTProvisioningUtils.getMainProvisioningProfile())
+            return WMTProvisioningUtils.getApnsEnvironment(profile: WMTProvisioningUtils.getMainProvisioningProfile())
         }
     }
 }
