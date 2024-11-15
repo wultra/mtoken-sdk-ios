@@ -57,10 +57,26 @@ public enum WMTPushPlatform {
     /// Apple Push Notification Service - when you're using directly Apple Push Service for push notifications
     /// - Parameters:
     ///   - token: APNS push token data retrieved from the system
-    case apns(token: Data)
+    ///   - environment: APNS push environment. Default value is `automatic`
+    case apns(token: Data, environment: WMTPushAPNSEnvironment = .automatic)
     
     /// Firebase Cloud Messaging - when you're using Firebase to send push notifications
     /// - Parameters:
     ///   - token: FCM token retrieved from the Firebase SDK
     case fcm(token: String)
+}
+
+/// APNS push environment.
+///
+/// Production environment (server) must be used for production signed apps. (For example TestFlight or AppStore distrubution).
+/// Development environment (server) must be used for developer-signed apps. (For example debug builds or ad-hoc development distrubition).
+public enum WMTPushAPNSEnvironment {
+    /// Automatically detect how is the app signed and set the environment properly.
+    ///
+    /// When automatic detection fails, environment is not sent at all and server configuration is used.
+    case automatic
+    /// Production APNS environment for production-signed app (TestFlight and AppStore distribution).
+    case production
+    /// Development signed app.
+    case development
 }

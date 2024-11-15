@@ -20,10 +20,12 @@ class WMTPushRegistrationData: Codable {
     
     let platform: WMTPushRegistrationPlatform
     let token: String
+    let environment: WMTPushRegistrationEnvironment?
     
-    init(platform: WMTPushRegistrationPlatform, token: String) {
-        self.platform = platform
-        self.token    = token
+    init(platform: WMTPushRegistrationPlatform, token: String, environment: WMTPushRegistrationEnvironment?) {
+        self.platform    = platform
+        self.token       = token
+        self.environment = environment
     }
 }
 
@@ -32,4 +34,9 @@ enum WMTPushRegistrationPlatform: String, Codable {
     case apns
     case fcm
     // case hms - Huawei Messaging Service not available for iOS
+}
+
+enum WMTPushRegistrationEnvironment: String, Codable {
+    case production
+    case development
 }

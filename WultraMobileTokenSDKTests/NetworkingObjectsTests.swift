@@ -38,16 +38,25 @@ class NetworkingObjectsTests: XCTestCase {
         let expectation = """
                           {"requestObject":{"platform":"ios","token":"5FBC85D026945C48A17FE1327C68C77F7793FEBFE23FF5850224BEE4215C5525"}}
                           """
-        let r = WMTPushEndpoints.RegisterDevice.EndpointType.RequestData(WMTPushRegistrationData(platform: .ios, token: "5FBC85D026945C48A17FE1327C68C77F7793FEBFE23FF5850224BEE4215C5525"))
+        let r = WMTPushEndpoints.RegisterDevice.EndpointType.RequestData(WMTPushRegistrationData(platform: .ios, token: "5FBC85D026945C48A17FE1327C68C77F7793FEBFE23FF5850224BEE4215C5525", environment: nil))
+        
+        r.testSerialization(expectation: expectation)
+    }
+    
+    func testTokenRequestLegacyWithEnvironment() {
+        let expectation = """
+                          {"requestObject":{"platform":"ios","token":"5FBC85D026945C48A17FE1327C68C77F7793FEBFE23FF5850224BEE4215C5525","environment":"development"}}
+                          """
+        let r = WMTPushEndpoints.RegisterDevice.EndpointType.RequestData(WMTPushRegistrationData(platform: .ios, token: "5FBC85D026945C48A17FE1327C68C77F7793FEBFE23FF5850224BEE4215C5525", environment: .development))
         
         r.testSerialization(expectation: expectation)
     }
     
     func testTokenRequestApns() {
         let expectation = """
-                          {"requestObject":{"platform":"apns","token":"5FBC85D026945C48A17FE1327C68C77F7793FEBFE23FF5850224BEE4215C5525"}}
+                          {"requestObject":{"platform":"apns","token":"5FBC85D026945C48A17FE1327C68C77F7793FEBFE23FF5850224BEE4215C5525","environment":"development"}}
                           """
-        let r = WMTPushEndpoints.RegisterDevice.EndpointType.RequestData(WMTPushRegistrationData(platform: .apns, token: "5FBC85D026945C48A17FE1327C68C77F7793FEBFE23FF5850224BEE4215C5525"))
+        let r = WMTPushEndpoints.RegisterDevice.EndpointType.RequestData(WMTPushRegistrationData(platform: .apns, token: "5FBC85D026945C48A17FE1327C68C77F7793FEBFE23FF5850224BEE4215C5525", environment: .production))
         
         r.testSerialization(expectation: expectation)
     }
@@ -56,7 +65,7 @@ class NetworkingObjectsTests: XCTestCase {
         let expectation = """
                           {"requestObject":{"platform":"fcm","token":"bk3RNwTe3H0:CI2k_HHwgIpoDKCIZvvDMExUdFQ3P1"}}
                           """
-        let r = WMTPushEndpoints.RegisterDevice.EndpointType.RequestData(WMTPushRegistrationData(platform: .fcm, token: "bk3RNwTe3H0:CI2k_HHwgIpoDKCIZvvDMExUdFQ3P1"))
+        let r = WMTPushEndpoints.RegisterDevice.EndpointType.RequestData(WMTPushRegistrationData(platform: .fcm, token: "bk3RNwTe3H0:CI2k_HHwgIpoDKCIZvvDMExUdFQ3P1", environment: nil))
         
         r.testSerialization(expectation: expectation)
     }

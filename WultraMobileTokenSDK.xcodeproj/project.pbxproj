@@ -44,6 +44,8 @@
 		DCA43C6D2993F63E0059A163 /* WMTOperationAttributeImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCA43C6C2993F63E0059A163 /* WMTOperationAttributeImage.swift */; };
 		DCAB7BC824580B4C0006989D /* WMTQROperationParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCAB7BC724580B4C0006989D /* WMTQROperationParser.swift */; };
 		DCAB7BCA24580BAC0006989D /* WMTQROperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCAB7BC924580BAC0006989D /* WMTQROperation.swift */; };
+		DCAC55992CE68C2A0070644A /* ProvisioningUtilsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCAC55982CE68C2A0070644A /* ProvisioningUtilsTests.swift */; };
+		DCAC559C2CE773E90070644A /* WMTProvisioningUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCAC559B2CE773E90070644A /* WMTProvisioningUtils.swift */; };
 		DCC3420424E3DB310045D27D /* WMTPushParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCC3420324E3DB310045D27D /* WMTPushParser.swift */; };
 		DCC5CC9F2449EE21004679AC /* MobileTokenSDK.h in Headers */ = {isa = PBXBuildFile; fileRef = DCC5CC9D2449EE21004679AC /* MobileTokenSDK.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		DCC5CCAC2449F765004679AC /* WMTOperationsImpl.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCC5CCAB2449F765004679AC /* WMTOperationsImpl.swift */; };
@@ -126,6 +128,8 @@
 		DCA43C6C2993F63E0059A163 /* WMTOperationAttributeImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTOperationAttributeImage.swift; sourceTree = "<group>"; };
 		DCAB7BC724580B4C0006989D /* WMTQROperationParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTQROperationParser.swift; sourceTree = "<group>"; };
 		DCAB7BC924580BAC0006989D /* WMTQROperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTQROperation.swift; sourceTree = "<group>"; };
+		DCAC55982CE68C2A0070644A /* ProvisioningUtilsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProvisioningUtilsTests.swift; sourceTree = "<group>"; };
+		DCAC559B2CE773E90070644A /* WMTProvisioningUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTProvisioningUtils.swift; sourceTree = "<group>"; };
 		DCC3420324E3DB310045D27D /* WMTPushParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTPushParser.swift; sourceTree = "<group>"; };
 		DCC5CC9A2449EE21004679AC /* WultraMobileTokenSDK.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = WultraMobileTokenSDK.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		DCC5CC9D2449EE21004679AC /* MobileTokenSDK.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MobileTokenSDK.h; sourceTree = "<group>"; };
@@ -277,6 +281,7 @@
 				DCE660D024CEBECA00870E53 /* IntegrationTests.swift */,
 				DCE660D224CEF56400870E53 /* IntegrationProxy.swift */,
 				DC395C0924E55B9B0007C36E /* PushParserTests.swift */,
+				DCAC55982CE68C2A0070644A /* ProvisioningUtilsTests.swift */,
 				DC6EDB7825A49ED900A229E4 /* OperationExpirationTests.swift */,
 				DC616235248508F8000DED17 /* QROperationParserTests.swift */,
 				EAB705492AF1161500756AC2 /* PACParserTests.swift */,
@@ -361,6 +366,7 @@
 				DCC5CCCD244DB0AD004679AC /* WMTLogger.swift */,
 				DC06D01E25AC74E400F2EA69 /* WMTLock.swift */,
 				DC9511F826EA02C100FF40AD /* WPNIntegration.swift */,
+				DCAC559B2CE773E90070644A /* WMTProvisioningUtils.swift */,
 			);
 			path = Common;
 			sourceTree = "<group>";
@@ -588,6 +594,7 @@
 			files = (
 				DC61624224852B6D000DED17 /* NetworkingObjectsTests.swift in Sources */,
 				DC395C0A24E55B9B0007C36E /* PushParserTests.swift in Sources */,
+				DCAC55992CE68C2A0070644A /* ProvisioningUtilsTests.swift in Sources */,
 				DC6EDB7925A49ED900A229E4 /* OperationExpirationTests.swift in Sources */,
 				EAB7054A2AF1161500756AC2 /* PACParserTests.swift in Sources */,
 				DC616236248508F8000DED17 /* QROperationParserTests.swift in Sources */,
@@ -640,6 +647,7 @@
 				DCC5CCAE2449F7AC004679AC /* WMTUserOperation.swift in Sources */,
 				DC9511F926EA02C100FF40AD /* WPNIntegration.swift in Sources */,
 				DCC5CCBD2449F965004679AC /* WMTOperationAttributeHeading.swift in Sources */,
+				DCAC559C2CE773E90070644A /* WMTProvisioningUtils.swift in Sources */,
 				DC8CB206244DD007009DDAA3 /* WMTAllowedOperationSignature.swift in Sources */,
 				DCC3420424E3DB310045D27D /* WMTPushParser.swift in Sources */,
 				BFEEB20529379C700047941D /* WMTInboxGetMessageDetail.swift in Sources */,

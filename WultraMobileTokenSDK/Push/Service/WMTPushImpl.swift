@@ -63,7 +63,12 @@ class WMTPushImpl: WMTPush, WMTService {
     @discardableResult
     func registerDeviceTokenForPushNotifications(token: Data, completion: @escaping (Result<Void, WMTError>) -> Void) -> Operation? {
         // ios for backwards compatibility
-        return registerPush(platform: .ios, token: HexadecimalString.encodeData(token), completion: completion)
+        return registerPush(
+            platform: .ios,
+            token: HexadecimalString.encodeData(token),
+            environment: getPushEnvironment(environment: .automatic),
+            completion: completion
+        )
     }
     
     @discardableResult
@@ -71,20 +76,23 @@ class WMTPushImpl: WMTPush, WMTService {
         
         let payloadPlatform: WMTPushRegistrationPlatform
         let payloadToken: String
+        let payloadEnvironment: WMTPushRegistrationEnvironment?
         
         switch platform {
-        case .apns(let data):
+        case .apns(let data, let environment):
             payloadPlatform = .apns
             payloadToken = HexadecimalString.encodeData(data)
+            payloadEnvironment = getPushEnvironment(environment: environment)
         case .fcm(let token):
             payloadPlatform = .fcm
             payloadToken = token
+            payloadEnvironment = nil // no env for FCM
         }
         
-        return registerPush(platform: payloadPlatform, token: payloadToken, completion: completion)
+        return registerPush(platform: payloadPlatform, token: payloadToken, environment: payloadEnvironment, completion: completion)
     }
     
-    private func registerPush(platform: WMTPushRegistrationPlatform, token: String, completion: @escaping (Result<Void, WMTError>) -> Void) -> Operation? {
+    private func registerPush(platform: WMTPushRegistrationPlatform, token: String, environment: WMTPushRegistrationEnvironment?, completion: @escaping (Result<Void, WMTError>) -> Void) -> Operation? {
         
         guard validateActivation(completion) else {
             return nil
@@ -100,7 +108,7 @@ class WMTPushImpl: WMTPush, WMTService {
         pendingRegistrationForRemotePushNotifications = true
         pushNotificationsRegisteredOnServer = false
         
-        let data = WMTPushRegistrationData(platform: platform, token: token)
+        let data = WMTPushRegistrationData(platform: platform, token: token, environment: environment)
         
         return networking.post(data: .init(data), signedWith: .possession(), to: WMTPushEndpoints.RegisterDevice.endpoint) { _, error in
             self.pendingRegistrationForRemotePushNotifications = false
@@ -111,6 +119,17 @@ class WMTPushImpl: WMTPush, WMTService {
                 self.pushNotificationsRegisteredOnServer = true
                 completion(.success(()))
             }
+        }
+    }
+    
+    private func getPushEnvironment(environment: WMTPushAPNSEnvironment) -> WMTPushRegistrationEnvironment? {
+        switch environment {
+        case .development:
+            return .development
+        case .production:
+            return .production
+        case .automatic:
+            return WMTProvisioningUtils.getApnsEnvironment(profileDict: WMTProvisioningUtils.getMainProvisioningProfile())
         }
     }
 }

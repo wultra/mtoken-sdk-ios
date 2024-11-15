@@ -18,7 +18,6 @@ import XCTest
 import PowerAuth2
 @testable import WultraMobileTokenSDK
 
-
 /**
  For integration test to be successfully executed, you need to provide
  configuration json file. To more information, visit `WultraMobileTokenSDKTests/Configs/Readme.md`.
@@ -786,6 +785,28 @@ class IntegrationTests: XCTestCase {
     func testRegisterPushApns() {
         let expect = expectation(description: "Register push APNS")
         push.register(to: .apns(token: "testtoken".data(using: .utf8)!)) { result in
+            if case .failure(let error) = result {
+                XCTFail("Failed to register APNS push: \(error)")
+            }
+            expect.fulfill()
+        }
+        XCTWaiter().wait(for: [expect], timeout: 20)
+    }
+    
+    func testRegisterPushApnsProduction() {
+        let expect = expectation(description: "Register push APNS")
+        push.register(to: .apns(token: "testtoken".data(using: .utf8)!, environment: .production)) { result in
+            if case .failure(let error) = result {
+                XCTFail("Failed to register APNS push: \(error)")
+            }
+            expect.fulfill()
+        }
+        XCTWaiter().wait(for: [expect], timeout: 20)
+    }
+    
+    func testRegisterPushApnsDevelopment() {
+        let expect = expectation(description: "Register push APNS")
+        push.register(to: .apns(token: "testtoken".data(using: .utf8)!, environment: .development)) { result in
             if case .failure(let error) = result {
                 XCTFail("Failed to register APNS push: \(error)")
             }
