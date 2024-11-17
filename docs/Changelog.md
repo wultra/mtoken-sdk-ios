@@ -1,6 +1,6 @@
 # Changelog
 
-## 1.12.1 (October 2024)
+## 1.13.0 (TBA)
 
 - Added status to `UserOperation` and removed redundant `OperationHistoryEntry` [(#171)](https://github.com/wultra/mtoken-sdk-ios/pull/171)
 
