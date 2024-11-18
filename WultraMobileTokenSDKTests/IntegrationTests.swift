@@ -765,8 +765,8 @@ class IntegrationTests: XCTestCase {
                 }
             }
         }
-        // there are 3 backend calls, give it some time...
-        waitForExpectations(timeout: 20, handler: nil)
+        // there are severalstejn backend calls, give it some time...
+        waitForExpectations(timeout: 40, handler: nil)
     }
     
     // MARK: - Push
