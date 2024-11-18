@@ -124,12 +124,9 @@ class WMTPushImpl: WMTPush, WMTService {
     
     private func getPushEnvironment(environment: WMTPushAPNSEnvironment) -> WMTPushRegistrationEnvironment? {
         switch environment {
-        case .development:
-            return .development
-        case .production:
-            return .production
-        case .automatic:
-            return WMTProvisioningUtils.getApnsEnvironment(profile: WMTProvisioningUtils.getMainProvisioningProfile())
+        case .development: return .development
+        case .production: return .production
+        case .automatic: return WMTProvisioningUtils.getMainProvisioningProfile()?.apnsEnvironment
         }
     }
 }

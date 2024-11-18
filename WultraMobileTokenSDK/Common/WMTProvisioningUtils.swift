@@ -63,17 +63,6 @@ class WMTProvisioningUtils {
             return nil
         }
     }
-    
-    static func getApnsEnvironment(profile: WMTProvision?) -> WMTPushRegistrationEnvironment? {
-        switch profile?.entitlements.apsEnvironment {
-        case .development:
-            return  .development
-        case .production:
-            return .production
-        case nil:
-            return nil
-        }
-    }
 }
 
 /// Provisioning profile plist structure. Note that we need only entitlements for now.
