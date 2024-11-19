@@ -95,7 +95,7 @@ echo """{
     \"cloudApplicationId\"    : \"${CL_AID}\",
     \"enrollmentServerUrl\"   : \"${ER_URL}\",
     \"operationsServerUrl\"   : \"${OP_URL}\",
-    \"pushServerUrl\".        : \"${PU_URL}\",
+    \"pushServerUrl\"         : \"${PU_URL}\",
     \"inboxServerUrl\"        : \"${IN_URL}\",
     \"sdkConfig\"             : \"${SDKCONFIG}\"
 }""" > "WultraMobileTokenSDKTests/Configs/config.json"
