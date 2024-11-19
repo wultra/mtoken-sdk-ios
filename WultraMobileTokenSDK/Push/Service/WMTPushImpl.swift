@@ -65,7 +65,7 @@ class WMTPushImpl: WMTPush, WMTService {
         // ios for backwards compatibility
         return registerPush(
             platform: .ios,
-            token: HexadecimalString.encodeData(token),
+            token: token.toHex(),
             environment: getPushEnvironment(environment: .automatic),
             completion: completion
         )
@@ -75,17 +75,15 @@ class WMTPushImpl: WMTPush, WMTService {
     func register(to platform: WMTPushPlatform, completion: @escaping (Result<Void, WMTError>) -> Void) -> Operation? {
         
         let payloadPlatform: WMTPushRegistrationPlatform
-        let payloadToken: String
+        let payloadToken = platform.token
         let payloadEnvironment: WMTPushRegistrationEnvironment?
         
         switch platform {
-        case .apns(let data, let environment):
+        case .apns(_, let environment):
             payloadPlatform = .apns
-            payloadToken = HexadecimalString.encodeData(data)
             payloadEnvironment = getPushEnvironment(environment: environment)
         case .fcm(let token):
             payloadPlatform = .fcm
-            payloadToken = token
             payloadEnvironment = nil // no env for FCM
         }
         
@@ -131,19 +129,11 @@ class WMTPushImpl: WMTPush, WMTService {
     }
 }
 
-private class HexadecimalString {
-    
-    static let toHexTable: [Character] = [ "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "A", "B", "C", "D", "E", "F" ]
-    
-    static func encodeData(_ data: Data) -> String {
-        var result = ""
-        result.reserveCapacity(data.count * 2)
-        for byte in data {
-            let byteAsUInt = Int(byte)
-            result.append(toHexTable[byteAsUInt >> 4])
-            result.append(toHexTable[byteAsUInt & 15])
+extension WMTPushPlatform {
+    var token: String {
+        return switch self {
+        case .apns(token: let token, environment: _): token.toHex()
+            case .fcm(token: let token): token
         }
-        return result
     }
-    
 }

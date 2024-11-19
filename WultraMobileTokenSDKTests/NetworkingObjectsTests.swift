@@ -52,9 +52,18 @@ class NetworkingObjectsTests: XCTestCase {
         r.testSerialization(expectation: expectation)
     }
     
-    func testTokenRequestApns() {
+    func testTokenRequestApnsDevelopment() {
         let expectation = """
                           {"requestObject":{"platform":"apns","token":"5FBC85D026945C48A17FE1327C68C77F7793FEBFE23FF5850224BEE4215C5525","environment":"development"}}
+                          """
+        let r = WMTPushEndpoints.RegisterDevice.EndpointType.RequestData(WMTPushRegistrationData(platform: .apns, token: "5FBC85D026945C48A17FE1327C68C77F7793FEBFE23FF5850224BEE4215C5525", environment: .development))
+        
+        r.testSerialization(expectation: expectation)
+    }
+    
+    func testTokenRequestApnsProduction() {
+        let expectation = """
+                          {"requestObject":{"platform":"apns","token":"5FBC85D026945C48A17FE1327C68C77F7793FEBFE23FF5850224BEE4215C5525","environment":"production"}}
                           """
         let r = WMTPushEndpoints.RegisterDevice.EndpointType.RequestData(WMTPushRegistrationData(platform: .apns, token: "5FBC85D026945C48A17FE1327C68C77F7793FEBFE23FF5850224BEE4215C5525", environment: .production))
         
@@ -68,6 +77,21 @@ class NetworkingObjectsTests: XCTestCase {
         let r = WMTPushEndpoints.RegisterDevice.EndpointType.RequestData(WMTPushRegistrationData(platform: .fcm, token: "bk3RNwTe3H0:CI2k_HHwgIpoDKCIZvvDMExUdFQ3P1", environment: nil))
         
         r.testSerialization(expectation: expectation)
+    }
+    
+    func testApnsTokenSerialization() {
+        let apnsData = "testData".data(using: .utf8)!
+        let expectedApnsHex = "7465737444617461"
+        let apns = WMTPushPlatform.apns(token: apnsData, environment: .automatic)
+        // data should be transformed to hexformat
+        XCTAssertEqual(expectedApnsHex, apns.token)
+    }
+    
+    func testFcmTokenSerialization() {
+        let fcmData = "testToken"
+        let fcm = WMTPushPlatform.fcm(token: fcmData)
+        // FCM token should be the same
+        XCTAssertEqual(fcmData, fcm.token)
     }
     
     func testOperationsResponse() {
