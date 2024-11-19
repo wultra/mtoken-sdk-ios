@@ -39,7 +39,7 @@ import WultraMobileTokenSDK
 import WultraPowerAuthNetworking
 
 let networkingConfig = WPNConfig(
-    baseUrl: URL(string: "https://myservice.com/mtoken/operations/api/")!,
+    baseUrl: URL(string: "https://powerauth.myservice.com/enrollment-server")!,
     sslValidation: .default
 )
 // powerAuth is instance of PowerAuthSDK
@@ -131,7 +131,7 @@ class MyOperationsManager: WMTOperationsDelegate {
 
     init(powerAuth: PowerAuthSDK) {
         let networkingConfig = WPNConfig(
-            baseUrl: URL(string: "https://myservice.com/mtoken/operations/api/")!,
+            baseUrl: URL(string: "https://powerauth.myservice.com/enrollment-server")!,
             sslValidation: .default
         )
         self.ops = powerAuth.createWMTOperations(networkingConfig: networkingConfig)

@@ -29,7 +29,7 @@ import WultraMobileTokenSDK
 import WultraPowerAuthNetworking
 
 let networkingConfig = WPNConfig(
-    baseUrl: URL(string: "https://myservice.com/mtoken/inbox/api/")!,
+    baseUrl: URL(string: "https://powerauth.myservice.com/enrollment-server")!,
     sslValidation: .default
 )
 // powerAuth is instance of PowerAuthSDK
