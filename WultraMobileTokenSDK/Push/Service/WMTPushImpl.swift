@@ -133,7 +133,7 @@ extension WMTPushPlatform {
     var token: String {
         return switch self {
         case .apns(token: let token, environment: _): token.toHex()
-            case .fcm(token: let token): token
+        case .fcm(token: let token): token
         }
     }
 }
