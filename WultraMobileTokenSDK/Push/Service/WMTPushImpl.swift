@@ -87,6 +87,8 @@ class WMTPushImpl: WMTPush, WMTService {
             payloadEnvironment = nil // no env for FCM
         }
         
+        D.info("Registering push for \(payloadPlatform.rawValue) platform.")
+        
         return registerPush(platform: payloadPlatform, token: payloadToken, environment: payloadEnvironment, completion: completion)
     }
     
@@ -122,9 +124,20 @@ class WMTPushImpl: WMTPush, WMTService {
     
     private func getPushEnvironment(environment: WMTPushAPNSEnvironment) -> WMTPushRegistrationEnvironment? {
         switch environment {
-        case .development: return .development
-        case .production: return .production
-        case .automatic: return WMTProvisioningUtils.getMainProvisioningProfile()?.apnsEnvironment
+        case .development:
+            D.info("Using APNS development environment for push notifications.")
+            return .development
+        case .production:
+            D.info("Using APNS production environment for push notifications.")
+            return .production
+        case .automatic:
+            let env = WMTProvisioningUtils.getMainProvisioningProfile()?.apnsEnvironment
+            if let env {
+                D.info("Using \(env) environment for push notifications (automatic resolution).")
+            } else {
+                D.warning("No APNS environment found in provisioning profile. Server configuration will be used.")
+            }
+            return env
         }
     }
 }

@@ -19,8 +19,9 @@ import Foundation
 class WMTProvisioningUtils {
     
     static func getMainProvisioningProfile() -> WMTProvision? {
+        D.debug("Retrieving embedded provisioning profile from the main bundle.")
         guard let filePath = Bundle.main.path(forResource: "embedded", ofType: "mobileprovision") else {
-            D.debug("Missing embedded provisioning profile in the main bundle.")
+            D.error("Missing embedded provisioning profile in the main bundle.")
             return nil
         }
         let url = URL(fileURLWithPath: filePath)
@@ -60,6 +61,7 @@ class WMTProvisioningUtils {
     static func parseProvisioningProfilePlist(_ plist: Data) -> WMTProvision? {
         do {
             let provision = try PropertyListDecoder().decode(WMTProvision.self, from: plist)
+            D.debug("Successfully parsed provisioning profile (apns env: \(provision.entitlements.apsEnvironment?.rawValue ?? "nil")).")
             return provision
         } catch let e {
             D.error("Failed to parse provisioning profile: \(e)")
