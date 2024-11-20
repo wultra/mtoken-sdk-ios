@@ -18,16 +18,6 @@ import Foundation
 
 class WMTProvisioningUtils {
     
-    static func parseProvisioningProfile(_ profile: Data) -> WMTProvision? {
-        do {
-            let provision = try PropertyListDecoder().decode(WMTProvision.self, from: profile)
-            return provision
-        } catch let e {
-            D.error("Failed to parse provisioning profile: \(e)")
-            return nil
-        }
-    }
-    
     static func getMainProvisioningProfile() -> WMTProvision? {
         guard let filePath = Bundle.main.path(forResource: "embedded", ofType: "mobileprovision") else {
             D.debug("Missing embedded provisioning profile in the main bundle.")
@@ -36,30 +26,43 @@ class WMTProvisioningUtils {
         let url = URL(fileURLWithPath: filePath)
         do {
             let data = try Data(contentsOf: url)
-            guard let string = String(data: data, encoding: .isoLatin1) else {
-                D.error("Failed to decode provisioning profile data in ISO Latin 1.")
-                return nil
-            }
-            let scanner = Scanner(string: string as String)
-            guard scanner.scanUpTo("<plist", into: nil) != false else {
-                D.error("Search for provisioning profile plist start tag failed.")
-                return nil
-            }
-             
-            var extractedPlist: NSString?
-            guard scanner.scanUpTo("</plist>", into: &extractedPlist) != false else {
-                D.error("Search for provisioning profile plist end tag failed.")
-                return nil
-            }
-             
-            guard let plist = extractedPlist?.appending("</plist>").data(using: .isoLatin1) else {
-                D.error("Failed to convert provisioning profile plist to data.")
-                return nil
-            }
-
-            return parseProvisioningProfile(plist)
+            return getProvisioningProfileFromData(data)
         } catch let e {
             D.error("Failed to load provisioning profile: \(e)")
+            return nil
+        }
+    }
+    
+    static func getProvisioningProfileFromData(_ profile: Data) -> WMTProvision? {
+        guard let string = String(data: profile, encoding: .isoLatin1) else {
+            D.error("Failed to decode provisioning profile data in ISO Latin 1.")
+            return nil
+        }
+        let scanner = Scanner(string: string as String)
+        guard scanner.scanUpTo("<plist", into: nil) != false else {
+            D.error("Search for provisioning profile plist start tag failed.")
+            return nil
+        }
+         
+        var extractedPlist: NSString?
+        guard scanner.scanUpTo("</plist>", into: &extractedPlist) != false else {
+            D.error("Search for provisioning profile plist end tag failed.")
+            return nil
+        }
+         
+        guard let plist = extractedPlist?.appending("</plist>").data(using: .isoLatin1) else {
+            D.error("Failed to convert provisioning profile plist to data.")
+            return nil
+        }
+        return parseProvisioningProfilePlist(plist)
+    }
+    
+    static func parseProvisioningProfilePlist(_ plist: Data) -> WMTProvision? {
+        do {
+            let provision = try PropertyListDecoder().decode(WMTProvision.self, from: plist)
+            return provision
+        } catch let e {
+            D.error("Failed to parse provisioning profile: \(e)")
             return nil
         }
     }
