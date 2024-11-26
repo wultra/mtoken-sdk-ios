@@ -380,6 +380,8 @@
 				DCC3420324E3DB310045D27D /* WMTPushParser.swift */,
 				DC76D01B24531413009F2DFC /* Service */,
 				DC81D1C7244F382800F80CD6 /* Model */,
+				DCE6D5732CF5F46000865D6E /* WMTSignatureAPNSEnvironmentDetector.swift */,
+				DCE6D5752CF5F5C900865D6E /* MachO */,
 			);
 			path = Push;
 			sourceTree = "<group>";
@@ -402,8 +404,6 @@
 				DC9511F826EA02C100FF40AD /* WPNIntegration.swift */,
 				DCAC559B2CE773E90070644A /* WMTProvisioningUtils.swift */,
 				DCAC55BB2CEC954C0070644A /* WMTUtils.swift */,
-				DCE6D5732CF5F46000865D6E /* WMTSignatureAPNSEnvironmentDetector.swift */,
-				DCE6D5752CF5F5C900865D6E /* MachO */,
 			);
 			path = Common;
 			sourceTree = "<group>";
