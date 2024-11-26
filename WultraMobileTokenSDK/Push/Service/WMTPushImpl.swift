@@ -82,7 +82,7 @@ class WMTPushImpl: WMTPush, WMTService {
         case .apns(_, let environment):
             payloadPlatform = .apns
             payloadEnvironment = getPushEnvironment(environment: environment)
-        case .fcm(let token):
+        case .fcm(_):
             payloadPlatform = .fcm
             payloadEnvironment = nil // no env for FCM
         }
@@ -131,7 +131,7 @@ class WMTPushImpl: WMTPush, WMTService {
             D.info("Using APNS production environment for push notifications.")
             return .production
         case .automatic:
-            let env = WMTProvisioningUtils.getMainProvisioningProfile()?.apnsEnvironment
+            let env = WMTProvisioningUtils.getMainProvisioningProfile()?.apnsEnvironment ?? WMTSignatureAPNSEnvironmentDetector.detectAPNSEnvironment()
             if let env {
                 D.info("Using \(env) environment for push notifications (automatic resolution).")
             } else {
