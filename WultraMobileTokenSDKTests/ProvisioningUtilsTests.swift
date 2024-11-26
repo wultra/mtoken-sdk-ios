@@ -27,7 +27,7 @@ class ProvisioningUtilsTests: XCTestCase {
             return
         }
         let profile = WMTProvisioningUtils.getProvisioningProfileFromData(data)
-        XCTAssertEqual(profile?.apnsEnvironment, .production)
+        XCTAssertEqual(profile?.entitlements.apsEnvironment, .production)
     }
     
     // plist parsing
@@ -35,25 +35,25 @@ class ProvisioningUtilsTests: XCTestCase {
     func testParseDevelopmentAPNS() {
         let plist = getPlist("development")
         let profile = WMTProvisioningUtils.parseProvisioningProfilePlist(plist)
-        XCTAssertEqual(profile?.apnsEnvironment, .development)
+        XCTAssertEqual(profile?.entitlements.apsEnvironment, .development)
     }
     
     func testParseProductionAPNS() {
         let plist = getPlist("production")
         let profile = WMTProvisioningUtils.parseProvisioningProfilePlist(plist)
-        XCTAssertEqual(profile?.apnsEnvironment, .production)
+        XCTAssertEqual(profile?.entitlements.apsEnvironment, .production)
     }
     
     func testParseMissingAPNS() {
         let plist = getPlist(nil)
         let profile = WMTProvisioningUtils.parseProvisioningProfilePlist(plist)
-        XCTAssertEqual(profile?.apnsEnvironment, nil)
+        XCTAssertEqual(profile?.entitlements.apsEnvironment, nil)
     }
     
     func testParseUnknownAPNS() {
         let plist = getPlist("integration") // unknown value
         let profile = WMTProvisioningUtils.parseProvisioningProfilePlist(plist)
-        XCTAssertEqual(profile?.apnsEnvironment, nil)
+        XCTAssertEqual(profile?.entitlements.apsEnvironment, nil)
     }
     
     private func getPlist(_ apnsEnvironment: String?) -> Data {
