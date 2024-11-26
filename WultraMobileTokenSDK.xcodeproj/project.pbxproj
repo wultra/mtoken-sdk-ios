@@ -67,21 +67,7 @@
 		DCE660D124CEBECA00870E53 /* IntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCE660D024CEBECA00870E53 /* IntegrationTests.swift */; };
 		DCE660D324CEF56400870E53 /* IntegrationProxy.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCE660D224CEF56400870E53 /* IntegrationProxy.swift */; };
 		DCE6D5742CF5F46000865D6E /* WMTSignatureAPNSEnvironmentDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCE6D5732CF5F46000865D6E /* WMTSignatureAPNSEnvironmentDetector.swift */; };
-		DCE6D5772CF5F5D500865D6E /* MachOReader.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCE6D5762CF5F5D500865D6E /* MachOReader.swift */; };
-		DCE6D5792CF5F5E400865D6E /* Entitlements.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCE6D5782CF5F5E400865D6E /* Entitlements.swift */; };
-		DCE6D5872CF5F63100865D6E /* X509PublicKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCE6D5852CF5F63100865D6E /* X509PublicKey.swift */; };
-		DCE6D5882CF5F63100865D6E /* X509Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCE6D5822CF5F63100865D6E /* X509Extension.swift */; };
-		DCE6D5892CF5F63100865D6E /* ASN1DistinguishedNames.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCE6D57B2CF5F63100865D6E /* ASN1DistinguishedNames.swift */; };
-		DCE6D58A2CF5F63100865D6E /* X509ExtensionClasses.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCE6D5842CF5F63100865D6E /* X509ExtensionClasses.swift */; };
-		DCE6D58B2CF5F63100865D6E /* ASN1Decoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCE6D57A2CF5F63100865D6E /* ASN1Decoder.swift */; };
-		DCE6D58C2CF5F63100865D6E /* ASN1Object.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCE6D57E2CF5F63100865D6E /* ASN1Object.swift */; };
-		DCE6D58D2CF5F63100865D6E /* PKCS7.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCE6D5802CF5F63100865D6E /* PKCS7.swift */; };
-		DCE6D58E2CF5F63100865D6E /* OID.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCE6D57F2CF5F63100865D6E /* OID.swift */; };
-		DCE6D58F2CF5F63100865D6E /* X509Certificate.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCE6D5812CF5F63100865D6E /* X509Certificate.swift */; };
-		DCE6D5902CF5F63100865D6E /* ASN1Encoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCE6D57C2CF5F63100865D6E /* ASN1Encoder.swift */; };
-		DCE6D5912CF5F63100865D6E /* ASN1Identifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCE6D57D2CF5F63100865D6E /* ASN1Identifier.swift */; };
-		DCE6D5922CF5F63100865D6E /* X509ExtensionAltName.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCE6D5832CF5F63100865D6E /* X509ExtensionAltName.swift */; };
-		DCE6D5942CF5F65200865D6E /* BinaryReader.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCE6D5932CF5F65200865D6E /* BinaryReader.swift */; };
+		DCE6D5772CF5F5D500865D6E /* WMTMachOReader.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCE6D5762CF5F5D500865D6E /* WMTMachOReader.swift */; };
 		EA294F3D29F6A07A00A0494E /* WMTOperationUIData.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA294F3C29F6A07A00A0494E /* WMTOperationUIData.swift */; };
 		EA44366A29F9294600DDEC1C /* WMTPostApprovaScreenReview.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA44366929F9294600DDEC1C /* WMTPostApprovaScreenReview.swift */; };
 		EA44366C29F9297100DDEC1C /* WMTPostApprovaScreenRedirect.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA44366B29F9297100DDEC1C /* WMTPostApprovaScreenRedirect.swift */; };
@@ -173,21 +159,7 @@
 		DCE660D024CEBECA00870E53 /* IntegrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntegrationTests.swift; sourceTree = "<group>"; };
 		DCE660D224CEF56400870E53 /* IntegrationProxy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntegrationProxy.swift; sourceTree = "<group>"; };
 		DCE6D5732CF5F46000865D6E /* WMTSignatureAPNSEnvironmentDetector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTSignatureAPNSEnvironmentDetector.swift; sourceTree = "<group>"; };
-		DCE6D5762CF5F5D500865D6E /* MachOReader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MachOReader.swift; sourceTree = "<group>"; };
-		DCE6D5782CF5F5E400865D6E /* Entitlements.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Entitlements.swift; sourceTree = "<group>"; };
-		DCE6D57A2CF5F63100865D6E /* ASN1Decoder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ASN1Decoder.swift; sourceTree = "<group>"; };
-		DCE6D57B2CF5F63100865D6E /* ASN1DistinguishedNames.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ASN1DistinguishedNames.swift; sourceTree = "<group>"; };
-		DCE6D57C2CF5F63100865D6E /* ASN1Encoder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ASN1Encoder.swift; sourceTree = "<group>"; };
-		DCE6D57D2CF5F63100865D6E /* ASN1Identifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ASN1Identifier.swift; sourceTree = "<group>"; };
-		DCE6D57E2CF5F63100865D6E /* ASN1Object.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ASN1Object.swift; sourceTree = "<group>"; };
-		DCE6D57F2CF5F63100865D6E /* OID.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OID.swift; sourceTree = "<group>"; };
-		DCE6D5802CF5F63100865D6E /* PKCS7.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PKCS7.swift; sourceTree = "<group>"; };
-		DCE6D5812CF5F63100865D6E /* X509Certificate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = X509Certificate.swift; sourceTree = "<group>"; };
-		DCE6D5822CF5F63100865D6E /* X509Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = X509Extension.swift; sourceTree = "<group>"; };
-		DCE6D5832CF5F63100865D6E /* X509ExtensionAltName.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = X509ExtensionAltName.swift; sourceTree = "<group>"; };
-		DCE6D5842CF5F63100865D6E /* X509ExtensionClasses.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = X509ExtensionClasses.swift; sourceTree = "<group>"; };
-		DCE6D5852CF5F63100865D6E /* X509PublicKey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = X509PublicKey.swift; sourceTree = "<group>"; };
-		DCE6D5932CF5F65200865D6E /* BinaryReader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BinaryReader.swift; sourceTree = "<group>"; };
+		DCE6D5762CF5F5D500865D6E /* WMTMachOReader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTMachOReader.swift; sourceTree = "<group>"; };
 		EA294F3C29F6A07A00A0494E /* WMTOperationUIData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTOperationUIData.swift; sourceTree = "<group>"; };
 		EA44366929F9294600DDEC1C /* WMTPostApprovaScreenReview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTPostApprovaScreenReview.swift; sourceTree = "<group>"; };
 		EA44366B29F9297100DDEC1C /* WMTPostApprovaScreenRedirect.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTPostApprovaScreenRedirect.swift; sourceTree = "<group>"; };
@@ -272,6 +244,16 @@
 				EA74F7B22C2561BB004340B9 /* WMTResultTexts.swift */,
 			);
 			path = UserOperation;
+			sourceTree = "<group>";
+		};
+		DC3E529E2CF62891002621C1 /* ProvisioningUtils */ = {
+			isa = PBXGroup;
+			children = (
+				DCAC559B2CE773E90070644A /* WMTProvisioningUtils.swift */,
+				DCE6D5732CF5F46000865D6E /* WMTSignatureAPNSEnvironmentDetector.swift */,
+				DCE6D5762CF5F5D500865D6E /* WMTMachOReader.swift */,
+			);
+			path = ProvisioningUtils;
 			sourceTree = "<group>";
 		};
 		DC488034292282FF00DB844B /* Inbox */ = {
@@ -380,8 +362,6 @@
 				DCC3420324E3DB310045D27D /* WMTPushParser.swift */,
 				DC76D01B24531413009F2DFC /* Service */,
 				DC81D1C7244F382800F80CD6 /* Model */,
-				DCE6D5732CF5F46000865D6E /* WMTSignatureAPNSEnvironmentDetector.swift */,
-				DCE6D5752CF5F5C900865D6E /* MachO */,
 			);
 			path = Push;
 			sourceTree = "<group>";
@@ -397,12 +377,12 @@
 		DC81D1CE24502E0300F80CD6 /* Common */ = {
 			isa = PBXGroup;
 			children = (
+				DC3E529E2CF62891002621C1 /* ProvisioningUtils */,
 				BFEEB20A2937AD700047941D /* WMTCancellable.swift */,
 				DC488030292282C900DB844B /* WMTService.swift */,
 				DCC5CCCD244DB0AD004679AC /* WMTLogger.swift */,
 				DC06D01E25AC74E400F2EA69 /* WMTLock.swift */,
 				DC9511F826EA02C100FF40AD /* WPNIntegration.swift */,
-				DCAC559B2CE773E90070644A /* WMTProvisioningUtils.swift */,
 				DCAC55BB2CEC954C0070644A /* WMTUtils.swift */,
 			);
 			path = Common;
@@ -481,36 +461,6 @@
 				EA7A6E572B0E639800C1D4F4 /* WMTOperationDetailRequest.swift */,
 			);
 			path = Requests;
-			sourceTree = "<group>";
-		};
-		DCE6D5752CF5F5C900865D6E /* MachO */ = {
-			isa = PBXGroup;
-			children = (
-				DCE6D5862CF5F63100865D6E /* CertParser */,
-				DCE6D5932CF5F65200865D6E /* BinaryReader.swift */,
-				DCE6D5782CF5F5E400865D6E /* Entitlements.swift */,
-				DCE6D5762CF5F5D500865D6E /* MachOReader.swift */,
-			);
-			path = MachO;
-			sourceTree = "<group>";
-		};
-		DCE6D5862CF5F63100865D6E /* CertParser */ = {
-			isa = PBXGroup;
-			children = (
-				DCE6D57A2CF5F63100865D6E /* ASN1Decoder.swift */,
-				DCE6D57B2CF5F63100865D6E /* ASN1DistinguishedNames.swift */,
-				DCE6D57C2CF5F63100865D6E /* ASN1Encoder.swift */,
-				DCE6D57D2CF5F63100865D6E /* ASN1Identifier.swift */,
-				DCE6D57E2CF5F63100865D6E /* ASN1Object.swift */,
-				DCE6D57F2CF5F63100865D6E /* OID.swift */,
-				DCE6D5802CF5F63100865D6E /* PKCS7.swift */,
-				DCE6D5812CF5F63100865D6E /* X509Certificate.swift */,
-				DCE6D5822CF5F63100865D6E /* X509Extension.swift */,
-				DCE6D5832CF5F63100865D6E /* X509ExtensionAltName.swift */,
-				DCE6D5842CF5F63100865D6E /* X509ExtensionClasses.swift */,
-				DCE6D5852CF5F63100865D6E /* X509PublicKey.swift */,
-			);
-			path = CertParser;
 			sourceTree = "<group>";
 		};
 		EA6DDF0D29F8031F0011E234 /* Screens */ = {
@@ -680,12 +630,10 @@
 				DC8CB202244DCBE2009DDAA3 /* WMTOperations.swift in Sources */,
 				DC48803E292282FF00DB844B /* WMTInboxMessage.swift in Sources */,
 				DCC5CCB52449F8E9004679AC /* WMTOperationAttributeAmount.swift in Sources */,
-				DCE6D5942CF5F65200865D6E /* BinaryReader.swift in Sources */,
 				DCC5CCD6244DBB7F004679AC /* WMTPushRegistrationData.swift in Sources */,
 				DC3D0B392480F886000DC4D9 /* WMTLocalOperation.swift in Sources */,
 				DCD8B336246C1BAF00385F02 /* WMTRejectionReason.swift in Sources */,
 				DCC5CCD8244DBBBD004679AC /* WMTAuthorizationData.swift in Sources */,
-				DCE6D5792CF5F5E400865D6E /* Entitlements.swift in Sources */,
 				DCAC55BC2CEC954C0070644A /* WMTUtils.swift in Sources */,
 				DC488040292282FF00DB844B /* WMTInboxCount.swift in Sources */,
 				DCA43C6B29927C960059A163 /* WMTOperationAttributeAmountConversion.swift in Sources */,
@@ -716,7 +664,7 @@
 				DCC5CCCE244DB0AD004679AC /* WMTLogger.swift in Sources */,
 				DCC5CCAE2449F7AC004679AC /* WMTUserOperation.swift in Sources */,
 				DC9511F926EA02C100FF40AD /* WPNIntegration.swift in Sources */,
-				DCE6D5772CF5F5D500865D6E /* MachOReader.swift in Sources */,
+				DCE6D5772CF5F5D500865D6E /* WMTMachOReader.swift in Sources */,
 				DCC5CCBD2449F965004679AC /* WMTOperationAttributeHeading.swift in Sources */,
 				DCAC559C2CE773E90070644A /* WMTProvisioningUtils.swift in Sources */,
 				DC8CB206244DD007009DDAA3 /* WMTAllowedOperationSignature.swift in Sources */,
@@ -724,18 +672,6 @@
 				BFEEB20529379C700047941D /* WMTInboxGetMessageDetail.swift in Sources */,
 				EACAF7B02A126B7D0021CA54 /* WMTJsonValue.swift in Sources */,
 				DCAB7BCA24580BAC0006989D /* WMTQROperation.swift in Sources */,
-				DCE6D5872CF5F63100865D6E /* X509PublicKey.swift in Sources */,
-				DCE6D5882CF5F63100865D6E /* X509Extension.swift in Sources */,
-				DCE6D5892CF5F63100865D6E /* ASN1DistinguishedNames.swift in Sources */,
-				DCE6D58A2CF5F63100865D6E /* X509ExtensionClasses.swift in Sources */,
-				DCE6D58B2CF5F63100865D6E /* ASN1Decoder.swift in Sources */,
-				DCE6D58C2CF5F63100865D6E /* ASN1Object.swift in Sources */,
-				DCE6D58D2CF5F63100865D6E /* PKCS7.swift in Sources */,
-				DCE6D58E2CF5F63100865D6E /* OID.swift in Sources */,
-				DCE6D58F2CF5F63100865D6E /* X509Certificate.swift in Sources */,
-				DCE6D5902CF5F63100865D6E /* ASN1Encoder.swift in Sources */,
-				DCE6D5912CF5F63100865D6E /* ASN1Identifier.swift in Sources */,
-				DCE6D5922CF5F63100865D6E /* X509ExtensionAltName.swift in Sources */,
 				DCE6D5742CF5F46000865D6E /* WMTSignatureAPNSEnvironmentDetector.swift in Sources */,
 				DCC5CCBF2449F981004679AC /* WMTOperationAttributePartyInfo.swift in Sources */,
 				DC81D1CB244F451E00F80CD6 /* WMTPushImpl.swift in Sources */,

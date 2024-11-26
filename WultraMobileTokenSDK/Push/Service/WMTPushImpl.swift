@@ -131,13 +131,13 @@ class WMTPushImpl: WMTPush, WMTService {
             D.info("Using APNS production environment for push notifications.")
             return .production
         case .automatic:
-            let env = WMTProvisioningUtils.getMainProvisioningProfile()?.apnsEnvironment ?? WMTSignatureAPNSEnvironmentDetector.detectAPNSEnvironment()
+            let env = WMTProvisioningUtils.getMainProvisioningProfile()?.entitlements.apsEnvironment ?? WMTSignatureAPNSEnvironmentDetector.detectAPNSEnvironment()?.apsEnvironment
             if let env {
                 D.info("Using \(env) environment for push notifications (automatic resolution).")
             } else {
                 D.warning("No APNS environment found in provisioning profile. Server configuration will be used.")
             }
-            return env
+            return env?.serverObject
         }
     }
 }

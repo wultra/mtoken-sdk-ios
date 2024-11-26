@@ -18,12 +18,7 @@ import Foundation
 import MachO
 import CommonCrypto
 
-internal struct MachOSignatureBlob {
-    let pkcs: PKCS7?
-    let entitlemens: Entitlements?
-}
-
-internal class MachOReader {
+class WMTMachOReader {
 
     private struct CSSuperBlob {
         var magic: UInt32
@@ -39,8 +34,6 @@ internal class MachOReader {
     private struct CSMagic {
         static let embeddedSignature: UInt32 = 0xfade0cc0
         static let embeddedEntitlements: UInt32 = 0xfade7171
-        static let blobWrapper: UInt32 = 0xfade0b01
-        static let codeDirectory: UInt32 = 0xfade0c02
     }
 
     private enum BinaryType {
@@ -55,10 +48,10 @@ internal class MachOReader {
         case fat(header: FatHeaderData)
     }
 
-    private var blobs: [MachOSignatureBlob]!
+    private var entitlements = [WMTProvision.Entitlements]()
     
-    static func readSignatures(_ binaryPath: String) -> [MachOSignatureBlob]? {
-        MachOReader(binaryPath)?.blobs
+    static func readEntitlements(_ binaryPath: String) -> [WMTProvision.Entitlements]? {
+        WMTMachOReader(binaryPath)?.entitlements
     }
 
     private init?(_ binaryPath: String) {
@@ -70,9 +63,11 @@ internal class MachOReader {
         case .singleArch(let headerInfo):
             let headerSize = headerInfo.headerSize
             let commandCount = headerInfo.commandCount
-            blobs = [readSignatureFromBinarySlice(binary: binary, headerOffset: headerSize, dataOffset: 0, cmdCount: commandCount)]
+            if let data = readEntitlementsFromBinarySlice(binary: binary, headerOffset: headerSize, dataOffset: 0, cmdCount: commandCount) {
+                entitlements.append(data)
+            }
         case .fat(let header):
-            blobs = readSignaturesFromFatBinary(binary: binary, architectureCount: header.archCount, startingAt: MemoryLayout<fat_header>.size)
+            entitlements.append(contentsOf: readEntitlementsFromFatBinary(binary: binary, architectureCount: header.archCount, startingAt: MemoryLayout<fat_header>.size))
         default:
             return nil
         }
@@ -101,8 +96,8 @@ internal class MachOReader {
         }
     }
     
-    private func readSignaturesFromFatBinary(binary: BinaryReader, architectureCount: Int, startingAt: Int) -> [MachOSignatureBlob] {
-        var blobs = [MachOSignatureBlob]()
+    private func readEntitlementsFromFatBinary(binary: BinaryReader, architectureCount: Int, startingAt: Int) -> [WMTProvision.Entitlements] {
+        var entitlements = [WMTProvision.Entitlements]()
         for i in 0..<architectureCount {
             let offset = startingAt + (i * MemoryLayout<fat_arch>.size)
             binary.seek(to: UInt64(offset))
@@ -112,32 +107,30 @@ internal class MachOReader {
             switch arch {
             case .singleArch(let headerInfo):
                 let headerOffset = Int(fatArchOffset) + headerInfo.headerSize
-                blobs.append(readSignatureFromBinarySlice(binary: binary, headerOffset: headerOffset, dataOffset: fatArchOffset, cmdCount: headerInfo.commandCount))
+                if let parsed = readEntitlementsFromBinarySlice(binary: binary, headerOffset: headerOffset, dataOffset: fatArchOffset, cmdCount: headerInfo.commandCount) {
+                    entitlements.append(parsed)
+                }
             default:
-                blobs.append(MachOSignatureBlob(pkcs: nil, entitlemens: nil))
+                break
             }
         }
-        return blobs
+        return entitlements
     }
 
-    private func readSignatureFromBinarySlice(binary: BinaryReader, headerOffset: Int, dataOffset: UInt32, cmdCount: Int) -> MachOSignatureBlob {
+    private func readEntitlementsFromBinarySlice(binary: BinaryReader, headerOffset: Int, dataOffset: UInt32, cmdCount: Int) -> WMTProvision.Entitlements? {
         binary.seek(to: UInt64(headerOffset))
-        var blob: MachOSignatureBlob?
         for _ in 0..<cmdCount {
             let command: load_command = binary.read()
             if command.cmd == LC_CODE_SIGNATURE {
                 let signatureOffset: UInt32 = binary.read()
-                blob = readSignatureData(binary: binary, startingAt: signatureOffset + dataOffset)
-                break
+                return readEntitlementsData(binary: binary, startingAt: signatureOffset + dataOffset)
             }
             binary.seek(to: binary.currentOffset + UInt64(command.cmdsize - UInt32(MemoryLayout<load_command>.size)))
         }
-        return blob ?? MachOSignatureBlob(pkcs: nil, entitlemens: nil)
+        return nil
     }
 
-    private func readSignatureData(binary: BinaryReader, startingAt offset: UInt32) -> MachOSignatureBlob {
-        var pkcs: PKCS7?
-        var entitlements: Entitlements?
+    private func readEntitlementsData(binary: BinaryReader, startingAt offset: UInt32) -> WMTProvision.Entitlements? {
         binary.seek(to: UInt64(offset))
         let metaBlob: CSSuperBlob = binary.read()
         if CFSwapInt32(metaBlob.magic) == CSMagic.embeddedSignature {
@@ -153,15 +146,40 @@ internal class MachOReader {
                 if blobMagic == CSMagic.embeddedEntitlements {
                     let signatureLength = CFSwapInt32(binary.read())
                     let signatureData = binary.readData(ofLength: Int(signatureLength) - 8)
-                    entitlements = Entitlements(signatureData)
-                } else if blobMagic == CSMagic.blobWrapper {
-                    let blobLength = CFSwapInt32(binary.read())
-                    let blobData: Data = binary.readData(ofLength: Int(blobLength) - 8)
-                    pkcs = try? PKCS7(data: blobData)
+                    return try? PropertyListDecoder().decode(WMTProvision.Entitlements.self, from: signatureData)
                 }
             }
-            
         }
-        return MachOSignatureBlob(pkcs: pkcs, entitlemens: entitlements)
+        return nil
+    }
+}
+
+private class BinaryReader {
+
+    private let handle: FileHandle
+
+    init?(_ path: String) {
+        guard let binaryHandle = FileHandle(forReadingAtPath: path) else {
+            return nil
+        }
+        handle = binaryHandle
+    }
+
+    var currentOffset: UInt64 { handle.offsetInFile }
+
+    func seek(to offset: UInt64) {
+        handle.seek(toFileOffset: offset)
+    }
+
+    func read<T>() -> T {
+        handle.readData(ofLength: MemoryLayout<T>.size).withUnsafeBytes({ $0.load(as: T.self) })
+    }
+
+    func readData(ofLength length: Int) -> Data {
+        handle.readData(ofLength: length)
+    }
+
+    deinit {
+        handle.closeFile()
     }
 }

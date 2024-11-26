@@ -41,15 +41,13 @@ enum WMTPushRegistrationEnvironment: String, Codable {
     case development
 }
 
-extension WMTProvision {
-    var apnsEnvironment: WMTPushRegistrationEnvironment? {
-        switch entitlements.apsEnvironment {
+extension WMTProvision.Entitlements.Environment {
+    var serverObject: WMTPushRegistrationEnvironment {
+        switch self {
         case .development:
             return  .development
         case .production:
             return .production
-        case nil:
-            return nil
         }
     }
 }
