@@ -82,7 +82,7 @@ class WMTPushImpl: WMTPush, WMTService {
         case .apns(_, let environment):
             payloadPlatform = .apns
             payloadEnvironment = getPushEnvironment(environment: environment)
-        case .fcm(_):
+        case .fcm:
             payloadPlatform = .fcm
             payloadEnvironment = nil // no env for FCM
         }
