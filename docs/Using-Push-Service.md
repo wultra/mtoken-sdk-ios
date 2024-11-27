@@ -11,7 +11,7 @@
 ## Introduction
 <!-- end -->
 
-Push Service is responsible for registering the device for the push notifications about the Operations that are tied to the current PowerAuth activation.
+Push Service is responsible for registering the device for the push notifications about the operations that are tied to the current PowerAuth activation.
 
 <!-- begin box warning -->
 Note: Before using Push Service, you need to have a `PowerAuthSDK` object available and initialized with a valid activation. Without a valid PowerAuth activation, the service will return an error
@@ -48,28 +48,51 @@ All available methods of the `WMTPush` API are:
 
 - `pushNotificationsRegisteredOnServer` - If there was already made a successful request.
 - `acceptLanguage` - Language settings, that will be sent along with each request.
-- `registerDeviceTokenForPushNotifications(token: Data, completionHandler: @escaping (_ success: Bool, _ error: WMTError?) -> Void)` - Registers push token on the backend.
-    - `token` - token data retrieved from APNS.
+- `register(to: WMTPushPlatform, completionHandler: completion: @escaping (Result<Void, WMTError>) -> Void)` - Registers push token on the backend.
+    - `to` - Platform and data needed (APNS or FCM + push token)
     - `completionHandler` - Called when the request finishes. Always called on the main thread.
 
 ## Registering to WMT Push Notifications
 
-To register your app to push notifications regarding the operations, you can simply call the `registerDeviceTokenForPushNotifications` method:
+### Using APNS (Apple Push Notification Service)
+
+To register your app to push notifications regarding the operations, you can simply call the `register` method with `.apns` platform parameter:
 
 ```swift
 // UIApplicationDelegate method
 func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
-    pushService.registerDeviceTokenForPushNotifications(token: deviceToken) { success, error in
-        guard success else {
-            // push registration failed
-            return
+    pushService.register(to: .apns(token: deviceToken)) { result in
+        if case .failure(let error) = result {
+            // registration failed
         }
     }
 }
 ```
 
 <!-- begin box warning -->
-The above method will get called only if you registered the app to receive push notifications. For more information, visit the [official documentation](https://developer.apple.com/documentation/usernotifications/handling_notifications_and_notification-related_actions).
+The above method will get called only if you registered the app to receive push notifications. For more information, visit the [official apple documentation](https://developer.apple.com/documentation/usernotifications/handling_notifications_and_notification-related_actions).
+<!-- end -->
+
+### Using FCM (Firebase Cloud Messaging)
+
+To register your app to push notifications regarding the operations, you can simply call the `register` method with `.fcm` platform parameter:
+
+```swift
+func messaging(_ messaging: Messaging, didReceiveRegistrationToken fcmToken: String?) {
+    guard let fcmToken else {
+        // token not received
+        return
+    }
+    pushService.register(to: .fcm(token: fcmToken)) { result in
+        if case .failure(let error) = result {
+            // registration failed
+        }
+    }
+}
+```
+
+<!-- begin box warning -->
+To properly configure FCM for iOS, follow [official google documentation](https://firebase.google.com/docs/cloud-messaging/ios/client).
 <!-- end -->
 
 ## Receiving WMT Push Notifications
