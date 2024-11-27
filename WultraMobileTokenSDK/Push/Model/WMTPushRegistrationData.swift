@@ -18,36 +18,11 @@ import Foundation
 
 class WMTPushRegistrationData: Codable {
     
-    let platform: WMTPushRegistrationPlatform
+    let platform: String
     let token: String
-    let environment: WMTPushRegistrationEnvironment?
     
-    init(platform: WMTPushRegistrationPlatform, token: String, environment: WMTPushRegistrationEnvironment?) {
-        self.platform    = platform
-        self.token       = token
-        self.environment = environment
-    }
-}
-
-enum WMTPushRegistrationPlatform: String, Codable {
-    case ios // for backwards compatibility
-    case apns
-    case fcm
-    // case hms - Huawei Messaging Service not available for iOS
-}
-
-enum WMTPushRegistrationEnvironment: String, Codable {
-    case production
-    case development
-}
-
-extension WMTProvision.Entitlements.Environment {
-    var serverObject: WMTPushRegistrationEnvironment {
-        switch self {
-        case .development:
-            return  .development
-        case .production:
-            return .production
-        }
+    init(token: String) {
+        self.platform = "ios"
+        self.token    = token
     }
 }

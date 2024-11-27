@@ -44,9 +44,6 @@
 		DCA43C6D2993F63E0059A163 /* WMTOperationAttributeImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCA43C6C2993F63E0059A163 /* WMTOperationAttributeImage.swift */; };
 		DCAB7BC824580B4C0006989D /* WMTQROperationParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCAB7BC724580B4C0006989D /* WMTQROperationParser.swift */; };
 		DCAB7BCA24580BAC0006989D /* WMTQROperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCAB7BC924580BAC0006989D /* WMTQROperation.swift */; };
-		DCAC55992CE68C2A0070644A /* ProvisioningUtilsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCAC55982CE68C2A0070644A /* ProvisioningUtilsTests.swift */; };
-		DCAC559C2CE773E90070644A /* WMTProvisioningUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCAC559B2CE773E90070644A /* WMTProvisioningUtils.swift */; };
-		DCAC55BC2CEC954C0070644A /* WMTUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCAC55BB2CEC954C0070644A /* WMTUtils.swift */; };
 		DCC3420424E3DB310045D27D /* WMTPushParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCC3420324E3DB310045D27D /* WMTPushParser.swift */; };
 		DCC5CC9F2449EE21004679AC /* MobileTokenSDK.h in Headers */ = {isa = PBXBuildFile; fileRef = DCC5CC9D2449EE21004679AC /* MobileTokenSDK.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		DCC5CCAC2449F765004679AC /* WMTOperationsImpl.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCC5CCAB2449F765004679AC /* WMTOperationsImpl.swift */; };
@@ -66,8 +63,6 @@
 		DCD8B336246C1BAF00385F02 /* WMTRejectionReason.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCD8B335246C1BAF00385F02 /* WMTRejectionReason.swift */; };
 		DCE660D124CEBECA00870E53 /* IntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCE660D024CEBECA00870E53 /* IntegrationTests.swift */; };
 		DCE660D324CEF56400870E53 /* IntegrationProxy.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCE660D224CEF56400870E53 /* IntegrationProxy.swift */; };
-		DCE6D5742CF5F46000865D6E /* WMTSignatureAPNSEnvironmentDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCE6D5732CF5F46000865D6E /* WMTSignatureAPNSEnvironmentDetector.swift */; };
-		DCE6D5772CF5F5D500865D6E /* WMTMachOReader.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCE6D5762CF5F5D500865D6E /* WMTMachOReader.swift */; };
 		EA294F3D29F6A07A00A0494E /* WMTOperationUIData.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA294F3C29F6A07A00A0494E /* WMTOperationUIData.swift */; };
 		EA44366A29F9294600DDEC1C /* WMTPostApprovaScreenReview.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA44366929F9294600DDEC1C /* WMTPostApprovaScreenReview.swift */; };
 		EA44366C29F9297100DDEC1C /* WMTPostApprovaScreenRedirect.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA44366B29F9297100DDEC1C /* WMTPostApprovaScreenRedirect.swift */; };
@@ -131,9 +126,6 @@
 		DCA43C6C2993F63E0059A163 /* WMTOperationAttributeImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTOperationAttributeImage.swift; sourceTree = "<group>"; };
 		DCAB7BC724580B4C0006989D /* WMTQROperationParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTQROperationParser.swift; sourceTree = "<group>"; };
 		DCAB7BC924580BAC0006989D /* WMTQROperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTQROperation.swift; sourceTree = "<group>"; };
-		DCAC55982CE68C2A0070644A /* ProvisioningUtilsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProvisioningUtilsTests.swift; sourceTree = "<group>"; };
-		DCAC559B2CE773E90070644A /* WMTProvisioningUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTProvisioningUtils.swift; sourceTree = "<group>"; };
-		DCAC55BB2CEC954C0070644A /* WMTUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTUtils.swift; sourceTree = "<group>"; };
 		DCC3420324E3DB310045D27D /* WMTPushParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTPushParser.swift; sourceTree = "<group>"; };
 		DCC5CC9A2449EE21004679AC /* WultraMobileTokenSDK.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = WultraMobileTokenSDK.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		DCC5CC9D2449EE21004679AC /* MobileTokenSDK.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MobileTokenSDK.h; sourceTree = "<group>"; };
@@ -158,8 +150,6 @@
 		DCD8B335246C1BAF00385F02 /* WMTRejectionReason.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTRejectionReason.swift; sourceTree = "<group>"; };
 		DCE660D024CEBECA00870E53 /* IntegrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntegrationTests.swift; sourceTree = "<group>"; };
 		DCE660D224CEF56400870E53 /* IntegrationProxy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntegrationProxy.swift; sourceTree = "<group>"; };
-		DCE6D5732CF5F46000865D6E /* WMTSignatureAPNSEnvironmentDetector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTSignatureAPNSEnvironmentDetector.swift; sourceTree = "<group>"; };
-		DCE6D5762CF5F5D500865D6E /* WMTMachOReader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTMachOReader.swift; sourceTree = "<group>"; };
 		EA294F3C29F6A07A00A0494E /* WMTOperationUIData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTOperationUIData.swift; sourceTree = "<group>"; };
 		EA44366929F9294600DDEC1C /* WMTPostApprovaScreenReview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTPostApprovaScreenReview.swift; sourceTree = "<group>"; };
 		EA44366B29F9297100DDEC1C /* WMTPostApprovaScreenRedirect.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTPostApprovaScreenRedirect.swift; sourceTree = "<group>"; };
@@ -246,16 +236,6 @@
 			path = UserOperation;
 			sourceTree = "<group>";
 		};
-		DC3E529E2CF62891002621C1 /* ProvisioningUtils */ = {
-			isa = PBXGroup;
-			children = (
-				DCAC559B2CE773E90070644A /* WMTProvisioningUtils.swift */,
-				DCE6D5732CF5F46000865D6E /* WMTSignatureAPNSEnvironmentDetector.swift */,
-				DCE6D5762CF5F5D500865D6E /* WMTMachOReader.swift */,
-			);
-			path = ProvisioningUtils;
-			sourceTree = "<group>";
-		};
 		DC488034292282FF00DB844B /* Inbox */ = {
 			isa = PBXGroup;
 			children = (
@@ -297,7 +277,6 @@
 				DCE660D024CEBECA00870E53 /* IntegrationTests.swift */,
 				DCE660D224CEF56400870E53 /* IntegrationProxy.swift */,
 				DC395C0924E55B9B0007C36E /* PushParserTests.swift */,
-				DCAC55982CE68C2A0070644A /* ProvisioningUtilsTests.swift */,
 				DC6EDB7825A49ED900A229E4 /* OperationExpirationTests.swift */,
 				DC616235248508F8000DED17 /* QROperationParserTests.swift */,
 				EAB705492AF1161500756AC2 /* PACParserTests.swift */,
@@ -377,13 +356,11 @@
 		DC81D1CE24502E0300F80CD6 /* Common */ = {
 			isa = PBXGroup;
 			children = (
-				DC3E529E2CF62891002621C1 /* ProvisioningUtils */,
 				BFEEB20A2937AD700047941D /* WMTCancellable.swift */,
 				DC488030292282C900DB844B /* WMTService.swift */,
 				DCC5CCCD244DB0AD004679AC /* WMTLogger.swift */,
 				DC06D01E25AC74E400F2EA69 /* WMTLock.swift */,
 				DC9511F826EA02C100FF40AD /* WPNIntegration.swift */,
-				DCAC55BB2CEC954C0070644A /* WMTUtils.swift */,
 			);
 			path = Common;
 			sourceTree = "<group>";
@@ -611,7 +588,6 @@
 			files = (
 				DC61624224852B6D000DED17 /* NetworkingObjectsTests.swift in Sources */,
 				DC395C0A24E55B9B0007C36E /* PushParserTests.swift in Sources */,
-				DCAC55992CE68C2A0070644A /* ProvisioningUtilsTests.swift in Sources */,
 				DC6EDB7925A49ED900A229E4 /* OperationExpirationTests.swift in Sources */,
 				EAB7054A2AF1161500756AC2 /* PACParserTests.swift in Sources */,
 				DC616236248508F8000DED17 /* QROperationParserTests.swift in Sources */,
@@ -634,7 +610,6 @@
 				DC3D0B392480F886000DC4D9 /* WMTLocalOperation.swift in Sources */,
 				DCD8B336246C1BAF00385F02 /* WMTRejectionReason.swift in Sources */,
 				DCC5CCD8244DBBBD004679AC /* WMTAuthorizationData.swift in Sources */,
-				DCAC55BC2CEC954C0070644A /* WMTUtils.swift in Sources */,
 				DC488040292282FF00DB844B /* WMTInboxCount.swift in Sources */,
 				DCA43C6B29927C960059A163 /* WMTOperationAttributeAmountConversion.swift in Sources */,
 				EA74F7B32C2561BB004340B9 /* WMTResultTexts.swift in Sources */,
@@ -664,15 +639,12 @@
 				DCC5CCCE244DB0AD004679AC /* WMTLogger.swift in Sources */,
 				DCC5CCAE2449F7AC004679AC /* WMTUserOperation.swift in Sources */,
 				DC9511F926EA02C100FF40AD /* WPNIntegration.swift in Sources */,
-				DCE6D5772CF5F5D500865D6E /* WMTMachOReader.swift in Sources */,
 				DCC5CCBD2449F965004679AC /* WMTOperationAttributeHeading.swift in Sources */,
-				DCAC559C2CE773E90070644A /* WMTProvisioningUtils.swift in Sources */,
 				DC8CB206244DD007009DDAA3 /* WMTAllowedOperationSignature.swift in Sources */,
 				DCC3420424E3DB310045D27D /* WMTPushParser.swift in Sources */,
 				BFEEB20529379C700047941D /* WMTInboxGetMessageDetail.swift in Sources */,
 				EACAF7B02A126B7D0021CA54 /* WMTJsonValue.swift in Sources */,
 				DCAB7BCA24580BAC0006989D /* WMTQROperation.swift in Sources */,
-				DCE6D5742CF5F46000865D6E /* WMTSignatureAPNSEnvironmentDetector.swift in Sources */,
 				DCC5CCBF2449F981004679AC /* WMTOperationAttributePartyInfo.swift in Sources */,
 				DC81D1CB244F451E00F80CD6 /* WMTPushImpl.swift in Sources */,
 				EA9CE2BE2AEAA9FD00FE4E35 /* WMTProximityCheck.swift in Sources */,
