@@ -62,37 +62,6 @@ class WMTPushImpl: WMTPush, WMTService {
     
     @discardableResult
     func registerDeviceTokenForPushNotifications(token: Data, completion: @escaping (Result<Void, WMTError>) -> Void) -> Operation? {
-        // ios for backwards compatibility
-        return registerPush(
-            platform: .ios,
-            token: token.toHex(),
-            environment: getPushEnvironment(environment: .automatic),
-            completion: completion
-        )
-    }
-    
-    @discardableResult
-    func register(to platform: WMTPushPlatform, completion: @escaping (Result<Void, WMTError>) -> Void) -> Operation? {
-        
-        let payloadPlatform: WMTPushRegistrationPlatform
-        let payloadToken = platform.token
-        let payloadEnvironment: WMTPushRegistrationEnvironment?
-        
-        switch platform {
-        case .apns(_, let environment):
-            payloadPlatform = .apns
-            payloadEnvironment = getPushEnvironment(environment: environment)
-        case .fcm:
-            payloadPlatform = .fcm
-            payloadEnvironment = nil // no env for FCM
-        }
-        
-        D.info("Registering push for \(payloadPlatform.rawValue) platform.")
-        
-        return registerPush(platform: payloadPlatform, token: payloadToken, environment: payloadEnvironment, completion: completion)
-    }
-    
-    private func registerPush(platform: WMTPushRegistrationPlatform, token: String, environment: WMTPushRegistrationEnvironment?, completion: @escaping (Result<Void, WMTError>) -> Void) -> Operation? {
         
         guard validateActivation(completion) else {
             return nil
@@ -108,7 +77,7 @@ class WMTPushImpl: WMTPush, WMTService {
         pendingRegistrationForRemotePushNotifications = true
         pushNotificationsRegisteredOnServer = false
         
-        let data = WMTPushRegistrationData(platform: platform, token: token, environment: environment)
+        let data = WMTPushRegistrationData(token: HexadecimalString.encodeData(token))
         
         return networking.post(data: .init(data), signedWith: .possession(), to: WMTPushEndpoints.RegisterDevice.endpoint) { _, error in
             self.pendingRegistrationForRemotePushNotifications = false
@@ -121,32 +90,21 @@ class WMTPushImpl: WMTPush, WMTService {
             }
         }
     }
-    
-    private func getPushEnvironment(environment: WMTPushAPNSEnvironment) -> WMTPushRegistrationEnvironment? {
-        switch environment {
-        case .development:
-            D.info("Using APNS development environment for push notifications.")
-            return .development
-        case .production:
-            D.info("Using APNS production environment for push notifications.")
-            return .production
-        case .automatic:
-            let env = WMTProvisioningUtils.getMainProvisioningProfile()?.entitlements.apsEnvironment ?? WMTSignatureAPNSEnvironmentDetector.detectAPNSEnvironment()?.apsEnvironment
-            if let env {
-                D.info("Using \(env) environment for push notifications (automatic resolution).")
-            } else {
-                D.warning("No APNS environment found in provisioning profile. Server configuration will be used.")
-            }
-            return env?.serverObject
-        }
-    }
 }
 
-extension WMTPushPlatform {
-    var token: String {
-        return switch self {
-        case .apns(token: let token, environment: _): token.toHex()
-        case .fcm(token: let token): token
+private class HexadecimalString {
+    
+    static let toHexTable: [Character] = [ "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "A", "B", "C", "D", "E", "F" ]
+    
+    static func encodeData(_ data: Data) -> String {
+        var result = ""
+        result.reserveCapacity(data.count * 2)
+        for byte in data {
+            let byteAsUInt = Int(byte)
+            result.append(toHexTable[byteAsUInt >> 4])
+            result.append(toHexTable[byteAsUInt & 15])
         }
+        return result
     }
+    
 }
