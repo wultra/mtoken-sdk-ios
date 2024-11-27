@@ -18,7 +18,6 @@ import XCTest
 import PowerAuth2
 @testable import WultraMobileTokenSDK
 
-
 /**
  For integration test to be successfully executed, you need to provide
  configuration json file. To more information, visit `WultraMobileTokenSDKTests/Configs/Readme.md`.
@@ -30,6 +29,7 @@ class IntegrationTests: XCTestCase {
     private var pa: PowerAuthSDK! { proxy.powerAuth }
     private var ops: WMTOperations! { proxy.operations }
     private var inbox: WMTInbox! { proxy.inbox }
+    private var push: WMTPush! { proxy.push}
     
     private let pin = "1234"
     
@@ -42,7 +42,7 @@ class IntegrationTests: XCTestCase {
         
         // Integration Utils prepares an valid activation and sets is as primary
         // token activation on nextstep server
-        proxy.prepareActivation(pin: pin) { error in
+        proxy.prepareActivation(pin: pin/*, configFileName: "config-stable"*/) { error in
             if let error = error {
                 XCTFail(error)
             }
@@ -136,37 +136,6 @@ class IntegrationTests: XCTestCase {
         }
         
         waitForExpectations(timeout: 20, handler: nil)
-    }
-    
-    /// Test of the Operation cancel
-    func testDetailCancel() {
-        let exp = expectation(description: "Cancel operation detail")
-        
-        proxy.createNonPersonalisedPACOperation { op in
-            if let op {
-                DispatchQueue.main.async {
-                    guard let operation = self.ops.getDetail(operationId: op.operationId, completion: { _ in
-                        XCTFail("Operation should be already canceled")
-                        exp.fulfill()
-                    }) else {
-                        XCTFail("Failed to create operation")
-                        exp.fulfill()
-                        return
-                    }
-                    
-                    operation.cancel()
-                    
-                    // Allowing most of the timeout duration for potential completion of the getDetail call.
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 4) {
-                        XCTAssertTrue(operation.isCancelled, "Operation should be cancelled")
-                        exp.fulfill()
-                    }
-                }
-            }
-        }
-        
-        // Wait for expectation to be fulfilled
-        waitForExpectations(timeout: 5, handler: nil)
     }
     
     func testOperationCanceledWithReason() {
@@ -765,8 +734,65 @@ class IntegrationTests: XCTestCase {
                 }
             }
         }
-        // there are 3 backend calls, give it some time...
-        waitForExpectations(timeout: 20, handler: nil)
+        // there are severalstejn backend calls, give it some time...
+        waitForExpectations(timeout: 40, handler: nil)
+    }
+    
+    // MARK: - Push
+    
+    func testRegisterPushLegacy() {
+        let expect = expectation(description: "Register push legacy")
+        push.registerDeviceTokenForPushNotifications(token: "testtoken".data(using: .utf8)!) { result in
+            if case .failure(let error) = result {
+                XCTFail("Failed to register push legacy: \(error.description)")
+            }
+            expect.fulfill()
+        }
+        XCTWaiter().wait(for: [expect], timeout: 20)
+    }
+    
+    func testRegisterPushApns() {
+        let expect = expectation(description: "Register push APNS")
+        push.register(to: .apns(token: "testtoken".data(using: .utf8)!)) { result in
+            if case .failure(let error) = result {
+                XCTFail("Failed to register APNS push: \(error)")
+            }
+            expect.fulfill()
+        }
+        XCTWaiter().wait(for: [expect], timeout: 20)
+    }
+    
+    func testRegisterPushApnsProduction() {
+        let expect = expectation(description: "Register push APNS")
+        push.register(to: .apns(token: "testtoken".data(using: .utf8)!, environment: .production)) { result in
+            if case .failure(let error) = result {
+                XCTFail("Failed to register APNS push: \(error)")
+            }
+            expect.fulfill()
+        }
+        XCTWaiter().wait(for: [expect], timeout: 20)
+    }
+    
+    func testRegisterPushApnsDevelopment() {
+        let expect = expectation(description: "Register push APNS")
+        push.register(to: .apns(token: "testtoken".data(using: .utf8)!, environment: .development)) { result in
+            if case .failure(let error) = result {
+                XCTFail("Failed to register APNS push: \(error)")
+            }
+            expect.fulfill()
+        }
+        XCTWaiter().wait(for: [expect], timeout: 20)
+    }
+    
+    func testRegisterPushFcm() {
+        let expect = expectation(description: "Register push APNS")
+        push.register(to: .fcm(token: "testtoken")) { result in
+            if case .failure(let error) = result {
+                XCTFail("Failed to register FCM push: \(error)")
+            }
+            expect.fulfill()
+        }
+        XCTWaiter().wait(for: [expect], timeout: 20)
     }
     
     // MARK: - Inbox

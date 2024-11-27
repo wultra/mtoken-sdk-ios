@@ -29,11 +29,54 @@ public protocol WMTPush: AnyObject {
     
     /// Registers the current powerauth activation for push notifications.
     ///
+    /// This method is compatible with server stack `1.9.x`
+    ///
     /// - Parameters:
     ///   - token: Push token.
     ///   - completion: Completion handler.
     ///                 This completion is always called on the main thread.
     /// - Returns: Operation object for its state observation.
     @discardableResult
+    @available(*, deprecated, renamed: "register", message: "This method is deprecated since server version 1.10.0. Use register(token:completion:) instead.")
     func registerDeviceTokenForPushNotifications(token: Data, completion: @escaping (Result<Void, WMTError>) -> Void) -> Operation?
+    
+    /// Registers the current powerauth activation for push notifications.
+    ///
+    /// - Parameters:
+    ///   - platform: Platform that you're registering to
+    ///   - completion: Completion handler.
+    ///                 This completion is always called on the main thread.
+    /// - Returns: Operation object for its state observation.
+    @discardableResult
+    func register(to platform: WMTPushPlatform, completion: @escaping (Result<Void, WMTError>) -> Void) -> Operation?
+}
+
+/// Push platform that is used for push notifications
+public enum WMTPushPlatform {
+    
+    /// Apple Push Notification Service - when you're using directly Apple Push Service for push notifications
+    /// - Parameters:
+    ///   - token: APNS push token data retrieved from the system
+    ///   - environment: APNS push environment. Default value is `automatic`
+    case apns(token: Data, environment: WMTPushAPNSEnvironment = .automatic)
+    
+    /// Firebase Cloud Messaging - when you're using Firebase to send push notifications
+    /// - Parameters:
+    ///   - token: FCM token retrieved from the Firebase SDK
+    case fcm(token: String)
+}
+
+/// APNS push environment.
+///
+/// Production environment (server) must be used for production signed apps. (For example TestFlight or AppStore distrubution).
+/// Development environment (server) must be used for developer-signed apps. (For example debug builds or ad-hoc development distrubition).
+public enum WMTPushAPNSEnvironment {
+    /// Automatically detect how is the app signed and set the environment properly.
+    ///
+    /// When automatic detection fails, environment is not sent at all and server configuration is used.
+    case automatic
+    /// Production APNS environment for production-signed app (TestFlight and AppStore distribution).
+    case production
+    /// Development signed app.
+    case development
 }

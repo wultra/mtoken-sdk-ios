@@ -63,4 +63,4 @@ Note: If you want to use only operations, you can omit the Push dependency and i
 
 ## Xcode Compatibility
 
-We recommend using Xcode version 15.0 or newer.
+We recommend using Xcode version 16.0 or newer.

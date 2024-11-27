@@ -1,8 +1,9 @@
 # Changelog
 
-## 1.13.0 (TBA)
+## X.X.X (TBA)
 
 - Added status to `UserOperation` and removed redundant `OperationHistoryEntry` [(#171)](https://github.com/wultra/mtoken-sdk-ios/pull/171)
+- Added option for Firebase Cloud Messaging for Push Notifications and automatic APNS environment detection [(#174)](https://github.com/wultra/mtoken-sdk-ios/issues/174).
 
 ## 1.12.0 (October 2024)
 
