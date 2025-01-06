@@ -28,8 +28,8 @@ class IntegrationTests: XCTestCase {
     
     private var proxy: IntegrationProxy!
     private var pa: PowerAuthSDK! { proxy.powerAuth }
-    private var ops: WMTOperations! { proxy.operations }
-    private var inbox: WMTInbox! { proxy.inbox }
+    private var ops: WMTOperations! { proxy.wmt?.operations }
+    private var inbox: WMTInbox! { proxy.wmt?.inbox }
     
     private let pin = "1234"
     
@@ -488,90 +488,6 @@ class IntegrationTests: XCTestCase {
         }
         
         waitForExpectations(timeout: 20, handler: nil)
-    }
-    
-    // Testing that operations polling pause works
-    func testOperationPollingPause() {
-        XCTAssertTrue(ops.pollingOptions.contains(.pauseWhenOnBackground), "Operation service is not set to pause on background")
-        let exp = expectation(description: "Timeout expectation")
-        XCTAssertFalse(ops.isPollingOperations, "Polling should be inactive")
-        let delegate = OpDelegate()
-        delegate.loadingCountCallback = { count in
-            if count == 1 {
-                // will resign active should stop polling as the app "is on background"
-                NotificationCenter.default.post(name: UIApplication.willResignActiveNotification, object: nil)
-            }
-        }
-        ops.delegate = delegate
-        ops.startPollingOperations(interval: 1, delayStart: false)
-        XCTAssertTrue(ops.isPollingOperations)
-
-        if XCTWaiter.wait(for: [exp], timeout: 5) == XCTWaiter.Result.timedOut {
-            XCTAssertEqual(delegate.loadingCount, 1, "only one loading should be made")
-            XCTAssertTrue(ops.isPollingOperations, "Polling should be active")
-            exp.fulfill()
-        } else {
-            XCTFail("expectation should not have been met")
-        }
-        
-        // After the pause, reactive the app again and check if it was continued
-        
-        let exp2 = expectation(description: "Polling pause expectation")
-        let delegate2 = OpDelegate()
-        delegate2.loadingCountCallback = { count in
-            if count == 1 {
-                self.ops.stopPollingOperations()
-                exp2.fulfill()
-            }
-        }
-        ops.delegate = delegate2
-        NotificationCenter.default.post(name: UIApplication.didBecomeActiveNotification, object: nil)
-        wait(for: [exp2], timeout: 5)
-        XCTAssertEqual(delegate2.loadingCount, 1, "Loading did continue after the active notification")
-        XCTAssertFalse(ops.isPollingOperations)
-    }
-    
-    // Testing that operations polling stop works when paused
-    func testOperationPollingPauseAndStop() {
-        XCTAssertTrue(ops.pollingOptions.contains(.pauseWhenOnBackground), "Operation service is not set to pause on background")
-        let exp = expectation(description: "Timeout expectation")
-        XCTAssertFalse(ops.isPollingOperations, "Polling should be inactive")
-        let delegate = OpDelegate()
-        delegate.loadingCountCallback = { count in
-            if count == 1 {
-                // will resign active should stop polling as the app "is on background"
-                NotificationCenter.default.post(name: UIApplication.willResignActiveNotification, object: nil)
-            }
-        }
-        ops.delegate = delegate
-        ops.startPollingOperations(interval: 1, delayStart: false)
-        XCTAssertTrue(ops.isPollingOperations)
-
-        // The expectation should time out
-        if XCTWaiter.wait(for: [exp], timeout: 5) == XCTWaiter.Result.timedOut {
-            XCTAssertEqual(delegate.loadingCount, 1, "only one loading should be made")
-            XCTAssertTrue(ops.isPollingOperations, "Polling should be active")
-            exp.fulfill()
-        } else {
-            XCTFail("expectation should not have been met")
-        }
-        
-        // After the pause, we will stop the polling and "activate" the app again.
-        // In such case, the polling should not be started since it was stopped.
-        
-        let exp2 = expectation(description: "Polling pause expectation")
-        let delegate2 = OpDelegate()
-        ops.delegate = delegate2
-        ops.stopPollingOperations()
-        XCTAssertFalse(ops.isPollingOperations)
-        NotificationCenter.default.post(name: UIApplication.didBecomeActiveNotification, object: nil)
-        if XCTWaiter.wait(for: [exp2], timeout: 5) == XCTWaiter.Result.timedOut {
-            XCTAssertEqual(delegate2.loadingCount, 0, "Loading continued after the active notification")
-            XCTAssertFalse(ops.isPollingOperations)
-            exp2.fulfill()
-        } else {
-            XCTFail("expectation should not have been met")
-        }
     }
     
     func testOperationChangedDelegate() {

@@ -15,9 +15,15 @@
 //
 
 import Foundation
+import PowerAuth2
+import WultraPowerAuthNetworking
 
-/// Protocol for service that communicates with Inbox API that is managing user's inbox.
-public protocol WMTInbox: AnyObject {
+/// Service that communicates with Inbox API that is managing user's inbox.
+public class WMTInbox: WMTService {
+    
+    // Dependencies
+    lazy var powerAuth = networking.powerAuth
+    private let networking: WPNNetworkingService
     
     /// Accept language for the outgoing requests headers.
     /// Default value is "en".
@@ -25,7 +31,14 @@ public protocol WMTInbox: AnyObject {
     /// Standard RFC "Accept-Language" https://tools.ietf.org/html/rfc7231#section-5.3.5
     /// Response texts are based on this setting. For example when "de" is set, server
     /// will return operation texts in german (if available).
-    var acceptLanguage: String { get set }
+    public var acceptLanguage: String {
+        get { networking.acceptLanguage }
+        set { networking.acceptLanguage = newValue }
+    }
+    
+    public init(networking: WPNNetworkingService) {
+        self.networking = networking
+    }
     
     /// Get number of unread messages in the inbox.
     ///
@@ -33,7 +46,15 @@ public protocol WMTInbox: AnyObject {
     ///   - completion: Result callback. This completion is always called on the main thread.
     /// - Returns: Operation object for its state observation.
     @discardableResult
-    func getUnreadCount(completion: @escaping(Result<WMTInboxCount, WMTError>) -> Void) -> Operation?
+    public func getUnreadCount(completion: @escaping (Result<WMTInboxCount, WMTError>) -> Void) -> Operation? {
+        guard validateActivation(completion) else {
+            return nil
+        }
+        
+        return networking.post(data: .init(), signedWith: .possession(), to: WMTInboxEndpoints.Count.endpoint) { response, error in
+            self.processResult(response: response, error: error, completion: completion)
+        }
+    }
     
     /// Paged list of messages in the inbox. You can use also `getAllMessages()` method to fetch all messages.
     ///
@@ -44,36 +65,15 @@ public protocol WMTInbox: AnyObject {
     ///   - completion: Result callback. This completion is always called on the main thread.
     /// - Returns: Operation object for its state observation.
     @discardableResult
-    func getMessageList(pageNumber: Int, pageSize: Int, onlyUnread: Bool, completion: @escaping(Result<[WMTInboxMessage], WMTError>) -> Void) -> Operation?
-    
-    /// Get message detail in the inbox.
-    ///
-    /// - Parameters:
-    ///   - messageId: Message ID.
-    ///   - completion: Result callback. This completion is always called on the main thread.
-    /// - Returns: Operation object for its state observation.
-    @discardableResult
-    func getMessageDetail(messageId: String, completion: @escaping(Result<WMTInboxMessageDetail, WMTError>) -> Void) -> Operation?
-    
-    /// Mark the message with the given identifier as read.
-    ///
-    /// - Parameters:
-    ///   - messageId: Message identifier.
-    ///   - completion: Result callback. This completion is always called on the main thread.
-    /// - Returns: Operation object for its state observation.
-    @discardableResult
-    func markRead(messageId: String, completion: @escaping(Result<Void, WMTError>) -> Void) -> Operation?
-    
-    /// Marks all unread messages in the inbox as read.
-    ///
-    /// - Parameters:
-    ///   - completion: Result callback. This completion is always called on the main thread.
-    /// - Returns: Operation object for its state observation.
-    @discardableResult
-    func markAllRead(completion: @escaping(Result<Void, WMTError>) -> Void) -> Operation?
-}
-
-public extension WMTInbox {
+    public func getMessageList(pageNumber: Int, pageSize: Int, onlyUnread: Bool, completion: @escaping (Result<[WMTInboxMessage], WMTError>) -> Void) -> Operation? {
+        guard validateActivation(completion) else {
+            return nil
+        }
+        let data = WMTInboxGetList(page: pageNumber, size: pageSize, onlyUnread: onlyUnread)
+        return networking.post(data: .init(data), signedWith: .possession(), to: WMTInboxEndpoints.MessageList.endpoint) { response, error in
+            self.processResult(response: response, error: error, completion: completion)
+        }
+    }
     
     /// Get all messages in the inbox. The function will issue multiple HTTP requests until the list is not complete.
     ///
@@ -89,6 +89,55 @@ public extension WMTInbox {
         return fetchPartialList(fetchOperation: operation) == nil ? nil : operation
     }
     
+    /// Get message detail in the inbox.
+    ///
+    /// - Parameters:
+    ///   - messageId: Message ID.
+    ///   - completion: Result callback. This completion is always called on the main thread.
+    /// - Returns: Operation object for its state observation.
+    @discardableResult
+    public func getMessageDetail(messageId: String, completion: @escaping (Result<WMTInboxMessageDetail, WMTError>) -> Void) -> Operation? {
+        guard validateActivation(completion) else {
+            return nil
+        }
+        let data = WMTInboxGetMessageDetail(id: messageId)
+        return networking.post(data: .init(data), signedWith: .possession(), to: WMTInboxEndpoints.MessageDetail.endpoint) { response, error in
+            self.processResult(response: response, error: error, completion: completion)
+        }
+    }
+    
+    /// Mark the message with the given identifier as read.
+    ///
+    /// - Parameters:
+    ///   - messageId: Message identifier.
+    ///   - completion: Result callback. This completion is always called on the main thread.
+    /// - Returns: Operation object for its state observation.
+    @discardableResult
+    public func markRead(messageId: String, completion: @escaping (Result<Void, WMTError>) -> Void) -> Operation? {
+        guard validateActivation(completion) else {
+            return nil
+        }
+        let data = WMTInboxSetMessageRead(id: messageId)
+        return networking.post(data: .init(data), signedWith: .possession(), to: WMTInboxEndpoints.MessageRead.endpoint) { response, error in
+            self.processResult(response: response, error: error, completion: completion)
+        }
+    }
+    
+    /// Marks all unread messages in the inbox as read.
+    ///
+    /// - Parameters:
+    ///   - completion: Result callback. This completion is always called on the main thread.
+    /// - Returns: Operation object for its state observation.
+    @discardableResult
+    public func markAllRead(completion: @escaping (Result<Void, WMTError>) -> Void) -> Operation? {
+        guard validateActivation(completion) else {
+            return nil
+        }
+        return networking.post(data: .init(), signedWith: .possession(), to: WMTInboxEndpoints.MessageReadAll.endpoint) { response, error in
+            self.processResult(response: response, error: error, completion: completion)
+        }
+    }
+    
     /// Fetch partial list from the server.
     /// - Parameters:
     ///   - fetchOperation: Fetch operation object.
@@ -98,6 +147,7 @@ public extension WMTInbox {
             guard let `self` = self else { return }
             switch result {
             case .success(let messages):
+                print("MESAGGGEEESSS BITHCH: \(messages)")
                 guard !fetchOperation.isCanceled else {
                     // Operation is canceled, just ignore the result
                     return
@@ -112,6 +162,7 @@ public extension WMTInbox {
                     
                 }
             case .failure:
+                print("MESAGGGEEESSS BITHCH: \(result)")
                 fetchOperation.complete(result)
             }
         }
