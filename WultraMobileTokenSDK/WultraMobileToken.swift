@@ -18,8 +18,8 @@ public extension PowerAuthSDK {
     func createWultraMobileToken(
         acceptLanguage: String = "en",
         userAgent: WPNUserAgent = .libraryDefault
-    ) throws -> WultraMobileToken {
-        try WultraMobileToken(powerAuth: self, acceptLanguage: acceptLanguage, userAgent: userAgent)
+    ) -> WultraMobileToken? {
+       return WultraMobileToken(powerAuth: self, acceptLanguage: acceptLanguage, userAgent: userAgent)
     }
     
     func createWultraMobileToken(
@@ -28,7 +28,7 @@ public extension PowerAuthSDK {
         inboxConfig: WPNConfig? = nil,
         acceptLanguage: String = "en"
     ) -> WultraMobileToken {
-        WultraMobileToken(
+        return WultraMobileToken(
             powerAuth: self,
             operationsConfig: operationsConfig,
             pushConfig: pushConfig,
@@ -57,42 +57,34 @@ public class WultraMobileToken {
     private let powerAuth: PowerAuthSDK
     private let userAgent: WPNUserAgent?
     
-    private var baseURL: URL
-    private var operationsConfig: WPNConfig?
-    private var pushConfig: WPNConfig?
-    private var inboxConfig: WPNConfig?
+    private let baseURL: URL
+    private let operationsConfig: WPNConfig?
+    private let pushConfig: WPNConfig?
+    private let inboxConfig: WPNConfig?
     private var acceptLanguage: String
-    
-    // MARK: - Errors
-    public enum InitError: LocalizedError {
-        /// Provided URL is invalid (see `url` associated value)
-        case invalidBaseURL(url: String)
-        
-        public var errorDescription: String? {
-            switch self {
-            case .invalidBaseURL(let url): return "invalidBaseURL: Provided URL is invalid: \(url)"
-            }
-        }
-    }
     
     // MARK: - Initializers
     /**
-     Initializes a new instance of `WultraMobileToken`.
+     Initializes a new instance of `WultraMobileToken`. Which may fail if the PowerAuth `baseEndpointUrl` is invalid
      
      - Parameters:
        - powerAuth: `PowerAuth` instance. Needs to be activated when calling any method of this class; otherwise, an error will be thrown.
        - acceptLanguage: The language code to set for the `Accept-Language` header.
        - userAgent: User agent that will be used in a HTTP header.
      */
-    public init(
+    public init?(
         powerAuth: PowerAuthSDK,
         acceptLanguage: String = "en",
         userAgent: WPNUserAgent = .libraryDefault
-    ) throws {
+    ) {
         self.powerAuth = powerAuth
         self.acceptLanguage = acceptLanguage
         self.userAgent = userAgent
-        self.baseURL = try Self.resolveURL(from: powerAuth.configuration.baseEndpointUrl)
+        if let url = URL(string: powerAuth.configuration.baseEndpointUrl) {
+            self.baseURL = url
+        } else {
+            return nil
+        }
         self.operationsConfig = nil
         self.pushConfig = nil
         self.inboxConfig = nil
@@ -152,6 +144,7 @@ public class WultraMobileToken {
      - Parameter lang: The language code to set for the `Accept-Language` header.
      */
     public func setAcceptLanguage(_ lang: String) {
+        acceptLanguage = lang
         operations.acceptLanguage = lang
         push.acceptLanguage = lang
         inbox.acceptLanguage = lang
@@ -196,13 +189,5 @@ public class WultraMobileToken {
                 acceptLanguage: acceptLanguage
             )
         )
-    }
-    
-    // Helper function to resolve and validate URLs
-    private static func resolveURL(from urlString: String) throws -> URL {
-        guard let url = URL(string: urlString) else {
-            throw InitError.invalidBaseURL(url: urlString)
-        }
-        return url
     }
 }
