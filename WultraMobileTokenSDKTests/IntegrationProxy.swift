@@ -21,7 +21,9 @@ import WultraPowerAuthNetworking
 class IntegrationProxy {
     
     private(set) var powerAuth: PowerAuthSDK?
-    private(set) var wmt: WultraMobileToken?
+//    private(set) var wmt: WultraMobileToken?
+    private(set) var ops: WMTOperations?
+    private(set) var inbox: WMTInbox?
     
     private var config: IntegrationConfig!
     private let activationName = UUID().uuidString
@@ -52,7 +54,9 @@ class IntegrationProxy {
                 let wpnOperationsConf = WPNConfig(baseUrl: URL(string: self.config.operationsServerUrl)!, sslValidation: .noValidation)
                 let wpnInboxConf = WPNConfig(baseUrl: URL(string: self.config.inboxServerUrl)!, sslValidation: .noValidation)
                 self.powerAuth = pa
-                self.wmt = pa.createWultraMobileToken(operationsConfig: wpnOperationsConf, inboxConfig: wpnInboxConf)
+//                self.wmt = try! pa.createWultraMobileToken()
+                self.ops = WMTOperations(networking: WPNNetworkingService(powerAuth: pa, config: wpnOperationsConf, serviceName: "WMTOperations"))
+                self.inbox = WMTInbox(networking: WPNNetworkingService(powerAuth: pa, config: wpnInboxConf, serviceName: "WMTInbox"))
             }
         }
     }

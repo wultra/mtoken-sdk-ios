@@ -108,42 +108,8 @@ public class WMTOperations: WMTService {
     /// Methods of the delegate are always called on the main thread.
     weak var delegate: WMTOperationsDelegate?
     
-    init(powerAuth: PowerAuthSDK, baseURL: URL) {
-        self.networking = WPNNetworkingService(powerAuth: powerAuth, config: WPNConfig(baseUrl: baseURL), serviceName: "WMTOperations")
-    }
-    
-    init(networking: WPNNetworkingService) {
+    public init(networking: WPNNetworkingService) {
         self.networking = networking
-//        self.pollingOptions = pollingOptions
-//        
-//        #if os(iOS)
-//        if pollingOptions.contains(.pauseWhenOnBackground) {
-//            notificationObservers.append(NotificationCenter.default.addObserver(forName: UIApplication.willResignActiveNotification, object: nil, queue: nil) { [weak self] _ in
-//                guard let self = self else {
-//                    return
-//                }
-//                self.pollingLock.synchronized {
-//                    if self.isPollingOperationsInternal {
-//                        self.pollingTimer?.invalidate()
-//                    }
-//                }
-//            })
-//            notificationObservers.append(NotificationCenter.default.addObserver(forName: UIApplication.didBecomeActiveNotification, object: nil, queue: nil) { [weak self] _ in
-//                guard let self = self else {
-//                    return
-//                }
-//                self.pollingLock.synchronized {
-//                    if self.isPollingPaused {
-//                        guard let timer = self.pollingTimer else {
-//                            D.error("This is a logical error, timer shouldn't be deallocated when paused")
-//                            return
-//                        }
-//                        self.pollingTimer = nil
-//                        self.startPollingOperationsInternal(interval: timer.timeInterval, delayStart: false)
-//                    }
-//                }
-//            })
-//        }
     }
     
     // MARK: - service API

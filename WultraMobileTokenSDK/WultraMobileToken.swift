@@ -18,30 +18,13 @@ public extension PowerAuthSDK {
     func createWultraMobileToken(
         acceptLanguage: String = "en",
         userAgent: WPNUserAgent = .libraryDefault
-    ) -> WultraMobileToken? {
-       return WultraMobileToken(powerAuth: self, acceptLanguage: acceptLanguage, userAgent: userAgent)
-    }
-    
-    func createWultraMobileToken(
-        operationsConfig: WPNConfig,
-        pushConfig: WPNConfig? = nil,
-        inboxConfig: WPNConfig? = nil,
-        acceptLanguage: String = "en"
-    ) -> WultraMobileToken {
-        return WultraMobileToken(
-            powerAuth: self,
-            operationsConfig: operationsConfig,
-            pushConfig: pushConfig,
-            inboxConfig: inboxConfig,
-            acceptLanguage: acceptLanguage
-        )
+    ) throws -> WultraMobileToken {
+       return try WultraMobileToken(powerAuth: self, acceptLanguage: acceptLanguage, userAgent: userAgent)
     }
 }
 
-/**
- * `WultraMobileToken` class exposes APIs that enable fetching, authorizing, or rejecting basic
- * operations created in the PowerAuth stack.
- */
+ /// `WultraMobileToken` class exposes APIs that enable fetching, authorizing, or rejecting basic
+ ///  operations created in the PowerAuth stack.
 public class WultraMobileToken {
     
     /// Operations manager. Use for fetching pending lists, approving operations, etc.
@@ -53,82 +36,39 @@ public class WultraMobileToken {
     /// Inbox manager - receives messages to communicate with the user.
     public lazy var inbox: WMTInbox = createInbox()
     
-    // MARK: - Private Properties
+    /// PowerAuth Instance
     private let powerAuth: PowerAuthSDK
+    /// User-Agent header.
     private let userAgent: WPNUserAgent?
-    
+    /// Base URL for service requests.
     private let baseURL: URL
-    private let operationsConfig: WPNConfig?
-    private let pushConfig: WPNConfig?
-    private let inboxConfig: WPNConfig?
+    
+    /// Accept language for the outgoing requests headers.
+    /// Default value is "en".
+    ///
+    /// Standard RFC "Accept-Language" https://tools.ietf.org/html/rfc7231#section-5.3.5
+    /// Response texts are based on this setting. For example when "de" is set, server
+    /// will return operation texts in german (if available).
+    /// To change its value use method `setAcceptLanguage("en")`
     private var acceptLanguage: String
     
-    // MARK: - Initializers
-    /**
-     Initializes a new instance of `WultraMobileToken`. Which may fail if the PowerAuth `baseEndpointUrl` is invalid
-     
-     - Parameters:
-       - powerAuth: `PowerAuth` instance. Needs to be activated when calling any method of this class; otherwise, an error will be thrown.
-       - acceptLanguage: The language code to set for the `Accept-Language` header.
-       - userAgent: User agent that will be used in a HTTP header.
-     */
-    public init?(
+    /// Initializes a new instance of `WultraMobileToken`. Which may fail if the PowerAuth `baseEndpointUrl` is invalid
+    /// - Parameters:
+    ///   - powerAuth: `PowerAuth` instance. Needs to be activated when calling any method of this class; otherwise, an error will be thrown.
+    ///   - acceptLanguage: The language code to set for the `Accept-Language` header.
+    ///   - userAgent: User agent that will be used in a HTTP header.
+    public init(
         powerAuth: PowerAuthSDK,
         acceptLanguage: String = "en",
         userAgent: WPNUserAgent = .libraryDefault
-    ) {
+    ) throws {
         self.powerAuth = powerAuth
         self.acceptLanguage = acceptLanguage
         self.userAgent = userAgent
-        if let url = URL(string: powerAuth.configuration.baseEndpointUrl) {
-            self.baseURL = url
-        } else {
-            return nil
-        }
-        self.operationsConfig = nil
-        self.pushConfig = nil
-        self.inboxConfig = nil
+        self.baseURL = try Self.resolveURL(from: powerAuth.configuration.baseEndpointUrl)
 
         D.debug("Default Wultra Mobile Token object created with:")
         D.debug(" - baseURL: \(powerAuth.configuration.baseEndpointUrl)")
-    }
-    
-    /**
-     Initializes a new instance of `WultraMobileToken`.
-     
-     - Parameters:
-       - powerAuth: `PowerAuth` instance. Needs to be activated when calling any method of this class; otherwise, an error will be thrown.
-       - operationsConfig: `WultraPowerAuthNetworking Config` or also WPNConfig consist of:
-                    - `baseURL` - Base URL for service requests.
-                    - `sslValidation` - SSL validation strategy for the request.
-                    - `timeoutIntervalForRequest` - The timeout interval to use when waiting for backend data.
-                    - `userAgent` - Property that specifies the content of the User-Agent request header.
-                    - for additional info visit networking apple repository at: https://github.com/wultra/networking-apple
-     
-       - pushConfig: Similarly as operationsConfig, pushConfig consists of networking configuration. If nil, same config as for operations is used.
-       - inboxConfig: Similarly as operationsConfig, inboxConfig consists of networking configuration. If nil, same config as for operations is used.
-       - acceptLanguage: The language code to set for the `Accept-Language` header. The default value is `"en"`
-     */
-    public init(
-        powerAuth: PowerAuthSDK,
-        operationsConfig: WPNConfig,
-        pushConfig: WPNConfig? = nil,
-        inboxConfig: WPNConfig? = nil,
-        acceptLanguage: String = "en"
-    ) {
-        self.powerAuth = powerAuth
-        self.acceptLanguage = acceptLanguage
-        self.userAgent = operationsConfig.userAgent
-        self.baseURL = operationsConfig.baseUrl
-        self.operationsConfig = operationsConfig
-        self.pushConfig = pushConfig ?? operationsConfig
-        self.inboxConfig = inboxConfig ?? operationsConfig
-        
-        D.debug("Wultra Mobile Token object created with:")
-        D.debug(" - operationsConfig: \(operationsConfig)")
-        D.debug(" - pushConfig: \(pushConfig ?? operationsConfig)")
-        D.debug(" - inboxConfig: \(inboxConfig ?? operationsConfig)")
-        D.debug(" - lang: \(acceptLanguage)")
     }
     
     /**
@@ -154,11 +94,11 @@ public class WultraMobileToken {
     // MARK: - Private Helper Methods
     /// Defines if the `WMTOperations` is created from provided WPNConfig or from default values
     private func createOperations() -> WMTOperations {
-        D.debug("creatingOperations = \(operationsConfig ?? WPNConfig(baseUrl: baseURL))")
+        D.debug("Creating OperationsService in WultraMobileToken")
         return WMTOperations(
             networking: WPNNetworkingService(
                 powerAuth: powerAuth,
-                config: operationsConfig ?? WPNConfig(baseUrl: baseURL),
+                config: WPNConfig(baseUrl: baseURL),
                 serviceName: "WMTOperations",
                 acceptLanguage: acceptLanguage
             )
@@ -167,11 +107,11 @@ public class WultraMobileToken {
     
     /// Defines if the `WMTInbox` is created from provided WPNConfig or from default values
     private func createInbox() -> WMTInbox {
-        D.debug("creatingInbox = \(inboxConfig ?? WPNConfig(baseUrl: baseURL))")
+        D.debug("Creating InboxService in WultraMobileToken")
         return WMTInbox(
             networking: WPNNetworkingService(
                 powerAuth: powerAuth,
-                config: inboxConfig ?? WPNConfig(baseUrl: baseURL),
+                config: WPNConfig(baseUrl: baseURL),
                 serviceName: "WMTInbox",
                 acceptLanguage: acceptLanguage
             )
@@ -180,14 +120,34 @@ public class WultraMobileToken {
     
     /// Defines if the `WMTPush` is created from provided WPNConfig or from default values
     private func createPush() -> WMTPush {
-        D.debug("creatingPush = \(pushConfig ?? WPNConfig(baseUrl: baseURL))")
+        D.debug("Creating PushService in WultraMobileToken")
         return WMTPush(
             networking: WPNNetworkingService(
                 powerAuth: powerAuth,
-                config: pushConfig ?? WPNConfig(baseUrl: baseURL),
+                config: WPNConfig(baseUrl: baseURL),
                 serviceName: "WMTPush",
                 acceptLanguage: acceptLanguage
             )
         )
+    }
+    
+    /// Initializer error
+    public enum InitError: LocalizedError {
+        /// Provided URL is invalid (see `url` associated value)
+        case invalidBaseURL(url: String)
+        
+        public var errorDescription: String? {
+            switch self {
+            case .invalidBaseURL(let url): return "invalidBaseURL: Provided URL is invalid: \(url)"
+            }
+        }
+    }
+    
+    /// Helper function to resolve and validate URLs
+    private static func resolveURL(from urlString: String) throws -> URL {
+        guard let url = URL(string: urlString) else {
+            throw InitError.invalidBaseURL(url: urlString)
+        }
+        return url
     }
 }
