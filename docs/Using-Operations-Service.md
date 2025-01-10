@@ -33,7 +33,6 @@ Operations Service communicates with the [Mobile Token API](https://developers.w
 
 ## Creating an Instance
 
-### On Top of the `PowerAuthSDK` instance
 ```swift
 import WultraMobileTokenSDK
 import WultraPowerAuthNetworking
@@ -42,22 +41,16 @@ let networkingConfig = WPNConfig(
     baseUrl: URL(string: "https://powerauth.myservice.com/enrollment-server")!,
     sslValidation: .default
 )
-// powerAuth is instance of PowerAuthSDK
-let opsService = powerAuth.createWMTOperations(networkingConfig: networkingConfig, pollingOptions: [.pauseWhenOnBackground])
+
+let networkingService = WPNNetworkingService(
+    powerAuth: powerAuth,
+    config: networkingConfig,
+    serviceName: "OperationsService",
+    acceptLanguage: "en"
+)
+
+let opsService = WMTOperations(networking: networkingConfig)
 ```
-
-### On Top of the `WPNNetworkingService` instance
-```swift
-import WultraMobileTokenSDK
-import WultraPowerAuthNetworking
-
-// networkingService is instance of WPNNetworkingService
-let opsService = networkingService.createWMTOperations(pollingOptions: [.pauseWhenOnBackground])
-```
-
-The `pollingOptions` parameter is used for polling feature configuration. The default value is empty `[]`. Possible options are:
-
-- `WMTOperationsPollingOptions.pauseWhenOnBackground`
 
 ### With custom WMTUserOperation objects
 
