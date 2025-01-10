@@ -57,7 +57,7 @@ public class WMTOperations: WMTService {
     }()
     
     /// If operation loading is currently in progress
-    private(set) var isLoadingOperations = false {
+    public private(set) var isLoadingOperations = false {
         didSet {
             let val = isLoadingOperations
             delegate?.operationsLoading(loading: val)
@@ -65,7 +65,7 @@ public class WMTOperations: WMTService {
     }
     
     /// If the service is polling operations
-    var isPollingOperations: Bool { return pollingLock.synchronized { isPollingOperationsInternal } }
+    public var isPollingOperations: Bool { return pollingLock.synchronized { isPollingOperationsInternal } }
     private var isPollingOperationsInternal: Bool {
         pollingTimer != nil
     }
@@ -76,7 +76,7 @@ public class WMTOperations: WMTService {
     /// Standard RFC "Accept-Language" https://tools.ietf.org/html/rfc7231#section-5.3.5
     /// Response texts are based on this setting. For example when "de" is set, server
     /// will return operation texts in german (if available).
-    var acceptLanguage: String {
+    public var acceptLanguage: String {
         get { networking.acceptLanguage }
         set { networking.acceptLanguage = newValue }
     }
@@ -102,7 +102,7 @@ public class WMTOperations: WMTService {
     }
     
     /// Last cached operation result for easy access.
-    private(set) var lastFetchResult: GetOperationsResult?
+    public private(set) var lastFetchResult: GetOperationsResult?
     
     /// Delegate gets notified about changes in operations loading.
     /// Methods of the delegate are always called on the main thread.
@@ -117,7 +117,7 @@ public class WMTOperations: WMTService {
     /// Refreshes operations, but does not return any result. For the result, you can
     /// add a delegate to `delegate` property.
     /// If operations are already loading, the function does nothing.
-    func refreshOperations() {
+    public func refreshOperations() {
         DispatchQueue.main.async {
             // no need to start new operation loading if there is already one in progress
             if self.isLoadingOperations == false {
@@ -132,7 +132,7 @@ public class WMTOperations: WMTService {
     ///                         This completion is always called on the main thread.
     /// - Returns: Control object in case the operations needs to be canceled.
     @discardableResult
-    func getOperations(completion: @escaping GetOperationsCompletion) -> WMTCancellable {
+    public func getOperations(completion: @escaping GetOperationsCompletion) -> WMTCancellable {
         
         let task = GetOperationsTask(completion: completion)
         
@@ -169,7 +169,7 @@ public class WMTOperations: WMTService {
     ///                 This completion is always called on the main thread.
     /// - Returns: Operation object for its state observation.
     @discardableResult
-    func getHistory(authentication: PowerAuthAuthentication, completion: @escaping (Result<[WMTUserOperation], WMTError>) -> Void) -> Operation? {
+    public func getHistory(authentication: PowerAuthAuthentication, completion: @escaping (Result<[WMTUserOperation], WMTError>) -> Void) -> Operation? {
         
         guard validateActivation(completion) else {
             return nil
@@ -187,7 +187,7 @@ public class WMTOperations: WMTService {
     ///                 This completion is always called on the main thread.
     /// - Returns: Operation object for its state observation.
     @discardableResult
-    func getDetail(operationId: String, completion: @escaping (Result<WMTUserOperation, WMTError>) -> Void) -> Operation? {
+    public func getDetail(operationId: String, completion: @escaping (Result<WMTUserOperation, WMTError>) -> Void) -> Operation? {
         guard validateActivation(completion) else {
             return nil
         }
@@ -213,7 +213,7 @@ public class WMTOperations: WMTService {
     ///                 This completion is always called on the main thread.
     /// - Returns: Operation object for its state observation.
     @discardableResult
-    func claim(operationId: String, completion: @escaping(Result<WMTUserOperation, WMTError>) -> Void) -> Operation? {
+    public func claim(operationId: String, completion: @escaping(Result<WMTUserOperation, WMTError>) -> Void) -> Operation? {
         
         guard validateActivation(completion) else {
             return nil
@@ -243,7 +243,7 @@ public class WMTOperations: WMTService {
     ///                 This completion is always called on the main thread.
     /// - Returns: Operation object for its state observation.
     @discardableResult
-    func authorize(operation: WMTOperation, with authentication: PowerAuthAuthentication, completion: @escaping (Result<Void, WMTError>) -> Void) -> Operation? {
+    public func authorize(operation: WMTOperation, with authentication: PowerAuthAuthentication, completion: @escaping (Result<Void, WMTError>) -> Void) -> Operation? {
         
         guard validateActivation(completion) else {
             return nil
@@ -278,7 +278,7 @@ public class WMTOperations: WMTService {
     ///                 This completion is always called on the main thread.
     /// - Returns: Operation object for its state observation.
     @discardableResult
-    func authorize(qrOperation: WMTQROperation, authentication: PowerAuthAuthentication, completion: @escaping (Result<String, WMTError>) -> Void) -> Operation {
+    public func authorize(qrOperation: WMTQROperation, authentication: PowerAuthAuthentication, completion: @escaping (Result<String, WMTError>) -> Void) -> Operation {
         return authorize(qrOperation: qrOperation, uriId: "/operation/authorize/offline", authentication: authentication, completion: completion)
     }
     
@@ -296,7 +296,7 @@ public class WMTOperations: WMTService {
     ///                 This completion is always called on the main thread.
     /// - Returns: Operation object for its state observation.
     @discardableResult
-    func authorize(qrOperation: WMTQROperation, uriId: String, authentication: PowerAuthAuthentication, completion: @escaping(Result<String, WMTError>) -> Void) -> Operation {
+    public func authorize(qrOperation: WMTQROperation, uriId: String, authentication: PowerAuthAuthentication, completion: @escaping(Result<String, WMTError>) -> Void) -> Operation {
         
         let op = WPNAsyncBlockOperation { _, markFinished in
             do {
@@ -327,7 +327,7 @@ public class WMTOperations: WMTService {
     ///                 This completion is always called on the main thread.
     /// - Returns: Operation object for its state observation.
     @discardableResult
-    func reject(operation: WMTOperation, with reason: WMTRejectionReason, completion: @escaping(Result<Void, WMTError>) -> Void) -> Operation? {
+    public func reject(operation: WMTOperation, with reason: WMTRejectionReason, completion: @escaping(Result<Void, WMTError>) -> Void) -> Operation? {
         
         guard validateActivation(completion) else {
             return nil
@@ -358,7 +358,7 @@ public class WMTOperations: WMTService {
     /// - Parameters:
     ///   - interval: Default is set to 7 seconds, with a minimum value of 5 seconds.
     ///   - delayStart: Default is set to false and polling starts immediately.
-    func startPollingOperations() {
+    public func startPollingOperations() {
         return startPollingOperations(interval: 7, delayStart: false)
     }
     
@@ -369,7 +369,7 @@ public class WMTOperations: WMTService {
     /// - Parameter interval: Polling interval, minimum is 5s
     /// - Parameter delayStart: When true, polling starts after
     ///                         the first `interval` time passes
-    func startPollingOperations(interval: TimeInterval, delayStart: Bool) {
+    public func startPollingOperations(interval: TimeInterval, delayStart: Bool) {
         pollingLock.synchronized {
             self.startPollingOperationsInternal(interval: interval, delayStart: delayStart)
         }
@@ -408,7 +408,7 @@ public class WMTOperations: WMTService {
     }
     
     /// Stops operations polling
-    func stopPollingOperations() {
+    public func stopPollingOperations() {
         pollingLock.synchronized {
             self.stopPollingOperationsInternal()
         }

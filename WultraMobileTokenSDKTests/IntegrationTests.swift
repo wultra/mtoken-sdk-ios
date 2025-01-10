@@ -28,8 +28,8 @@ class IntegrationTests: XCTestCase {
     
     private var proxy: IntegrationProxy!
     private var pa: PowerAuthSDK! { proxy.powerAuth }
-    private var ops: WMTOperations! { proxy.ops }
-    private var inbox: WMTInbox! { proxy.inbox }
+    private var ops: WMTOperations! { proxy.wmt?.operations ?? proxy.ops }
+    private var inbox: WMTInbox! { proxy.wmt?.inbox ?? proxy.inbox }
     
     private let pin = "1234"
     
@@ -76,7 +76,7 @@ class IntegrationTests: XCTestCase {
     func testList() {
         let exp = expectation(description: "Empty list of operations")
         
-        _ = ops.getOperations { result in
+        _ = ops.getOperations(customUserOperationType: MyOperations.self) { result in
             
             switch result {
             case .success(let ops):
@@ -945,4 +945,8 @@ private extension Array where Element == WMTInboxMessage {
         }
         return nil
     }
+}
+
+class MyOperations: WMTUserOperation {
+    
 }

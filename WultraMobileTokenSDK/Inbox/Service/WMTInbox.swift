@@ -84,7 +84,7 @@ public class WMTInbox: WMTService {
     ///   - completion: Result callback. This completion is always called on the main thread.
     /// - Returns: Operation object for its state observation.
     @discardableResult
-    func getAllMessages(pageSize: Int = 100, messageLimit: Int = 1000, onlyUnread: Bool = false, completion: @escaping(Result<[WMTInboxMessage], WMTError>) -> Void) -> WMTCancellable? {
+    public func getAllMessages(pageSize: Int = 100, messageLimit: Int = 1000, onlyUnread: Bool = false, completion: @escaping(Result<[WMTInboxMessage], WMTError>) -> Void) -> WMTCancellable? {
         let operation = FetchOperation(pageSize: pageSize, onlyUnread: onlyUnread, messageLimit: messageLimit, completion: completion)
         return fetchPartialList(fetchOperation: operation) == nil ? nil : operation
     }

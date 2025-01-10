@@ -21,7 +21,7 @@ import WultraPowerAuthNetworking
 class IntegrationProxy {
     
     private(set) var powerAuth: PowerAuthSDK?
-//    private(set) var wmt: WultraMobileToken?
+    private(set) var wmt: WultraMobileToken?
     private(set) var ops: WMTOperations?
     private(set) var inbox: WMTInbox?
     
@@ -51,10 +51,14 @@ class IntegrationProxy {
             if let error = error {
                 callback(error)
             } else {
+                self.powerAuth = pa
+            
+                // use in case you have only one enrollment server baseURL
+                //self.wmt = try! pa.createWultraMobileToken()
+                
+                // use if your operations and inbox urls are diffferent - set in config file `WultraMobileTokenSDKTests/Configs/Readme.md`
                 let wpnOperationsConf = WPNConfig(baseUrl: URL(string: self.config.operationsServerUrl)!, sslValidation: .noValidation)
                 let wpnInboxConf = WPNConfig(baseUrl: URL(string: self.config.inboxServerUrl)!, sslValidation: .noValidation)
-                self.powerAuth = pa
-//                self.wmt = try! pa.createWultraMobileToken()
                 self.ops = WMTOperations(networking: WPNNetworkingService(powerAuth: pa, config: wpnOperationsConf, serviceName: "WMTOperations"))
                 self.inbox = WMTInbox(networking: WPNNetworkingService(powerAuth: pa, config: wpnInboxConf, serviceName: "WMTInbox"))
             }
