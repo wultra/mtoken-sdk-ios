@@ -47,13 +47,10 @@ public protocol WMTOperationsDelegate: AnyObject {
 /// via powerauth protocol.
 public typealias WMTOperations = WMTCustomOperations<WMTUserOperation>
 
+/// Generic WMTOperations can be extended by a custom type
 public class WMTCustomOperations<T: WMTUserOperation>: WMTService {
-    public static func withCustomType(
-        networking: WPNNetworkingService,
-        type: T.Type
-    ) -> WMTCustomOperations<T> {
-        return WMTCustomOperations<T>(networking: networking)
-    }
+    
+    private let customType: T.Type
     
     // Dependencies
     lazy var powerAuth = networking.powerAuth
@@ -116,8 +113,10 @@ public class WMTCustomOperations<T: WMTUserOperation>: WMTService {
     /// Methods of the delegate are always called on the main thread.
     public weak var delegate: WMTOperationsDelegate?
     
-    public init(networking: WPNNetworkingService) {
+    /// Default initializer with a generic type
+    public init(networking: WPNNetworkingService, type: T.Type = WMTUserOperation.self) {
         self.networking = networking
+        self.customType = type
     }
     
     // MARK: - service API

@@ -76,7 +76,7 @@ class IntegrationTests: XCTestCase {
     func testList() {
         let exp = expectation(description: "Empty list of operations")
         
-        _ = ops.getOperations(customUserOperationType: MyOperations.self) { result in
+        _ = ops.getOperations() { result in
             
             switch result {
             case .success(let ops):
