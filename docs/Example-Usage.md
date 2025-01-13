@@ -12,7 +12,7 @@ Follow the [SDK Integration](./SDK-Integration.md) tutorial for SDK installation
 // PowerAuth instance needs to be configured and a user-activated instance.
 // More about PowerAuth SDK can be found here: https://github.com/wultra/powerauth-mobile-sdk
 
-func exampleUsage(powerAuth: PowerAuth) {
+func exampleUsage(powerAuth: PowerAuthSDK) {
 do {
     let mtoken = try powerauth.createWultraMobileToken(acceptLanguage: "de") // create the WultraMobileToken instance and set "requested content" to german language (default is english - "en")
 

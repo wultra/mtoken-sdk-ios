@@ -33,6 +33,13 @@ Operations Service communicates with the [Mobile Token API](https://developers.w
 
 ## Creating an Instance
 
+The preferred way of instantiating Operations Service is via `WultraMobileToken` class.
+See: [Example Usage](./Example-Usage)
+
+### Customized initialization
+
+In case you need to create more customized instance. You can do so with an initializer. We will need to define networking configuration and provide PowerAuthSDK instance.
+
 ```swift
 import WultraMobileTokenSDK
 import WultraPowerAuthNetworking
@@ -49,16 +56,16 @@ let networkingService = WPNNetworkingService(
     acceptLanguage: "en"
 )
 
-let opsService = WMTOperations(networking: networkingConfig)
+let opsService = WMTOperations(networking: networkingService)
 ```
 
 ### With custom WMTUserOperation objects
 
-To retrieve custom user operations, both `createWMTOperations` methods offer the optional parameter `customUserOperationType` where you can set up the requested type.
+To retrieve custom user operations, base `WMTCustomOperations` class can be used directly.
 
 ```swift
 // networkingService is instance of WPNNetworkingService
-let opsService = networkingService.createWMTOperations(customUserOperationType: CustomUserOperation.self).
+let opsService = WMTCustomOperations(networking: networkingService, customType: CustomUserOperation.self)
 ```
 
 When [custom operation type](#subclassing-WMTUserOperation) is set, all `WMTUserOperation` objects from such service can be explicitly unboxed to this type.
