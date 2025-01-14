@@ -11,6 +11,20 @@ Version `2.0.x` introduces a significant simplification of the SDK’s design an
    The `WultraMobileToken` class is now the recommended way to instantiate the SDK.
    PowerAuthSDK extension method is provided for this purpose.
    
+```kotlin
+func createWultraTokenMobile(powerAuth: PowerAuthSDK) {
+    do {
+        let wmt = powerAuth.createWultraMobileToken()
+    
+        let operationsService = wmt.operations
+        let pushService = wmt.inbox
+        let inboxService = wmt.push
+    
+    } catch IntiError.invalidBaseURL(let url) {
+        // PowerAuth baseUrl is not valid
+    }
+}
+```
 
 ### Removed Functionality
 
@@ -20,12 +34,12 @@ Version `2.0.x` introduces a significant simplification of the SDK’s design an
       -  `createWMTInbox()`
       -  `createWMTPush`
 
-   Services should now be instantiated using the preferred approach via `WultraMobileToken`. If you need advanced settings of these services, they can be instantiated  visit links below.
+Services should now be instantiated using the recommended `WultraMobileToken` approach. For advanced service configuration, refer to the links below.
 
 
    - [Using Operations Service: Creating an Instance](./Using-Operations-Service.md#creating-an-instance)
-   - [Using Push Service: Creating an Instance](./Using-Operations-Service.md#creating-an-instance)
-   - [Using Inbox Service: Creating an Instance](./Using-Operations-Service.md#creating-an-instance)
+   - [Using Push Service: Creating an Instance](./Using-Push-Service.md#creating-an-instance)
+   - [Using Inbox Service: Creating an Instance](./Using-Inbox-Service.md#creating-an-instance)
 
 3. **Removed Polling Options**  
    The `WMTOperationsPollingOptions` class has been removed for simplification. If you require features such as polling pauses, this functionality is now outside the scope of the SDK.

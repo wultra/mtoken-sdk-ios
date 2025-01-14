@@ -59,16 +59,6 @@ let networkingService = WPNNetworkingService(
 let opsService = WMTOperations(networking: networkingService)
 ```
 
-### With custom WMTUserOperation objects
-
-To retrieve custom user operations, base `WMTCustomOperations` class can be used directly.
-
-```swift
-// networkingService is instance of WPNNetworkingService
-let opsService = WMTCustomOperations(networking: networkingService, customType: CustomUserOperation.self)
-```
-
-When [custom operation type](#subclassing-WMTUserOperation) is set, all `WMTUserOperation` objects from such service can be explicitly unboxed to this type.
 
 ## Retrieve Pending Operations
 

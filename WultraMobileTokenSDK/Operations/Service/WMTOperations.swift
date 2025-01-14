@@ -45,12 +45,7 @@ public protocol WMTOperationsDelegate: AnyObject {
 
 /// Service, that communicates with Mobile Token API that handles operation approving
 /// via powerauth protocol.
-public typealias WMTOperations = WMTCustomOperations<WMTUserOperation>
-
-/// Generic WMTOperations can be extended by a custom type
-public class WMTCustomOperations<T: WMTUserOperation>: WMTService {
-    
-    private let customType: T.Type
+public class WMTOperations: WMTService {
     
     // Dependencies
     lazy var powerAuth = networking.powerAuth
@@ -94,7 +89,7 @@ public class WMTCustomOperations<T: WMTUserOperation>: WMTService {
         return Date()
     }
     
-    private var tasks = [GetOperationsTask<T>]() // Task that are waiting for operation fetch
+    private var tasks = [GetOperationsTask]() // Task that are waiting for operation fetch
     private var pollingTimer: Timer? // Timer that manages operations polling when requested
     private var isPollingPaused: Bool { return pollingTimer?.isValid == false }
     private let pollingLock = WMTLock()
@@ -107,16 +102,15 @@ public class WMTCustomOperations<T: WMTUserOperation>: WMTService {
     }
     
     /// Last cached operation result for easy access.
-    public private(set) var lastFetchResult: GetOperationsResult<T>?
+    public private(set) var lastFetchResult: GetOperationsResult?
     
     /// Delegate gets notified about changes in operations loading.
     /// Methods of the delegate are always called on the main thread.
     public weak var delegate: WMTOperationsDelegate?
     
     /// Default initializer with a generic type
-    public init(networking: WPNNetworkingService, type: T.Type = WMTUserOperation.self) {
+    public init(networking: WPNNetworkingService) {
         self.networking = networking
-        self.customType = type
     }
     
     // MARK: - service API
@@ -139,7 +133,7 @@ public class WMTCustomOperations<T: WMTUserOperation>: WMTService {
     ///                         This completion is always called on the main thread.
     /// - Returns: Control object in case the operations needs to be canceled.
     @discardableResult
-    public func getOperations(completion: @escaping GetOperationsCompletion<T>) -> WMTCancellable {
+    public func getOperations(completion: @escaping GetOperationsCompletion) -> WMTCancellable {
         
         let task = GetOperationsTask(completion: completion)
         
@@ -176,13 +170,13 @@ public class WMTCustomOperations<T: WMTUserOperation>: WMTService {
     ///                 This completion is always called on the main thread.
     /// - Returns: Operation object for its state observation.
     @discardableResult
-    public func getHistory(authentication: PowerAuthAuthentication, completion: @escaping (Result<[T], WMTError>) -> Void) -> Operation? {
+    public func getHistory(authentication: PowerAuthAuthentication, completion: @escaping (Result<[WMTUserOperation], WMTError>) -> Void) -> Operation? {
         
         guard validateActivation(completion) else {
             return nil
         }
         
-        return networking.post(data: .init(), signedWith: authentication, to: WMTOperationEndpoints.History<T>.endpoint) { response, error in
+        return networking.post(data: .init(), signedWith: authentication, to: WMTOperationEndpoints.History.endpoint) { response, error in
             self.processResult(response: response, error: error, completion: completion)
         }
     }
@@ -194,14 +188,14 @@ public class WMTCustomOperations<T: WMTUserOperation>: WMTService {
     ///                 This completion is always called on the main thread.
     /// - Returns: Operation object for its state observation.
     @discardableResult
-    public func getDetail(operationId: String, completion: @escaping (Result<T, WMTError>) -> Void) -> Operation? {
+    public func getDetail(operationId: String, completion: @escaping (Result<WMTUserOperation, WMTError>) -> Void) -> Operation? {
         guard validateActivation(completion) else {
             return nil
         }
         
         let detailData = WMTOperationDetailRequest(operationId: operationId)
         
-        return networking.post(data: .init(detailData), signedWith: .possession(), to: WMTOperationEndpoints.OperationDetail<T>.endpoint) { response, error in
+        return networking.post(data: .init(detailData), signedWith: .possession(), to: WMTOperationEndpoints.OperationDetail.endpoint) { response, error in
             self.processResult(response: response, error: error) { result in
                 switch result {
                 case .success(let operation):
@@ -220,7 +214,7 @@ public class WMTCustomOperations<T: WMTUserOperation>: WMTService {
     ///                 This completion is always called on the main thread.
     /// - Returns: Operation object for its state observation.
     @discardableResult
-    public func claim(operationId: String, completion: @escaping(Result<T, WMTError>) -> Void) -> Operation? {
+    public func claim(operationId: String, completion: @escaping(Result<WMTUserOperation, WMTError>) -> Void) -> Operation? {
         
         guard validateActivation(completion) else {
             return nil
@@ -228,7 +222,7 @@ public class WMTCustomOperations<T: WMTUserOperation>: WMTService {
         
         let claimData = WMTOperationDetailRequest(operationId: operationId)
         
-        return networking.post(data: .init(claimData), signedWith: .possession(), to: WMTOperationEndpoints.OperationClaim<T>.endpoint) { response, error in
+        return networking.post(data: .init(claimData), signedWith: .possession(), to: WMTOperationEndpoints.OperationClaim.endpoint) { response, error in
             self.processResult(response: response, error: error) { result in
                 switch result {
                 case .success(let operation):
@@ -432,7 +426,7 @@ public class WMTCustomOperations<T: WMTUserOperation>: WMTService {
     
     // MARK: - private functions
     
-    private func fetchOperations(completion: @escaping GetOperationsCompletion<T>) {
+    private func fetchOperations(completion: @escaping GetOperationsCompletion) {
         
         assert(Thread.isMainThread)
         
@@ -440,7 +434,7 @@ public class WMTCustomOperations<T: WMTUserOperation>: WMTService {
             return
         }
         
-        networking.post(data: .init(), signedWith: .possession(), to: WMTOperationEndpoints.List<T>.endpoint) { response, error in
+        networking.post(data: .init(), signedWith: .possession(), to: WMTOperationEndpoints.List.endpoint) { response, error in
             
             assert(Thread.isMainThread)
 
@@ -450,7 +444,7 @@ public class WMTCustomOperations<T: WMTUserOperation>: WMTService {
                 return
             }
             
-            let result: GetOperationsResult<T>
+            let result: GetOperationsResult
             
             if let ops = response?.responseObject {
                 result = .success(ops)
@@ -585,12 +579,12 @@ private class OperationsRegister {
 /// Class that wraps completion block that will be finished with the result of `getOperation` call
 ///
 /// Note that the given completion will be always executed on the **main thread**.
-private class GetOperationsTask<T: WMTUserOperation>: WMTCancellable {
+private class GetOperationsTask: WMTCancellable {
     
     fileprivate var isCanceled = false
-    private var completion: GetOperationsCompletion<T>
+    private var completion: GetOperationsCompletion
     
-    init(completion: @escaping GetOperationsCompletion<T>) {
+    init(completion: @escaping GetOperationsCompletion) {
         self.completion = completion
     }
     
@@ -600,7 +594,7 @@ private class GetOperationsTask<T: WMTUserOperation>: WMTCancellable {
     
     /// Function that synchronously finishes the task on Main Queue.
     /// We assume that all operations will be rendered and processed on main queue anyway.
-    fileprivate func finish(_ result: GetOperationsResult<T>) {
+    fileprivate func finish(_ result: GetOperationsResult) {
         
         guard isCanceled == false else {
             return
@@ -620,5 +614,5 @@ public extension Result where Success == [WMTUserOperation], Failure == WMTError
     }
 }
 
-public typealias GetOperationsResult<T: WMTUserOperation> = Result<[T], WMTError>
-public typealias GetOperationsCompletion<T: WMTUserOperation> = (GetOperationsResult<T>) -> Void
+public typealias GetOperationsResult = Result<[WMTUserOperation], WMTError>
+public typealias GetOperationsCompletion = (GetOperationsResult) -> Void
