@@ -147,7 +147,6 @@ public class WMTInbox: WMTService {
             guard let `self` = self else { return }
             switch result {
             case .success(let messages):
-                print("MESAGGGEEESSS BITHCH: \(messages)")
                 guard !fetchOperation.isCanceled else {
                     // Operation is canceled, just ignore the result
                     return
@@ -159,10 +158,8 @@ public class WMTInbox: WMTService {
                 } else {
                     // We should fetch the next batch of messages.
                     fetchOperation.nestedOperation = self.fetchPartialList(fetchOperation: fetchOperation)
-                    
                 }
             case .failure:
-                print("MESAGGGEEESSS BITHCH: \(result)")
                 fetchOperation.complete(result)
             }
         }
