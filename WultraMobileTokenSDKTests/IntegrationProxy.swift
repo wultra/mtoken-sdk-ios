@@ -65,6 +65,29 @@ class IntegrationProxy {
         }
     }
     
+    func prepareForOidc(callback: @escaping Callback) {
+        WPNLogger.verboseLevel = .debug
+        guard let configPath = Bundle.init(for: IntegrationProxy.self).path(forResource: "config", ofType: "json", inDirectory: "Configs") else {
+            callback("Config file config.json is not present.")
+            return
+        }
+        
+        do {
+            let configContent = try String(contentsOfFile: configPath)
+            config = try JSONDecoder().decode(IntegrationConfig.self, from: configContent.data(using: .utf8)!)
+        } catch _ {
+            callback("Config file config.json cannot be parsed.")
+            return
+        }
+        
+        powerAuth = preparePAInstance()
+        do {
+            self.wmt = try powerAuth?.createWultraMobileToken()
+        } catch {
+            callback("Failed to create WultraMobileToken from PA baseUrl.")
+        }
+    }
+    
     enum Factors {
         // TODO: temp unsupported
         //case OF_1FA
@@ -259,6 +282,12 @@ class IntegrationProxy {
         let resp: CommitObject? = makeRequest(url: URL(string: "\(config.cloudServerUrl)/v2/registrations/\(registrationId)/commit")!, body: body)
         return resp
     }
+    
+    func getOidcConfigs() -> OidcProperties? {
+        guard let providerId = config.oidcProviderId, let providerIdPkce = config.oidcProviderIdPkce else { return nil
+        }
+        return OidcProperties(providerId: providerId, providerIdPkce: providerIdPkce)
+    }
 }
 
 private struct RegistrationObject: Codable {
@@ -308,6 +337,8 @@ private struct IntegrationConfig: Codable {
     let operationsServerUrl: String
     let inboxServerUrl: String
     let sdkConfig: String
+    let oidcProviderId: String?
+    let oidcProviderIdPkce: String?
 }
 
 struct QROperationData: Codable {
@@ -341,4 +372,9 @@ struct InboxMessageDetail: Codable {
     let type: String
     let timestamp: Date
     let read: Bool
+}
+
+struct OidcProperties {
+    let providerId: String
+    let providerIdPkce: String
 }
