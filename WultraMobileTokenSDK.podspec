@@ -12,8 +12,15 @@ Pod::Spec.new do |s|
   s.swift_version = '5.9'
   s.ios.deployment_target = '12.0'
   
-  # Sources
-  s.default_subspecs = 'Operations', 'Push', 'Inbox'
+  # 'Core' subspec
+  s.subspec 'Core' do |sub|
+    sub.source_files = 'WultraMobileTokenSDK/WultraMobileToken.swift'
+    sub.dependency 'WultraMobileTokenSDK/Operations'
+    sub.dependency 'WultraMobileTokenSDK/Push'
+    sub.dependency 'WultraMobileTokenSDK/Inbox'
+  end
+
+  s.default_subspecs = 'Core'
   
   # 'Common' subspec
   s.subspec 'Common' do |sub|

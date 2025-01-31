@@ -357,7 +357,6 @@
 		DC81D1CE24502E0300F80CD6 /* Common */ = {
 			isa = PBXGroup;
 			children = (
-				EA7C94562D07111B000A3EFA /* WultraMobileToken.swift */,
 				BFEEB20A2937AD700047941D /* WMTCancellable.swift */,
 				DC488030292282C900DB844B /* WMTService.swift */,
 				DCC5CCCD244DB0AD004679AC /* WMTLogger.swift */,
@@ -398,6 +397,7 @@
 		DCC5CC9C2449EE21004679AC /* WultraMobileTokenSDK */ = {
 			isa = PBXGroup;
 			children = (
+				EA7C94562D07111B000A3EFA /* WultraMobileToken.swift */,
 				DC81D1CE24502E0300F80CD6 /* Common */,
 				DC81D1C5244F302300F80CD6 /* Operations */,
 				DC81D1C6244F357900F80CD6 /* Push */,
