@@ -13,12 +13,12 @@ Pod::Spec.new do |s|
   s.ios.deployment_target = '12.0'
   
   # Sources
-  s.default_subspec = 'Operations'
+  s.default_subspecs = 'Operations', 'Push', 'Inbox'
   
   # 'Common' subspec
   s.subspec 'Common' do |sub|
     sub.source_files = 'WultraMobileTokenSDK/Common/**/*.swift'
-    sub.dependency 'PowerAuth2', '~> 1.9.0'
+    sub.dependency 'PowerAuth2', '~> 1.9.2'
     sub.dependency 'WultraPowerAuthNetworking', '~> 1.5.0'
   end
   
