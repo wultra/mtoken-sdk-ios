@@ -24,7 +24,9 @@ extension PowerAuthSDK {
     /// - Parameters:
     ///   - attributes: A `WMTOidcPowerAuthActivationAttributes` object containing the information required for the activation creation.
     ///                 Includes `providerId`, `code`, `nonce`, and optional `codeVerifier`.
-    ///   - deviceName: Given device name
+    ///   - deviceName: The `deviceName` is activation's name parameter and it is optional, but recommended to set. You can use the value obtained from
+    ///                 `UIDevice.current.name` or let the user set the name. The name of activation will be associated with
+    ///                 an activation record on PowerAuth Server.
     ///   - callback: A completion callback that is invoked when the activation process finishes.
     ///               - On success: Returns a `PowerAuthActivationResult` containing the activation fingerprint.
     ///               - On failure: Returns an `Error` describing the issue.
@@ -35,15 +37,19 @@ extension PowerAuthSDK {
     @discardableResult
     func createOidcActivation(
         attributes: WMTOidcPowerAuthActivationAttributes,
-        deviceName: String,
+        activationName: String? = nil,
         _ callback: @escaping (Result<PowerAuthActivationResult, Error>) -> Void
     ) throws -> PowerAuthOperationTask? {
-        let activation = try PowerAuthActivation(
+        var activation = try PowerAuthActivation(
             oidcProviderId: attributes.providerId,
             code: attributes.code,
             nonce: attributes.nonce,
             codeVerifier: attributes.codeVerifier
-        ).with(activationName: deviceName)
+        )
+        
+        if let activationName = activationName {
+            activation = activation.with(activationName: activationName)
+        }
         
         return createActivation(activation) { result, error in
             if let result = result {

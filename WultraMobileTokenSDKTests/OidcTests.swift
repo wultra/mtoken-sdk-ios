@@ -23,7 +23,7 @@ final class OidcTests: XCTestCase {
     
     private var proxy: IntegrationProxy!
     private var pa: PowerAuthSDK? { proxy.powerAuth }
-    private var oidc: WMTOidcService? { proxy.wmt?.oidc }
+    private var oidc: WMTOidc? { proxy.wmt?.oidc }
     private let pin = "1234"
     
     override func setUp() {

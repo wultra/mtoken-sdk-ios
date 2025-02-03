@@ -46,7 +46,7 @@ public class WMTOidcUtils {
     }
     
     /// Creates an authorization URL.
-    public static func createAuthorizationUrl(config: WMTOidcConfig, nonce: String, state: String, pkceCodes: WMTPKCECodes?) throws -> URL? {
+    public static func createAuthorizationUrl(config: WMTOidcConfig, nonce: String, state: String, pkceCodes: WMTPKCECodes?) throws -> URL {
         guard var components = URLComponents(string: config.authorizeUri) else {
             D.warning("OIDC: auth url is malformed")
             throw WMTError(reason: .authorizationUrlCreationFailed)

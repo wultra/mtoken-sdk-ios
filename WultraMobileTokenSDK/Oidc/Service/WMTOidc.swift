@@ -19,7 +19,7 @@ import PowerAuth2
 import WultraPowerAuthNetworking
 
 /// Service that communicates with OIDC (OpenID Connect) API
-public class WMTOidcService: WMTService {
+public class WMTOidc: WMTService {
     
     // Dependencies
     lazy var powerAuth = networking.powerAuth
@@ -64,38 +64,27 @@ public class WMTOidcService: WMTService {
     ///
     /// - Parameters:
     ///   - config: The OIDC configuration, which includes information about the provider and optional PKCE settings.
-    ///   - callbackScheme: An optional custom URL scheme to handle the authorization callback, for example, if you want to provide Universal link. If not provided, it attempts to retrieve a default scheme defined in Info.plist.
     ///
     /// - Returns: A `Result` containing either:
     ///   - On success: `WMTOidcAuthorizationRequest` with all required data for the authorization process.
     ///   - On failure: `WMTError` with details about what failed.
-    public func prepareOidcAuthorizationData(config: WMTOidcConfig, callbackScheme: String? = nil) -> Result<WMTOidcAuthorizationRequest, WMTError> {
-        guard let scheme = callbackScheme ?? getScheme() else {
-            D.error("OIDC: Failed to get deeplink URL scheme")
-            return .failure(WMTError(reason: .schemeNotFound))
-        }
-        
+    public func prepareOidcAuthorizationData(config: WMTOidcConfig) -> Result<WMTOidcAuthorizationRequest, WMTError> {
         do {
             let pkceCodes = try createPkce(enabled: config.pkceEnabled, dataLength: 32)
             let nonce = try WMTOidcUtils.getRandomBase64UrlSafe(dataLength: 32)
             let state = try WMTOidcUtils.getRandomBase64UrlSafe(dataLength: 32)
 
             let authorizeUrl = try WMTOidcUtils.createAuthorizationUrl(config: config, nonce: nonce, state: state, pkceCodes: pkceCodes)
-            if let url = authorizeUrl {
                 return .success(
                     WMTOidcAuthorizationRequest(
-                        authorizeUrl: url,
-                        callbackScheme: scheme,
+                        authorizeUrl: authorizeUrl,
+                        callbackScheme: config.redirectUri,
                         providerId: config.providerId,
                         nonce: nonce,
                         state: state,
                         codeVerifier: pkceCodes?.codeVerifier
                     )
                 )
-            } else {
-                D.error("OIDC: Failed to create authorizeUrl.")
-                return .failure(WMTError(reason: .authorizationUrlCreationFailed))
-            }
             
         } catch let error as WMTError {
             D.error("Oidc: Authorization Data creation failed: \(error)")
@@ -104,12 +93,6 @@ public class WMTOidcService: WMTService {
             D.error("Oidc: Authorization Data creation failed: \(error)")
             return .failure(.wrap(.unknown, error))
         }
-    }
-    
-    /// Helper method to optain deeplink scheme from Info.plist
-    /// https://developer.apple.com/documentation/xcode/defining-a-custom-url-scheme-for-your-app
-    private func getScheme() -> String? {
-        return ((Bundle.main.object(forInfoDictionaryKey: "CFBundleURLTypes") as? [[String: Any]])?.first?["CFBundleURLSchemes"] as? [String])?.first
     }
     
     /// Helper method to return Result nil if PKCE is not enabled
