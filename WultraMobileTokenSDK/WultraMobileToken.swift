@@ -41,7 +41,7 @@ public class WultraMobileToken {
     public lazy var inbox: WMTInbox = createInbox()
     
     /// Oidc service - receive the config and helpt with OIDC activation preparation
-    public lazy var oidc: WMTOidcService = createOidc()
+    public lazy var oidc: WMTOidc = createOidc()
     
     /// PowerAuth Instance
     private let powerAuth: PowerAuthSDK
@@ -139,9 +139,9 @@ public class WultraMobileToken {
     }
     
     /// Defines if the `WMTOidc` is created from provided WPNConfig or from default values
-    private func createOidc() -> WMTOidcService {
+    private func createOidc() -> WMTOidc {
         D.debug("Creating OidcService in WultraMobileToken")
-        return WMTOidcService(
+        return WMTOidc(
             networking: WPNNetworkingService(
                 powerAuth: powerAuth,
                 config: WPNConfig(baseUrl: baseURL),

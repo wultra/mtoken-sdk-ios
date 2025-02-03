@@ -149,7 +149,7 @@ final class OidcTests: XCTestCase {
             case .success(let config):
                 XCTAssertNotNil(config)
                 
-                let authData = oidc.prepareOidcAuthorizationData(config: config, callbackScheme: "mtoken")
+                let authData = oidc.prepareOidcAuthorizationData(config: config)
                 switch authData {
                 case .success(let data):
                     
