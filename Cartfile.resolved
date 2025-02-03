@@ -1,3 +1,0 @@
-binary "https://raw.githubusercontent.com/wultra/powerauth-mobile-sdk-spm/1.9.2/PowerAuth2.json" "1.9.2"
-binary "https://raw.githubusercontent.com/wultra/powerauth-mobile-sdk-spm/1.9.2/PowerAuthCore.json" "1.9.2"
-github "wultra/networking-apple" "03e26e5c4cab6fd832427a1ad172dd81f0f47dd4"
