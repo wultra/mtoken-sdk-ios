@@ -420,13 +420,13 @@
 		DCC5CC9C2449EE21004679AC /* WultraMobileTokenSDK */ = {
 			isa = PBXGroup;
 			children = (
+				EA7C94562D07111B000A3EFA /* WultraMobileToken.swift */,
 				DC81D1CE24502E0300F80CD6 /* Common */,
 				DC81D1C5244F302300F80CD6 /* Operations */,
 				DC81D1C6244F357900F80CD6 /* Push */,
 				DC488034292282FF00DB844B /* Inbox */,
 				EA6807872D428E140029D3E0 /* Oidc */,
 				DCC5CC9D2449EE21004679AC /* MobileTokenSDK.h */,
-				EA7C94562D07111B000A3EFA /* WultraMobileToken.swift */,
 				DCC5CC9E2449EE21004679AC /* Info.plist */,
 				DCC5CCA72449F27B004679AC /* ConfigFiles */,
 			);
