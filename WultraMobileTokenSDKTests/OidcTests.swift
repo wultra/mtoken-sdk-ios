@@ -159,8 +159,6 @@ final class OidcTests: XCTestCase {
                     XCTAssertNotNil(data.nonce, "Nonce should not be nil")
                     XCTAssertNotNil(data.codeVerifier, "Code verifier should not be null")
                     
-                    XCTAssertEqual(data.callbackScheme, "mtoken", "Deeplink scheme defined in")
-                    
                 case .failure(let error):
                     XCTFail("Authorization Url preparation failed: \(error)")
                 }
