@@ -18,6 +18,7 @@ Pod::Spec.new do |s|
     sub.dependency 'WultraMobileTokenSDK/Operations'
     sub.dependency 'WultraMobileTokenSDK/Push'
     sub.dependency 'WultraMobileTokenSDK/Inbox'
+    sub.dependency 'WultraMobileTokenSDK/Oidc'
   end
 
   s.default_subspecs = 'Core'
@@ -44,6 +45,12 @@ Pod::Spec.new do |s|
   # 'Inbox' subspec
   s.subspec 'Inbox' do |sub|
     sub.source_files = 'WultraMobileTokenSDK/Inbox/**/*.swift'
+    sub.dependency 'WultraMobileTokenSDK/Common'
+  end
+  
+    # 'Oidc' subspec
+  s.subspec 'Oidc' do |sub|
+    sub.source_files = 'WultraMobileTokenSDK/Oidc/**/*.swift'
     sub.dependency 'WultraMobileTokenSDK/Common'
   end
 
