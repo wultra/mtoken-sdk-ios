@@ -25,7 +25,7 @@ public class WMTPush: WMTService {
     let networking: WPNNetworkingService
     
     /// If there was already made an successful request.
-    private(set) var pushNotificationsRegisteredOnServer = false // Contains true if push notifications were already registered
+    public private(set) var pushNotificationsRegisteredOnServer = false // Contains true if push notifications were already registered
     private var pendingRegistrationForRemotePushNotifications = false // Contains true if there's pending registration for push notifications
     
     /// Accept language for the outgoing requests headers.
