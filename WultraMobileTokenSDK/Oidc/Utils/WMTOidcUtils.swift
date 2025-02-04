@@ -83,7 +83,7 @@ public class WMTOidcUtils {
     ///
     /// - Returns: A `WMTOidcPowerAuthActivationAttributes` attributes needed for OIDC PowerAuth activation flow
     /// - Throws: An error when attributes cannot be constructed.
-    public static func processDeeplink(from url: URL, with oidcAuthorizationData: WMTOidcAuthorizationRequest) throws -> WMTOidcPowerAuthActivationAttributes {
+    public static func processWebCallback(from url: URL, with oidcAuthorizationData: WMTOidcAuthorizationRequest) throws -> WMTOidcPowerAuthActivationAttributes {
         
         guard let queryItems = URLComponents(string: url.absoluteString)?.queryItems else {
             D.error("OIDC: Invalid callback URL: \(url)")

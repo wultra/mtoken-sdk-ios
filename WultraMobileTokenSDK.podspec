@@ -48,7 +48,7 @@ Pod::Spec.new do |s|
     sub.dependency 'WultraMobileTokenSDK/Common'
   end
   
-    # 'Oidc' subspec
+  # 'Oidc' subspec
   s.subspec 'Oidc' do |sub|
     sub.source_files = 'WultraMobileTokenSDK/Oidc/**/*.swift'
     sub.dependency 'WultraMobileTokenSDK/Common'

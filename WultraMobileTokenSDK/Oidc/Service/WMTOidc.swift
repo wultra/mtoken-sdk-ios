@@ -78,7 +78,6 @@ public class WMTOidc: WMTService {
                 return .success(
                     WMTOidcAuthorizationRequest(
                         authorizeUrl: authorizeUrl,
-                        callbackScheme: config.redirectUri,
                         providerId: config.providerId,
                         nonce: nonce,
                         state: state,

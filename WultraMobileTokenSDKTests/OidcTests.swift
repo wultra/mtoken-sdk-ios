@@ -221,7 +221,7 @@ final class OidcTests: XCTestCase {
 //            }
 //
 //            // Process Redirect URI
-//            let activationAttributes = try WMTOidcUtils.processDeeplink(from: redirectUri, with: oidcAuthData)
+//            let activationAttributes = try WMTOidcUtils.processWebCallback(from: redirectUri, with: oidcAuthData)
 //
 //            // Create PowerAuth Activation
 //            createPowerAuthActivation(activationAttributes: activationAttributes)

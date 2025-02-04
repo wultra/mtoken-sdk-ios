@@ -5,12 +5,12 @@
 - [Retrieving Configuration](#retrieving-configuration)
 - [Preparing OIDC Authorization Data](#preparing-oidc-authorization-data)
 - [Open authorize URL in a web browser](#open-authorize-url-in-a-web-browser)
-- [Processing a Deeplink and initializing PowerAuth activation flow](#processing-a-deeplink-and-initializing-powerAuth-activation-flow)
+- [Processing a Web Callback and initializing PowerAuth activation flow](#processing-a-web-callback-and-initializing-powerAuth-activation-flow)
 - [WMTOidcUtils](#wmtoidcutils)
 
 ## Introduction
 
-The OIDC and PowerAuth integration enables secure user authentication and the preparation of necessary attributes to initiate a PowerAuth activation. This integration provides tools for managing OpenID Connect (OIDC) flows, including preparing for OIDC activation, processing deeplinks, and handling PKCE codes and authorization URLs.
+The OIDC and PowerAuth integration enables secure user authentication and the preparation of necessary attributes to initiate a PowerAuth activation. This integration provides tools for managing OpenID Connect (OIDC) flows, including preparing for OIDC activation, processing web callbacks, and handling PKCE codes and authorization URLs.
 
 OIDC is commonly used for scenarios like secure user login, authorization to access resources, or linking third-party accounts.
 
@@ -93,7 +93,6 @@ Encapsulates the data required to initiate the OIDC authorization flow and also 
 | Property         | Type      | Description                                             |
 |------------------|-----------|---------------------------------------------------------|
 | `authorizeUrl`   | `URL`     | URL to redirect the user for OIDC authentication.       |
-| `callbackScheme`   | `String`     | The callback scheme used to handle the redirection after authorization.  |
 | `providerId`     | `String`  | Identifier for the OIDC provider configuration.         |
 | `nonce`          | `String`  | Random value to prevent replay attacks.                 |
 | `state`          | `String`  | Random value to maintain state between request/callback.|
@@ -106,7 +105,7 @@ Encapsulates the data required to initiate the OIDC authorization flow and also 
 let result = oidcService.prepareOidcAuthorizationData(config: oidcConfig, callbackScheme: "myapp://")
 switch result {
 case .success(let oidcAuthRequest):
-    // Use oidcAuthRequest.authorizeUri and oidcAuthRequest.callbackScheme to open the browser (ASWebAuthenticationSession)
+    // Use oidcAuthRequest.authorizeUri to open the browser (ASWebAuthenticationSession)
 case .failure(let error):
     // 
 }
@@ -115,7 +114,7 @@ case .failure(let error):
 ## Open authorize URL in a web browser
 
 
-To start the OIDC flow, you must open the authorization URL in a web browser. The recommended approach on iOS is to use ASWebAuthenticationSession for a seamless and secure user experience.
+To start the OIDC flow, you must open the authorization URL in a web browser. The recommended approach on iOS is to use ASWebAuthenticationSession for a seamless and secure user experience. ASWebAuthenticationSession also needs callbackURLScheme as a parameter. You can use the scheme of the WMTOidcConfig redirectUri or deeplink scheme - `CFBundleURLSchemes` defined in your Info.plist  
 
 Since the Wultra Mobile Token SDK does not include any UI logic, it is up to you to implement this functionality. Below is an example of how you can handle the flow:
 
@@ -126,7 +125,7 @@ func openWebBrowser(oidcAuthRequest: WMTOidcAuthorizationRequest, completion: @e
     // Create an instance of ASWebAuthenticationSession
     let webAuthSession = ASWebAuthenticationSession(
         url: oidcAuthRequest.authorizationUrl,
-        callbackURLScheme: oidcAuthRequest.callbackScheme
+        callbackURLScheme: yourAppCallbackScheme,
     ) { callbackURL, error in
         if let callbackURL = callbackURL {
             // Successful authorization
@@ -144,10 +143,10 @@ func openWebBrowser(oidcAuthRequest: WMTOidcAuthorizationRequest, completion: @e
 ```
 
 
-## Processing a Deeplink and initializing PowerAuth activation flow
+## Processing a Web Callback and initializing PowerAuth activation flow
 
 After the user completes the OIDC flow in the web browser, the returned URL can be processed to extract the necessary attributes. 
-The `WMTOidcUtils.processDeeplink` utility function extracts and validates the data needed to initiate PowerAuth activation.
+The `WMTOidcUtils.processWebCallback` utility function extracts and validates the data needed to initiate PowerAuth activation.
 Additionally, the WMTOidcAuthorizationRequest object, which was used to initiate the OIDC flow, is required to provide essential properties (nonce, providerId, and codeVerifier) for the activation process.
 
 
@@ -170,8 +169,8 @@ The final step in the OIDC and PowerAuth integration is to use the **`createOidc
 
 ```swift
 do {
-    // Process the deeplink to extract activation attributes
-    let activationAttributes = try WMTOidcUtils.processDeeplink(
+    // Process the callback to extract activation attributes
+    let activationAttributes = try WMTOidcUtils.processWebCallback(
         from: callbackUrl, 
         with: oidcAuthorizationRequest // Pass the same data as used for the OIDC flow
     )
@@ -216,8 +215,8 @@ Provides methods to generate random strings in Base64 URL-safe format, useful fo
 
 - **`getRandomBase64UrlSafe`**: Generates a code verifier and code challenge based on the length input.
 
-```kotlin
-val nonce = OidcUtils.getRandomBase64UrlSafe(32)
+```swift
+val nonce = WMTOidcUtils.getRandomBase64UrlSafe(32)
 ```
 
 #### URL
@@ -226,19 +225,35 @@ Provides methods for handling URIs.
 
 - **`createAuthorizationUri`**: Constructs an authorization URI.
 
-```kotlin
-val uriResult = UriUtils.createAuthorizationUri(config, nonce, state, pkceCodes)
-uriResult.onSuccess { uri ->
-    println("Authorization URI: $uri")
-}.onFailure { error ->
-    println("Error creating authorization URI: ${error.message}")
+```swift
+let urlResult = WMTOidcUtils.createAuthorizationUrl(config: config, nonce: nonce, state: state, pkceCodes: pkceCodes)
+switch urlResult {
+case .success(let authorizationUrl):
+    // Authorization URL to be opened in the browser
+case .failure(let error):
+    // creation of the URL failed
 }
 ```
 
-- **`processDeeplink`**: Processes a deeplink to extract activation attributes.
+- **`processWebCallback`**: Processes a web callback and compares it with input authorization request data to extract activation attributes.
 
-```kotlin
-val activationAttributes = UriUtils.processDeeplinkOidc(oidcAuth, deeplinkUri)
+```swift
+do {
+    let activationAttributes = try WMTOidcUtils.processWebCallback(from: deeplinkUrl, with: oidcAuth)
+    // Activation can continue with extension function 
+    powerAuthSdk.createOidcActivation(
+        attributes: activationAttributes,
+        activationName: "Petr's iPhone 7") { activationResult in
+            switch activationResult {
+            case .success(let activation):
+            case .failure(let error):
+            }
+        }
+    )
+} catch {
+    // Activation attributes cannot be created
+}
+
 if (activationAttributes != null) {
     println("Activation attributes ready: $activationAttributes")
 } else {

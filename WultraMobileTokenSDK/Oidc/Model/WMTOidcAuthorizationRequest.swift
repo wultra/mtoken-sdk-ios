@@ -24,10 +24,6 @@ public struct WMTOidcAuthorizationRequest {
     /// The URL to initiate the authorization process. This URL is typically opened in a browser or web view.
     public let authorizeUrl: URL
     
-    /// The callback scheme used to handle the redirection after authorization.
-    /// This should match the registered scheme in your application to properly capture the authorization response.
-    public let callbackScheme: String
-    
     /// The identifier of the OIDC provider.
     public let providerId: String
     
