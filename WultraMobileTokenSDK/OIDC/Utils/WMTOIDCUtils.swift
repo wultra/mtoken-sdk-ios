@@ -144,12 +144,4 @@ public class WMTOIDCUtils {
             codeVerifier: oidcAuthorizationData.codeVerifier
         )
     }
-    
-    /// PKCE Helper
-    /// Helper: Generates a SHA-256-based code challenge.
-    private static func generateCodeChallenge(verifier: String) throws -> String {
-        guard let verifierData = verifier.data(using: .ascii) else { throw WMTError(reason: .codeChallengeGenerationFailed ) }
-        let challengeHashed = verifierData.sha256().base64EncodedString().safeOIDCUrlString
-        return challengeHashed
-    }
 }

@@ -57,10 +57,9 @@ public class WMTOIDC: WMTService {
     /// Prepares the OIDC authorization data required for the activation process.
     ///
     /// The function performs the following steps:
-    /// 1. Verifies and retrieves the callback scheme for the authorization process.
-    /// 2. Generates PKCE (Proof Key for Code Exchange) codes if PKCE is enabled in the provided configuration.
-    /// 3. Creates a `nonce` (a unique value to mitigate replay attacks) and a `state` (to maintain state between the request and callback).
-    /// 4. Creates the authorization URL that will be used to open a browser for user authentication.
+    /// 1. Generates PKCE (Proof Key for Code Exchange) codes if PKCE is enabled in the provided configuration.
+    /// 2. Creates a `nonce` (a unique value to mitigate replay attacks) and a `state` (to maintain state between the request and callback).
+    /// 3. Creates the authorization URL that will be used to open a browser for user authentication.
     ///
     /// - Parameters:
     ///   - config: The OIDC configuration, which includes information about the provider and optional PKCE settings.

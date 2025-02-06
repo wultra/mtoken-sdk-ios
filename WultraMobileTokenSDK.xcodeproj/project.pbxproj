@@ -61,19 +61,19 @@
 		DCE660D124CEBECA00870E53 /* IntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCE660D024CEBECA00870E53 /* IntegrationTests.swift */; };
 		DCE660D324CEF56400870E53 /* IntegrationProxy.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCE660D224CEF56400870E53 /* IntegrationProxy.swift */; };
 		EA294F3D29F6A07A00A0494E /* WMTOperationUIData.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA294F3C29F6A07A00A0494E /* WMTOperationUIData.swift */; };
-		EA3439982D48D53600222C7A /* WMTOidcExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA3439972D48D52F00222C7A /* WMTOidcExtensions.swift */; };
+		EA3439982D48D53600222C7A /* WMTOIDCExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA3439972D48D52F00222C7A /* WMTOIDCExtensions.swift */; };
 		EA44366A29F9294600DDEC1C /* WMTPostApprovaScreenReview.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA44366929F9294600DDEC1C /* WMTPostApprovaScreenReview.swift */; };
 		EA44366C29F9297100DDEC1C /* WMTPostApprovaScreenRedirect.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA44366B29F9297100DDEC1C /* WMTPostApprovaScreenRedirect.swift */; };
 		EA44366E29F9298100DDEC1C /* WMTPostApprovaScreenGeneric.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA44366D29F9298100DDEC1C /* WMTPostApprovaScreenGeneric.swift */; };
-		EA68078B2D428E8A0029D3E0 /* WMTOidc.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA68078A2D428E8A0029D3E0 /* WMTOidc.swift */; };
-		EA68078D2D428F590029D3E0 /* WMTOidcEndpoints.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA68078C2D428F4B0029D3E0 /* WMTOidcEndpoints.swift */; };
-		EA68078F2D4290540029D3E0 /* WMTOidcConfigRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA68078E2D4290450029D3E0 /* WMTOidcConfigRequest.swift */; };
-		EA6807912D4290C10029D3E0 /* WMTOidcConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA6807902D4290C10029D3E0 /* WMTOidcConfig.swift */; };
-		EA6807932D429A380029D3E0 /* WMTOidcUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA6807922D429A350029D3E0 /* WMTOidcUtils.swift */; };
-		EA6807952D439F1B0029D3E0 /* WMTOidcAuthorizationRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA6807942D439F110029D3E0 /* WMTOidcAuthorizationRequest.swift */; };
+		EA68078B2D428E8A0029D3E0 /* WMTOIDC.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA68078A2D428E8A0029D3E0 /* WMTOIDC.swift */; };
+		EA68078D2D428F590029D3E0 /* WMTOIDCEndpoints.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA68078C2D428F4B0029D3E0 /* WMTOIDCEndpoints.swift */; };
+		EA68078F2D4290540029D3E0 /* WMTOIDCConfigRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA68078E2D4290450029D3E0 /* WMTOIDCConfigRequest.swift */; };
+		EA6807912D4290C10029D3E0 /* WMTOIDCConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA6807902D4290C10029D3E0 /* WMTOIDCConfig.swift */; };
+		EA6807932D429A380029D3E0 /* WMTOIDCUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA6807922D429A350029D3E0 /* WMTOIDCUtils.swift */; };
+		EA6807952D439F1B0029D3E0 /* WMTOIDCAuthorizationRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA6807942D439F110029D3E0 /* WMTOIDCAuthorizationRequest.swift */; };
 		EA6807972D43AA350029D3E0 /* WMTPKCECodes.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA6807962D43AA2B0029D3E0 /* WMTPKCECodes.swift */; };
-		EA6807A32D43D1AD0029D3E0 /* WMTOidcPowerAuthActivationAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA6807A22D43D1A20029D3E0 /* WMTOidcPowerAuthActivationAttributes.swift */; };
-		EA6807A52D43E5C70029D3E0 /* WMTOidcErrors.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA6807A42D43E5C30029D3E0 /* WMTOidcErrors.swift */; };
+		EA6807A32D43D1AD0029D3E0 /* WMTOIDCPowerAuthActivationAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA6807A22D43D1A20029D3E0 /* WMTOIDCPowerAuthActivationAttributes.swift */; };
+		EA6807A52D43E5C70029D3E0 /* WMTOIDCErrors.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA6807A42D43E5C30029D3E0 /* WMTOIDCErrors.swift */; };
 		EA6807A72D4785400029D3E0 /* OIDCTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA6807A62D4785400029D3E0 /* OIDCTests.swift */; };
 		EA6DDF0F29F8036B0011E234 /* WMTPreApprovalScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA6DDF0E29F8036B0011E234 /* WMTPreApprovalScreen.swift */; };
 		EA6DDF1A29F804D60011E234 /* WMTPostApprovalScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA6DDF1929F804D60011E234 /* WMTPostApprovalScreen.swift */; };
@@ -161,19 +161,19 @@
 		DCE660D024CEBECA00870E53 /* IntegrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntegrationTests.swift; sourceTree = "<group>"; };
 		DCE660D224CEF56400870E53 /* IntegrationProxy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntegrationProxy.swift; sourceTree = "<group>"; };
 		EA294F3C29F6A07A00A0494E /* WMTOperationUIData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTOperationUIData.swift; sourceTree = "<group>"; };
-		EA3439972D48D52F00222C7A /* WMTOidcExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTOidcExtensions.swift; sourceTree = "<group>"; };
+		EA3439972D48D52F00222C7A /* WMTOIDCExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTOIDCExtensions.swift; sourceTree = "<group>"; };
 		EA44366929F9294600DDEC1C /* WMTPostApprovaScreenReview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTPostApprovaScreenReview.swift; sourceTree = "<group>"; };
 		EA44366B29F9297100DDEC1C /* WMTPostApprovaScreenRedirect.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTPostApprovaScreenRedirect.swift; sourceTree = "<group>"; };
 		EA44366D29F9298100DDEC1C /* WMTPostApprovaScreenGeneric.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTPostApprovaScreenGeneric.swift; sourceTree = "<group>"; };
-		EA68078A2D428E8A0029D3E0 /* WMTOidc.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTOidc.swift; sourceTree = "<group>"; };
-		EA68078C2D428F4B0029D3E0 /* WMTOidcEndpoints.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTOidcEndpoints.swift; sourceTree = "<group>"; };
-		EA68078E2D4290450029D3E0 /* WMTOidcConfigRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTOidcConfigRequest.swift; sourceTree = "<group>"; };
-		EA6807902D4290C10029D3E0 /* WMTOidcConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTOidcConfig.swift; sourceTree = "<group>"; };
-		EA6807922D429A350029D3E0 /* WMTOidcUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTOidcUtils.swift; sourceTree = "<group>"; };
-		EA6807942D439F110029D3E0 /* WMTOidcAuthorizationRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTOidcAuthorizationRequest.swift; sourceTree = "<group>"; };
+		EA68078A2D428E8A0029D3E0 /* WMTOIDC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTOIDC.swift; sourceTree = "<group>"; };
+		EA68078C2D428F4B0029D3E0 /* WMTOIDCEndpoints.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTOIDCEndpoints.swift; sourceTree = "<group>"; };
+		EA68078E2D4290450029D3E0 /* WMTOIDCConfigRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTOIDCConfigRequest.swift; sourceTree = "<group>"; };
+		EA6807902D4290C10029D3E0 /* WMTOIDCConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTOIDCConfig.swift; sourceTree = "<group>"; };
+		EA6807922D429A350029D3E0 /* WMTOIDCUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTOIDCUtils.swift; sourceTree = "<group>"; };
+		EA6807942D439F110029D3E0 /* WMTOIDCAuthorizationRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTOIDCAuthorizationRequest.swift; sourceTree = "<group>"; };
 		EA6807962D43AA2B0029D3E0 /* WMTPKCECodes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTPKCECodes.swift; sourceTree = "<group>"; };
-		EA6807A22D43D1A20029D3E0 /* WMTOidcPowerAuthActivationAttributes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTOidcPowerAuthActivationAttributes.swift; sourceTree = "<group>"; };
-		EA6807A42D43E5C30029D3E0 /* WMTOidcErrors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTOidcErrors.swift; sourceTree = "<group>"; };
+		EA6807A22D43D1A20029D3E0 /* WMTOIDCPowerAuthActivationAttributes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTOIDCPowerAuthActivationAttributes.swift; sourceTree = "<group>"; };
+		EA6807A42D43E5C30029D3E0 /* WMTOIDCErrors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTOIDCErrors.swift; sourceTree = "<group>"; };
 		EA6807A62D4785400029D3E0 /* OIDCTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OIDCTests.swift; sourceTree = "<group>"; };
 		EA6DDF0E29F8036B0011E234 /* WMTPreApprovalScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTPreApprovalScreen.swift; sourceTree = "<group>"; };
 		EA6DDF1929F804D60011E234 /* WMTPostApprovalScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTPostApprovalScreen.swift; sourceTree = "<group>"; };
@@ -428,7 +428,7 @@
 				DC81D1C5244F302300F80CD6 /* Operations */,
 				DC81D1C6244F357900F80CD6 /* Push */,
 				DC488034292282FF00DB844B /* Inbox */,
-				EA6807872D428E140029D3E0 /* Oidc */,
+				EA6807872D428E140029D3E0 /* OIDC */,
 				DCC5CC9D2449EE21004679AC /* MobileTokenSDK.h */,
 				DCC5CC9E2449EE21004679AC /* Info.plist */,
 				DCC5CCA72449F27B004679AC /* ConfigFiles */,
@@ -469,24 +469,24 @@
 			path = Requests;
 			sourceTree = "<group>";
 		};
-		EA6807872D428E140029D3E0 /* Oidc */ = {
+		EA6807872D428E140029D3E0 /* OIDC */ = {
 			isa = PBXGroup;
 			children = (
 				EA68079F2D43C6600029D3E0 /* Utils */,
 				EA6807892D428E470029D3E0 /* Service */,
 				EA6807882D428E380029D3E0 /* Model */,
 			);
-			path = Oidc;
+			path = OIDC;
 			sourceTree = "<group>";
 		};
 		EA6807882D428E380029D3E0 /* Model */ = {
 			isa = PBXGroup;
 			children = (
-				EA6807A22D43D1A20029D3E0 /* WMTOidcPowerAuthActivationAttributes.swift */,
+				EA6807A22D43D1A20029D3E0 /* WMTOIDCPowerAuthActivationAttributes.swift */,
 				EA6807962D43AA2B0029D3E0 /* WMTPKCECodes.swift */,
-				EA6807942D439F110029D3E0 /* WMTOidcAuthorizationRequest.swift */,
-				EA68078E2D4290450029D3E0 /* WMTOidcConfigRequest.swift */,
-				EA6807902D4290C10029D3E0 /* WMTOidcConfig.swift */,
+				EA6807942D439F110029D3E0 /* WMTOIDCAuthorizationRequest.swift */,
+				EA68078E2D4290450029D3E0 /* WMTOIDCConfigRequest.swift */,
+				EA6807902D4290C10029D3E0 /* WMTOIDCConfig.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -494,8 +494,8 @@
 		EA6807892D428E470029D3E0 /* Service */ = {
 			isa = PBXGroup;
 			children = (
-				EA68078C2D428F4B0029D3E0 /* WMTOidcEndpoints.swift */,
-				EA68078A2D428E8A0029D3E0 /* WMTOidc.swift */,
+				EA68078C2D428F4B0029D3E0 /* WMTOIDCEndpoints.swift */,
+				EA68078A2D428E8A0029D3E0 /* WMTOIDC.swift */,
 			);
 			path = Service;
 			sourceTree = "<group>";
@@ -503,9 +503,9 @@
 		EA68079F2D43C6600029D3E0 /* Utils */ = {
 			isa = PBXGroup;
 			children = (
-				EA3439972D48D52F00222C7A /* WMTOidcExtensions.swift */,
-				EA6807A42D43E5C30029D3E0 /* WMTOidcErrors.swift */,
-				EA6807922D429A350029D3E0 /* WMTOidcUtils.swift */,
+				EA3439972D48D52F00222C7A /* WMTOIDCExtensions.swift */,
+				EA6807A42D43E5C30029D3E0 /* WMTOIDCErrors.swift */,
+				EA6807922D429A350029D3E0 /* WMTOIDCUtils.swift */,
 			);
 			path = Utils;
 			sourceTree = "<group>";
@@ -685,7 +685,7 @@
 				DC81D1C9244F38DB00F80CD6 /* WMTPushEndpoints.swift in Sources */,
 				DC0268DF29965495000BB9FA /* WMTOperationListResponse.swift in Sources */,
 				EA6807972D43AA350029D3E0 /* WMTPKCECodes.swift in Sources */,
-				EA3439982D48D53600222C7A /* WMTOidcExtensions.swift in Sources */,
+				EA3439982D48D53600222C7A /* WMTOIDCExtensions.swift in Sources */,
 				DC48803E292282FF00DB844B /* WMTInboxMessage.swift in Sources */,
 				DCC5CCB52449F8E9004679AC /* WMTOperationAttributeAmount.swift in Sources */,
 				EAB7AA7E2D2C00D100C50FDC /* WMTOperationsErrors.swift in Sources */,
@@ -697,8 +697,8 @@
 				DCA43C6B29927C960059A163 /* WMTOperationAttributeAmountConversion.swift in Sources */,
 				EA74F7B32C2561BB004340B9 /* WMTResultTexts.swift in Sources */,
 				DC3D0B372480F3C7000DC4D9 /* WMTOperation.swift in Sources */,
-				EA68078F2D4290540029D3E0 /* WMTOidcConfigRequest.swift in Sources */,
-				EA6807A32D43D1AD0029D3E0 /* WMTOidcPowerAuthActivationAttributes.swift in Sources */,
+				EA68078F2D4290540029D3E0 /* WMTOIDCConfigRequest.swift in Sources */,
+				EA6807A32D43D1AD0029D3E0 /* WMTOIDCPowerAuthActivationAttributes.swift in Sources */,
 				BFEEB20B2937AD700047941D /* WMTCancellable.swift in Sources */,
 				DC6E52D6259C964600FC25BE /* WMTOperationExpirationWatcher.swift in Sources */,
 				DCC5CCDA244DBBE2004679AC /* WMTRejectionData.swift in Sources */,
@@ -706,7 +706,7 @@
 				EA6DDF0F29F8036B0011E234 /* WMTPreApprovalScreen.swift in Sources */,
 				DCAB7BC824580B4C0006989D /* WMTQROperationParser.swift in Sources */,
 				EA44366C29F9297100DDEC1C /* WMTPostApprovaScreenRedirect.swift in Sources */,
-				EA6807952D439F1B0029D3E0 /* WMTOidcAuthorizationRequest.swift in Sources */,
+				EA6807952D439F1B0029D3E0 /* WMTOIDCAuthorizationRequest.swift in Sources */,
 				EAB7AA7A2D2BFA2000C50FDC /* WMTHexadecimalString.swift in Sources */,
 				DCC5CCB12449F81C004679AC /* WMTOperationFormData.swift in Sources */,
 				DCC5CCD4244DBA1C004679AC /* WMTOperationEndpoints.swift in Sources */,
@@ -715,14 +715,14 @@
 				DCC5CCB92449F93C004679AC /* WMTOperationAttributeKeyValue.swift in Sources */,
 				DCC5CCBB2449F952004679AC /* WMTOperationAttributeNote.swift in Sources */,
 				BFEEB2092937A2680047941D /* WMTInboxGetList.swift in Sources */,
-				EA68078B2D428E8A0029D3E0 /* WMTOidc.swift in Sources */,
+				EA68078B2D428E8A0029D3E0 /* WMTOIDC.swift in Sources */,
 				BFEEB20729379F960047941D /* WMTInboxSetMessageRead.swift in Sources */,
-				EA6807A52D43E5C70029D3E0 /* WMTOidcErrors.swift in Sources */,
+				EA6807A52D43E5C70029D3E0 /* WMTOIDCErrors.swift in Sources */,
 				EAA3DD3B2D14667F00C06DC2 /* WMTPush.swift in Sources */,
 				EA44366A29F9294600DDEC1C /* WMTPostApprovaScreenReview.swift in Sources */,
 				EA9CE2C22AEBDB0D00FE4E35 /* WMTPACUtils.swift in Sources */,
 				EA294F3D29F6A07A00A0494E /* WMTOperationUIData.swift in Sources */,
-				EA68078D2D428F590029D3E0 /* WMTOidcEndpoints.swift in Sources */,
+				EA68078D2D428F590029D3E0 /* WMTOIDCEndpoints.swift in Sources */,
 				DCC5CCB32449F8CD004679AC /* WMTOperationAttribute.swift in Sources */,
 				DCC5CCAC2449F765004679AC /* WMTOperations.swift in Sources */,
 				DC06D01F25AC74E400F2EA69 /* WMTLock.swift in Sources */,
@@ -733,7 +733,7 @@
 				DC9511F926EA02C100FF40AD /* WPNIntegration.swift in Sources */,
 				DCC5CCBD2449F965004679AC /* WMTOperationAttributeHeading.swift in Sources */,
 				DC8CB206244DD007009DDAA3 /* WMTAllowedOperationSignature.swift in Sources */,
-				EA6807912D4290C10029D3E0 /* WMTOidcConfig.swift in Sources */,
+				EA6807912D4290C10029D3E0 /* WMTOIDCConfig.swift in Sources */,
 				DCC3420424E3DB310045D27D /* WMTPushParser.swift in Sources */,
 				BFEEB20529379C700047941D /* WMTInboxGetMessageDetail.swift in Sources */,
 				EACAF7B02A126B7D0021CA54 /* WMTJsonValue.swift in Sources */,
@@ -745,7 +745,7 @@
 				DCA43C6D2993F63E0059A163 /* WMTOperationAttributeImage.swift in Sources */,
 				EA44366E29F9298100DDEC1C /* WMTPostApprovaScreenGeneric.swift in Sources */,
 				DC488042292282FF00DB844B /* WMTInbox.swift in Sources */,
-				EA6807932D429A380029D3E0 /* WMTOidcUtils.swift in Sources */,
+				EA6807932D429A380029D3E0 /* WMTOIDCUtils.swift in Sources */,
 				EA7A6E582B0E639800C1D4F4 /* WMTOperationDetailRequest.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
