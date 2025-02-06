@@ -19,7 +19,7 @@ import Foundation
 /// Represents a request for OIDC authorization.
 ///
 /// This structure contains the necessary data to initiate an OIDC authorization process
-public struct WMTOidcAuthorizationRequest {
+public struct WMTOIDCAuthorizationRequest {
     
     /// The URL to initiate the authorization process. This URL is typically opened in a browser or web view.
     public let authorizeUrl: URL

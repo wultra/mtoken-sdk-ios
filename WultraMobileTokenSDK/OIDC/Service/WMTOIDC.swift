@@ -19,7 +19,7 @@ import PowerAuth2
 import WultraPowerAuthNetworking
 
 /// Service that communicates with OIDC (OpenID Connect) API
-public class WMTOidc: WMTService {
+public class WMTOIDC: WMTService {
     
     // Dependencies
     lazy var powerAuth = networking.powerAuth
@@ -43,11 +43,11 @@ public class WMTOidc: WMTService {
     ///   - completion: Result completion.
     /// - Returns: Operation to observe
     @discardableResult
-    public func getConfig(providerId: String, completion: @escaping (Result<WMTOidcConfig, WMTError>) -> Void) -> Operation? {
+    public func getConfig(providerId: String, completion: @escaping (Result<WMTOIDCConfig, WMTError>) -> Void) -> Operation? {
         
         return networking.post(
-            data: OidcEndpoints.Config.EndpointType.RequestData(providerId: providerId),
-            to: OidcEndpoints.Config.endpoint,
+            data: WMTOIDCEndpoints.Config.EndpointType.RequestData(providerId: providerId),
+            to: WMTOIDCEndpoints.Config.endpoint,
             completion: { response, error in
                 self.processResult(response: response, error: error, completion: completion)
             }
@@ -66,17 +66,19 @@ public class WMTOidc: WMTService {
     ///   - config: The OIDC configuration, which includes information about the provider and optional PKCE settings.
     ///
     /// - Returns: A `Result` containing either:
-    ///   - On success: `WMTOidcAuthorizationRequest` with all required data for the authorization process.
+    ///   - On success: `WMTOIDCAuthorizationRequest` with all required data for the authorization process.
     ///   - On failure: `WMTError` with details about what failed.
-    public func prepareOidcAuthorizationData(config: WMTOidcConfig) -> Result<WMTOidcAuthorizationRequest, WMTError> {
+    public func prepareOIDCAuthorizationData(config: WMTOIDCConfig) -> Result<WMTOIDCAuthorizationRequest, WMTError> {
         do {
-            let pkceCodes = try createPkce(enabled: config.pkceEnabled, dataLength: 32)
-            let nonce = try WMTOidcUtils.getRandomBase64UrlSafe(dataLength: 32)
-            let state = try WMTOidcUtils.getRandomBase64UrlSafe(dataLength: 32)
+            // Using 32 bytes for PKCE code verifiers aligns with RFC 7636 (https://datatracker.ietf.org/doc/html/rfc7636).
+            // For nonce and state, OpenID Connect does not specify a strict length, but 32 bytes ensures strong randomness to prevent replay and CSRF attacks.
+            let pkceCodes = config.pkceEnabled ? try WMTOIDCUtils.createPKCE(dataLength: 32) : nil
+            let nonce = try WMTOIDCUtils.getRandomBase64UrlSafe(dataLength: 32)
+            let state = try WMTOIDCUtils.getRandomBase64UrlSafe(dataLength: 32)
 
-            let authorizeUrl = try WMTOidcUtils.createAuthorizationUrl(config: config, nonce: nonce, state: state, pkceCodes: pkceCodes)
+            let authorizeUrl = try WMTOIDCUtils.createAuthorizationUrl(config: config, nonce: nonce, state: state, pkceCodes: pkceCodes)
                 return .success(
-                    WMTOidcAuthorizationRequest(
+                    WMTOIDCAuthorizationRequest(
                         authorizeUrl: authorizeUrl,
                         providerId: config.providerId,
                         nonce: nonce,
@@ -86,20 +88,11 @@ public class WMTOidc: WMTService {
                 )
             
         } catch let error as WMTError {
-            D.error("Oidc: Authorization Data creation failed: \(error)")
+            D.error("OIDC: Authorization Data creation failed: \(error)")
             return .failure(.wrap(error.reason, error))
         } catch {
-            D.error("Oidc: Authorization Data creation failed: \(error)")
+            D.error("OIDC: Authorization Data creation failed: \(error)")
             return .failure(.wrap(.unknown, error))
-        }
-    }
-    
-    /// Helper method to return Result nil if PKCE is not enabled
-    private func createPkce(enabled: Bool, dataLength: Int) throws -> WMTPKCECodes? {
-        if enabled == false {
-            return nil
-        } else {
-            return try WMTOidcUtils.createPKCE(dataLength: dataLength)
         }
     }
 }

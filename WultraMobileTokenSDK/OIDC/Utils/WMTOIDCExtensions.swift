@@ -18,11 +18,11 @@ import Foundation
 import CommonCrypto
 import PowerAuth2
 
-extension PowerAuthSDK {
-    /// Creates PowerAuth activation based on the data in the `WMTOidcPowerAuthActivationAttributes` object.
+public extension PowerAuthSDK {
+    /// Creates PowerAuth activation based on the data in the `WMTOIDCPowerAuthActivationAttributes` object.
     ///
     /// - Parameters:
-    ///   - attributes: A `WMTOidcPowerAuthActivationAttributes` object containing the information required for the activation creation.
+    ///   - attributes: A `WMTOIDCPowerAuthActivationAttributes` object containing the information required for the activation creation.
     ///                 Includes `providerId`, `code`, `nonce`, and optional `codeVerifier`.
     ///   - deviceName: The `deviceName` is activation's name parameter and it is optional, but recommended to set. You can use the value obtained from
     ///                 `UIDevice.current.name` or let the user set the name. The name of activation will be associated with
@@ -35,8 +35,8 @@ extension PowerAuthSDK {
     /// - Throws: An error when activation data cannot be constructed.
     /// - more info at https://developers.wultra.com/components/powerauth-mobile-sdk/develop/documentation/PowerAuth-SDK-for-iOS.html#activation-via-openid-connect
     @discardableResult
-    func createOidcActivation(
-        attributes: WMTOidcPowerAuthActivationAttributes,
+    func createOIDCActivation(
+        attributes: WMTOIDCPowerAuthActivationAttributes,
         activationName: String? = nil,
         _ callback: @escaping (Result<PowerAuthActivationResult, Error>) -> Void
     ) throws -> PowerAuthOperationTask? {
@@ -55,7 +55,7 @@ extension PowerAuthSDK {
             if let result = result {
                 callback(.success(result))
             } else {
-                D.error("Oidc - Actication failed with error: \(String(describing: error))")
+                D.error("OIDC: Actication failed with error: \(String(describing: error))")
                 callback(.failure( (error != nil) ? .wrap(.activationFailed, error) : WMTError(reason: .activationFailed)))
             }
         }
@@ -64,8 +64,11 @@ extension PowerAuthSDK {
 
 extension String {
     /// A computed property to transform a Base64-encoded string into a URL-safe.
-    /// Foundation framework doesn't have built-in methods for Base64 URL-safe encoding
-    var safeUrlString: String {
+    ///
+    /// The default Base64 encoding in Swift uses `+` and `/` at positions 62 and 63, which are not safe for URLs.
+    /// RFC 4648 defines a URL-safe Base64 variant that replaces `+` with `-`, `/` with `_`, and removes `=` padding.
+    /// This transformation ensures compatibility with URL query parameters.
+    var safeOIDCUrlString: String {
         self
             .replacingOccurrences(of: "=", with: "") // Remove any trailing '='s
             .replacingOccurrences(of: "+", with: "-") // 62nd char of encoding

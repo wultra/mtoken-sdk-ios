@@ -18,7 +18,7 @@ import Foundation
 import WultraPowerAuthNetworking
 
 /// Represents a request for fetching OIDC provider configuration.
-public class WMTOidcConfigRequest: WPNRequestBase {
+public class WMTOIDCConfigRequest: WPNRequestBase {
     
     /// The identifier of the OIDC provider whose configuration is being requested.
     let providerId: String

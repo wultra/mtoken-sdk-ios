@@ -17,20 +17,40 @@
 import Foundation
 
 /// Utility class for OIDC
-public class WMTOidcUtils {
+public class WMTOIDCUtils {
+    
+    private static let minLength: Int = 32 // min is 32-octet sequence == Base64 43 URL safe characters
+    private static let maxLength: Int = 96 // max is 96-octet sequence == Base64 128 URL safe characters
     
     /// Creates PKCE codes, returning a Result wrapping the codes.
+    /// For more information, see RFC 7636: https://datatracker.ietf.org/doc/html/rfc7636
+    /// - Parameter dataLength: The number of raw bytes to generate for the code verifier before Base64 encoding.
+    ///   If the provided length is outside the allowed range, the minimum length is used.
+    /// - Returns: A `WMTPKCECodes` object containing the generated code verifier and code challenge and used hash method.
+    /// - Throws: An error if secure random byte generation fails.
     public static func createPKCE(dataLength: Int) throws -> WMTPKCECodes {
-        let minLength: Int = 32 // min is 32-octet sequence == Base64 43 URL safe characters
-        let maxLength: Int = 96 // max is 96-octet sequence == Base64 128 URL safe characters
         let length = (dataLength > minLength && dataLength < maxLength) ? dataLength : minLength
         
         let codeVerifier = try getRandomBase64UrlSafe(dataLength: length)
-        let codeChallenge = try generateCodeChallenge(verifier: codeVerifier)
+        
+        guard let verifierData = codeVerifier.data(using: .ascii) else {
+            D.error("OIDC: Failed to convert code verifier to Data.")
+            throw WMTError(reason: .codeChallengeGenerationFailed)
+        }
+        let codeChallenge = verifierData.sha256().base64EncodedString().safeOIDCUrlString
+        
         return WMTPKCECodes(codeVerifier: codeVerifier, codeChallenge: codeChallenge)
     }
 
-    /// Generates a random Base64 URL-safe string of the given length.
+    /// Generates a random Base64 URL-safe string of the given data length.
+    ///
+    /// The default `base64EncodedString()` in Swift uses standard Base64, where `+` and `/` at positions 62 and 63
+    /// are not URL-safe. RFC 4648 defines a URL-safe variant replacing `+` with `-`, `/` with `_`, and removing `=` padding.
+    /// This method applies these substitutions to ensure the string is safe for URLs.
+    ///
+    /// - Parameter dataLength: The number of raw bytes to generate before Base64 encoding.
+    /// - Returns: A URL-safe Base64-encoded string without padding.
+    /// - Throws: An error if secure random byte generation fails.
     public static func getRandomBase64UrlSafe(dataLength: Int) throws -> String {
         var randomBytes = [Int8](repeating: 0, count: dataLength)
         
@@ -38,15 +58,27 @@ public class WMTOidcUtils {
         let status = SecRandomCopyBytes(kSecRandomDefault, dataLength, &randomBytes)
         
         // A status of errSecSuccess indicates success
-        guard status == errSecSuccess else { throw WMTError(reason: .randomBytesFailed) }
+        guard status == errSecSuccess else {
+            D.error("OIDC: Random bytes generation failed")
+            throw WMTError(reason: .randomBytesFailed)
+        }
         
         // Convert bytes to Data
         let data = Data(bytes: randomBytes, count: dataLength)
-        return data.base64EncodedString().safeUrlString
+        return data.base64EncodedString().safeOIDCUrlString
     }
     
-    /// Creates an authorization URL.
-    public static func createAuthorizationUrl(config: WMTOidcConfig, nonce: String, state: String, pkceCodes: WMTPKCECodes?) throws -> URL {
+    /// Creates an OpenID Connect authorization URL.
+    /// This URL is then used to initiate the authentication login flow.
+    ///
+    /// - Parameters:
+    ///   - config: The OIDC configuration containing authorization endpoint and client details.
+    ///   - nonce: A cryptographically random string to associate with the authentication request.
+    ///   - state: A unique value to maintain state between the request and the callback for CSRF protection.
+    ///   - pkceCodes: Optional PKCE codes for additional security.
+    /// - Returns: A constructed authorization URL with query parameters.
+    /// - Throws: An error if the authorization URL cannot be created.
+    public static func createAuthorizationUrl(config: WMTOIDCConfig, nonce: String, state: String, pkceCodes: WMTPKCECodes?) throws -> URL {
         guard var components = URLComponents(string: config.authorizeUri) else {
             D.warning("OIDC: auth url is malformed")
             throw WMTError(reason: .authorizationUrlCreationFailed)
@@ -81,9 +113,9 @@ public class WMTOidcUtils {
     ///   - url: The deeplink URL received from the OIDC provider during the authorization process.
     ///   - oidcAuthorizationData: Data containing the necessary data for the OIDC flow.
     ///
-    /// - Returns: A `WMTOidcPowerAuthActivationAttributes` attributes needed for OIDC PowerAuth activation flow
+    /// - Returns: A `WMTOIDCPowerAuthActivationAttributes` attributes needed for OIDC PowerAuth activation flow
     /// - Throws: An error when attributes cannot be constructed.
-    public static func processWebCallback(from url: URL, with oidcAuthorizationData: WMTOidcAuthorizationRequest) throws -> WMTOidcPowerAuthActivationAttributes {
+    public static func processWebCallback(from url: URL, with oidcAuthorizationData: WMTOIDCAuthorizationRequest) throws -> WMTOIDCPowerAuthActivationAttributes {
         
         guard let queryItems = URLComponents(string: url.absoluteString)?.queryItems else {
             D.error("OIDC: Invalid callback URL: \(url)")
@@ -105,7 +137,7 @@ public class WMTOidcUtils {
             throw WMTError(reason: .invalidDeeplink)
         }
         
-        return WMTOidcPowerAuthActivationAttributes(
+        return WMTOIDCPowerAuthActivationAttributes(
             providerId: oidcAuthorizationData.providerId,
             code: code,
             nonce: oidcAuthorizationData.nonce,
@@ -117,7 +149,7 @@ public class WMTOidcUtils {
     /// Helper: Generates a SHA-256-based code challenge.
     private static func generateCodeChallenge(verifier: String) throws -> String {
         guard let verifierData = verifier.data(using: .ascii) else { throw WMTError(reason: .codeChallengeGenerationFailed ) }
-        let challengeHashed = verifierData.sha256()
-        return challengeHashed.base64EncodedString().safeUrlString
+        let challengeHashed = verifierData.sha256().base64EncodedString().safeOIDCUrlString
+        return challengeHashed
     }
 }

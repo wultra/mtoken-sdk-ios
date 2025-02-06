@@ -15,19 +15,12 @@
 //
 
 import Foundation
+import WultraPowerAuthNetworking
 
-/// Represents the attributes required to complete an OIDC-based PowerAuth activation.
-public struct WMTOidcPowerAuthActivationAttributes {
+enum WMTOIDCEndpoints {
     
-    /// The identifier of the OIDC provider
-    public let providerId: String
-    
-    /// The authorization code returned by the OIDC authentication flow.
-    public let code: String
-    
-    /// A unique nonce value used for security validation.
-    public let nonce: String
-    
-    /// (Optional) The code verifier used in the PKCE flow.
-    public let codeVerifier: String?
+    enum Config {
+        typealias EndpointType = WPNEndpointBasic<WMTOIDCConfigRequest, WPNResponse<WMTOIDCConfig>>
+        static let endpoint: EndpointType = .init(endpointURLPath: "/api/config/oidc", e2ee: .applicationScope)
+    }
 }

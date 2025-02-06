@@ -18,7 +18,7 @@ import Foundation
 import WultraPowerAuthNetworking
 
 /// Config data contains essential OIDC configuration values for authentication.
-public struct WMTOidcConfig: Codable {
+public struct WMTOIDCConfig: Codable {
     
     /// Provider's identifier.
     public let providerId: String

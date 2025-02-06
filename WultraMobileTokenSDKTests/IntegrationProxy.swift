@@ -65,7 +65,7 @@ class IntegrationProxy {
         }
     }
     
-    func prepareForOidc(callback: @escaping Callback) {
+    func prepareForOIDC(callback: @escaping Callback) {
         WPNLogger.verboseLevel = .debug
         guard let configPath = Bundle.init(for: IntegrationProxy.self).path(forResource: "config", ofType: "json", inDirectory: "Configs") else {
             callback("Config file config.json is not present.")
@@ -283,10 +283,10 @@ class IntegrationProxy {
         return resp
     }
     
-    func getOidcConfigs() -> OidcProperties? {
+    func getOIDCProviders() -> OIDCProperties? {
         guard let providerId = config.oidcProviderId, let providerIdPkce = config.oidcProviderIdPkce else { return nil
         }
-        return OidcProperties(providerId: providerId, providerIdPkce: providerIdPkce)
+        return OIDCProperties(providerId: providerId, providerIdPkce: providerIdPkce)
     }
 }
 
@@ -374,7 +374,7 @@ struct InboxMessageDetail: Codable {
     let read: Bool
 }
 
-struct OidcProperties {
+struct OIDCProperties {
     let providerId: String
     let providerIdPkce: String
 }

@@ -83,6 +83,17 @@ public class WultraMobileToken {
         )
     )
     
+    private lazy var oidcBacking = WMTLazy(
+        WMTOIDC(
+            networking: WPNNetworkingService(
+                powerAuth: self.powerAuth,
+                config: self.wpnConfig,
+                serviceName: "WMTOIDC",
+                acceptLanguage: self.acceptLanguage
+            )
+        )
+    )
+    
     // MARK: Public API
     
     /// Initializes a new instance of `WultraMobileToken`. Which may fail if the PowerAuth `baseEndpointUrl` is invalid
@@ -116,6 +127,9 @@ public class WultraMobileToken {
     /// Inbox manager - receives messages to communicate with the user.
     public var inbox: WMTInbox { inboxBacking.lazy }
     
+    /// OIDC manager - receive the config and help with OIDC activation preparation
+    public var oidc: WMTOIDC { oidcBacking.lazy }
+    
     /**
      Sets the accept language for the outgoing request headers for `operations`, `push`, and `inbox` objects.
      
@@ -133,6 +147,7 @@ public class WultraMobileToken {
         operationsBacking.optional?.acceptLanguage = lang
         pushBacking.optional?.acceptLanguage = lang
         inboxBacking.optional?.acceptLanguage = lang
+        oidcBacking.optional?.acceptLanguage = lang
         D.info("Accept language set to \(lang)")
     }
     

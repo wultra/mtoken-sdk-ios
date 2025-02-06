@@ -30,7 +30,7 @@ func createWultraTokenMobile(powerAuth: PowerAuthSDK) {
 
 1. **Removed protocols**
 
-The protocols ‘WMTOperations’, ‘WMTInbox’, and ‘WMTPush’ have been removed and replaced by concrete class implementations.
+The protocols `WMTOperations`, `WMTInbox`, and `WMTPush` have been removed and replaced by concrete class implementations.
 
 2. **Removed Extension Methods**  
 

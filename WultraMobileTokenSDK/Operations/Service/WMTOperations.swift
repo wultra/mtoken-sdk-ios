@@ -156,7 +156,7 @@ public class WMTOperations: WMTService {
     
     /// Retrieves the history of user operations with its current status.
     /// - Parameters:
-    ///   - authentication: 2FA authentication object (password or biometrics) for signing.
+    ///   - authentication: A multi-factor authentication object for signing. 2FA should be used (password or biometrics) .
     ///   - completion: Result completion.
     ///                 This completion is always called on the main thread.
     /// - Returns: Operation object for its state observation.
@@ -230,7 +230,7 @@ public class WMTOperations: WMTService {
     ///
     /// - Parameters:
     ///   - operation: Operation that should  be authorized.
-    ///   - authentication: Authentication object for signing, which depends on the operation type but usually 2FA (password or biometrics)
+    ///   - authentication: Multi-factor authentication object for signing, which depends on the operation type but usually 2FA (password or biometrics)
     ///   - completion: Result callback.
     ///                 This completion is always called on the main thread.
     /// - Returns: Operation object for its state observation.
@@ -267,7 +267,7 @@ public class WMTOperations: WMTService {
     ///   - qrOperation: QR operation data.
     ///   - uriId: Custom signature URI ID of the operation. Use URI ID under which the operation was
     ///            created on the server. Default value is  `/operation/authorize/offline`.
-    ///   - authentication: Authentication object for signing, which depends on the operation type but usually 2FA (password or biometrics)
+    ///   - authentication: Multi-factor authentication object for signing, which depends on the operation type but usually 2FA (password or biometrics)
     ///   - completion: Result completion.
     ///                 This completion is always called on the main thread.
     /// - Returns: Operation object for its state observation.

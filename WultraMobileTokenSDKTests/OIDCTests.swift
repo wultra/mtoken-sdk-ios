@@ -19,11 +19,11 @@ import XCTest
 import PowerAuth2
 @testable import WultraMobileTokenSDK
 
-final class OidcTests: XCTestCase {
+final class OIDCTests: XCTestCase {
     
     private var proxy: IntegrationProxy!
     private var pa: PowerAuthSDK? { proxy.powerAuth }
-    private var oidc: WMTOidc? { proxy.wmt?.oidc }
+    private var oidc: WMTOIDC? { proxy.wmt?.oidc }
     private let pin = "1234"
     
     override func setUp() {
@@ -33,8 +33,8 @@ final class OidcTests: XCTestCase {
         
         let exp = XCTestExpectation(description: "setup expectation")
         
-        // Integration Utils prepares Oidc service
-        proxy.prepareForOidc() { error in
+        // Integration Utils prepares OIDC service
+        proxy.prepareForOIDC() { error in
             if let error = error {
                 XCTFail(error)
             }
@@ -79,7 +79,7 @@ final class OidcTests: XCTestCase {
     }
     
     func testGetConfigSucceed() {
-        guard let validProviderId = proxy.getOidcConfigs()?.providerId else {
+        guard let validProviderId = proxy.getOIDCProviders()?.providerId else {
             WMTLogger.debug("If you want to test OIDC provide a valid providerId in the proxy")
             return
         }
@@ -96,7 +96,7 @@ final class OidcTests: XCTestCase {
                 XCTAssertNotNil(config.redirectUri)
                 XCTAssertTrue(config.pkceEnabled == false)
             case .failure(let err):
-                XCTFail("Oidc config request failed: \(err)")
+                XCTFail("OIDC config request failed: \(err)")
             }
             exp.fulfill()
         })
@@ -105,7 +105,7 @@ final class OidcTests: XCTestCase {
     }
     
     func testGetConfigPKCESucceed() {
-        guard let validProviderIdPkce = proxy.getOidcConfigs()?.providerIdPkce else {
+        guard let validProviderIdPkce = proxy.getOIDCProviders()?.providerIdPkce else {
             WMTLogger.debug("If you want to test OIDC provide a valid providerIdPkce in the proxy")
             return
         }
@@ -123,7 +123,7 @@ final class OidcTests: XCTestCase {
                 
                 XCTAssertTrue(config.pkceEnabled)
             case .failure(let err):
-                XCTFail("Oidc config request failed: \(err)")
+                XCTFail("OIDC config request failed: \(err)")
             }
             exp.fulfill()
         })
@@ -131,14 +131,14 @@ final class OidcTests: XCTestCase {
         waitForExpectations(timeout: 20, handler: nil)
     }
     
-    func testOidcPreparesAuthorizationData() {
-        guard let providerIdPkce = proxy.getOidcConfigs()?.providerIdPkce else {
+    func testOIDCPreparesAuthorizationData() {
+        guard let providerIdPkce = proxy.getOIDCProviders()?.providerIdPkce else {
             WMTLogger.debug("If you want to test OIDC provide a valid providerIdPkce in the proxy")
             return
         }
         
         guard let oidc = self.oidc else {
-            XCTFail("Oidc must not be nil!")
+            XCTFail("OIDC must not be nil!")
             return
         }
         
@@ -149,7 +149,7 @@ final class OidcTests: XCTestCase {
             case .success(let config):
                 XCTAssertNotNil(config)
                 
-                let authData = oidc.prepareOidcAuthorizationData(config: config)
+                let authData = oidc.prepareOIDCAuthorizationData(config: config)
                 switch authData {
                 case .success(let data):
                     
@@ -165,7 +165,7 @@ final class OidcTests: XCTestCase {
                 
                 
             case .failure(let err):
-                XCTFail("Oidc config request failed: \(err)")
+                XCTFail("OIDC config request failed: \(err)")
             }
             exp.fulfill()
         })
@@ -190,25 +190,25 @@ final class OidcTests: XCTestCase {
     /// ## Testing Requirements
     /// You must also provide the `username` and `password` of your testing Auth0 account
     /// when running this flow. and `providerIdPkce` in the config file
-//    func testOidcActivationFlow() {
+//    func testOIDCActivationFlow() {
 //        // Define test credentials
 //        let username = "wultra@example.com"
 //        let password = "nzp9ufu*FAD@ztf.hab"
 //
 //        guard let oidc = self.oidc,
-//              let providerIdPkce = proxy.getOidcConfigs()?.providerIdPkce else {
-//            XCTFail("Oidc and providerIdPkce must not be nil!")
+//              let providerIdPkce = proxy.getOIDCProviders()?.providerIdPkce else {
+//            XCTFail("OIDC and providerIdPkce must not be nil!")
 //            return
 //        }
 //
 //        // Fetch OIDC Configuration
-//        guard let config = fetchOidcConfig(oidc: oidc, providerIdPkce: providerIdPkce) else {
+//        guard let config = fetchOIDCConfig(oidc: oidc, providerIdPkce: providerIdPkce) else {
 //            XCTFail("Failed to fetch OIDC configuration")
 //            return
 //        }
 //
 //        // Prepare OIDC Authorization Data
-//        guard let oidcAuthData = prepareOidcAuthorizationData(oidc: oidc, config: config) else {
+//        guard let oidcAuthData = prepareOIDCAuthorizationData(oidc: oidc, config: config) else {
 //            XCTFail("Failed to prepare OIDC authorization data")
 //            return
 //        }
@@ -221,7 +221,7 @@ final class OidcTests: XCTestCase {
 //            }
 //
 //            // Process Redirect URI
-//            let activationAttributes = try WMTOidcUtils.processWebCallback(from: redirectUri, with: oidcAuthData)
+//            let activationAttributes = try WMTOIDCUtils.processWebCallback(from: redirectUri, with: oidcAuthData)
 //
 //            // Create PowerAuth Activation
 //            createPowerAuthActivation(activationAttributes: activationAttributes)
@@ -231,9 +231,9 @@ final class OidcTests: XCTestCase {
 //    }
 //
 //    // Helpers
-//    private func fetchOidcConfig(oidc: WMTOidcService, providerIdPkce: String) -> WMTOidcConfig? {
+//    private func fetchOIDCConfig(oidc: WMTOIDC, providerIdPkce: String) -> WMTOIDCConfig? {
 //        let expectation = XCTestExpectation(description: "Fetch OIDC configuration")
-//        var config: WMTOidcConfig?
+//        var config: WMTOIDCConfig?
 //
 //        oidc.getConfig(providerId: providerIdPkce) { result in
 //            if case .success(let fetchedConfig) = result {
@@ -248,11 +248,11 @@ final class OidcTests: XCTestCase {
 //        return config
 //    }
 //
-//    private func prepareOidcAuthorizationData(oidc: WMTOidcService, config: WMTOidcConfig) -> WMTOidcAuthorizationRequest? {
+//    private func prepareOIDCAuthorizationData(oidc: WMTOIDCService, config: WMTOIDCConfig) -> WMTOIDCAuthorizationRequest? {
 //        let expectation = XCTestExpectation(description: "Prepare OIDC authorization data")
-//        var authData: WMTOidcAuthorizationRequest?
+//        var authData: WMTOIDCAuthorizationRequest?
 //
-//        let result = oidc.prepareOidcAuthorizationData(config: config, callbackScheme: "mtoken")
+//        let result = oidc.prepareOIDCAuthorizationData(config: config, callbackScheme: "mtoken")
 //        if case .success(let data) = result {
 //            authData = data
 //            expectation.fulfill()
@@ -264,10 +264,10 @@ final class OidcTests: XCTestCase {
 //        return authData
 //    }
 //
-//    private func createPowerAuthActivation(activationAttributes: WMTOidcPowerAuthActivationAttributes) {
+//    private func createPowerAuthActivation(activationAttributes: WMTOIDCPowerAuthActivationAttributes) {
 //        let expectation = XCTestExpectation(description: "Create PowerAuth activation")
 //        do {
-//            try pa?.createOidcActivation(attributes: activationAttributes, deviceName: "iOS Test") { result in
+//            try pa?.createOIDCActivation(attributes: activationAttributes, deviceName: "iOS Test") { result in
 //                if case .success(let activationResult) = result {
 //                    XCTAssertNotNil(activationResult, "Activation result should not be nil")
 //                    expectation.fulfill()
