@@ -21,12 +21,12 @@ enum WMTOperationEndpoints {
     
     enum List {
         typealias EndpointType = WPNEndpointSignedWithToken<WPNRequestBase, WMTOperationListResponse<WMTUserOperation>>
-        static var endpoint: EndpointType { WPNEndpointSignedWithToken(endpointURLPath: "/api/auth/token/app/operation/list", tokenName: "possession_universal") }
+        static let endpoint: EndpointType = WPNEndpointSignedWithToken(endpointURLPath: "/api/auth/token/app/operation/list", tokenName: "possession_universal")
     }
     
     enum History {
         typealias EndpointType = WPNEndpointSigned<WPNRequestBase, WPNResponseArray<WMTUserOperation>>
-        static var endpoint: EndpointType { WPNEndpointSigned(endpointURLPath: "/api/auth/token/app/operation/history", uriId: "/operation/history") }
+        static let endpoint: EndpointType = WPNEndpointSigned(endpointURLPath: "/api/auth/token/app/operation/history", uriId: "/operation/history")
     }
     
     enum Authorize {
@@ -41,11 +41,11 @@ enum WMTOperationEndpoints {
     
     enum OperationDetail {
         typealias EndpointType = WPNEndpointSignedWithToken<WPNRequest<WMTOperationDetailRequest>, WPNResponse<WMTUserOperation>>
-        static var endpoint: EndpointType { WPNEndpointSignedWithToken(endpointURLPath: "/api/auth/token/app/operation/detail", tokenName: "possession_universal") }
+        static let endpoint: EndpointType = WPNEndpointSignedWithToken(endpointURLPath: "/api/auth/token/app/operation/detail", tokenName: "possession_universal")
     }
     
     enum OperationClaim {
         typealias EndpointType = WPNEndpointSignedWithToken<WPNRequest<WMTOperationDetailRequest>, WPNResponse<WMTUserOperation>>
-        static var endpoint: EndpointType { WPNEndpointSignedWithToken(endpointURLPath: "/api/auth/token/app/operation/detail/claim", tokenName: "possession_universal") }
+        static let endpoint: EndpointType = WPNEndpointSignedWithToken(endpointURLPath: "/api/auth/token/app/operation/detail/claim", tokenName: "possession_universal")
     }
 }

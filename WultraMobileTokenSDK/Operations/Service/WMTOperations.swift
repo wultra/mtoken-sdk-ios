@@ -48,8 +48,7 @@ public protocol WMTOperationsDelegate: AnyObject {
 public class WMTOperations: WMTService {
     
     // Dependencies
-    lazy var powerAuth = networking.powerAuth
-    private let networking: WPNNetworkingService
+    let networking: WPNNetworkingService
     private let qrQueue: OperationQueue = {
         let q = OperationQueue()
         q.name = "WMTOperationsQRQueue"
@@ -72,6 +71,7 @@ public class WMTOperations: WMTService {
     
     /// Accept language for the outgoing requests headers.
     /// Default value is "en".
+    /// Changing this value updates the accept language of the underlying networking service.
     ///
     /// Standard RFC "Accept-Language" https://tools.ietf.org/html/rfc7231#section-5.3.5
     /// Response texts are based on this setting. For example when "de" is set, server
@@ -81,19 +81,10 @@ public class WMTOperations: WMTService {
         set { networking.acceptLanguage = newValue }
     }
     
-    private var currentDate: Date {
-        let timeService = powerAuth.timeSynchronizationService
-        if timeService.isTimeSynchronized {
-            return Date(timeIntervalSince1970: timeService.currentTime())
-        }
-        return Date()
-    }
-    
     private var tasks = [GetOperationsTask]() // Task that are waiting for operation fetch
     private var pollingTimer: Timer? // Timer that manages operations polling when requested
     private var isPollingPaused: Bool { return pollingTimer?.isValid == false }
     private let pollingLock = WMTLock()
-    private var notificationObservers = [NSObjectProtocol]()
     private let minimumTimePollingInterval = 5.0
     
     /// Operation register holds operations in order
@@ -101,14 +92,14 @@ public class WMTOperations: WMTService {
         self?.delegate?.operationsChanged(operations: ops, removed: removed, added: added)
     }
     
-    /// Last cached operation result for easy access.
+    /// Last fetched operation result, not persisted.
     public private(set) var lastFetchResult: GetOperationsResult?
     
     /// Delegate gets notified about changes in operations loading.
     /// Methods of the delegate are always called on the main thread.
     public weak var delegate: WMTOperationsDelegate?
     
-    /// Default initializer with a generic type
+    /// Initializes the instance with the given networking service.
     public init(networking: WPNNetworkingService) {
         self.networking = networking
     }
@@ -165,7 +156,7 @@ public class WMTOperations: WMTService {
     
     /// Retrieves the history of user operations with its current status.
     /// - Parameters:
-    ///   - authentication: Authentication object for signing.
+    ///   - authentication: 2FA authentication object (password or biometrics) for signing.
     ///   - completion: Result completion.
     ///                 This completion is always called on the main thread.
     /// - Returns: Operation object for its state observation.
@@ -239,7 +230,7 @@ public class WMTOperations: WMTService {
     ///
     /// - Parameters:
     ///   - operation: Operation that should  be authorized.
-    ///   - authentication: Authentication object for signing.
+    ///   - authentication: Authentication object for signing, which depends on the operation type but usually 2FA (password or biometrics)
     ///   - completion: Result callback.
     ///                 This completion is always called on the main thread.
     /// - Returns: Operation object for its state observation.
@@ -249,6 +240,9 @@ public class WMTOperations: WMTService {
         guard validateActivation(completion) else {
             return nil
         }
+        
+        let timeService = networking.powerAuth.timeSynchronizationService
+        let currentDate = timeService.isTimeSynchronized ? Date(timeIntervalSince1970: timeService.currentTime()) : Date()
         let data = WMTAuthorizationData(operation: operation, timestampSent: currentDate)
         
         return networking.post(data: .init(data), signedWith: authentication, to: WMTOperationEndpoints.Authorize.endpoint) { response, error in
@@ -264,25 +258,6 @@ public class WMTOperations: WMTService {
         }
     }
     
-    /// Will sign the given QR operation with authentication object.
-    ///
-    /// Default operation URI ID `/operation/authorize/offline` is used. To customize this value, use
-    /// the method with `uriId` parameter.
-    ///
-    /// Note that the operation will be signed even if the authentication object is
-    /// not valid as it cannot be verified on the server.
-    ///
-    /// - Parameters:
-    ///   - qrOperation: QR operation data
-    ///   - authentication: Authentication object for signing.
-    ///   - completion: Result completion.
-    ///                 This completion is always called on the main thread.
-    /// - Returns: Operation object for its state observation.
-    @discardableResult
-    public func authorize(qrOperation: WMTQROperation, authentication: PowerAuthAuthentication, completion: @escaping (Result<String, WMTError>) -> Void) -> Operation {
-        return authorize(qrOperation: qrOperation, uriId: "/operation/authorize/offline", authentication: authentication, completion: completion)
-    }
-    
     /// Will sign the given QR operation with URI ID and authentication object.
     ///
     /// Note that the operation will be signed even if the authentication object is
@@ -291,19 +266,19 @@ public class WMTOperations: WMTService {
     /// - Parameters:
     ///   - qrOperation: QR operation data.
     ///   - uriId: Custom signature URI ID of the operation. Use URI ID under which the operation was
-    ///            created on the server. Usually something like `/confirm/offline/operation`.
-    ///   - authentication: Authentication object for signing.
+    ///            created on the server. Default value is  `/operation/authorize/offline`.
+    ///   - authentication: Authentication object for signing, which depends on the operation type but usually 2FA (password or biometrics)
     ///   - completion: Result completion.
     ///                 This completion is always called on the main thread.
     /// - Returns: Operation object for its state observation.
     @discardableResult
-    public func authorize(qrOperation: WMTQROperation, uriId: String, authentication: PowerAuthAuthentication, completion: @escaping(Result<String, WMTError>) -> Void) -> Operation {
+    public func authorize(qrOperation: WMTQROperation, uriId: String = "/operation/authorize/offline", authentication: PowerAuthAuthentication, completion: @escaping(Result<String, WMTError>) -> Void) -> Operation {
         
         let op = WPNAsyncBlockOperation { _, markFinished in
             do {
                 let body   = qrOperation.dataForOfflineSigning
                 let nonce  = qrOperation.nonceForOfflineSigning
-                let signature = try self.powerAuth.offlineSignature(with: authentication, uriId: uriId, body: body, nonce: nonce)
+                let signature = try self.networking.powerAuth.offlineSignature(with: authentication, uriId: uriId, body: body, nonce: nonce)
                 markFinished {
                     completion(.success(signature))
                 }
