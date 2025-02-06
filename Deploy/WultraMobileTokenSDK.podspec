@@ -16,7 +16,7 @@ Pod::Spec.new do |s|
   s.source_files = 'WultraMobileTokenSDK/**/*.{swift}'
   
   # Dependencies
-  s.dependency 'PowerAuth2', '~> 1.9.0'
+  s.dependency 'PowerAuth2', '~> 1.9.3'
   s.dependency 'WultraPowerAuthNetworking', '~> 1.5.0'
 
 end

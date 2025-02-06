@@ -15,18 +15,17 @@
 //
 
 import Foundation
-import PowerAuth2
 import WultraPowerAuthNetworking
 
 /// Service that communicates with Inbox API that is managing user's inbox.
 public class WMTInbox: WMTService {
     
     // Dependencies
-    lazy var powerAuth = networking.powerAuth
-    private let networking: WPNNetworkingService
+    let networking: WPNNetworkingService
     
     /// Accept language for the outgoing requests headers.
     /// Default value is "en".
+    /// Changing this value updates the accept language of the underlying networking service.
     ///
     /// Standard RFC "Accept-Language" https://tools.ietf.org/html/rfc7231#section-5.3.5
     /// Response texts are based on this setting. For example when "de" is set, server

@@ -19,13 +19,16 @@ class WMTLazy<T> {
     
     private var instance: T?
     private let factory: () -> T
+    private let lock = WMTLock()
     
     var lazy: T {
-        if let instance {
-            return instance
+        return instance ?? lock.synchronized {
+            if let instance = instance {
+                return instance
+            }
+            self.instance = factory()
+            return self.instance!
         }
-        self.instance = factory()
-        return self.instance!
     }
     
     var optional: T? {

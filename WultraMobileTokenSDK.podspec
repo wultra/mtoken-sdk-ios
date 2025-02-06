@@ -12,39 +12,11 @@ Pod::Spec.new do |s|
   s.swift_version = '5.9'
   s.ios.deployment_target = '12.0'
   
-  # 'Core' subspec
-  s.subspec 'Core' do |sub|
-    sub.source_files = 'WultraMobileTokenSDK/WultraMobileToken.swift'
-    sub.dependency 'WultraMobileTokenSDK/Operations'
-    sub.dependency 'WultraMobileTokenSDK/Push'
-    sub.dependency 'WultraMobileTokenSDK/Inbox'
-  end
-
-  s.default_subspecs = 'Core'
+  # Source files
+  s.source_files = 'WultraMobileTokenSDK/**/*.{swift}'
   
-  # 'Common' subspec
-  s.subspec 'Common' do |sub|
-    sub.source_files = 'WultraMobileTokenSDK/Common/**/*.swift'
-    sub.dependency 'PowerAuth2', '~> 1.9.2'
-    sub.dependency 'WultraPowerAuthNetworking', '~> 1.5.0'
-  end
-  
-  # 'Operations' subspec
-  s.subspec 'Operations' do |sub|
-    sub.source_files = 'WultraMobileTokenSDK/Operations/**/*.swift'
-    sub.dependency 'WultraMobileTokenSDK/Common'
-  end
-  
-  # 'Push' subspec
-  s.subspec 'Push' do |sub|
-    sub.source_files = 'WultraMobileTokenSDK/Push/**/*.swift'
-    sub.dependency 'WultraMobileTokenSDK/Common'
-  end
-
-  # 'Inbox' subspec
-  s.subspec 'Inbox' do |sub|
-    sub.source_files = 'WultraMobileTokenSDK/Inbox/**/*.swift'
-    sub.dependency 'WultraMobileTokenSDK/Common'
-  end
+  # Dependencies
+  s.dependency 'PowerAuth2', '~> 1.9.3'
+  s.dependency 'WultraPowerAuthNetworking', '~> 1.5.0'
 
 end

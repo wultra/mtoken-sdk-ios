@@ -28,8 +28,13 @@ func createWultraTokenMobile(powerAuth: PowerAuthSDK) {
 
 ### Removed Functionality
 
-1. **Removed Extension Methods**  
-   The following extension methods of `PowerAuthSDK` and `WPNNetworkingService` have been removed:
+1. **Removed protocols**
+
+The protocols ‘WMTOperations’, ‘WMTInbox’, and ‘WMTPush’ have been removed and replaced by concrete class implementations.
+
+2. **Removed Extension Methods**  
+
+The following extension methods of `PowerAuthSDK` and `WPNNetworkingService` have been removed:
       -  `createWMTOperations()`
       -  `createWMTInbox()`
       -  `createWMTPush`
@@ -42,4 +47,7 @@ Services should now be instantiated using the recommended `WultraMobileToken` ap
    - [Using Inbox Service: Creating an Instance](./Using-Inbox-Service.md#creating-an-instance)
 
 3. **Removed Polling Options**  
-   The `WMTOperationsPollingOptions` class has been removed for simplification. If you require features such as polling pauses, this functionality is now outside the scope of the SDK.
+
+The `WMTOperationsPollingOptions` class has been removed for simplification. If you require features such as polling pauses, this functionality is now outside the scope of the SDK.
+
+4. **`WMTOperations` no longer uses generics but only `WMTUserOperation`**

@@ -15,13 +15,11 @@
 //
 
 import Foundation
-import PowerAuth2
 import WultraPowerAuthNetworking
 
 public class WMTPush: WMTService {
     
     // Dependencies
-    lazy var powerAuth = networking.powerAuth
     let networking: WPNNetworkingService
     
     /// If there was already made an successful request.
@@ -29,6 +27,12 @@ public class WMTPush: WMTService {
     private var pendingRegistrationForRemotePushNotifications = false // Contains true if there's pending registration for push notifications
     
     /// Accept language for the outgoing requests headers.
+    /// Default value is "en".
+    /// Changing this value updates the accept language of the underlying networking service.
+    ///
+    /// Standard RFC "Accept-Language" https://tools.ietf.org/html/rfc7231#section-5.3.5
+    /// Response texts are based on this setting. For example when "de" is set, server
+    /// will return operation texts in german (if available).
     public var acceptLanguage: String {
         get { networking.acceptLanguage }
         set { networking.acceptLanguage = newValue }

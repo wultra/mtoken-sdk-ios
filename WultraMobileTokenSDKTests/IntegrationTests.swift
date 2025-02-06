@@ -946,7 +946,3 @@ private extension Array where Element == WMTInboxMessage {
         return nil
     }
 }
-
-class MyOperations: WMTUserOperation {
-    
-}
