@@ -149,7 +149,7 @@ final class OIDCTests: XCTestCase {
             case .success(let config):
                 XCTAssertNotNil(config)
                 
-                let authData = oidc.prepareOIDCAuthorizationData(config: config)
+                let authData = oidc.prepareAuthorizationData(config: config)
                 switch authData {
                 case .success(let data):
                     
@@ -208,7 +208,7 @@ final class OIDCTests: XCTestCase {
 //        }
 //
 //        // Prepare OIDC Authorization Data
-//        guard let oidcAuthData = prepareOIDCAuthorizationData(oidc: oidc, config: config) else {
+//        guard let oidcAuthData = prepareAuthorizationData(oidc: oidc, config: config) else {
 //            XCTFail("Failed to prepare OIDC authorization data")
 //            return
 //        }
@@ -248,11 +248,11 @@ final class OIDCTests: XCTestCase {
 //        return config
 //    }
 //
-//    private func prepareOIDCAuthorizationData(oidc: WMTOIDCService, config: WMTOIDCConfig) -> WMTOIDCAuthorizationRequest? {
+//    private func prepareAuthorizationData(oidc: WMTOIDCService, config: WMTOIDCConfig) -> WMTOIDCAuthorizationRequest? {
 //        let expectation = XCTestExpectation(description: "Prepare OIDC authorization data")
 //        var authData: WMTOIDCAuthorizationRequest?
 //
-//        let result = oidc.prepareOIDCAuthorizationData(config: config, callbackScheme: "mtoken")
+//        let result = oidc.prepareAuthorizationData(config: config, callbackScheme: "mtoken")
 //        if case .success(let data) = result {
 //            authData = data
 //            expectation.fulfill()

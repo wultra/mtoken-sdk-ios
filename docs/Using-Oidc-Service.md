@@ -83,7 +83,7 @@ oidcService.getConfig(providerId: "example_provider") { result in
 
 ## Preparing OIDC Authorization Data
 
-The `prepareOIDCAuthorizationData` method generates the necessary data for initiating the OIDC authorization process from `WMTOIDCConfig`. `WMTOIDCConfig` can be obtained by calling `getConfig(providerId)` or instantiated directly. 
+The `prepareAuthorizationData` method generates the necessary data for initiating the OIDC authorization process from `WMTOIDCConfig`. `WMTOIDCConfig` can be obtained by calling `getConfig(providerId)` or instantiated directly. 
 
 
 ##### WMTOIDCAuthorizationRequest
@@ -102,7 +102,7 @@ Encapsulates the data required to initiate the OIDC authorization flow and also 
 
 ####Example
 ```swift
-let result = oidcService.prepareOIDCAuthorizationData(config: oidcConfig)
+let result = oidcService.prepareAuthorizationData(config: oidcConfig)
 switch result {
 case .success(let oidcAuthRequest):
     // Use oidcAuthRequest.authorizeUri to open the browser (ASWebAuthenticationSession)

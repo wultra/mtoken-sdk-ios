@@ -67,7 +67,7 @@ public class WMTOIDC: WMTService {
     /// - Returns: A `Result` containing either:
     ///   - On success: `WMTOIDCAuthorizationRequest` with all required data for the authorization process.
     ///   - On failure: `WMTError` with details about what failed.
-    public func prepareOIDCAuthorizationData(config: WMTOIDCConfig) -> Result<WMTOIDCAuthorizationRequest, WMTError> {
+    public func prepareAuthorizationData(config: WMTOIDCConfig) -> Result<WMTOIDCAuthorizationRequest, WMTError> {
         do {
             // Using 32 bytes for PKCE code verifiers aligns with RFC 7636 (https://datatracker.ietf.org/doc/html/rfc7636).
             // For nonce and state, OpenID Connect does not specify a strict length, but 32 bytes ensures strong randomness to prevent replay and CSRF attacks.
