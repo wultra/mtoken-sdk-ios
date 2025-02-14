@@ -33,7 +33,13 @@ Operations Service communicates with the [Mobile Token API](https://developers.w
 
 ## Creating an Instance
 
-### On Top of the `PowerAuthSDK` instance
+The preferred way of instantiating Operations Service is via `WultraMobileToken` class.
+See: [Example Usage](./Example-Usage)
+
+### Customized initialization
+
+In case you need to create more customized instance. You can do so with an initializer. We will need to define networking configuration and provide PowerAuthSDK instance.
+
 ```swift
 import WultraMobileTokenSDK
 import WultraPowerAuthNetworking
@@ -42,33 +48,17 @@ let networkingConfig = WPNConfig(
     baseUrl: URL(string: "https://powerauth.myservice.com/enrollment-server")!,
     sslValidation: .default
 )
-// powerAuth is instance of PowerAuthSDK
-let opsService = powerAuth.createWMTOperations(networkingConfig: networkingConfig, pollingOptions: [.pauseWhenOnBackground])
+
+let networkingService = WPNNetworkingService(
+    powerAuth: powerAuth,
+    config: networkingConfig,
+    serviceName: "OperationsService",
+    acceptLanguage: "en"
+)
+
+let opsService = WMTOperations(networking: networkingService)
 ```
 
-### On Top of the `WPNNetworkingService` instance
-```swift
-import WultraMobileTokenSDK
-import WultraPowerAuthNetworking
-
-// networkingService is instance of WPNNetworkingService
-let opsService = networkingService.createWMTOperations(pollingOptions: [.pauseWhenOnBackground])
-```
-
-The `pollingOptions` parameter is used for polling feature configuration. The default value is empty `[]`. Possible options are:
-
-- `WMTOperationsPollingOptions.pauseWhenOnBackground`
-
-### With custom WMTUserOperation objects
-
-To retrieve custom user operations, both `createWMTOperations` methods offer the optional parameter `customUserOperationType` where you can set up the requested type.
-
-```swift
-// networkingService is instance of WPNNetworkingService
-let opsService = networkingService.createWMTOperations(customUserOperationType: CustomUserOperation.self).
-```
-
-When [custom operation type](#subclassing-WMTUserOperation) is set, all `WMTUserOperation` objects from such service can be explicitly unboxed to this type.
 
 ## Retrieve Pending Operations
 

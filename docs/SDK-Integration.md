@@ -55,6 +55,7 @@ Note: If you want to use only operations, you can omit the Push dependency and i
 
 | WMT SDK               | PowerAuth SDK |
 |-----------------------|---------------|
+| `2.0.x`               | `1.9.x`       |
 | `1.12.x`              | `1.9.x`       |
 | `1.8.x` - `1.11.x`    | `1.8.x`       |
 | `1.6.x` - `1.7.x`     | `1.7.x`       |

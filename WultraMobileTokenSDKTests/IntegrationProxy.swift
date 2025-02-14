@@ -21,7 +21,8 @@ import WultraPowerAuthNetworking
 class IntegrationProxy {
     
     private(set) var powerAuth: PowerAuthSDK?
-    private(set) var operations: WMTOperations?
+    private(set) var wmt: WultraMobileToken?
+    private(set) var ops: WMTOperations?
     private(set) var inbox: WMTInbox?
     
     private var config: IntegrationConfig!
@@ -50,13 +51,40 @@ class IntegrationProxy {
             if let error = error {
                 callback(error)
             } else {
+                self.powerAuth = pa
+            
+                // use in case you have only one enrollment server baseURL
+                //self.wmt = try! pa.createWultraMobileToken()
+                
+                // use if your operations and inbox urls are diffferent - set in config file `WultraMobileTokenSDKTests/Configs/Readme.md`
                 let wpnOperationsConf = WPNConfig(baseUrl: URL(string: self.config.operationsServerUrl)!, sslValidation: .noValidation)
                 let wpnInboxConf = WPNConfig(baseUrl: URL(string: self.config.inboxServerUrl)!, sslValidation: .noValidation)
-                self.powerAuth = pa
-                self.operations = pa.createWMTOperations(networkingConfig: wpnOperationsConf, pollingOptions: [.pauseWhenOnBackground])
-                self.inbox = pa.createWMTInbox(networkingConfig: wpnInboxConf)
-                callback(nil)
+                self.ops = WMTOperations(networking: WPNNetworkingService(powerAuth: pa, config: wpnOperationsConf, serviceName: "WMTOperations"))
+                self.inbox = WMTInbox(networking: WPNNetworkingService(powerAuth: pa, config: wpnInboxConf, serviceName: "WMTInbox"))
             }
+        }
+    }
+    
+    func prepareForOIDC(callback: @escaping Callback) {
+        WPNLogger.verboseLevel = .debug
+        guard let configPath = Bundle.init(for: IntegrationProxy.self).path(forResource: "config", ofType: "json", inDirectory: "Configs") else {
+            callback("Config file config.json is not present.")
+            return
+        }
+        
+        do {
+            let configContent = try String(contentsOfFile: configPath)
+            config = try JSONDecoder().decode(IntegrationConfig.self, from: configContent.data(using: .utf8)!)
+        } catch _ {
+            callback("Config file config.json cannot be parsed.")
+            return
+        }
+        
+        powerAuth = preparePAInstance()
+        do {
+            self.wmt = try powerAuth?.createWultraMobileToken()
+        } catch {
+            callback("Failed to create WultraMobileToken from PA baseUrl.")
         }
     }
     
@@ -254,6 +282,12 @@ class IntegrationProxy {
         let resp: CommitObject? = makeRequest(url: URL(string: "\(config.cloudServerUrl)/v2/registrations/\(registrationId)/commit")!, body: body)
         return resp
     }
+    
+    func getOIDCProviders() -> OIDCProperties? {
+        guard let providerId = config.oidcProviderId, let providerIdPkce = config.oidcProviderIdPkce else { return nil
+        }
+        return OIDCProperties(providerId: providerId, providerIdPkce: providerIdPkce)
+    }
 }
 
 private struct RegistrationObject: Codable {
@@ -303,6 +337,8 @@ private struct IntegrationConfig: Codable {
     let operationsServerUrl: String
     let inboxServerUrl: String
     let sdkConfig: String
+    let oidcProviderId: String?
+    let oidcProviderIdPkce: String?
 }
 
 struct QROperationData: Codable {
@@ -336,4 +372,9 @@ struct InboxMessageDetail: Codable {
     let type: String
     let timestamp: Date
     let read: Bool
+}
+
+struct OIDCProperties {
+    let providerId: String
+    let providerIdPkce: String
 }
