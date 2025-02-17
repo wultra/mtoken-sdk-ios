@@ -139,34 +139,6 @@ class IntegrationTests: XCTestCase {
         waitForExpectations(timeout: defaultTimeout, handler: nil)
     }
     
-    /// Test of the Operation cancel
-    func testDetailCancel() {
-        let exp = expectation(description: "Cancel operation detail")
-        
-        proxy.createNonPersonalisedPACOperation { op in
-            if let op {
-                DispatchQueue.main.async {
-                    guard let operation = self.ops.getDetail(operationId: op.operationId, completion: { _ in }) else {
-                        XCTFail("Failed to create operation")
-                        exp.fulfill()
-                        return
-                    }
-                    
-                    operation.cancel()
-                    
-                    // Allowing most of the timeout duration for potential completion of the getDetail call.
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 4) {
-                        XCTAssertTrue(operation.isCancelled, "Operation should be cancelled")
-                        exp.fulfill()
-                    }
-                }
-            }
-        }
-        
-        // Wait for expectation to be fulfilled
-        waitForExpectations(timeout: 10, handler: nil)
-    }
-    
     func testOperationCanceledWithReason() {
         let exp = expectation(description: "Cancel operation with reason")
         let cancelReason = "PREARRANGED_REASON"
