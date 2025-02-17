@@ -1,20 +1,22 @@
 # Changelog
 
-## 1.13.0 (TBA)
+## 2.0.0 (Feb 2025)
 
 - Added status to `UserOperation` and removed redundant `OperationHistoryEntry` [(#171)](https://github.com/wultra/mtoken-sdk-ios/pull/171)
+- SDK simplification and added `OIDC` activation feature [(#185)](https://github.com/wultra/mtoken-sdk-ios/pull/185)
+    - [Migration guide](Migration-2.0.md)
 
-## 1.12.0 (October 2024)
+## 1.12.0 (Oct 2024)
 
 - PowerAuth "server stack" `1.9+` is now required
 - Dependency `powerauth-mobile-sdk` is now required in version `1.9.x`
 - Dependency `networking-apple` is now required in version `1.5.x`
 
-## 1.11.1 (July 2024)
+## 1.11.1 (Jul 2024)
 
 - Dependency `networking-apple` is now required in version `1.4.x`
 
-## 1.11.0 (July 2024)
+## 1.11.0 (Jul 2024)
 
 - Added `resultTexts` to the `UserOperation` [(#160)](https://github.com/wultra/mtoken-sdk-ios/pull/160)
 - Extended `PushParser` to support parsing of inbox notifications [(#158)](https://github.com/wultra/mtoken-sdk-ios/pull/158)

@@ -18,20 +18,17 @@
 public extension WMTErrorReason {
     
     /// Error reason for failure when generating random bytes for cryptographic purposes.
-    static let randomBytesFailed = WMTErrorReason(rawValue: "randomBytesFailed")
+    static let oidc_randomBytesFailed = WMTErrorReason(rawValue: "oidc_randomBytesFailed")
     
     /// Error reason for failure during the generation of the PKCE code challenge.
-    static let codeChallengeGenerationFailed = WMTErrorReason(rawValue: "codeChallengeGenerationFailed")
-    
-    /// Error reason indicating that the callback scheme could not be found or determined.
-    static let schemeNotFound = WMTErrorReason(rawValue: "schemeNotFound")
+    static let oidc_codeChallengeGenerationFailed = WMTErrorReason(rawValue: "oidc_codeChallengeGenerationFailed")
     
     /// Error reason for an invalid deeplink, which could not be parsed or handled.
-    static let invalidDeeplink = WMTErrorReason(rawValue: "invalidDeeplink")
+    static let oidc_invalidDeeplink = WMTErrorReason(rawValue: "oidc_invalidDeeplink")
     
     /// Error reason for failure during the creation of the authorization URL required for OIDC.
-    static let authorizationUrlCreationFailed = WMTErrorReason(rawValue: "authorizationUrlCreationFailed")
+    static let oidc_authorizationUrlCreationFailed = WMTErrorReason(rawValue: "oidc_authorizationUrlCreationFailed")
     
-    /// Error reason for failure when generating random bytes for cryptographic purposes.
-    static let activationFailed = WMTErrorReason(rawValue: "activationFailed")
+    /// Error reason when activation of PowerAuthSDK via OIDC failed.
+    static let oidc_activationFailed = WMTErrorReason(rawValue: "oidc_activationFailed")
 }

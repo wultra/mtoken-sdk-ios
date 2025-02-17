@@ -9,7 +9,7 @@ Version `2.0.x` introduces a significant simplification of the SDK’s design an
 ### Added Functionality
 **Preferred Instantiation Method**  
    The `WultraMobileToken` class is now the recommended way to instantiate the SDK.
-   PowerAuthSDK extension method is provided for this purpose.
+   `PowerAuthSDK` extension method is provided for this purpose.
    
 ```kotlin
 func createWultraTokenMobile(powerAuth: PowerAuthSDK) {
@@ -20,7 +20,7 @@ func createWultraTokenMobile(powerAuth: PowerAuthSDK) {
         let pushService = wmt.inbox
         let inboxService = wmt.push
     
-    } catch IntiError.invalidBaseURL(let url) {
+    } catch InitError.invalidBaseURL(let url) {
         // PowerAuth baseUrl is not valid
     }
 }
@@ -51,3 +51,7 @@ Services should now be instantiated using the recommended `WultraMobileToken` ap
 The `WMTOperationsPollingOptions` class has been removed for simplification. If you require features such as polling pauses, this functionality is now outside the scope of the SDK.
 
 4. **`WMTOperations` no longer uses generics but only `WMTUserOperation`**
+
+5. **Subspecs removal**
+
+`Operations`, `Push`, and `Inbox` subspecs are no longer available for Cocoapods integration.

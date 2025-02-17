@@ -35,7 +35,7 @@ public class WMTOIDCUtils {
         
         guard let verifierData = codeVerifier.data(using: .ascii) else {
             D.error("OIDC: Failed to convert code verifier to Data.")
-            throw WMTError(reason: .codeChallengeGenerationFailed)
+            throw WMTError(reason: .oidc_codeChallengeGenerationFailed)
         }
         let codeChallenge = verifierData.sha256().base64EncodedString().safeOIDCUrlString
         
@@ -60,7 +60,7 @@ public class WMTOIDCUtils {
         // A status of errSecSuccess indicates success
         guard status == errSecSuccess else {
             D.error("OIDC: Random bytes generation failed")
-            throw WMTError(reason: .randomBytesFailed)
+            throw WMTError(reason: .oidc_randomBytesFailed)
         }
         
         // Convert bytes to Data
@@ -81,7 +81,7 @@ public class WMTOIDCUtils {
     public static func createAuthorizationUrl(config: WMTOIDCConfig, nonce: String, state: String, pkceCodes: WMTPKCECodes?) throws -> URL {
         guard var components = URLComponents(string: config.authorizeUri) else {
             D.warning("OIDC: auth url is malformed")
-            throw WMTError(reason: .authorizationUrlCreationFailed)
+            throw WMTError(reason: .oidc_authorizationUrlCreationFailed)
         }
         
         components.queryItems = [
@@ -103,7 +103,7 @@ public class WMTOIDCUtils {
             return url
         } else {
             D.warning("OIDC: Failed to create URL.")
-            throw WMTError(reason: .authorizationUrlCreationFailed)
+            throw WMTError(reason: .oidc_authorizationUrlCreationFailed)
         }
     }
     
@@ -119,22 +119,22 @@ public class WMTOIDCUtils {
         
         guard let queryItems = URLComponents(string: url.absoluteString)?.queryItems else {
             D.error("OIDC: Invalid callback URL: \(url)")
-            throw WMTError(reason: .invalidDeeplink)
+            throw WMTError(reason: .oidc_invalidDeeplink)
         }
         
         guard let code = queryItems.first(where: { $0.name == "code" })?.value else {
             D.error("OIDC: Code not found in response from URL: \(url)")
-            throw WMTError(reason: .invalidDeeplink)
+            throw WMTError(reason: .oidc_invalidDeeplink)
         }
         
         guard let state = queryItems.first(where: { $0.name == "state" })?.value else {
             D.error("OIDC: State not found in response from URL: \(url)")
-            throw WMTError(reason: .invalidDeeplink)
+            throw WMTError(reason: .oidc_invalidDeeplink)
         }
         
         guard state == oidcAuthorizationData.state else {
             D.error("OIDC: Invalid 'state' in URL: \(url)")
-            throw WMTError(reason: .invalidDeeplink)
+            throw WMTError(reason: .oidc_invalidDeeplink)
         }
         
         return WMTOIDCPowerAuthActivationAttributes(
