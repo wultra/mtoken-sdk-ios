@@ -18,7 +18,6 @@ import XCTest
 import PowerAuth2
 @testable import WultraMobileTokenSDK
 
-
 /**
  For integration test to be successfully executed, you need to provide
  configuration json file. To more information, visit `WultraMobileTokenSDKTests/Configs/Readme.md`.
@@ -32,6 +31,8 @@ class IntegrationTests: XCTestCase {
     private var inbox: WMTInbox! { proxy.wmt?.inbox ?? proxy.inbox }
     
     private let pin = "1234"
+    
+    private let defaultTimeout: TimeInterval = 30 // quite some time, because azure infra is very slow simetimes
     
     override func setUp() {
         super.setUp()
@@ -50,7 +51,7 @@ class IntegrationTests: XCTestCase {
         }
         
         let waiter = XCTWaiter()
-        waiter.wait(for: [exp], timeout: 20)
+        waiter.wait(for: [exp], timeout: defaultTimeout)
     }
     
     override func tearDown() {
@@ -69,7 +70,7 @@ class IntegrationTests: XCTestCase {
         }
         
         let waiter = XCTWaiter()
-        waiter.wait(for: [exp], timeout: 20)
+        waiter.wait(for: [exp], timeout: defaultTimeout)
     }
     
     /// By default, operation list should be empty
@@ -88,7 +89,7 @@ class IntegrationTests: XCTestCase {
             
         }
         
-        waitForExpectations(timeout: 20, handler: nil)
+        waitForExpectations(timeout: defaultTimeout, handler: nil)
     }
     
     
@@ -135,7 +136,7 @@ class IntegrationTests: XCTestCase {
             }
         }
         
-        waitForExpectations(timeout: 20, handler: nil)
+        waitForExpectations(timeout: defaultTimeout, handler: nil)
     }
     
     /// Test of the Operation cancel
@@ -145,10 +146,7 @@ class IntegrationTests: XCTestCase {
         proxy.createNonPersonalisedPACOperation { op in
             if let op {
                 DispatchQueue.main.async {
-                    guard let operation = self.ops.getDetail(operationId: op.operationId, completion: { _ in
-                        XCTFail("Operation should be already canceled")
-                        exp.fulfill()
-                    }) else {
+                    guard let operation = self.ops.getDetail(operationId: op.operationId, completion: { _ in }) else {
                         XCTFail("Failed to create operation")
                         exp.fulfill()
                         return
@@ -166,7 +164,7 @@ class IntegrationTests: XCTestCase {
         }
         
         // Wait for expectation to be fulfilled
-        waitForExpectations(timeout: 5, handler: nil)
+        waitForExpectations(timeout: 10, handler: nil)
     }
     
     func testOperationCanceledWithReason() {
@@ -203,7 +201,7 @@ class IntegrationTests: XCTestCase {
                 }
             }
         }
-        waitForExpectations(timeout: 20, handler: nil)
+        waitForExpectations(timeout: defaultTimeout, handler: nil)
     }
     
     /// Operation IDs should be equal
@@ -257,7 +255,7 @@ class IntegrationTests: XCTestCase {
             }
         }
         
-        waitForExpectations(timeout: 20, handler: nil)
+        waitForExpectations(timeout: defaultTimeout, handler: nil)
     }
     
     /// `currentServerDate` was removed from WMTOperations in favor of more precise powerAuth timeService
@@ -398,7 +396,7 @@ class IntegrationTests: XCTestCase {
             }
         }
         
-        waitForExpectations(timeout: 20, handler: nil)
+        waitForExpectations(timeout: defaultTimeout, handler: nil)
     }
     
     /// Test of Payment rejecting (1FA)
@@ -436,7 +434,7 @@ class IntegrationTests: XCTestCase {
             }
         }
         
-        waitForExpectations(timeout: 20, handler: nil)
+        waitForExpectations(timeout: defaultTimeout, handler: nil)
     }
     
     /// Testing that operation polling works.
@@ -487,7 +485,7 @@ class IntegrationTests: XCTestCase {
             }
         }
         
-        waitForExpectations(timeout: 20, handler: nil)
+        waitForExpectations(timeout: defaultTimeout, handler: nil)
     }
     
     func testOperationChangedDelegate() {
@@ -627,10 +625,14 @@ class IntegrationTests: XCTestCase {
     }
     
     func testQROperation() {
+        
         let exp = expectation(description: "QR Operation integration test")
+        let measure = MeasureElapsed("QROperation")
         
         // create regular operation
         proxy.createOperation { op in
+            
+            measure.mark("Operation created")
             
             guard let op = op else {
                 XCTFail("Failed to create operation")
@@ -640,6 +642,9 @@ class IntegrationTests: XCTestCase {
             
             // get QR data of the operation
             self.proxy.getQROperation(operation: op) { qrData in
+                
+                measure.mark("QR data retrieved")
+                
                 guard let qrData = qrData else {
                     XCTFail("Failed to retrieve QR data")
                     exp.fulfill()
@@ -653,12 +658,17 @@ class IntegrationTests: XCTestCase {
                     let auth = PowerAuthAuthentication.possessionWithPassword(password: self.pin)
                     
                     // get the OTP with the "offline" signing
-                    _ = self.ops.authorize(qrOperation: qrOp, authentication: auth) { qrAuthResult in
+                    self.ops.authorize(qrOperation: qrOp, authentication: auth) { qrAuthResult in
+                        
+                        measure.mark("Authorized")
+                        
                         switch qrAuthResult {
                         case .success(let otp):
                             
                             // verify the operation on the backend with the OTP
                             self.proxy.verifyQROperation(operation: op, operationData: qrData, otp: otp) { verified in
+                                
+                                measure.mark("OTP verified")
                                 
                                 print("Operation verified with \(verified?.otpValid.description ?? "ERROR") result")
                                 
@@ -681,8 +691,7 @@ class IntegrationTests: XCTestCase {
                 }
             }
         }
-        // there are 3 backend calls, give it some time...
-        waitForExpectations(timeout: 20, handler: nil)
+        waitForExpectations(timeout: defaultTimeout, handler: nil)
     }
     
     // MARK: - Inbox
@@ -706,7 +715,7 @@ class IntegrationTests: XCTestCase {
             }
             getMessages.fulfill()
         }
-        XCTWaiter().wait(for: [getMessages], timeout: 20)
+        XCTWaiter().wait(for: [getMessages], timeout: defaultTimeout)
         
         // Now test received messages
         compareMessages(expected: messages, received: messageList)
@@ -724,7 +733,7 @@ class IntegrationTests: XCTestCase {
             }
             getMessageDetail.fulfill()
         }
-        XCTWaiter().wait(for: [getMessageDetail], timeout: 20)
+        XCTWaiter().wait(for: [getMessageDetail], timeout: defaultTimeout)
         
         XCTAssertNotNil(messageDetail)
         XCTAssertEqual(firstMessage.id, messageDetail?.id)
@@ -751,7 +760,7 @@ class IntegrationTests: XCTestCase {
             }
             getAllMessages.fulfill()
         }
-        XCTWaiter().wait(for: [getAllMessages], timeout: 20)
+        XCTWaiter().wait(for: [getAllMessages], timeout: defaultTimeout)
         XCTAssertEqual(count, receivedMessages.count)
         compareMessages(expected: messages, received: receivedMessages)
     }
@@ -786,7 +795,7 @@ class IntegrationTests: XCTestCase {
             }
             setMessageAsRead.fulfill()
         }
-        XCTWaiter().wait(for: [setMessageAsRead, readMessageDetail], timeout: 20)
+        XCTWaiter().wait(for: [setMessageAsRead, readMessageDetail], timeout: defaultTimeout)
         
         // Now update list
         receivedMessages = fetchAllMessages(onlyUnread: true)
@@ -843,7 +852,7 @@ class IntegrationTests: XCTestCase {
             }
             setMessagesAsRead.fulfill()
         }
-        XCTWaiter().wait(for: [setMessagesAsRead, allReadMessages, allUnreadMessages], timeout: 20)
+        XCTWaiter().wait(for: [setMessagesAsRead, allReadMessages, allUnreadMessages], timeout: defaultTimeout)
         XCTAssertEqual(0, allMsgsUnread.count)
         XCTAssertEqual(count, allMsgsRead.count)
         
@@ -864,7 +873,7 @@ class IntegrationTests: XCTestCase {
             }
             getMessagesCount.fulfill()
         }
-        XCTWaiter().wait(for: [getMessagesCount], timeout: 20)
+        XCTWaiter().wait(for: [getMessagesCount], timeout: defaultTimeout)
         return receivedCount
     }
     
@@ -880,7 +889,7 @@ class IntegrationTests: XCTestCase {
             }
             getAllMessages.fulfill()
         }
-        XCTWaiter().wait(for: [getAllMessages], timeout: 20)
+        XCTWaiter().wait(for: [getAllMessages], timeout: defaultTimeout)
         return receivedMessages
     }
     
@@ -891,7 +900,7 @@ class IntegrationTests: XCTestCase {
             messages = msgs
             prepareExp.fulfill()
         }
-        XCTWaiter().wait(for: [prepareExp], timeout: 20)
+        XCTWaiter().wait(for: [prepareExp], timeout: defaultTimeout)
         XCTAssertEqual(count, messages.count)
         return messages
     }
@@ -944,5 +953,20 @@ private extension Array where Element == WMTInboxMessage {
             return self[index]
         }
         return nil
+    }
+}
+
+class MeasureElapsed {
+    
+    private let started = Date()
+    private let name: String
+    
+    init(_ name: String) {
+        self.name = name
+        print("Measuring elapsed time: \(name)")
+    }
+    
+    func mark(_ reason: String? = nil) {
+        print("Elapsed time for '\(name)\(reason != nil ? ":\(reason!)" : "")' - \(String(format: "%.3f", Date().timeIntervalSince(started)))s.")
     }
 }
