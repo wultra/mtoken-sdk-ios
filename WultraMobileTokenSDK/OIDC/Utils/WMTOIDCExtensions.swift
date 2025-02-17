@@ -56,7 +56,7 @@ public extension PowerAuthSDK {
                 callback(.success(result))
             } else {
                 D.error("OIDC: Actication failed with error: \(String(describing: error))")
-                callback(.failure( (error != nil) ? .wrap(.activationFailed, error) : WMTError(reason: .activationFailed)))
+                callback(.failure( (error != nil) ? .wrap(.oidc_activationFailed, error) : WMTError(reason: .oidc_activationFailed)))
             }
         }
     }

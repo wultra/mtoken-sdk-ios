@@ -24,7 +24,7 @@ The integration communicates with the [OpenID Connect Standard](https://openid.n
 
 ## Creating an Instance
 
-The preferred way of instantiating Operations Service is via `WultraMobileToken` class.
+The preferred way of instantiating Operations Service is via the `WultraMobileToken` class.
 See: [Example Usage](./Example-Usage)
 
 ### Customized initialization
@@ -147,7 +147,7 @@ func openWebBrowser(oidcAuthRequest: WMTOIDCAuthorizationRequest, completion: @e
 
 After the user completes the OIDC flow in the web browser, the returned URL can be processed to extract the necessary attributes. 
 The `WMTOIDCUtils.processWebCallback` utility function extracts and validates the data needed to initiate PowerAuth activation.
-Additionally, the WMTOIDCAuthorizationRequest object, which was used to initiate the OIDC flow, is required to provide essential properties (nonce, providerId, and codeVerifier) for the activation process.
+Additionally, the `WMTOIDCAuthorizationRequest` object, which was used to initiate the OIDC flow, is required to provide essential properties (nonce, providerId, and codeVerifier) for the activation process.
 
 
 ##### WMTOIDCPowerAuthActivationAttributes
@@ -211,7 +211,7 @@ guard let pkceResult = try? WMTOIDCUtils.createPKCE(32) else {
 
 #### Random String Generation
 
-Provides method to generate cryptographically secure random strings in Base64 URL-safe format, commonly used for nonces, states, and PKCE code verifiers.
+Provides a method to generate cryptographically secure random strings in Base64 URL-safe format, commonly used for nonces, states, and PKCE code verifiers.
 
 - **`getRandomBase64UrlSafe`**: Generates a code verifier and code challenge based on the length input.
 
