@@ -61,6 +61,7 @@ class IntegrationProxy {
                 let wpnInboxConf = WPNConfig(baseUrl: URL(string: self.config.inboxServerUrl)!, sslValidation: .noValidation)
                 self.ops = WMTOperations(networking: WPNNetworkingService(powerAuth: pa, config: wpnOperationsConf, serviceName: "WMTOperations"))
                 self.inbox = WMTInbox(networking: WPNNetworkingService(powerAuth: pa, config: wpnInboxConf, serviceName: "WMTInbox"))
+                callback(nil)
             }
         }
     }
