@@ -28,9 +28,15 @@ public protocol WMTOperation {
     
     /// Additional information with proximity check data
     var proximityCheck: WMTProximityCheck? { get }
+    
+    /// Optional mobile token data, structure is customer-specific.
+    /// Could be used, for example, for passing FDS data.
+    /// Available with PowerAuth server 1.10+.
+    var mobileTokenData: [String: Any]? { get }
 }
 
-/// WMTOperation extension which sets proximityCheck to be nil for backwards compatibility
+/// WMTOperation extension which sets proximityCheck and mobileTokenData to be nil for backwards compatibility
 public extension WMTOperation {
     var proximityCheck: WMTProximityCheck? { nil }
+    var mobileTokenData: [String: Any]? { nil }
 }

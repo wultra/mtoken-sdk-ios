@@ -28,15 +28,30 @@ class WMTAuthorizationData: Codable {
     /// Proximity OTP data
     let proximityCheck: WMTProximityCheckData?
     
-    init(operationId: String, operationData: String, proximityCheck: WMTProximityCheckData? = nil) {
+    /// Optional mobile token data, structure is customer-specific.
+    /// Could be used, for example, for passing FDS data.
+    /// Available with PowerAuth server 1.10+.
+    let mobileTokenData: [String: WMTJSONValue]?
+    
+    init(operationId: String, operationData: String, proximityCheck: WMTProximityCheckData? = nil, mobileTokenData: [String: WMTJSONValue]? = nil) {
         self.id = operationId
         self.data = operationData
         self.proximityCheck = proximityCheck
+        self.mobileTokenData = mobileTokenData
     }
     
     init(operation: WMTOperation, timestampSent: Date = Date()) {
         self.id = operation.id
         self.data = operation.data
+        
+        // Convert [String: Any]? to [String: WMTJSONValue]?
+        if let mobileTokenAny = operation.mobileTokenData {
+            self.mobileTokenData = mobileTokenAny.compactMapValues { value in
+                WMTAuthorizationData.convertToJSONValue(value)
+            }
+        } else {
+            self.mobileTokenData = nil
+        }
         
         guard let proximityCheck = operation.proximityCheck else {
             self.proximityCheck = nil
@@ -49,6 +64,25 @@ class WMTAuthorizationData: Codable {
             timestampReceived: proximityCheck.timestampReceived,
             timestampSent: timestampSent
         )
+    }
+    
+    private static func convertToJSONValue(_ value: Any) -> WMTJSONValue {
+        switch value {
+        case let string as String:
+            return .string(string)
+        case let int as Int:
+            return .int(int)
+        case let double as Double:
+            return .double(double)
+        case let bool as Bool:
+            return .bool(bool)
+        case let array as [Any]:
+            return .array(array.compactMap { convertToJSONValue($0) })
+        case let dictionary as [String: Any]:
+            return .object(dictionary.compactMapValues { convertToJSONValue($0) })
+        default:
+            return .null
+        }
     }
 }
 
