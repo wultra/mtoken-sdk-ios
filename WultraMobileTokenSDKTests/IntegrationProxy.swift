@@ -125,7 +125,7 @@ class IntegrationProxy {
         }
     }
     
-    func createNonPersonalisedPACOperation(_ factors: Factors = .F_2FA, completion: @escaping (NonPersonalisedTOTPOperationObject?) -> Void) {
+    func createNonPersonalisedPACOperation(_ factors: Factors = .F_2FA, completion: @escaping (OperationObject?) -> Void) {
         DispatchQueue.global().async {
             let opBody: String
             switch factors {
@@ -148,19 +148,19 @@ class IntegrationProxy {
         }
     }
     
-    func getOperation(operation: NonPersonalisedTOTPOperationObject, completion: @escaping (NonPersonalisedTOTPOperationObject?) -> Void) {
+    func getOperation(operationId: String, completion: @escaping (OperationObject?) -> Void) {
         DispatchQueue.global().async {
-            completion(self.makeRequest(url: URL(string: "\(self.config.cloudServerUrl)/v2/operations/\(operation.operationId)")!, body: "", httpMethod: "GET"))
+            completion(self.makeRequest(url: URL(string: "\(self.config.cloudServerUrl)/v2/operations/\(operationId)")!, body: "", httpMethod: "GET"))
         }
     }
     
-    func getQROperation(operation: OperationObject, completion: @escaping (QROperationData?) -> Void) {
+    func getQROperation(operationId: String, completion: @escaping (QROperationData?) -> Void) {
         DispatchQueue.global().async {
-            completion(self.makeRequest(url: URL(string: "\(self.config.cloudServerUrl)/v2/operations/\(operation.operationId)/offline/qr?registrationId=\(self.registrationId)")!, body: "", httpMethod: "GET"))
+            completion(self.makeRequest(url: URL(string: "\(self.config.cloudServerUrl)/v2/operations/\(operationId)/offline/qr?registrationId=\(self.registrationId)")!, body: "", httpMethod: "GET"))
         }
     }
     
-    func verifyQROperation(operation: OperationObject, operationData: QROperationData, otp: String, completion: @escaping (QROperationVerify?) -> Void) {
+    func verifyQROperation(operationId: String, operationData: QROperationData, otp: String, completion: @escaping (QROperationVerify?) -> Void) {
         DispatchQueue.global().async {
             let body = """
                 {
@@ -169,7 +169,7 @@ class IntegrationProxy {
                   "registrationId": "\(self.registrationId)"
                 }
             """
-            completion(self.makeRequest(url: URL(string: "\(self.config.cloudServerUrl)/v2/operations/\(operation.operationId)/offline/otp")!, body: body))
+            completion(self.makeRequest(url: URL(string: "\(self.config.cloudServerUrl)/v2/operations/\(operationId)/offline/otp")!, body: body))
         }
     }
     
@@ -218,6 +218,7 @@ class IntegrationProxy {
         let semaphore = DispatchSemaphore(value: 0)
         URLSession.shared.dataTask(with: r) { data, resp, error in
             if let data = data {
+                print(String(data: data, encoding: .utf8))
                 result = try? decoder.decode(T.self, from: data)
             }
             semaphore.signal()
@@ -309,25 +310,16 @@ struct CancelObject: Codable {
 
 struct OperationObject: Codable {
     let operationId: String
-    let userId: String
+    let userId: String?
     let status: String
     let operationType: String
-    //let parameters: [] // not needed for test right now
-    let failureCount: Int
-    let maxFailureCount: Int
-    let timestampCreated: Int
-    let timestampExpires: Int
-}
-
-struct NonPersonalisedTOTPOperationObject: Codable {
-    let operationId: String
-    let status: String
-    let operationType: String
+    let parameters: [String: WMTJSONValue]?
     let failureCount: Int
     let maxFailureCount: Int
     let timestampCreated: Int
     let timestampExpires: Int
     let proximityOtp: String?
+    let additionalData: [String: WMTJSONValue]?
 }
 
 private struct IntegrationConfig: Codable {

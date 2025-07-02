@@ -18,6 +18,7 @@ import Foundation
 
 // JSONValue is helper enum to decode generic response
 public enum WMTJSONValue: Codable, Equatable {
+    
     case string(String)
     case int(Int)
     case double(Double)
@@ -77,9 +78,22 @@ public enum WMTJSONValue: Codable, Equatable {
             }
         }
     }
+    
     public init(jsonData: Data) throws {
         let decoder = JSONDecoder()
         self = try decoder.decode(WMTJSONValue.self, from: jsonData)
+    }
+    
+    internal var value: Any? {
+        return switch self {
+        case .string(let value): value
+        case .int(let value): value
+        case .double(let value): value
+        case .bool(let value): value
+        case .object(let value): value
+        case .array(let value): value
+        case .null: nil
+        }
     }
 }
 
