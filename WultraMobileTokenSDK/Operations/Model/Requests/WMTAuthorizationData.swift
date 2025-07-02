@@ -17,7 +17,7 @@
 import Foundation
 
 /// Data for operation approval request.
-class WMTAuthorizationData: Codable {
+internal class WMTAuthorizationData: Codable {
     
     /// Signed data
     let data: String
@@ -31,36 +31,40 @@ class WMTAuthorizationData: Codable {
     /// Optional mobile token data, structure is customer-specific.
     /// Could be used, for example, for passing FDS data.
     /// Available with PowerAuth server 1.10+.
-    let mobileTokenData: [String: Encodable]?
+    let mobileTokenData: [String: AnyEncodable]?
     
     init(operationId: String, operationData: String, proximityCheck: WMTProximityCheckData? = nil, mobileTokenData: [String: Encodable]? = nil) {
         self.id = operationId
         self.data = operationData
+        self.mobileTokenData = mobileTokenData?.toAnyEncodable()
         self.proximityCheck = proximityCheck
-        self.mobileTokenData = mobileTokenData
     }
     
     init(operation: WMTOperation, timestampSent: Date = Date()) {
         self.id = operation.id
         self.data = operation.data
-        self.mobileTokenData = operation.mobileTokenData
+        self.mobileTokenData = operation.mobileTokenData?.toAnyEncodable()
         
-        guard let proximityCheck = operation.proximityCheck else {
+        if let proximityCheck = operation.proximityCheck {
+            self.proximityCheck = WMTProximityCheckData(
+                otp: proximityCheck.totp,
+                type: proximityCheck.type,
+                timestampReceived: proximityCheck.timestampReceived,
+                timestampSent: timestampSent
+            )
+        } else {
             self.proximityCheck = nil
-            return
         }
-        
-        self.proximityCheck = WMTProximityCheckData(
-            otp: proximityCheck.totp,
-            type: proximityCheck.type,
-            timestampReceived: proximityCheck.timestampReceived,
-            timestampSent: timestampSent
-        )
+    }
+    
+    required init(from decoder: any Decoder) throws {
+        // Decoding is not supported for this class, as it is used for signing data.
+        throw DecoderError.decodingNotSupported
     }
 }
 
 /// Internal proximity check data used for authorization
-struct WMTProximityCheckData: Codable {
+internal struct WMTProximityCheckData: Codable {
     
     /// Tha actual OTP code
     let otp: String
@@ -73,4 +77,27 @@ struct WMTProximityCheckData: Codable {
     
     /// Timestamp when the operation was signed
     let timestampSent: Date
+}
+
+internal struct AnyEncodable: Encodable {
+    
+    internal let original: Encodable
+
+    init<T: Encodable>(_ wrapped: T) {
+        original = wrapped
+    }
+
+    func encode(to encoder: Encoder) throws {
+        try original.encode(to: encoder)
+    }
+}
+
+private extension Dictionary where Key == String, Value == Encodable {
+    func toAnyEncodable() -> [String: AnyEncodable] {
+        return mapValues { AnyEncodable($0) }
+    }
+}
+
+private enum DecoderError: Error {
+    case decodingNotSupported
 }

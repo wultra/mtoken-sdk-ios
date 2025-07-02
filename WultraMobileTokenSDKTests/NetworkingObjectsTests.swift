@@ -345,8 +345,6 @@ class NetworkingObjectsTests: XCTestCase {
             ] as [String: Double]
         ]
         
-        let operation = WMTLocalOperation(id: "test-id", data: "test-data")
-        
         // Create a custom test operation with mobile token data
         class TestOperation: WMTOperation {
             let id: String
@@ -369,19 +367,19 @@ class NetworkingObjectsTests: XCTestCase {
         
         // Verify mobile token data content
         if let data = request.requestObject?.mobileTokenData {
-            if let deviceFingerprint = data["deviceFingerprint"] as? String {
+            if let deviceFingerprint = data["deviceFingerprint"]?.original as? String {
                 XCTAssertEqual(deviceFingerprint, "abc123")
             } else {
                 XCTFail("Device fingerprint should be a string")
             }
             
-            if let riskScore = data["riskScore"] as? Double {
+            if let riskScore = data["riskScore"]?.original as? Double {
                 XCTAssertEqual(riskScore, 0.8, accuracy: 0.001)
             } else {
                 XCTFail("Risk score should be a double")
             }
             
-            if let location = data["location"] as? [String: Double] {
+            if let location = data["location"]?.original as? [String: Double] {
                 if let lat = location["latitude"] {
                     XCTAssertEqual(lat, 50.0755, accuracy: 0.0001)
                 } else {

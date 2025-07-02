@@ -22,8 +22,8 @@ import PowerAuth2
 final class OIDCTests: XCTestCase {
     
     private var proxy: IntegrationProxy!
-    private var pa: PowerAuthSDK? { proxy.powerAuth }
-    private var oidc: WMTOIDC? { proxy.wmt?.oidc }
+    private var pa: PowerAuthSDK! { proxy.powerAuth! }
+    private var oidc: WMTOIDC! { proxy.wmt!.oidc }
     private let pin = "1234"
     
     override func setUp() {
@@ -65,7 +65,7 @@ final class OIDCTests: XCTestCase {
         let nonValidProviderId = "xxx"
         let exp = expectation(description: "Failed providerId config expectation")
         
-        _ = oidc?.getConfig(providerId: nonValidProviderId, completion: { result in
+        oidc.getConfig(providerId: nonValidProviderId, completion: { result in
             switch result {
             case .success(let config):
                 XCTAssertNil(config)
@@ -86,7 +86,7 @@ final class OIDCTests: XCTestCase {
         let exp = expectation(description: "Valid providerId config expectation")
         
         
-        _ = oidc?.getConfig(providerId: validProviderId, completion: { result in
+        oidc.getConfig(providerId: validProviderId, completion: { result in
             switch result {
             case .success(let config):
                 XCTAssertNotNil(config.authorizeUri)
@@ -112,7 +112,7 @@ final class OIDCTests: XCTestCase {
         let exp = expectation(description: "Valid providerId config expectation")
         
         
-        _ = oidc?.getConfig(providerId: validProviderIdPkce, completion: { result in
+        oidc.getConfig(providerId: validProviderIdPkce, completion: { result in
             switch result {
             case .success(let config):
                 XCTAssertNotNil(config.authorizeUri)
@@ -137,19 +137,14 @@ final class OIDCTests: XCTestCase {
             return
         }
         
-        guard let oidc = self.oidc else {
-            XCTFail("OIDC must not be nil!")
-            return
-        }
-        
         let exp = expectation(description: "Auth data preparation expectation")
         
-        _ = oidc.getConfig(providerId: providerIdPkce, completion: { result in
+        oidc.getConfig(providerId: providerIdPkce, completion: { result in
             switch result {
             case .success(let config):
                 XCTAssertNotNil(config)
                 
-                let authData = oidc.prepareAuthorizationData(config: config)
+                let authData = self.oidc.prepareAuthorizationData(config: config)
                 switch authData {
                 case .success(let data):
                     

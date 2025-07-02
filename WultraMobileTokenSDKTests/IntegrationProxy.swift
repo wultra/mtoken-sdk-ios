@@ -76,17 +76,18 @@ class IntegrationProxy {
         do {
             let configContent = try String(contentsOfFile: configPath)
             config = try JSONDecoder().decode(IntegrationConfig.self, from: configContent.data(using: .utf8)!)
-        } catch _ {
+        } catch {
             callback("Config file config.json cannot be parsed.")
             return
         }
         
         powerAuth = preparePAInstance()
         do {
-            self.wmt = try powerAuth?.createWultraMobileToken()
+            wmt = try powerAuth?.createWultraMobileToken()
         } catch {
             callback("Failed to create WultraMobileToken from PA baseUrl.")
         }
+        callback(nil)
     }
     
     enum Factors {
