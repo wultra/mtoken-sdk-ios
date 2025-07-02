@@ -395,6 +395,8 @@ class NetworkingObjectsTests: XCTestCase {
             } else {
                 XCTFail("Location should be a dictionary")
             }
+        } else {
+            XCTFail("Mobile token data should be present")
         }
         
         // Test operation without mobile token data (backward compatibility)

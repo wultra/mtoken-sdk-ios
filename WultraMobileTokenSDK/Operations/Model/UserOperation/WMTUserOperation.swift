@@ -62,7 +62,9 @@ open class WMTUserOperation: WMTOperation, Codable {
     /// Proximity Check Data to be passed when OTP is handed to the app
     public var proximityCheck: WMTProximityCheck?
     
-    /// Optional mobile token data that can be filled by the customer
+    /// Optional mobile token data, structure is customer-specific.
+    /// Could be used, for example, for passing FDS data.
+    /// Available with PowerAuth server 1.10+.
     public var mobileTokenData: [String: Encodable]?
     
     /// Enum-like reason why the status has changed.

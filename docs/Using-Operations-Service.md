@@ -206,9 +206,9 @@ import PowerAuth2
 class CustomOperation: WMTOperation {
     let id: String
     let data: String
-    let mobileTokenData: [String: Any]?
+    let mobileTokenData: [String: Encodable]?
     
-    init(id: String, data: String, mobileTokenData: [String: Any]? = nil) {
+    init(id: String, data: String, mobileTokenData: [String: Encodable]? = nil) {
         self.id = id
         self.data = data
         self.mobileTokenData = mobileTokenData
@@ -217,7 +217,7 @@ class CustomOperation: WMTOperation {
 
 // Approve operation with additional FDS data
 func approveWithFDSData() {
-    let fdsData: [String: Any] = [
+    let fdsData: [String: Encodable] = [
         "deviceFingerprint": "abc123def456",
         "riskScore": 0.8,
         "location": [
