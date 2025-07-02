@@ -17,7 +17,7 @@
 import Foundation
 
 /// Data for operation approval request.
-internal class WMTAuthorizationData: Codable {
+internal class WMTAuthorizationData: Encodable {
     
     /// Signed data
     let data: String
@@ -56,15 +56,10 @@ internal class WMTAuthorizationData: Codable {
             self.proximityCheck = nil
         }
     }
-    
-    required init(from decoder: any Decoder) throws {
-        // Decoding is not supported for this class, as it is used for signing data.
-        throw DecoderError.decodingNotSupported
-    }
 }
 
 /// Internal proximity check data used for authorization
-internal struct WMTProximityCheckData: Codable {
+internal struct WMTProximityCheckData: Encodable {
     
     /// Tha actual OTP code
     let otp: String
@@ -96,8 +91,4 @@ private extension Dictionary where Key == String, Value == Encodable {
     func toAnyEncodable() -> [String: AnyEncodable] {
         return mapValues { AnyEncodable($0) }
     }
-}
-
-private enum DecoderError: Error {
-    case decodingNotSupported
 }

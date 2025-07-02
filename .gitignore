@@ -67,3 +67,4 @@ swiftlint
 
 # Swift Package Manager
 Package.resolved
+Cartfile.resolved
