@@ -336,13 +336,13 @@ class NetworkingObjectsTests: XCTestCase {
     
     func testMobileTokenDataAuthorizationRequest() {
         // Test creating operation with mobile token data
-        let mobileTokenData: [String: Any] = [
+        let mobileTokenData: [String: Encodable] = [
             "deviceFingerprint": "abc123",
             "riskScore": 0.8,
             "location": [
                 "latitude": 50.0755,
                 "longitude": 14.4378
-            ]
+            ] as [String: Double]
         ]
         
         let operation = WMTLocalOperation(id: "test-id", data: "test-data")
@@ -351,9 +351,9 @@ class NetworkingObjectsTests: XCTestCase {
         class TestOperation: WMTOperation {
             let id: String
             let data: String
-            let mobileTokenData: [String: Any]?
+            let mobileTokenData: [String: Encodable]?
             
-            init(id: String, data: String, mobileTokenData: [String: Any]?) {
+            init(id: String, data: String, mobileTokenData: [String: Encodable]?) {
                 self.id = id
                 self.data = data
                 self.mobileTokenData = mobileTokenData
@@ -369,31 +369,31 @@ class NetworkingObjectsTests: XCTestCase {
         
         // Verify mobile token data content
         if let data = request.requestObject?.mobileTokenData {
-            if case .string(let deviceFingerprint) = data["deviceFingerprint"] {
+            if let deviceFingerprint = data["deviceFingerprint"] as? String {
                 XCTAssertEqual(deviceFingerprint, "abc123")
             } else {
                 XCTFail("Device fingerprint should be a string")
             }
             
-            if case .double(let riskScore) = data["riskScore"] {
+            if let riskScore = data["riskScore"] as? Double {
                 XCTAssertEqual(riskScore, 0.8, accuracy: 0.001)
             } else {
                 XCTFail("Risk score should be a double")
             }
             
-            if case .object(let location) = data["location"] {
-                if case .double(let lat) = location["latitude"] {
+            if let location = data["location"] as? [String: Double] {
+                if let lat = location["latitude"] {
                     XCTAssertEqual(lat, 50.0755, accuracy: 0.0001)
                 } else {
-                    XCTFail("Latitude should be a double")
+                    XCTFail("Latitude should be present")
                 }
-                if case .double(let lon) = location["longitude"] {
+                if let lon = location["longitude"] {
                     XCTAssertEqual(lon, 14.4378, accuracy: 0.0001)
                 } else {
-                    XCTFail("Longitude should be a double")
+                    XCTFail("Longitude should be present")
                 }
             } else {
-                XCTFail("Location should be an object")
+                XCTFail("Location should be a dictionary")
             }
         }
         

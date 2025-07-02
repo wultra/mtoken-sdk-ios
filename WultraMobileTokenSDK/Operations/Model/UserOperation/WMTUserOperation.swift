@@ -62,6 +62,9 @@ open class WMTUserOperation: WMTOperation, Codable {
     /// Proximity Check Data to be passed when OTP is handed to the app
     public var proximityCheck: WMTProximityCheck?
     
+    /// Optional mobile token data that can be filled by the customer
+    public var mobileTokenData: [String: Encodable]?
+    
     /// Enum-like reason why the status has changed.
     ///
     /// Max 32 characters are expected. Possible values depend on the backend implementation and configuration.
