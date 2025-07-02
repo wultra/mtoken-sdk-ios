@@ -31,9 +31,9 @@ class WMTAuthorizationData: Codable {
     /// Optional mobile token data, structure is customer-specific.
     /// Could be used, for example, for passing FDS data.
     /// Available with PowerAuth server 1.10+.
-    let mobileTokenData: [String: Encodable]?
+    let mobileTokenData: [String: Codable]?
     
-    init(operationId: String, operationData: String, proximityCheck: WMTProximityCheckData? = nil, mobileTokenData: [String: Encodable]? = nil) {
+    init(operationId: String, operationData: String, proximityCheck: WMTProximityCheckData? = nil, mobileTokenData: [String: Codable]? = nil) {
         self.id = operationId
         self.data = operationData
         self.proximityCheck = proximityCheck

@@ -65,7 +65,7 @@ open class WMTUserOperation: WMTOperation, Codable {
     /// Optional mobile token data, structure is customer-specific.
     /// Could be used, for example, for passing FDS data.
     /// Available with PowerAuth server 1.10+.
-    public var mobileTokenData: [String: Encodable]?
+    public var mobileTokenData: [String: Codable]?
     
     /// Enum-like reason why the status has changed.
     ///
