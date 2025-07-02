@@ -64,3 +64,6 @@ WultraMobileTokenSDKTests/Configs/*.json
 
 # swiftlint
 swiftlint
+
+# Swift Package Manager
+Package.resolved
