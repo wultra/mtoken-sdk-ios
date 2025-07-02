@@ -336,7 +336,7 @@ class NetworkingObjectsTests: XCTestCase {
     
     func testMobileTokenDataAuthorizationRequest() {
         // Test creating operation with mobile token data
-        let mobileTokenData: [String: Codable] = [
+        let mobileTokenData: [String: Encodable] = [
             "deviceFingerprint": "abc123",
             "riskScore": 0.8,
             "location": [
@@ -351,9 +351,9 @@ class NetworkingObjectsTests: XCTestCase {
         class TestOperation: WMTOperation {
             let id: String
             let data: String
-            let mobileTokenData: [String: Codable]?
+            let mobileTokenData: [String: Encodable]?
             
-            init(id: String, data: String, mobileTokenData: [String: Codable]?) {
+            init(id: String, data: String, mobileTokenData: [String: Encodable]?) {
                 self.id = id
                 self.data = data
                 self.mobileTokenData = mobileTokenData
