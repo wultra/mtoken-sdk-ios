@@ -218,7 +218,6 @@ class IntegrationProxy {
         let semaphore = DispatchSemaphore(value: 0)
         URLSession.shared.dataTask(with: r) { data, resp, error in
             if let data = data {
-                print(String(data: data, encoding: .utf8))
                 result = try? decoder.decode(T.self, from: data)
             }
             semaphore.signal()

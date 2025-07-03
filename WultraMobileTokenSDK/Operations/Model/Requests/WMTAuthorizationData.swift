@@ -31,7 +31,7 @@ internal class WMTAuthorizationData: Encodable {
     /// Optional mobile token data, structure is customer-specific.
     /// Could be used, for example, for passing FDS data.
     /// Available with PowerAuth server 1.10+.
-    let mobileTokenData: [String: AnyEncodable]?
+    let mobileTokenData: [String: WMTAnyEncodable]?
     
     init(operationId: String, operationData: String, proximityCheck: WMTProximityCheckData? = nil, mobileTokenData: [String: Encodable]? = nil) {
         self.id = operationId
@@ -72,23 +72,4 @@ internal struct WMTProximityCheckData: Encodable {
     
     /// Timestamp when the operation was signed
     let timestampSent: Date
-}
-
-internal struct AnyEncodable: Encodable {
-    
-    internal let original: Encodable
-
-    init<T: Encodable>(_ wrapped: T) {
-        original = wrapped
-    }
-
-    func encode(to encoder: Encoder) throws {
-        try original.encode(to: encoder)
-    }
-}
-
-private extension Dictionary where Key == String, Value == Encodable {
-    func toAnyEncodable() -> [String: AnyEncodable] {
-        return mapValues { AnyEncodable($0) }
-    }
 }

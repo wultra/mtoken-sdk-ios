@@ -79,6 +79,7 @@ open class WMTUserOperation: WMTOperation, Decodable {
     /// Optional mobile token data, structure is customer-specific.
     /// Could be used, for example, for passing FDS data.
     /// Available with PowerAuth server 1.10+.
+    /// 
     /// This data is not retrieved from the server but is set by the application.
     public var mobileTokenData: [String: Encodable]?
     
