@@ -4,6 +4,7 @@
 - [Creating an Instance](#creating-an-instance)
 - [Retrieving Configuration](#retrieving-configuration)
 - [Preparing OIDC Authorization Data](#preparing-oidc-authorization-data)
+- [Registering URL Schemes for Deeplinks](#registering-url-schemes-for-deeplinks)
 - [Open authorize URL in a web browser](#open-authorize-url-in-a-web-browser)
 - [Processing a Web Callback and initializing PowerAuth activation flow](#processing-a-web-callback-and-initializing-powerAuth-activation-flow)
 - [WMTOIDCUtils](#wmtoidcutils)
@@ -111,10 +112,98 @@ case .failure(let error):
 }
 ```
 
+## Registering URL Schemes for Deeplinks
+
+Before you can handle OIDC callbacks in your iOS app, you must register the appropriate URL schemes in your app's `Info.plist` file. This is essential for enabling your app to receive deeplink callbacks from the OIDC authorization flow.
+
+### Configuring Info.plist
+
+Add the following configuration to your app's `Info.plist` file to register URL schemes:
+
+```xml
+<key>CFBundleURLTypes</key>
+<array>
+    <dict>
+        <key>CFBundleURLName</key>
+        <string>com.yourcompany.yourapp.oidc</string>
+        <key>CFBundleURLSchemes</key>
+        <array>
+            <string>yourapp</string>
+        </array>
+    </dict>
+</array>
+```
+
+### URL Scheme Configuration Details
+
+| Property | Description | Example |
+|----------|-------------|---------|
+| `CFBundleURLName` | A unique identifier for the URL type | `com.yourcompany.yourapp.oidc` |
+| `CFBundleURLSchemes` | Array of URL schemes your app handles | `["yourapp"]` |
+
+### Choosing the Right URL Scheme
+
+The URL scheme you register should match either:
+
+1. **The scheme from your OIDC configuration's `redirectUri`**: If your OIDC provider is configured with a redirect URI like `yourapp://oidc/callback`, register `yourapp` as the scheme.
+
+2. **A custom scheme for your app**: Use a unique scheme that identifies your app, such as `com.yourcompany.yourapp` or a shorter variant like `yourapp`.
+
+### Example Configuration
+
+If your OIDC provider is configured with:
+- Redirect URI: `mybanking://oidc/auth/callback`
+
+Then your `Info.plist` should include:
+
+```xml
+<key>CFBundleURLTypes</key>
+<array>
+    <dict>
+        <key>CFBundleURLName</key>
+        <string>com.mycompany.mybanking.oidc</string>
+        <key>CFBundleURLSchemes</key>
+        <array>
+            <string>mybanking</string>
+        </array>
+    </dict>
+</array>
+```
+
+<!-- begin box info -->
+**Note**: The URL scheme registration in `Info.plist` is mandatory for OIDC deeplink handling to work properly. Without this configuration, your app will not be able to receive authorization callbacks from the OIDC provider.
+<!-- end -->
+
+### Handling URL Callbacks in Your App
+
+Once you've registered the URL schemes, you'll also need to handle the incoming URLs in your app. This is typically done in your `AppDelegate` or `SceneDelegate`:
+
+```swift
+// In AppDelegate.swift
+func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey : Any] = [:]) -> Bool {
+    // Handle the OIDC callback URL here
+    // You can pass this URL to WMTOIDCUtils.processWebCallback()
+    handleOIDCCallback(url: url)
+    return true
+}
+
+// In SceneDelegate.swift (iOS 13+)
+func scene(_ scene: UIScene, openURLContexts URLContexts: Set<UIOpenURLContext>) {
+    if let url = URLContexts.first?.url {
+        // Handle the OIDC callback URL here
+        handleOIDCCallback(url: url)
+    }
+}
+```
+
 ## Open authorize URL in a web browser
 
 
-To start the OIDC flow, you must open the authorization URL in a web browser. The recommended approach on iOS is to use ASWebAuthenticationSession for a seamless and secure user experience. ASWebAuthenticationSession also needs callbackURLScheme as a parameter. You can use the scheme of the WMTOIDCConfig redirectUri or deeplink scheme - `CFBundleURLSchemes` defined in your Info.plist  
+To start the OIDC flow, you must open the authorization URL in a web browser. The recommended approach on iOS is to use `ASWebAuthenticationSession` for a seamless and secure user experience. 
+
+`ASWebAuthenticationSession` requires a `callbackURLScheme` parameter, which should match the URL scheme you registered in your app's `Info.plist` (see [Registering URL Schemes for Deeplinks](#registering-url-schemes-for-deeplinks)). You can use either:
+- The scheme from your `WMTOIDCConfig.redirectUri`
+- The custom deeplink scheme defined in your `CFBundleURLSchemes`
 
 Since the Wultra Mobile Token SDK does not include any UI logic, it is up to you to implement this functionality. Below is an example of how you can handle the flow:
 
@@ -122,13 +211,17 @@ Since the Wultra Mobile Token SDK does not include any UI logic, it is up to you
 
 ```swift
 func openWebBrowser(oidcAuthRequest: WMTOIDCAuthorizationRequest, completion: @escaping (Result<URL, Error>) -> Void) {
+    // The callback scheme should match what you registered in Info.plist
+    let callbackScheme = "yourapp" // This should match your CFBundleURLSchemes
+    
     // Create an instance of ASWebAuthenticationSession
     let webAuthSession = ASWebAuthenticationSession(
         url: oidcAuthRequest.authorizationUrl,
-        callbackURLScheme: yourAppCallbackScheme,
+        callbackURLScheme: callbackScheme,
     ) { callbackURL, error in
         if let callbackURL = callbackURL {
-            // Successful authorization
+            // Successful authorization - this URL will have your registered scheme
+            // e.g., "yourapp://oidc/callback?code=...&state=..."
             completion(.success(callbackURL))
         } else if let error = error {
             // Handle error (e.g., user canceled the authorization)
