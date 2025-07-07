@@ -388,7 +388,7 @@ class IntegrationTests: XCTestCase {
                                     XCTAssertEqual(test1?.value as? Int, 1, "test1 should be 1")
                                     XCTAssertEqual(test2?.value as? Double, 2.3, "test2 should be 2.3")
                                     XCTAssertEqual(test3?.value as? String, "string", "test3 should be 'string'")
-                                    XCTAssertEqual((test4?.value as? [String: WMTJSONValue])?["nested"]?.value as? Bool, true, "test4 should be a nested object with 'nested' key")
+                                    XCTAssertEqual((test4?.value as? [String: TestJSONValue])?["nested"]?.value as? Bool, true, "test4 should be a nested object with 'nested' key")
                                 default:
                                     XCTFail("mobileTokenData should be object")
                                 }
