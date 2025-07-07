@@ -17,6 +17,6 @@ Pod::Spec.new do |s|
   
   # Dependencies
   s.dependency 'PowerAuth2', '~> 1.9.3'
-  s.dependency 'WultraPowerAuthNetworking', '~> 1.5.0'
+  s.dependency 'WultraPowerAuthNetworking', '~> 1.5.1'
 
 end

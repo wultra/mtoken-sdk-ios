@@ -194,6 +194,58 @@ func approveWithBiometry(operation: WMTOperation) {
 }
 ```
 
+### Passing Additional Mobile Token Data
+
+With PowerAuth server 1.10+, you can pass additional customer-specific data during operation authorization using the `mobileTokenData` property. This can be useful for fraud detection systems (FDS) or other custom business logic.
+
+```swift
+import WultraMobileTokenSDK
+import PowerAuth2
+
+// Create a custom operation with mobile token data
+class CustomOperation: WMTOperation {
+    let id: String
+    let data: String
+    let mobileTokenData: [String: Encodable]?
+    
+    init(id: String, data: String, mobileTokenData: [String: Encodable]? = nil) {
+        self.id = id
+        self.data = data
+        self.mobileTokenData = mobileTokenData
+    }
+}
+
+// Approve operation with additional FDS data
+func approveWithFDSData() {
+    let fdsData: [String: Encodable] = [
+        "deviceFingerprint": "abc123def456",
+        "riskScore": 0.8,
+        "location": [
+            "latitude": 50.0755,
+            "longitude": 14.4378
+        ]
+    ]
+    
+    let operation = CustomOperation(
+        id: "operationId123",
+        data: "operationData",
+        mobileTokenData: fdsData
+    )
+    
+    let auth = PowerAuthAuthentication.possessionWithPassword(password: "password123")
+    
+    operationService.authorize(operation: operation, authentication: auth) { error in
+        if let error = error {
+            // show error UI
+        } else {
+            // show success UI
+        }
+    }
+}
+```
+
+The `mobileTokenData` is completely optional and the structure is customer-specific. If you don't need this functionality, you can continue using operations without providing this property.
+
 ## Reject an Operation
 
 To reject an operation use `WMTOperations.reject`. Operation rejection is confirmed by a possession factor, so there is no need for creating a `PowerAuthAuthentication` object. You can simply use it with the following example.

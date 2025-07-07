@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.1.0 (TBD)
+
+- Added `mobileTokenData` to authorize request for passing customer-specific data ([documentation](Using-Operations-Service.md#Passing-Additional-Mobile-Token-Data))
+  - Available with PowerAuth server 1.10+
+  - Can be used for fraud detection systems (FDS) or other custom business logic
+- Dependency `networking-apple` is now required in version `1.5.1`
+
 ## 2.0.0 (Feb 2025)
 
 - Added status to `UserOperation` and removed redundant `OperationHistoryEntry` [(#171)](https://github.com/wultra/mtoken-sdk-ios/pull/171)

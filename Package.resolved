@@ -5,8 +5,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/wultra/networking-apple.git",
       "state" : {
-        "revision" : "b1f9c2f328c4857407499786c334ccd0f764d7d9",
-        "version" : "1.5.0"
+        "revision" : "77b2266fb97cceb504d62ba391ae722bc17602ff",
+        "version" : "1.5.1"
       }
     },
     {
