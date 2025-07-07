@@ -372,26 +372,15 @@ class IntegrationTests: XCTestCase {
                                     return
                                 }
                                 
-                                guard let serverMtd = finalOp.additionalData?["mobileTokenData"] else {
+                                guard let mtd = finalOp.additionalData?.mobileTokenData else {
                                     XCTFail("mobileTokenData not in additonalData")
                                     return
                                 }
-                                
-                                switch serverMtd {
-                                case .object(let servetMtdObject):
                                     
-                                    let test1 = servetMtdObject["test1"]
-                                    let test2 = servetMtdObject["test2"]
-                                    let test3 = servetMtdObject["test3"]
-                                    let test4 = servetMtdObject["test4"]
-                                    
-                                    XCTAssertEqual(test1?.value as? Int, 1, "test1 should be 1")
-                                    XCTAssertEqual(test2?.value as? Double, 2.3, "test2 should be 2.3")
-                                    XCTAssertEqual(test3?.value as? String, "string", "test3 should be 'string'")
-                                    XCTAssertEqual((test4?.value as? [String: TestJSONValue])?["nested"]?.value as? Bool, true, "test4 should be a nested object with 'nested' key")
-                                default:
-                                    XCTFail("mobileTokenData should be object")
-                                }
+                                XCTAssertEqual(mtd.test1, 1, "test1 should be 1")
+                                XCTAssertEqual(mtd.test2, 2.3, "test2 should be 2.3")
+                                XCTAssertEqual(mtd.test3, "string", "test3 should be 'string'")
+                                XCTAssertEqual(mtd.test4?["nested"], true, "test4 should be a nested object with 'nested' key")
                             }
                             
                         case .failure(let failure):

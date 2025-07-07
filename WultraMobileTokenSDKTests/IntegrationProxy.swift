@@ -312,103 +312,26 @@ struct OperationObject: Codable {
     let userId: String?
     let status: String
     let operationType: String
-    let parameters: [String: TestJSONValue]? // Decoded but not used in tests
+    // let parameters: [String: Any]? // Decoded but not used in tests
     let failureCount: Int
     let maxFailureCount: Int
     let timestampCreated: Int
     let timestampExpires: Int
     let proximityOtp: String?
-    let additionalData: [String: TestJSONValue]?
+    /// Additional data is dictionary of [String: Any] but we use TestAdditionalData for tests to be able to decode it in non-generic way
+    /// if you need any more specific data, you can add it to TestAdditionalData
+    let additionalData: TestAdditionalData?
 }
 
-/// Test-specific JSON value type to replace WMTJSONValue usage in integration tests
-enum TestJSONValue: Codable, Equatable {
-    case string(String)
-    case int(Int)
-    case double(Double)
-    case bool(Bool)
-    case object([String: TestJSONValue])
-    case array([TestJSONValue])
-    case null
-    
-    public subscript(key: String) -> TestJSONValue? {
-        if case .object(let object) = self {
-            return object[key]
-        }
-        return nil
-    }
-    
-    var value: Any? {
-        switch self {
-        case .string(let value): return value
-        case .int(let value): return value
-        case .double(let value): return value
-        case .bool(let value): return value
-        case .object(let value): return value
-        case .array(let value): return value
-        case .null: return nil
-        }
-    }
-    
-    public init(from decoder: Decoder) throws {
-        if let c = try? decoder.singleValueContainer(),
-           let string = try? c.decode(String.self) {
-            self = .string(string)
-        } else if let c = try? decoder.container(keyedBy: TestAnyCodingKey.self) {
-            var object = [String: TestJSONValue]()
-            for key in c.allKeys {
-                object[key.stringValue] = try c.decode(TestJSONValue.self, forKey: key)
-            }
-            self = .object(object)
-        } else if var c = try? decoder.unkeyedContainer() {
-            var array = [TestJSONValue]()
-            while !c.isAtEnd {
-                array.append(try c.decode(TestJSONValue.self))
-            }
-            self = .array(array)
-        } else if let c = try? decoder.singleValueContainer() {
-            if c.decodeNil() {
-                self = .null
-            } else if let bool = try? c.decode(Bool.self) {
-                self = .bool(bool)
-            } else if let int = try? c.decode(Int.self) {
-                self = .int(int)
-            } else if let double = try? c.decode(Double.self) {
-                self = .double(double)
-            } else if let string = try? c.decode(String.self) {
-                self = .string(string)
-            } else {
-                let data = try JSONSerialization.data(withJSONObject: decoder)
-                if let string = String(data: data, encoding: .utf8) {
-                    self = .object(["error": .string("Unknown JSON pattern"), "json": .string(string)])
-                } else {
-                    self = .object(["error": .string("Unknown JSON pattern"), "json": .null])
-                }
-            }
-        } else {
-            let data = try JSONSerialization.data(withJSONObject: decoder)
-            if let string = String(data: data, encoding: .utf8) {
-                self = .object(["error": .string("Unknown JSON pattern"), "json": .string(string)])
-            } else {
-                self = .object(["error": .string("Unknown JSON pattern"), "json": .null])
-            }
-        }
-    }
+struct TestAdditionalData: Codable {
+    let mobileTokenData: TestMobileTokenData?
 }
 
-/// Helper struct for key: value decoding in tests
-private struct TestAnyCodingKey: CodingKey {
-    var stringValue: String
-    var intValue: Int?
-    
-    init?(stringValue: String) {
-        self.stringValue = stringValue
-    }
-    
-    init?(intValue: Int) {
-        self.stringValue = String(intValue)
-        self.intValue = intValue
-    }
+struct TestMobileTokenData: Codable {
+    let test1: Int?
+    let test2: Double?
+    let test3: String?
+    let test4: [String: Bool]?
 }
 
 private struct IntegrationConfig: Codable {
