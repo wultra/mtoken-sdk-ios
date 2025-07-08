@@ -128,7 +128,7 @@ class IntegrationTests: XCTestCase {
                         switch result {
                         case .success(let operation):
                             if operation.ui?.preApprovalScreen?.type == .qr {
-                                self.proxy.getOperation(operation: op) { totpOP in
+                                self.proxy.getOperation(operationId: op.operationId) { totpOP in
                                     XCTAssertNotNil(totpOP?.proximityOtp, "Even with proximityCheckEnabled: true, in proximityOtp nil")
                                     if let totpOP = totpOP, let proximityOtp = totpOP.proximityOtp {
                                         operation.proximityCheck = WMTProximityCheck(totp: proximityOtp, type: .qrCode)
@@ -190,86 +190,6 @@ class IntegrationTests: XCTestCase {
         
         waitForExpectations(timeout: 20, handler: nil)
     }
-    
-    /// Test of Login operation approval (1FA)
-    /// TODO: prepare 1FA op
-//    func testApproveLogin() {
-//
-//        let exp = expectation(description: "Approve login")
-//
-//        proxy.createOperation { error in
-//            guard error == nil else {
-//                XCTFail(error!)
-//                exp.fulfill()
-//                return
-//            }
-//
-//            DispatchQueue.main.async {
-//                _  = self.ops.getOperations { opResult in
-//                    switch opResult {
-//                    case .success(let ops):
-//                        guard ops.count == 1 else {
-//                            XCTFail("1 operation expected. Actual: \(ops.count)")
-//                            exp.fulfill()
-//                            return
-//                        }
-//                        let auth = PowerAuthAuthentication()
-//                        auth.usePossession = true
-//                        self.ops.authorize(operation: ops.first!, authentication: auth) { error in
-//                            if let error = error {
-//                                XCTFail("Failed to authorize op: \(error.description)")
-//                            }
-//                            exp.fulfill()
-//                        }
-//                    case .failure(let error):
-//                        XCTFail("Failed to retrieve operations: \(error.description)")
-//                        exp.fulfill()
-//                    }
-//                }
-//            }
-//        }
-//
-//        waitForExpectations(timeout: 20, handler: nil)
-//    }
-    
-    // TODO: prepare 1FA op
-    /// Test of rejecting login operation (1FA)
-//    func testRejectLogin() {
-//
-//        let exp = expectation(description: "Reject login")
-//
-//        proxy.createOperation { error in
-//            guard error == nil else {
-//                XCTFail(error!)
-//                exp.fulfill()
-//                return
-//            }
-//
-//            DispatchQueue.main.async {
-//                _  = self.ops.getOperations { opResult in
-//                    switch opResult {
-//                    case .success(let ops):
-//                        guard ops.count == 1 else {
-//                            XCTFail("1 operation expected. Actual: \(ops.count)")
-//                            exp.fulfill()
-//                            return
-//                        }
-//                        self.ops.reject(operation: ops.first!, reason: .unexpectedOperation) { error in
-//                            if let error = error {
-//                                XCTFail("Failed to reject op: \(error.description)")
-//                            }
-//                            exp.fulfill()
-//                        }
-//                    case .failure(let error):
-//                        XCTFail("Failed to retrieve operations: \(error.description)")
-//                        exp.fulfill()
-//                    }
-//                }
-//            }
-//        }
-//
-//        waitForExpectations(timeout: 20, handler: nil)
-//    }
     
     /// Test of Payment approval (2FA)
     func testApprovePayment() {
@@ -351,6 +271,77 @@ class IntegrationTests: XCTestCase {
                         XCTFail("Failed to retrieve operations: \(error.description)")
                         exp.fulfill()
                     }
+                }
+            }
+        }
+        
+        waitForExpectations(timeout: 20, handler: nil)
+    }
+    
+    /// Test of Payment approval (2FA)
+    func testMobileTokenData() {
+        
+        let exp = expectation(description: "Test Mobile Token Data")
+        
+        proxy.createOperation { op in
+            guard let op else {
+                XCTFail("Failed to create operation")
+                exp.fulfill()
+                return
+            }
+            
+            self.ops.getDetail(operationId: op.operationId) { opResult in
+                
+                switch opResult {
+                case .success(let detail):
+                    
+                    
+                    detail.mobileTokenData = [
+                        "test1": 1,
+                        "test2": 2.3,
+                        "test3": "string",
+                        "test4": [
+                            "nested": true
+                        ]
+                    ]
+                    
+                    self.ops.authorize(operation: detail, with: PowerAuthAuthentication.possessionWithPassword(password: self.pin)) { authResult in
+                        
+                        switch authResult {
+                        case .success:
+                            
+                            self.proxy.getOperation(operationId: op.operationId) { finalOp in
+                                
+                                defer {
+                                    exp.fulfill()
+                                }
+                                
+                                guard let finalOp else {
+                                    XCTFail("Failed to get operation detail.")
+                                    return
+                                }
+                                
+                                guard let mtd = finalOp.additionalData?.mobileTokenData else {
+                                    XCTFail("mobileTokenData not in additonalData")
+                                    return
+                                }
+                                    
+                                XCTAssertEqual(mtd.test1, 1, "test1 should be 1")
+                                XCTAssertEqual(mtd.test2, 2.3, "test2 should be 2.3")
+                                XCTAssertEqual(mtd.test3, "string", "test3 should be 'string'")
+                                XCTAssertEqual(mtd.test4?["nested"], true, "test4 should be a nested object with 'nested' key")
+                            }
+                            
+                        case .failure(let failure):
+                            XCTFail("Failed to auhtorize operation: \(failure.description)")
+                            exp.fulfill()
+                        }
+                        
+                    }
+                    
+                case .failure(let failure):
+                    XCTFail("Failed to retrieve operation: \(failure.description)")
+                    exp.fulfill()
                 }
             }
         }
@@ -642,7 +633,7 @@ class IntegrationTests: XCTestCase {
             }
             
             // get QR data of the operation
-            self.proxy.getQROperation(operation: op) { qrData in
+            self.proxy.getQROperation(operationId: op.operationId) { qrData in
                 guard let qrData = qrData else {
                     XCTFail("Failed to retrieve QR data")
                     exp.fulfill()
@@ -661,7 +652,7 @@ class IntegrationTests: XCTestCase {
                         case .success(let otp):
                             
                             // verify the operation on the backend with the OTP
-                            self.proxy.verifyQROperation(operation: op, operationData: qrData, otp: otp) { verified in
+                            self.proxy.verifyQROperation(operationId: op.operationId, operationData: qrData, otp: otp) { verified in
                                 
                                 print("Operation verified with \(verified?.otpValid.description ?? "ERROR") result")
                                 

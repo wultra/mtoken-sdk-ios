@@ -262,6 +262,78 @@ class NetworkingObjectsTests: XCTestCase {
         XCTAssertEqual(proximityCheck?.otp, "12345678")
     }
     
+    func testMobileTokenDataAuthorizationRequest() {
+        // Test creating operation with mobile token data
+        let mobileTokenData: [String: Encodable] = [
+            "deviceFingerprint": "abc123",
+            "riskScore": 0.8,
+            "location": [
+                "latitude": 50.0755,
+                "longitude": 14.4378
+            ] as [String: Double]
+        ]
+        
+        // Create a custom test operation with mobile token data
+        class TestOperation: WMTOperation {
+            let id: String
+            let data: String
+            let mobileTokenData: [String: Encodable]?
+            
+            init(id: String, data: String, mobileTokenData: [String: Encodable]?) {
+                self.id = id
+                self.data = data
+                self.mobileTokenData = mobileTokenData
+            }
+        }
+        
+        let testOp = TestOperation(id: "test-operation-id", data: "test-operation-data", mobileTokenData: mobileTokenData)
+        let request = WMTOperationEndpoints.Authorize.EndpointType.RequestData(.init(operation: testOp))
+        
+        XCTAssertEqual(request.requestObject?.data, "test-operation-data")
+        XCTAssertEqual(request.requestObject?.id, "test-operation-id")
+        XCTAssertNotNil(request.requestObject?.mobileTokenData)
+        
+        // Verify mobile token data content
+        if let data = request.requestObject?.mobileTokenData {
+            if let deviceFingerprint = data["deviceFingerprint"]?.original as? String {
+                XCTAssertEqual(deviceFingerprint, "abc123")
+            } else {
+                XCTFail("Device fingerprint should be a string")
+            }
+            
+            if let riskScore = data["riskScore"]?.original as? Double {
+                XCTAssertEqual(riskScore, 0.8, accuracy: 0.001)
+            } else {
+                XCTFail("Risk score should be a double")
+            }
+            
+            if let location = data["location"]?.original as? [String: Double] {
+                if let lat = location["latitude"] {
+                    XCTAssertEqual(lat, 50.0755, accuracy: 0.0001)
+                } else {
+                    XCTFail("Latitude should be present")
+                }
+                if let lon = location["longitude"] {
+                    XCTAssertEqual(lon, 14.4378, accuracy: 0.0001)
+                } else {
+                    XCTFail("Longitude should be present")
+                }
+            } else {
+                XCTFail("Location should be a dictionary")
+            }
+        } else {
+            XCTFail("Mobile token data should be present")
+        }
+        
+        // Test operation without mobile token data (backward compatibility)
+        let simpleOp = WMTLocalOperation(id: "simple-id", data: "simple-data")
+        let simpleRequest = WMTOperationEndpoints.Authorize.EndpointType.RequestData(.init(operation: simpleOp))
+        
+        XCTAssertEqual(simpleRequest.requestObject?.data, "simple-data")
+        XCTAssertEqual(simpleRequest.requestObject?.id, "simple-id")
+        XCTAssertNil(simpleRequest.requestObject?.mobileTokenData)
+    }
+    
     func testOperationRejectionRequest() {
         
         let expectation = """
