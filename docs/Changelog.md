@@ -1,6 +1,6 @@
 # Changelog
 
-## 2.1.0 (TBD)
+## 2.1.0 (Jul 2025)
 
 - Added `mobileTokenData` to authorize request for passing customer-specific data ([documentation](Using-Operations-Service.md#Passing-Additional-Mobile-Token-Data))
   - Available with PowerAuth server 1.10+
