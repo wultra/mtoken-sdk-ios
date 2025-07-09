@@ -17,7 +17,7 @@
 import Foundation
 
 /// Data for operation approval request.
-class WMTAuthorizationData: Codable {
+internal class WMTAuthorizationData: Codable {
     
     /// Signed data
     let data: String
@@ -28,32 +28,38 @@ class WMTAuthorizationData: Codable {
     /// Proximity OTP data
     let proximityCheck: WMTProximityCheckData?
     
-    init(operationId: String, operationData: String, proximityCheck: WMTProximityCheckData? = nil) {
+    /// Optional mobile token data, structure is customer-specific.
+    /// Could be used, for example, for passing FDS data.
+    /// Available with PowerAuth server 1.10+.
+    let mobileTokenData: [String: WMTAnyEncodable]?
+    
+    init(operationId: String, operationData: String, proximityCheck: WMTProximityCheckData? = nil, mobileTokenData: [String: Encodable]? = nil) {
         self.id = operationId
         self.data = operationData
+        self.mobileTokenData = mobileTokenData?.toAnyEncodable()
         self.proximityCheck = proximityCheck
     }
     
     init(operation: WMTOperation, timestampSent: Date = Date()) {
         self.id = operation.id
         self.data = operation.data
+        self.mobileTokenData = operation.mobileTokenData?.toAnyEncodable()
         
-        guard let proximityCheck = operation.proximityCheck else {
+        if let proximityCheck = operation.proximityCheck {
+            self.proximityCheck = WMTProximityCheckData(
+                otp: proximityCheck.totp,
+                type: proximityCheck.type,
+                timestampReceived: proximityCheck.timestampReceived,
+                timestampSent: timestampSent
+            )
+        } else {
             self.proximityCheck = nil
-            return
         }
-        
-        self.proximityCheck = WMTProximityCheckData(
-            otp: proximityCheck.totp,
-            type: proximityCheck.type,
-            timestampReceived: proximityCheck.timestampReceived,
-            timestampSent: timestampSent
-        )
     }
 }
 
 /// Internal proximity check data used for authorization
-struct WMTProximityCheckData: Codable {
+internal struct WMTProximityCheckData: Codable {
     
     /// Tha actual OTP code
     let otp: String

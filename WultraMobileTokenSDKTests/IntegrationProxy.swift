@@ -89,7 +89,7 @@ class IntegrationProxy {
         }
     }
     
-    func createNonPersonalisedPACOperation(_ factors: Factors = .F_2FA, completion: @escaping (NonPersonalisedTOTPOperationObject?) -> Void) {
+    func createNonPersonalisedPACOperation(_ factors: Factors = .F_2FA, completion: @escaping (OperationObject?) -> Void) {
         DispatchQueue.global().async {
             let opBody: String
             switch factors {
@@ -112,19 +112,19 @@ class IntegrationProxy {
         }
     }
     
-    func getOperation(operation: NonPersonalisedTOTPOperationObject, completion: @escaping (NonPersonalisedTOTPOperationObject?) -> Void) {
+    func getOperation(operationId: String, completion: @escaping (OperationObject?) -> Void) {
         DispatchQueue.global().async {
-            completion(self.makeRequest(url: URL(string: "\(self.config.cloudServerUrl)/v2/operations/\(operation.operationId)")!, body: "", httpMethod: "GET"))
+            completion(self.makeRequest(url: URL(string: "\(self.config.cloudServerUrl)/v2/operations/\(operationId)")!, body: "", httpMethod: "GET"))
         }
     }
     
-    func getQROperation(operation: OperationObject, completion: @escaping (QROperationData?) -> Void) {
+    func getQROperation(operationId: String, completion: @escaping (QROperationData?) -> Void) {
         DispatchQueue.global().async {
-            completion(self.makeRequest(url: URL(string: "\(self.config.cloudServerUrl)/v2/operations/\(operation.operationId)/offline/qr?registrationId=\(self.registrationId)")!, body: "", httpMethod: "GET"))
+            completion(self.makeRequest(url: URL(string: "\(self.config.cloudServerUrl)/v2/operations/\(operationId)/offline/qr?registrationId=\(self.registrationId)")!, body: "", httpMethod: "GET"))
         }
     }
     
-    func verifyQROperation(operation: OperationObject, operationData: QROperationData, otp: String, completion: @escaping (QROperationVerify?) -> Void) {
+    func verifyQROperation(operationId: String, operationData: QROperationData, otp: String, completion: @escaping (QROperationVerify?) -> Void) {
         DispatchQueue.global().async {
             let body = """
                 {
@@ -133,7 +133,7 @@ class IntegrationProxy {
                   "registrationId": "\(self.registrationId)"
                 }
             """
-            completion(self.makeRequest(url: URL(string: "\(self.config.cloudServerUrl)/v2/operations/\(operation.operationId)/offline/otp")!, body: body))
+            completion(self.makeRequest(url: URL(string: "\(self.config.cloudServerUrl)/v2/operations/\(operationId)/offline/otp")!, body: body))
         }
     }
     
@@ -264,25 +264,29 @@ private struct CommitObject: Codable {
 
 struct OperationObject: Codable {
     let operationId: String
-    let userId: String
+    let userId: String?
     let status: String
     let operationType: String
-    //let parameters: [] // not needed for test right now
-    let failureCount: Int
-    let maxFailureCount: Int
-    let timestampCreated: Int
-    let timestampExpires: Int
-}
-
-struct NonPersonalisedTOTPOperationObject: Codable {
-    let operationId: String
-    let status: String
-    let operationType: String
+    // let parameters: [String: Any]? // Decoded but not used in tests
     let failureCount: Int
     let maxFailureCount: Int
     let timestampCreated: Int
     let timestampExpires: Int
     let proximityOtp: String?
+    /// Additional data is dictionary of [String: Any] but we use TestAdditionalData for tests to be able to decode it in non-generic way
+    /// if you need any more specific data, you can add it to TestAdditionalData
+    let additionalData: TestAdditionalData?
+}
+
+struct TestAdditionalData: Codable {
+    let mobileTokenData: TestMobileTokenData?
+}
+
+struct TestMobileTokenData: Codable {
+    let test1: Int?
+    let test2: Double?
+    let test3: String?
+    let test4: [String: Bool]?
 }
 
 private struct IntegrationConfig: Codable {
