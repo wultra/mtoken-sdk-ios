@@ -15,11 +15,10 @@
 //
 
 import Foundation
-import PowerAuth2
 import WultraPowerAuthNetworking
 
 protocol WMTService {
-    var powerAuth: PowerAuthSDK { get }
+    var networking: WPNNetworkingService { get }
 }
 
 extension WMTService {
@@ -29,7 +28,7 @@ extension WMTService {
     /// - Parameter completion: Completion
     /// - Returns: True if the activation is valid
     func validateActivation<T>(_ completion: @escaping (Result<T, WMTError>) -> Void) -> Bool {
-        guard powerAuth.hasValidActivation() else {
+        guard networking.powerAuth.hasValidActivation() else {
             DispatchQueue.main.async {
                 completion(.failure(WMTError(reason: .missingActivation)))
             }

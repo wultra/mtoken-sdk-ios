@@ -23,7 +23,14 @@ Inbox Service communicates with the [Mobile Token API](https://developers.wultra
 
 ## Creating an Instance
 
-### On Top of the `PowerAuthSDK` instance
+The preferred way of instantiating Inbox Service is via `WultraMobileToken` class.
+See: [Example Usage](./Example-Usage)
+
+
+### Customized initialization
+
+If you need to create a more customized instance, such as when your Push Service uses a different enrollment server URL than other services in the SDK, you can use an initializer. Simply define the networking configuration and provide the PowerAuthSDK instance.
+
 ```swift
 import WultraMobileTokenSDK
 import WultraPowerAuthNetworking
@@ -32,16 +39,15 @@ let networkingConfig = WPNConfig(
     baseUrl: URL(string: "https://powerauth.myservice.com/enrollment-server")!,
     sslValidation: .default
 )
-// powerAuth is instance of PowerAuthSDK
-let inboxService = powerAuth.createWMTInbox(networkingConfig: networkingConfig)
-```
 
-### On Top of the `WPNNetworkingService` instance
-```swift
-import WultraMobileTokenSDK
+let networkingService = WPNNetworkingService(
+    powerAuth: powerAuth,
+    config: networkingConfig,
+    serviceName: "InboxService",
+    acceptLanguage: "en"
+)
 
-// networkingService is instance of WPNNetworkingService
-let inboxService = networkingService.createWMTInbox()
+let opsService = WMTInbox(networking: networkingService)
 ```
 
 ## Inbox Service Usage

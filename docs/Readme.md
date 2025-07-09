@@ -20,14 +20,17 @@ Remarks:
 If you need to upgrade the Wultra Mobile Token SDK for iOS to a newer version, you can check the following migration guides:
 
 - [Migration from version `1.9.x` to `1.10.x`](Migration-1.10.md)
-- [Migration from version `1.12.x` to `1.13.x`](Migration-1.13.md)
+- [Migration from version `1.11.x` to `1.12.x`](Migration-1.12.md)
+- [Migration from version `1.12.x` to `2.0.x`](Migration-2.0.md)
 
 <!-- begin remove -->
 ## Integration Tutorials
 - [SDK Integration](SDK-Integration.md)
+- [Example Usage](./Example-Usage.md)
 - [Using Operations Service](Using-Operations-Service.md)
 - [Using Push Service](Using-Push-Service.md)
 - [Using Inbox Service](Using-Inbox-Service.md)
+- [Using OIDC Service](./Using-OIDC-Service.md)
 - [Operation Expiration Handling](Operation-Expiration.md)
 - [Error Handling](Error-Handling.md)
 - [Language Configuration](Language-Configuration.md)

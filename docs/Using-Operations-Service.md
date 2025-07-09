@@ -33,7 +33,13 @@ Operations Service communicates with the [Mobile Token API](https://developers.w
 
 ## Creating an Instance
 
-### On Top of the `PowerAuthSDK` instance
+The preferred way of instantiating Operations Service is via `WultraMobileToken` class.
+See: [Example Usage](./Example-Usage)
+
+### Customized initialization
+
+In case you need to create more customized instance. You can do so with an initializer. We will need to define networking configuration and provide PowerAuthSDK instance.
+
 ```swift
 import WultraMobileTokenSDK
 import WultraPowerAuthNetworking
@@ -42,33 +48,17 @@ let networkingConfig = WPNConfig(
     baseUrl: URL(string: "https://powerauth.myservice.com/enrollment-server")!,
     sslValidation: .default
 )
-// powerAuth is instance of PowerAuthSDK
-let opsService = powerAuth.createWMTOperations(networkingConfig: networkingConfig, pollingOptions: [.pauseWhenOnBackground])
+
+let networkingService = WPNNetworkingService(
+    powerAuth: powerAuth,
+    config: networkingConfig,
+    serviceName: "OperationsService",
+    acceptLanguage: "en"
+)
+
+let opsService = WMTOperations(networking: networkingService)
 ```
 
-### On Top of the `WPNNetworkingService` instance
-```swift
-import WultraMobileTokenSDK
-import WultraPowerAuthNetworking
-
-// networkingService is instance of WPNNetworkingService
-let opsService = networkingService.createWMTOperations(pollingOptions: [.pauseWhenOnBackground])
-```
-
-The `pollingOptions` parameter is used for polling feature configuration. The default value is empty `[]`. Possible options are:
-
-- `WMTOperationsPollingOptions.pauseWhenOnBackground`
-
-### With custom WMTUserOperation objects
-
-To retrieve custom user operations, both `createWMTOperations` methods offer the optional parameter `customUserOperationType` where you can set up the requested type.
-
-```swift
-// networkingService is instance of WPNNetworkingService
-let opsService = networkingService.createWMTOperations(customUserOperationType: CustomUserOperation.self).
-```
-
-When [custom operation type](#subclassing-WMTUserOperation) is set, all `WMTUserOperation` objects from such service can be explicitly unboxed to this type.
 
 ## Retrieve Pending Operations
 
@@ -203,6 +193,58 @@ func approveWithBiometry(operation: WMTOperation) {
     }
 }
 ```
+
+### Passing Additional Mobile Token Data
+
+With PowerAuth server 1.10+, you can pass additional customer-specific data during operation authorization using the `mobileTokenData` property. This can be useful for fraud detection systems (FDS) or other custom business logic.
+
+```swift
+import WultraMobileTokenSDK
+import PowerAuth2
+
+// Create a custom operation with mobile token data
+class CustomOperation: WMTOperation {
+    let id: String
+    let data: String
+    let mobileTokenData: [String: Encodable]?
+    
+    init(id: String, data: String, mobileTokenData: [String: Encodable]? = nil) {
+        self.id = id
+        self.data = data
+        self.mobileTokenData = mobileTokenData
+    }
+}
+
+// Approve operation with additional FDS data
+func approveWithFDSData() {
+    let fdsData: [String: Encodable] = [
+        "deviceFingerprint": "abc123def456",
+        "riskScore": 0.8,
+        "location": [
+            "latitude": 50.0755,
+            "longitude": 14.4378
+        ]
+    ]
+    
+    let operation = CustomOperation(
+        id: "operationId123",
+        data: "operationData",
+        mobileTokenData: fdsData
+    )
+    
+    let auth = PowerAuthAuthentication.possessionWithPassword(password: "password123")
+    
+    operationService.authorize(operation: operation, authentication: auth) { error in
+        if let error = error {
+            // show error UI
+        } else {
+            // show success UI
+        }
+    }
+}
+```
+
+The `mobileTokenData` is completely optional and the structure is customer-specific. If you don't need this functionality, you can continue using operations without providing this property.
 
 ## Reject an Operation
 

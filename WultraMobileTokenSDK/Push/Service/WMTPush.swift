@@ -15,51 +15,42 @@
 //
 
 import Foundation
-import PowerAuth2
 import WultraPowerAuthNetworking
 
-public extension PowerAuthSDK {
-    
-    /// Creates instance of the `WMTPush` on top of the PowerAuth instance.
-    /// - Parameter networkingConfig: Networking service config
-    /// - Returns: Push service
-    func createWMTPush(networkingConfig: WPNConfig) -> WMTPush {
-        return WMTPushImpl(networking: WPNNetworkingService(powerAuth: self, config: networkingConfig, serviceName: "WMTPush"))
-    }
-}
-
-public extension WPNNetworkingService {
-    
-    /// Creates instance of the `WMTPush` on top of the WPNNetworkingService instance.
-    /// - Returns: Push service
-    func createWMTPush() -> WMTPush {
-        return WMTPushImpl(networking: self)
-    }
-}
-
-public extension WMTErrorReason {
-    /// Push registration is already in progress.
-    static let push_alreadyRegistering = WMTErrorReason(rawValue: "push_alreadyRegistering")
-}
-
-class WMTPushImpl: WMTPush, WMTService {
+public class WMTPush: WMTService {
     
     // Dependencies
-    lazy var powerAuth = networking.powerAuth
     let networking: WPNNetworkingService
     
-    private(set) var pushNotificationsRegisteredOnServer = false // Contains true if push notifications were already registered
+    /// If there was already made an successful request.
+    public private(set) var pushNotificationsRegisteredOnServer = false // Contains true if push notifications were already registered
     private var pendingRegistrationForRemotePushNotifications = false // Contains true if there's pending registration for push notifications
     
-    var acceptLanguage: String {
+    /// Accept language for the outgoing requests headers.
+    /// Default value is "en".
+    /// Changing this value updates the accept language of the underlying networking service.
+    ///
+    /// Standard RFC "Accept-Language" https://tools.ietf.org/html/rfc7231#section-5.3.5
+    /// Response texts are based on this setting. For example when "de" is set, server
+    /// will return operation texts in german (if available).
+    public var acceptLanguage: String {
         get { networking.acceptLanguage }
         set { networking.acceptLanguage = newValue }
     }
     
-    init(networking: WPNNetworkingService) {
+    public init(networking: WPNNetworkingService) {
         self.networking = networking
     }
     
+    /// Registers the current powerauth activation for push notifications.
+    ///
+    /// This method is compatible with server stack `1.9.x`
+    ///
+    /// - Parameters:
+    ///   - token: Push token.
+    ///   - completion: Completion handler.
+    ///                 This completion is always called on the main thread.
+    /// - Returns: Operation object for its state observation.
     @discardableResult
     func registerDeviceTokenForPushNotifications(token: Data, completion: @escaping (Result<Void, WMTError>) -> Void) -> Operation? {
         // ios for backwards compatibility
@@ -71,6 +62,15 @@ class WMTPushImpl: WMTPush, WMTService {
         )
     }
     
+    /// Registers the current Powerauth activation for push notifications.
+    ///
+    /// This method is compatible with server stack `1.10.x` and higher
+    ///
+    /// - Parameters:
+    ///   - platform: Platform that you're registering to
+    ///   - completion: Completion handler.
+    ///                 This completion is always called on the main thread.
+    /// - Returns: Operation object for its state observation.
     @discardableResult
     func register(to platform: WMTPushPlatform, completion: @escaping (Result<Void, WMTError>) -> Void) -> Operation? {
         
