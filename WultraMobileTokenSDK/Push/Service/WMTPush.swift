@@ -52,7 +52,7 @@ public class WMTPush: WMTService {
     ///                 This completion is always called on the main thread.
     /// - Returns: Operation object for its state observation.
     @discardableResult
-    func registerDeviceTokenForPushNotifications(token: Data, completion: @escaping (Result<Void, WMTError>) -> Void) -> Operation? {
+    public func registerDeviceTokenForPushNotifications(token: Data, completion: @escaping (Result<Void, WMTError>) -> Void) -> Operation? {
         // ios for backwards compatibility
         return registerPush(
             platform: .ios,
@@ -72,7 +72,7 @@ public class WMTPush: WMTService {
     ///                 This completion is always called on the main thread.
     /// - Returns: Operation object for its state observation.
     @discardableResult
-    func register(to platform: WMTPushPlatform, completion: @escaping (Result<Void, WMTError>) -> Void) -> Operation? {
+    public func register(to platform: WMTPushPlatform, completion: @escaping (Result<Void, WMTError>) -> Void) -> Operation? {
         
         let payloadPlatform: WMTPushRegistrationPlatform
         let payloadToken = platform.token
