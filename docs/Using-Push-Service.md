@@ -11,7 +11,7 @@
 ## Introduction
 <!-- end -->
 
-Push Service is responsible for registering the device for the push notifications about the operations that are tied to the current PowerAuth activation.
+Push Service is responsible for registering the device for the push notifications about operations that are tied to the current PowerAuth activation.
 
 <!-- begin box warning -->
 Note: Before using Push Service, you need to have a `PowerAuthSDK` object available and initialized with a valid activation. Without a valid PowerAuth activation, the service will return an error
