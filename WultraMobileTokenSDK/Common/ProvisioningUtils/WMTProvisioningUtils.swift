@@ -39,7 +39,7 @@ class WMTProvisioningUtils {
             D.error("Failed to decode provisioning profile data in ISO Latin 1.")
             return nil
         }
-        let scanner = Scanner(string: string as String)
+        let scanner = Scanner(string: string)
         guard scanner.scanUpTo("<plist", into: nil) != false else {
             D.error("Search for provisioning profile plist start tag failed.")
             return nil
