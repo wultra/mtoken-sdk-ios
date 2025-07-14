@@ -1,9 +1,11 @@
 # Changelog
 
-## 2.1.0 (TBD)
+## 2.2.0 (TBD)
+
 - Added option for Firebase Cloud Messaging for Push Notifications and automatic APNS environment detection [(#174)](https://github.com/wultra/mtoken-sdk-ios/issues/174).
 
-## 1.12.0 (October 2024)
+## 2.1.0 (Jul 2025)
+
 - Added `mobileTokenData` to authorize request for passing customer-specific data ([documentation](Using-Operations-Service.md#Passing-Additional-Mobile-Token-Data))
   - Available with PowerAuth server 1.10+
   - Can be used for fraud detection systems (FDS) or other custom business logic

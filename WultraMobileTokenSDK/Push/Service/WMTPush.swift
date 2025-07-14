@@ -51,6 +51,7 @@ public class WMTPush: WMTService {
     ///   - completion: Completion handler.
     ///                 This completion is always called on the main thread.
     /// - Returns: Operation object for its state observation.
+    @available(*, deprecated, renamed: "register", message: "This method is deprecated since server version 1.10.0. Use register(token:completion:) instead.")
     @discardableResult
     public func registerDeviceTokenForPushNotifications(token: Data, completion: @escaping (Result<Void, WMTError>) -> Void) -> Operation? {
         // ios for backwards compatibility
