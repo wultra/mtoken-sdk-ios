@@ -19,6 +19,7 @@ CL_LGN=""
 CL_PWD=""
 CL_AID=""
 ER_URL=""
+PU_URL=""
 OP_URL=""
 IN_URL=""
 SDKCONFIG=""
@@ -63,6 +64,11 @@ do
 			shift
 			shift
 			;;
+		-pu)
+			PU_URL="$2"
+			shift
+			shift
+			;;
         -in)
             IN_URL="$2"
             shift
@@ -95,6 +101,7 @@ echo """{
     \"cloudApplicationId\"    : \"${CL_AID}\",
     \"enrollmentServerUrl\"   : \"${ER_URL}\",
     \"operationsServerUrl\"   : \"${OP_URL}\",
+    \"pushServerUrl\"         : \"${PU_URL}\",
     \"inboxServerUrl\"        : \"${IN_URL}\",
     \"sdkConfig\"             : \"${SDKCONFIG}\"
 }""" > "WultraMobileTokenSDKTests/Configs/config.json"

@@ -24,6 +24,7 @@ class IntegrationProxy {
     private(set) var wmt: WultraMobileToken?
     private(set) var ops: WMTOperations?
     private(set) var inbox: WMTInbox?
+    private(set) var push: WMTPush?
     
     private var config: IntegrationConfig!
     private let activationName = UUID().uuidString
@@ -31,10 +32,11 @@ class IntegrationProxy {
     
     typealias Callback = (_ error: String?) -> Void
     
-    func prepareActivation(pin: String, callback: @escaping Callback) {
+    func prepareActivation(pin: String, configFileName: String = "config", callback: @escaping Callback) {
         WPNLogger.verboseLevel = .debug
-        guard let configPath = Bundle.init(for: IntegrationProxy.self).path(forResource: "config", ofType: "json", inDirectory: "Configs") else {
-            callback("Config file config.json is not present.")
+        
+        guard let configPath = Bundle.init(for: IntegrationProxy.self).path(forResource: configFileName, ofType: "json", inDirectory: "Configs") else {
+            callback("Config file \(configFileName).json is not present.")
             return
         }
         
@@ -42,7 +44,7 @@ class IntegrationProxy {
             let configContent = try String(contentsOfFile: configPath)
             config = try JSONDecoder().decode(IntegrationConfig.self, from: configContent.data(using: .utf8)!)
         } catch _ {
-            callback("Config file config.json cannot be parsed.")
+            callback("Config file \(configFileName).json cannot be parsed.")
             return
         }
         
@@ -59,8 +61,10 @@ class IntegrationProxy {
                 // use if your operations and inbox urls are diffferent - set in config file `WultraMobileTokenSDKTests/Configs/Readme.md`
                 let wpnOperationsConf = WPNConfig(baseUrl: URL(string: self.config.operationsServerUrl)!, sslValidation: .noValidation)
                 let wpnInboxConf = WPNConfig(baseUrl: URL(string: self.config.inboxServerUrl)!, sslValidation: .noValidation)
+                let wpnPushConf = WPNConfig(baseUrl: URL(string: self.config.pushServerUrl)!, sslValidation: .noValidation)
                 self.ops = WMTOperations(networking: WPNNetworkingService(powerAuth: pa, config: wpnOperationsConf, serviceName: "WMTOperations"))
                 self.inbox = WMTInbox(networking: WPNNetworkingService(powerAuth: pa, config: wpnInboxConf, serviceName: "WMTInbox"))
+                self.push = WMTPush(networking: WPNNetworkingService(powerAuth: pa, config: wpnPushConf, serviceName: "WMTPush"))
                 callback(nil)
             }
         }
@@ -342,6 +346,7 @@ private struct IntegrationConfig: Codable {
     let enrollmentServerUrl: String
     let operationsServerUrl: String
     let inboxServerUrl: String
+    let pushServerUrl: String
     let sdkConfig: String
     let oidcProviderId: String?
     let oidcProviderIdPkce: String?

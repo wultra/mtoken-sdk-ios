@@ -28,4 +28,5 @@ jobs:
           OP_URL: ${{ secrets.TESTS_OP_URL }}
           ER_URL: ${{ secrets.TESTS_ER_URL }}
           IN_URL: ${{ secrets.TESTS_IN_URL }}
-        run: ./scripts/test.sh -sdkconfig "$SDK_CONFIG" -er "$ER_URL" -op "$OP_URL" -in "$IN_URL" -cl "$CL_URL" -clu "$CL_LGN" -clp "$CL_PWD" -cla "$CL_AID"
+          PU_URL: ${{ secrets.TESTS_PU_URL }}
+        run: ./scripts/test.sh -sdkconfig "$SDK_CONFIG" -er "$ER_URL" -op "$OP_URL" -in "$IN_URL" -cl "$CL_URL" -clu "$CL_LGN" -clp "$CL_PWD" -cla "$CL_AID" -pu "$PU_URL"

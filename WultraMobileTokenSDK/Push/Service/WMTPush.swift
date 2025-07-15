@@ -44,13 +44,56 @@ public class WMTPush: WMTService {
     
     /// Registers the current powerauth activation for push notifications.
     ///
+    /// This method is compatible with server stack `1.9.x`
+    ///
     /// - Parameters:
     ///   - token: Push token.
     ///   - completion: Completion handler.
     ///                 This completion is always called on the main thread.
     /// - Returns: Operation object for its state observation.
+    @available(*, deprecated, renamed: "register", message: "This method is deprecated since server version 1.10.0. Use register(token:completion:) instead.")
     @discardableResult
     public func registerDeviceTokenForPushNotifications(token: Data, completion: @escaping (Result<Void, WMTError>) -> Void) -> Operation? {
+        // ios for backwards compatibility
+        return registerPush(
+            platform: .ios,
+            token: token.toHex(),
+            environment: getPushEnvironment(environment: .automatic),
+            completion: completion
+        )
+    }
+    
+    /// Registers the current Powerauth activation for push notifications.
+    ///
+    /// This method is compatible with server stack `1.10.x` and higher
+    ///
+    /// - Parameters:
+    ///   - platform: Platform that you're registering to
+    ///   - completion: Completion handler.
+    ///                 This completion is always called on the main thread.
+    /// - Returns: Operation object for its state observation.
+    @discardableResult
+    public func register(to platform: WMTPushPlatform, completion: @escaping (Result<Void, WMTError>) -> Void) -> Operation? {
+        
+        let payloadPlatform: WMTPushRegistrationPlatform
+        let payloadToken = platform.token
+        let payloadEnvironment: WMTPushRegistrationEnvironment?
+        
+        switch platform {
+        case .apns(_, let environment):
+            payloadPlatform = .apns
+            payloadEnvironment = getPushEnvironment(environment: environment)
+        case .fcm:
+            payloadPlatform = .fcm
+            payloadEnvironment = nil // no env for FCM
+        }
+        
+        D.info("Registering push for \(payloadPlatform.rawValue) platform.")
+        
+        return registerPush(platform: payloadPlatform, token: payloadToken, environment: payloadEnvironment, completion: completion)
+    }
+    
+    private func registerPush(platform: WMTPushRegistrationPlatform, token: String, environment: WMTPushRegistrationEnvironment?, completion: @escaping (Result<Void, WMTError>) -> Void) -> Operation? {
         
         guard validateActivation(completion) else {
             return nil
@@ -66,7 +109,7 @@ public class WMTPush: WMTService {
         pendingRegistrationForRemotePushNotifications = true
         pushNotificationsRegisteredOnServer = false
         
-        let data = WMTPushRegistrationData(token: WMTHexadecimalString.encodeData(token))
+        let data = WMTPushRegistrationData(platform: platform, token: token, environment: environment)
         
         return networking.post(data: .init(data), signedWith: .possession(), to: WMTPushEndpoints.RegisterDevice.endpoint) { _, error in
             self.pendingRegistrationForRemotePushNotifications = false
@@ -77,6 +120,34 @@ public class WMTPush: WMTService {
                 self.pushNotificationsRegisteredOnServer = true
                 completion(.success(()))
             }
+        }
+    }
+    
+    private func getPushEnvironment(environment: WMTPushAPNSEnvironment) -> WMTPushRegistrationEnvironment? {
+        switch environment {
+        case .development:
+            D.info("Using APNS development environment for push notifications.")
+            return .development
+        case .production:
+            D.info("Using APNS production environment for push notifications.")
+            return .production
+        case .automatic:
+            let env = WMTProvisioningUtils.getMainProvisioningProfile()?.entitlements.apsEnvironment ?? WMTSignatureAPNSEnvironmentDetector.detectAPNSEnvironment()?.apsEnvironment
+            if let env {
+                D.info("Using \(env) environment for push notifications (automatic resolution).")
+            } else {
+                D.warning("No APNS environment found in provisioning profile. Server configuration will be used.")
+            }
+            return env?.serverObject
+        }
+    }
+}
+
+extension WMTPushPlatform {
+    var token: String {
+        return switch self {
+        case .apns(token: let token, environment: _): token.toHex()
+        case .fcm(token: let token): token
         }
     }
 }
