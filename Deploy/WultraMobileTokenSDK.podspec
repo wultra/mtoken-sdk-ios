@@ -5,7 +5,6 @@ Pod::Spec.new do |s|
   s.license = { :type => 'Apache License, Version 2.0', :file => 'LICENSE' }
   s.summary = 'High level PowerAuth based library written in swift'
   s.homepage = 'https://github.com/wultra/mtoken-sdk-ios'
-  s.social_media_url = 'https://twitter.com/wultra'
   s.author = { 'Wultra s.r.o.' => 'support@wultra.com' }
   s.source = { :git => 'https://github.com/wultra/mtoken-sdk-ios.git', :tag => s.version }
   # Deployment targets

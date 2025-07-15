@@ -1,6 +1,6 @@
 # Changelog
 
-## 2.2.0 (TBD)
+## 2.2.0 (Jul 2025)
 
 - Added option for Firebase Cloud Messaging for Push Notifications and automatic APNS environment detection [(#174)](https://github.com/wultra/mtoken-sdk-ios/issues/174).
 
