@@ -86,6 +86,10 @@ The following status property was added to the `WMTUserOperations`:
 
 The `WMTUserOperation.status` now represents the status of an operation, making the `WMTOperationHistoryEntry` redundant. As a result, `WMTOperationHistoryEntry` has been removed. In all instances where `WMTOperationHistoryEntry` was previously used, `WMTUserOperation` is used instead.
 
+<!-- begin box info -->
+ℹ️ **Note:** Starting with version `2.0.1` (and also in `2.1.1`, `2.2.1`), the `status` property has become **nullable** (`Status?`) to align with backend behavior, where this field may be omitted.
+<!-- end -->
+
 ### Replaced at
 
 In the `getHistory` method of `WMTOperations`, `WMTOperationHistoryEntry` has been replaced by `WMTUserOperation` for retrieving user operation history.
