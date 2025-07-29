@@ -48,8 +48,8 @@ public class WMTOperationAttributeAlert: WMTOperationAttribute {
         let c = try decoder.container(keyedBy: Keys.self)
         
         self.alertType = try c.decode(AlertType.self, forKey: .alertType)
-        self.title = try? c.decode(String.self, forKey: .title)
-        self.message = try? c.decode(String.self, forKey: .message)
+        self.title = try c.decodeIfPresent(String.self, forKey: .title)
+        self.message = try c.decodeIfPresent(String.self, forKey: .message)
         
         try super.init(from: decoder)
     }
