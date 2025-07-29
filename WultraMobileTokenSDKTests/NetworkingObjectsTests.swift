@@ -96,7 +96,7 @@ class NetworkingObjectsTests: XCTestCase {
     
     func testOperationsResponse() {
         let response = """
-                       {"status":"OK","currentTimestamp":"2023-02-10T12:30:42+0000","responseObject":[{"id":"930febe7-f350-419a-8bc0-c8883e7f71e3","name":"authorize_payment","data":"A1*A100CZK*Q238400856/0300**D20170629*NUtility Bill Payment - 05/2017","status":"PENDING","operationCreated":"2018-08-08T12:30:42+0000","operationExpires":"2018-08-08T12:35:43+0000","allowedSignatureType":{"type":"2FA","variants":["possession_knowledge", "possession_biometry"]},"formData":{"title":"Potvrzení platby","message":"Dobrý den,prosíme o potvrzení následující platby:","attributes":[{"type":"AMOUNT","id":"operation.amount","label":"Částka","amount":965165234082.23,"currency":"CZK", "valueFormatted": "965165234082.23 CZK"},{"type":"KEY_VALUE","id":"operation.account","label":"Na účet","value":"238400856/0300"},{"type":"KEY_VALUE","id":"operation.dueDate","label":"Datum splatnosti","value":"29.6.2017"},{"type":"NOTE","id":"operation.note","label":"Poznámka","note":"Utility Bill Payment - 05/2017"},{"type":"PARTY_INFO","id":"operation.partyInfo","label":"Application","partyInfo":{"logoUrl":"http://whywander.com/wp-content/uploads/2017/05/prague_hero-100x100.jpg","name":"Tesco","description":"Objevte více příběhů psaných s chutí","websiteUrl":"https://itesco.cz/hello/vse-o-jidle/pribehy-psane-s-chuti/clanek/tomovy-burgery-pro-zapalene-fanousky/15012"}},{ "type": "AMOUNT_CONVERSION", "id": "operation.conversion", "label": "Conversion", "dynamic": true, "sourceAmount": 1.26, "sourceCurrency": "ETC", "sourceAmountFormatted": "1.26", "sourceCurrencyFormatted": "ETC", "sourceValueFormatted": "1.26 ETC", "targetAmount": 1710.98, "targetCurrency": "USD", "targetAmountFormatted": "1,710.98", "targetCurrencyFormatted": "USD", "targetValueFormatted": "1,710.98 USD"},{ "type": "IMAGE", "id": "operation.image", "label": "Image", "thumbnailUrl": "https://example.com/123_thumb.jpeg", "originalUrl": "https://example.com/123.jpeg" },{ "type": "IMAGE", "id": "operation.image", "label": "Image", "thumbnailUrl": "https://example.com/123_thumb.jpeg" }]}},{"id":"930febe7-f350-419a-8bc0-c8883e7f71e3","name":"authorize_payment","data":"A1*A100CZK*Q238400856/0300**D20170629*NUtility Bill Payment - 05/2017","status":"PENDING","operationCreated":"2018-08-08T12:30:42+0000","operationExpires":"2018-08-08T12:35:43+0000","allowedSignatureType":{"type":"1FA","variants":["possession_knowledge"]},"formData":{"title":"Potvrzení platby","message":"Dobrý den,prosíme o potvrzení následující platby:","attributes":[{"type":"AMOUNT","id":"operation.amount","label":"Částka","amount":100,"currency":"CZK"},{"type":"KEY_VALUE","id":"operation.account","label":"Na účet","value":"238400856/0300"},{"type":"KEY_VALUE","id":"operation.dueDate","label":"Datum splatnosti","value":"29.6.2017"},{"type":"NOTE","id":"operation.note","label":"Poznámka","note":"Utility Bill Payment - 05/2017"}]}}]}
+                       {"status":"OK","currentTimestamp":"2023-02-10T12:30:42+0000","responseObject":[{"id":"930febe7-f350-419a-8bc0-c8883e7f71e3","name":"authorize_payment","data":"A1*A100CZK*Q238400856/0300**D20170629*NUtility Bill Payment - 05/2017","status":"PENDING","operationCreated":"2018-08-08T12:30:42+0000","operationExpires":"2018-08-08T12:35:43+0000","allowedSignatureType":{"type":"2FA","variants":["possession_knowledge", "possession_biometry"]},"formData":{"title":"Potvrzení platby","message":"Dobrý den,prosíme o potvrzení následující platby:","attributes":[{"type":"AMOUNT","id":"operation.amount","label":"Částka","amount":965165234082.23,"currency":"CZK", "valueFormatted": "965165234082.23 CZK"},{"type":"KEY_VALUE","id":"operation.account","label":"Na účet","value":"238400856/0300"},{"type":"KEY_VALUE","id":"operation.dueDate","label":"Datum splatnosti","value":"29.6.2017"},{"type":"NOTE","id":"operation.note","label":"Poznámka","note":"Utility Bill Payment - 05/2017"},{"type":"PARTY_INFO","id":"operation.partyInfo","label":"Application","partyInfo":{"logoUrl":"http://whywander.com/wp-content/uploads/2017/05/prague_hero-100x100.jpg","name":"Tesco","description":"Objevte více příběhů psaných s chutí","websiteUrl":"https://itesco.cz/hello/vse-o-jidle/pribehy-psane-s-chuti/clanek/tomovy-burgery-pro-zapalene-fanousky/15012"}},{ "type": "AMOUNT_CONVERSION", "id": "operation.conversion", "label": "Conversion", "dynamic": true, "sourceAmount": 1.26, "sourceCurrency": "ETC", "sourceAmountFormatted": "1.26", "sourceCurrencyFormatted": "ETC", "sourceValueFormatted": "1.26 ETC", "targetAmount": 1710.98, "targetCurrency": "USD", "targetAmountFormatted": "1,710.98", "targetCurrencyFormatted": "USD", "targetValueFormatted": "1,710.98 USD"},{ "type": "IMAGE", "id": "operation.image", "label": "Image", "thumbnailUrl": "https://example.com/123_thumb.jpeg", "originalUrl": "https://example.com/123.jpeg" },{ "type": "IMAGE", "id": "operation.image", "label": "Image", "thumbnailUrl": "https://example.com/123_thumb.jpeg" }]}},{"id":"930febe7-f350-419a-8bc0-c8883e7f71e3","name":"authorize_payment","data":"A1*A100CZK*Q238400856/0300**D20170629*NUtility Bill Payment - 05/2017","status":"PENDING","operationCreated":"2018-08-08T12:30:42+0000","operationExpires":"2018-08-08T12:35:43+0000","allowedSignatureType":{"type":"1FA","variants":["possession_knowledge"]},"formData":{"title":"Potvrzení platby","message":"Dobrý den,prosíme o potvrzení následující platby:","attributes":[{"type":"AMOUNT","id":"operation.amount","label":"Částka","amount":100,"currency":"CZK"},{"type":"KEY_VALUE","id":"operation.account","label":"Na účet","value":"238400856/0300"},{"type":"KEY_VALUE","id":"operation.dueDate","label":"Datum splatnosti","value":"29.6.2017"},{"type":"NOTE","id":"operation.note","label":"Poznámka","note":"Utility Bill Payment - 05/2017"}, {"type": "ALERT","alertType": "WARNING","id": "operation.warning","label": "Balance alert","title": "Nízký zůstatek","message": "Na účtu po platbě zůstane méně než 100 Kč."}]}}]}
                        """
         
         guard let result = try? jsonDecoder.decode(WMTOperationListResponse<WMTUserOperation>.self, from: response.data(using: .utf8)!) else {
@@ -217,8 +217,67 @@ class NetworkingObjectsTests: XCTestCase {
         
         let op2 = operations[1]
         
-        XCTAssert(op2.allowedSignatureType.signatureType == .singleFactor)
-        XCTAssert(op2.allowedSignatureType.signatureFactors.count == 1 && op2.allowedSignatureType.signatureFactors.contains(.possessionKnowledge))
+        // Additional tests for the second operation (op2)
+        XCTAssertEqual(op2.id, "930febe7-f350-419a-8bc0-c8883e7f71e3")
+        XCTAssertEqual(op2.name, "authorize_payment")
+        XCTAssertEqual(op2.data, "A1*A100CZK*Q238400856/0300**D20170629*NUtility Bill Payment - 05/2017")
+        XCTAssertEqual(op2.status, .pending)
+        XCTAssertEqual(op2.operationCreated.timeIntervalSince1970, 1533731442)
+        XCTAssertEqual(op2.operationExpires.timeIntervalSince1970, 1533731743)
+        XCTAssertEqual(op2.allowedSignatureType.signatureType, .singleFactor)
+        XCTAssertEqual(op2.allowedSignatureType.signatureFactors, [.possessionKnowledge])
+        XCTAssertEqual(op2.formData.title, "Potvrzení platby")
+        XCTAssertEqual(op2.formData.message, "Dobrý den,prosíme o potvrzení následující platby:")
+        
+        // Test all fields in formData.attributes for op2
+        if op2.formData.attributes.count == 5 {
+            if let amountAttr = op2.formData.attributes[0] as? WMTOperationAttributeAmount {
+                XCTAssertEqual(amountAttr.type, .amount)
+                XCTAssertEqual(amountAttr.label.id, "operation.amount")
+                XCTAssertEqual(amountAttr.label.value, "Částka")
+                XCTAssertEqual(amountAttr.amount, NSDecimalNumber(string: "100").decimalValue)
+                XCTAssertEqual(amountAttr.currency, "CZK")
+            } else {
+                XCTFail("amount attribute not recognized in op2")
+            }
+            if let accountAttr = op2.formData.attributes[1] as? WMTOperationAttributeKeyValue {
+                XCTAssertEqual(accountAttr.type, .keyValue)
+                XCTAssertEqual(accountAttr.label.id, "operation.account")
+                XCTAssertEqual(accountAttr.label.value, "Na účet")
+                XCTAssertEqual(accountAttr.value, "238400856/0300")
+            } else {
+                XCTFail("account attribute not recognized in op2")
+            }
+            if let dueDateAttr = op2.formData.attributes[2] as? WMTOperationAttributeKeyValue {
+                XCTAssertEqual(dueDateAttr.type, .keyValue)
+                XCTAssertEqual(dueDateAttr.label.id, "operation.dueDate")
+                XCTAssertEqual(dueDateAttr.label.value, "Datum splatnosti")
+                XCTAssertEqual(dueDateAttr.value, "29.6.2017")
+            } else {
+                XCTFail("dueDate attribute not recognized in op2")
+            }
+            if let noteAttr = op2.formData.attributes[3] as? WMTOperationAttributeNote {
+                XCTAssertEqual(noteAttr.type, .note)
+                XCTAssertEqual(noteAttr.label.id, "operation.note")
+                XCTAssertEqual(noteAttr.label.value, "Poznámka")
+                XCTAssertEqual(noteAttr.note, "Utility Bill Payment - 05/2017")
+            } else {
+                XCTFail("note attribute not recognized in op2")
+            }
+
+            if let alertAttr = op2.formData.attributes[4] as? WMTOperationAttributeAlert {
+                XCTAssertEqual(alertAttr.type, .alert)
+                XCTAssertEqual(alertAttr.label.id, "operation.warning")
+                XCTAssertEqual(alertAttr.alertType, WMTOperationAttributeAlert.AlertType.warning)
+                XCTAssertEqual(alertAttr.label.value, "Balance alert")
+                XCTAssertEqual(alertAttr.title, "Nízký zůstatek")
+                XCTAssertEqual(alertAttr.message, "Na účtu po platbě zůstane méně než 100 Kč.")
+            } else {
+                XCTFail("alert attribute not recognized in op2")
+            }
+        } else {
+            XCTFail("op2 should contain 5 attributes, but contains \(op2.formData.attributes.count)")
+        }
     }
     
     func testOnlyAmountAndConversionAttributesLegacyBackend() {
