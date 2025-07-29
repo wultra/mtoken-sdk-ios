@@ -543,6 +543,32 @@ class NetworkingObjectsTests: XCTestCase {
         XCTAssertEqual(resultTexts2.reject, createdTexts.reject)
         XCTAssertEqual(resultTexts2.failure, createdTexts.failure)
     }
+    
+    func testOperationWithStatus() {
+        let response = """
+            {"responseObject":[{"id":"e10bbc25-cf42-4812-815e-3972f49d8f7f","name":"login","data":"A2","status":"PENDING","operationCreated":"2025-07-29T14:43:33+0000","operationExpires":"2025-07-29T14:48:33+0000","allowedSignatureType":{"type":"2FA","variants":["possession_knowledge","possession_biometry"]},"formData":{"title":"Login Approval","message":"Are you logging in to the internet banking?","attributes":[]}}],"status":"OK","currentTimestamp":"2025-07-29T14:43:36+0000"}
+            """
+        
+        guard let result = try? jsonDecoder.decode(WPNResponseArray<WMTUserOperation>.self, from: response.data(using: .utf8)!).responseObject?[0] else {
+            XCTFail("Failed to parse JSON data")
+            return
+        }
+        
+        XCTAssertEqual(result.status, .pending)
+    }
+    
+    func testOperationWithoutStatus() {
+        let response = """
+            {"responseObject":[{"id":"e10bbc25-cf42-4812-815e-3972f49d8f7f","name":"login","data":"A2","operationCreated":"2025-07-29T14:43:33+0000","operationExpires":"2025-07-29T14:48:33+0000","allowedSignatureType":{"type":"2FA","variants":["possession_knowledge","possession_biometry"]},"formData":{"title":"Login Approval","message":"Are you logging in to the internet banking?","attributes":[]}}],"status":"OK","currentTimestamp":"2025-07-29T14:43:36+0000"}
+            """
+        
+        guard let result = try? jsonDecoder.decode(WPNResponseArray<WMTUserOperation>.self, from: response.data(using: .utf8)!).responseObject?[0] else {
+            XCTFail("Failed to parse JSON data")
+            return
+        }
+        
+        XCTAssertNil(result.status)
+    }
 }
 
 extension WPNRequestBase {
