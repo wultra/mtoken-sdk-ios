@@ -31,46 +31,36 @@ An operation can be anything you need to be approved or rejected by the user. It
 Note: Before using Operations Service, you need to have a `PowerAuthSDK` object available and initialized with a valid activation. Without a valid PowerAuth activation, all endpoints will return an error
 <!-- end -->
 
-Operations Service communicates with a backend via [Mobile Token API endpoints](https://github.com/wultra/powerauth-webflow/blob/develop/docs/Mobile-Token-API.md).
+Operations Service communicates with the [Mobile Token API](https://developers.wultra.com/components/enrollment-server/develop/documentation/Mobile-Token-API).
 
 ## Creating an Instance
 
-### On Top of the `PowerAuthSDK` instance
+The preferred way of instantiating Operations Service is via `WultraMobileToken` class.
+See: [Example Usage](./Example-Usage)
+
+### Customized initialization
+
+In case you need to create more customized instance. You can do so with an initializer. We will need to define networking configuration and provide PowerAuthSDK instance.
+
 ```swift
 import WultraMobileTokenSDK
 import WultraPowerAuthNetworking
 
 let networkingConfig = WPNConfig(
-    baseUrl: URL(string: "https://myservice.com/mtoken/operations/api/")!,
+    baseUrl: URL(string: "https://powerauth.myservice.com/enrollment-server")!,
     sslValidation: .default
 )
-// powerAuth is instance of PowerAuthSDK
-let opsService = powerAuth.createWMTOperations(networkingConfig: networkingConfig, pollingOptions: [.pauseWhenOnBackground])
+
+let networkingService = WPNNetworkingService(
+    powerAuth: powerAuth,
+    config: networkingConfig,
+    serviceName: "OperationsService",
+    acceptLanguage: "en"
+)
+
+let opsService = WMTOperations(networking: networkingService)
 ```
 
-### On Top of the `WPNNetworkingService` instance
-```swift
-import WultraMobileTokenSDK
-import WultraPowerAuthNetworking
-
-// networkingService is instance of WPNNetworkingService
-let opsService = networkingService.createWMTOperations(pollingOptions: [.pauseWhenOnBackground])
-```
-
-The `pollingOptions` parameter is used for polling feature configuration. The default value is empty `[]`. Possible options are:
-
-- `WMTOperationsPollingOptions.pauseWhenOnBackground`
-
-### With custom WMTUserOperation objects
-
-To retrieve custom user operations, both `createWMTOperations` methods offer the optional parameter `customUserOperationType` where you can set up the requested type.
-
-```swift
-// networkingService is instance of WPNNetworkingService
-let opsService = networkingService.createWMTOperations(customUserOperationType: CustomUserOperation.self).
-```
-
-When [custom operation type](#subclassing-WMTUserOperation) is set, all `WMTUserOperation` objects from such service can be explicitly unboxed to this type.
 
 ## Retrieve Pending Operations
 
@@ -133,7 +123,7 @@ class MyOperationsManager: WMTOperationsDelegate {
 
     init(powerAuth: PowerAuthSDK) {
         let networkingConfig = WPNConfig(
-            baseUrl: URL(string: "https://myservice.com/mtoken/operations/api/")!,
+            baseUrl: URL(string: "https://powerauth.myservice.com/enrollment-server")!,
             sslValidation: .default
         )
         self.ops = powerAuth.createWMTOperations(networkingConfig: networkingConfig)
@@ -205,6 +195,58 @@ func approveWithBiometry(operation: WMTOperation) {
     }
 }
 ```
+
+### Passing Additional Mobile Token Data
+
+With PowerAuth server 1.10+, you can pass additional customer-specific data during operation authorization using the `mobileTokenData` property. This can be useful for fraud detection systems (FDS) or other custom business logic.
+
+```swift
+import WultraMobileTokenSDK
+import PowerAuth2
+
+// Create a custom operation with mobile token data
+class CustomOperation: WMTOperation {
+    let id: String
+    let data: String
+    let mobileTokenData: [String: Encodable]?
+    
+    init(id: String, data: String, mobileTokenData: [String: Encodable]? = nil) {
+        self.id = id
+        self.data = data
+        self.mobileTokenData = mobileTokenData
+    }
+}
+
+// Approve operation with additional FDS data
+func approveWithFDSData() {
+    let fdsData: [String: Encodable] = [
+        "deviceFingerprint": "abc123def456",
+        "riskScore": 0.8,
+        "location": [
+            "latitude": 50.0755,
+            "longitude": 14.4378
+        ]
+    ]
+    
+    let operation = CustomOperation(
+        id: "operationId123",
+        data: "operationData",
+        mobileTokenData: fdsData
+    )
+    
+    let auth = PowerAuthAuthentication.possessionWithPassword(password: "password123")
+    
+    operationService.authorize(operation: operation, authentication: auth) { error in
+        if let error = error {
+            // show error UI
+        } else {
+            // show success UI
+        }
+    }
+}
+```
+
+The `mobileTokenData` is completely optional and the structure is customer-specific. If you don't need this functionality, you can continue using operations without providing this property.
 
 ## Reject an Operation
 
@@ -278,7 +320,7 @@ func claim(operationId: String) {
 
 ## Operation History
 
-You can retrieve an operation history via the `WMTOperations.getHistory` method. The returned result is operations and their current status.
+You can retrieve an operation history via the `WMTOperations.getHistory` method. The returned result is operations
 
 ```swift
 import WultraMobileTokenSDK
@@ -321,7 +363,7 @@ For more examples refer to `IntegrationTests` in this repository.
 
 ## Off-line Authorization
 
-In case the user is not online, you can use off-line authorizations. In this operation mode, the user needs to scan a QR code, enter a PIN code, or use biometry, and rewrite the resulting code. Wultra provides a special format for [the operation QR codes](https://github.com/wultra/powerauth-webflow/blob/develop/docs/Off-line-Signatures-QR-Code.md), that is automatically processed with the SDK.
+In case the user is not online, you can use off-line authorizations. In this operation mode, the user needs to scan a QR code, enter a PIN code, or use biometrics, and rewrite the resulting code. Wultra provides a special format for [the operation QR codes](https://github.com/wultra/enrollment-server/blob/develop/docs/Offline-Signatures-QR-Code.md), which are automatically processed with the SDK.
 
 ### Processing Scanned QR Operation
 
@@ -458,7 +500,7 @@ All available methods and attributes of `WMTOperations` API are:
     - `operation` - An operation to reject, retrieved from `getOperations` call or [created locally](#creating-a-custom-operation).
     - `with` - Rejection reason
     - `completion` - Called when rejection request finishes. Always called on the main thread.
-- `getHistory(authentication: PowerAuthAuthentication, completion: @escaping(Result<[WMTOperationHistoryEntry],WMTError>) -> Void)` - Retrieves operation history
+- `getHistory(authentication: PowerAuthAuthentication, completion: @escaping(Result<[WMTUserOperation],WMTError>) -> Void)` - Retrieves list of operations
   - `authentication` - PowerAuth authentication object for operation signing.
   - `completion` - Called when rejection request finishes. Always called on the main thread.
 - `authorize(qrOperation: WMTQROperation, authentication: PowerAuthAuthentication, completion: @escaping(Result<String, WMTError>) -> Void)` - Sign offline (QR) operation.
@@ -526,6 +568,25 @@ class WMTUserOperation: WMTOperation {
     ///
     /// Max 32 characters are expected. Possible values depend on the backend implementation and configuration.
     public let statusReason: String?
+    
+    /// Processing status of the operation
+    public let status: Status
+    
+    /// Processing status of the operation
+    public enum Status: String, Codable, CaseIterable {
+        /// Operation was approved
+        case approved = "APPROVED"
+        /// Operation was rejected
+        case rejected = "REJECTED"
+        /// Operation is pending its resolution
+        case pending = "PENDING"
+        /// Operation was canceled
+        case canceled = "CANCELED"
+        /// Operation expired
+        case expired = "EXPIRED"
+        /// Operation failed
+        case failed = "FAILED"
+    }
 }
 ```
 
@@ -752,7 +813,7 @@ public struct WMTPACData: Decodable {
 - two methods are provided:
     - `parseDeeplink(url: URL) -> WMTPACData?` - URI is expected to be in the format `scheme://code=$JWT` or `scheme://operation?oid=5b753d0d-d59a-49b7-bec4-eae258566dbb&potp=12345678`
     - `parseQRCode(code: String) -> WMTPACData?` - code is to be expected in the same format as deeplink formats or as a plain JWT
-    - mentioned JWT should be in the format `{“typ”:”JWT”, “alg”:”none”}.{“oid”:”5b753d0d-d59a-49b7-bec4-eae258566dbb”, “potp”:”12345678”} `
+    - mentioned JWT should be in the format `{"type":"JWT", "alg":"none"}.{"oid":"5b753d0d-d59a-49b7-bec4-eae258566dbb", "potp":"12345678"} `
   
 - Accepted formats:
   - notice that totp key in JWT and in query shall be `potp`!

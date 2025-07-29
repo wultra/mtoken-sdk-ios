@@ -18,7 +18,6 @@ import XCTest
 import PowerAuth2
 @testable import WultraMobileTokenSDK
 
-
 /**
  For integration test to be successfully executed, you need to provide
  configuration json file. To more information, visit `WultraMobileTokenSDKTests/Configs/Readme.md`.
@@ -28,10 +27,13 @@ class IntegrationTests: XCTestCase {
     
     private var proxy: IntegrationProxy!
     private var pa: PowerAuthSDK! { proxy.powerAuth }
-    private var ops: WMTOperations! { proxy.operations }
-    private var inbox: WMTInbox! { proxy.inbox }
+    private var ops: WMTOperations! { proxy.wmt?.operations ?? proxy.ops }
+    private var inbox: WMTInbox! { proxy.wmt?.inbox ?? proxy.inbox }
+    private var push: WMTPush! { proxy.wmt?.push ?? proxy.push }
     
     private let pin = "1234"
+    
+    private let defaultTimeout: TimeInterval = 30 // quite some time, because azure infra is very slow simetimes
     
     override func setUp() {
         super.setUp()
@@ -42,7 +44,7 @@ class IntegrationTests: XCTestCase {
         
         // Integration Utils prepares an valid activation and sets is as primary
         // token activation on nextstep server
-        proxy.prepareActivation(pin: pin) { error in
+        proxy.prepareActivation(pin: pin/*, configFileName: "config-stable"*/) { error in
             if let error = error {
                 XCTFail(error)
             }
@@ -50,7 +52,7 @@ class IntegrationTests: XCTestCase {
         }
         
         let waiter = XCTWaiter()
-        waiter.wait(for: [exp], timeout: 20)
+        waiter.wait(for: [exp], timeout: defaultTimeout)
     }
     
     override func tearDown() {
@@ -69,14 +71,14 @@ class IntegrationTests: XCTestCase {
         }
         
         let waiter = XCTWaiter()
-        waiter.wait(for: [exp], timeout: 20)
+        waiter.wait(for: [exp], timeout: defaultTimeout)
     }
     
     /// By default, operation list should be empty
     func testList() {
         let exp = expectation(description: "Empty list of operations")
         
-        _ = ops.getOperations { result in
+        _ = ops.getOperations() { result in
             
             switch result {
             case .success(let ops):
@@ -88,7 +90,7 @@ class IntegrationTests: XCTestCase {
             
         }
         
-        waitForExpectations(timeout: 20, handler: nil)
+        waitForExpectations(timeout: defaultTimeout, handler: nil)
     }
     
     
@@ -135,38 +137,7 @@ class IntegrationTests: XCTestCase {
             }
         }
         
-        waitForExpectations(timeout: 20, handler: nil)
-    }
-    
-    /// Test of the Operation cancel
-    func testDetailCancel() {
-        let exp = expectation(description: "Cancel operation detail")
-        
-        proxy.createNonPersonalisedPACOperation { op in
-            if let op {
-                DispatchQueue.main.async {
-                    guard let operation = self.ops.getDetail(operationId: op.operationId, completion: { _ in
-                        XCTFail("Operation should be already canceled")
-                        exp.fulfill()
-                    }) else {
-                        XCTFail("Failed to create operation")
-                        exp.fulfill()
-                        return
-                    }
-                    
-                    operation.cancel()
-                    
-                    // Allowing most of the timeout duration for potential completion of the getDetail call.
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 4) {
-                        XCTAssertTrue(operation.isCancelled, "Operation should be cancelled")
-                        exp.fulfill()
-                    }
-                }
-            }
-        }
-        
-        // Wait for expectation to be fulfilled
-        waitForExpectations(timeout: 5, handler: nil)
+        waitForExpectations(timeout: defaultTimeout, handler: nil)
     }
     
     func testOperationCanceledWithReason() {
@@ -186,8 +157,8 @@ class IntegrationTests: XCTestCase {
                         _ = self.ops.getHistory(authentication: auth) { result in
                             switch result {
                             case .success(let ops):
-                                if let opFromList = ops.first(where: { $0.operation.id == op.operationId }) {
-                                    XCTAssertEqual(opFromList.operation.statusReason, cancelReason, "statusReason and cancelReason must be the same")
+                                if let opFromList = ops.first(where: { $0.id == op.operationId }) {
+                                    XCTAssertEqual(opFromList.statusReason, cancelReason, "statusReason and cancelReason must be the same")
                                 } else {
                                     XCTFail("Created operation was not in the history")
                                 }
@@ -203,7 +174,7 @@ class IntegrationTests: XCTestCase {
                 }
             }
         }
-        waitForExpectations(timeout: 20, handler: nil)
+        waitForExpectations(timeout: defaultTimeout, handler: nil)
     }
     
     /// Operation IDs should be equal
@@ -217,7 +188,7 @@ class IntegrationTests: XCTestCase {
                         switch result {
                         case .success(let operation):
                             if operation.ui?.preApprovalScreen?.type == .qr {
-                                self.proxy.getOperation(operation: op) { totpOP in
+                                self.proxy.getOperation(operationId: op.operationId) { totpOP in
                                     XCTAssertNotNil(totpOP?.proximityOtp, "Even with proximityCheckEnabled: true, in proximityOtp nil")
                                     if let totpOP = totpOP, let proximityOtp = totpOP.proximityOtp {
                                         operation.proximityCheck = WMTProximityCheck(totp: proximityOtp, type: .qrCode)
@@ -257,7 +228,7 @@ class IntegrationTests: XCTestCase {
             }
         }
         
-        waitForExpectations(timeout: 20, handler: nil)
+        waitForExpectations(timeout: defaultTimeout, handler: nil)
     }
     
     /// `currentServerDate` was removed from WMTOperations in favor of more precise powerAuth timeService
@@ -271,86 +242,6 @@ class IntegrationTests: XCTestCase {
         
         XCTAssertNotNil(synchronizedServerDate)
     }
-    
-    /// Test of Login operation approval (1FA)
-    /// TODO: prepare 1FA op
-//    func testApproveLogin() {
-//
-//        let exp = expectation(description: "Approve login")
-//
-//        proxy.createOperation { error in
-//            guard error == nil else {
-//                XCTFail(error!)
-//                exp.fulfill()
-//                return
-//            }
-//
-//            DispatchQueue.main.async {
-//                _  = self.ops.getOperations { opResult in
-//                    switch opResult {
-//                    case .success(let ops):
-//                        guard ops.count == 1 else {
-//                            XCTFail("1 operation expected. Actual: \(ops.count)")
-//                            exp.fulfill()
-//                            return
-//                        }
-//                        let auth = PowerAuthAuthentication()
-//                        auth.usePossession = true
-//                        self.ops.authorize(operation: ops.first!, authentication: auth) { error in
-//                            if let error = error {
-//                                XCTFail("Failed to authorize op: \(error.description)")
-//                            }
-//                            exp.fulfill()
-//                        }
-//                    case .failure(let error):
-//                        XCTFail("Failed to retrieve operations: \(error.description)")
-//                        exp.fulfill()
-//                    }
-//                }
-//            }
-//        }
-//
-//        waitForExpectations(timeout: 20, handler: nil)
-//    }
-    
-    // TODO: prepare 1FA op
-    /// Test of rejecting login operation (1FA)
-//    func testRejectLogin() {
-//
-//        let exp = expectation(description: "Reject login")
-//
-//        proxy.createOperation { error in
-//            guard error == nil else {
-//                XCTFail(error!)
-//                exp.fulfill()
-//                return
-//            }
-//
-//            DispatchQueue.main.async {
-//                _  = self.ops.getOperations { opResult in
-//                    switch opResult {
-//                    case .success(let ops):
-//                        guard ops.count == 1 else {
-//                            XCTFail("1 operation expected. Actual: \(ops.count)")
-//                            exp.fulfill()
-//                            return
-//                        }
-//                        self.ops.reject(operation: ops.first!, reason: .unexpectedOperation) { error in
-//                            if let error = error {
-//                                XCTFail("Failed to reject op: \(error.description)")
-//                            }
-//                            exp.fulfill()
-//                        }
-//                    case .failure(let error):
-//                        XCTFail("Failed to retrieve operations: \(error.description)")
-//                        exp.fulfill()
-//                    }
-//                }
-//            }
-//        }
-//
-//        waitForExpectations(timeout: 20, handler: nil)
-//    }
     
     /// Test of Payment approval (2FA)
     func testApprovePayment() {
@@ -398,7 +289,7 @@ class IntegrationTests: XCTestCase {
             }
         }
         
-        waitForExpectations(timeout: 20, handler: nil)
+        waitForExpectations(timeout: defaultTimeout, handler: nil)
     }
     
     /// Test of Payment rejecting (1FA)
@@ -436,7 +327,78 @@ class IntegrationTests: XCTestCase {
             }
         }
         
-        waitForExpectations(timeout: 20, handler: nil)
+        waitForExpectations(timeout: defaultTimeout, handler: nil)
+    }
+    
+    /// Test of Payment approval (2FA)
+    func testMobileTokenData() {
+        
+        let exp = expectation(description: "Test Mobile Token Data")
+        
+        proxy.createOperation { op in
+            guard let op else {
+                XCTFail("Failed to create operation")
+                exp.fulfill()
+                return
+            }
+            
+            self.ops.getDetail(operationId: op.operationId) { opResult in
+                
+                switch opResult {
+                case .success(let detail):
+                    
+                    
+                    detail.mobileTokenData = [
+                        "test1": 1,
+                        "test2": 2.3,
+                        "test3": "string",
+                        "test4": [
+                            "nested": true
+                        ]
+                    ]
+                    
+                    self.ops.authorize(operation: detail, with: PowerAuthAuthentication.possessionWithPassword(password: self.pin)) { authResult in
+                        
+                        switch authResult {
+                        case .success:
+                            
+                            self.proxy.getOperation(operationId: op.operationId) { finalOp in
+                                
+                                defer {
+                                    exp.fulfill()
+                                }
+                                
+                                guard let finalOp else {
+                                    XCTFail("Failed to get operation detail.")
+                                    return
+                                }
+                                
+                                guard let mtd = finalOp.additionalData?.mobileTokenData else {
+                                    XCTFail("mobileTokenData not in additonalData")
+                                    return
+                                }
+                                    
+                                XCTAssertEqual(mtd.test1, 1, "test1 should be 1")
+                                XCTAssertEqual(mtd.test2, 2.3, "test2 should be 2.3")
+                                XCTAssertEqual(mtd.test3, "string", "test3 should be 'string'")
+                                XCTAssertEqual(mtd.test4?["nested"], true, "test4 should be a nested object with 'nested' key")
+                            }
+                            
+                        case .failure(let failure):
+                            XCTFail("Failed to auhtorize operation: \(failure.description)")
+                            exp.fulfill()
+                        }
+                        
+                    }
+                    
+                case .failure(let failure):
+                    XCTFail("Failed to retrieve operation: \(failure.description)")
+                    exp.fulfill()
+                }
+            }
+        }
+        
+        waitForExpectations(timeout: defaultTimeout, handler: nil)
     }
     
     /// Testing that operation polling works.
@@ -475,7 +437,7 @@ class IntegrationTests: XCTestCase {
             self.ops.getHistory(authentication: auth) { result in
                 switch result {
                 case .success(let ops):
-                    if let opFromList = ops.first(where: { $0.operation.id == op.operationId }) {
+                    if let opFromList = ops.first(where: { $0.id == op.operationId }) {
                         XCTAssertEqual(opFromList.status, .pending)
                     } else {
                         XCTFail("Created operation was not in the history")
@@ -487,91 +449,7 @@ class IntegrationTests: XCTestCase {
             }
         }
         
-        waitForExpectations(timeout: 20, handler: nil)
-    }
-    
-    // Testing that operations polling pause works
-    func testOperationPollingPause() {
-        XCTAssertTrue(ops.pollingOptions.contains(.pauseWhenOnBackground), "Operation service is not set to pause on background")
-        let exp = expectation(description: "Timeout expectation")
-        XCTAssertFalse(ops.isPollingOperations, "Polling should be inactive")
-        let delegate = OpDelegate()
-        delegate.loadingCountCallback = { count in
-            if count == 1 {
-                // will resign active should stop polling as the app "is on background"
-                NotificationCenter.default.post(name: UIApplication.willResignActiveNotification, object: nil)
-            }
-        }
-        ops.delegate = delegate
-        ops.startPollingOperations(interval: 1, delayStart: false)
-        XCTAssertTrue(ops.isPollingOperations)
-
-        if XCTWaiter.wait(for: [exp], timeout: 5) == XCTWaiter.Result.timedOut {
-            XCTAssertEqual(delegate.loadingCount, 1, "only one loading should be made")
-            XCTAssertTrue(ops.isPollingOperations, "Polling should be active")
-            exp.fulfill()
-        } else {
-            XCTFail("expectation should not have been met")
-        }
-        
-        // After the pause, reactive the app again and check if it was continued
-        
-        let exp2 = expectation(description: "Polling pause expectation")
-        let delegate2 = OpDelegate()
-        delegate2.loadingCountCallback = { count in
-            if count == 1 {
-                self.ops.stopPollingOperations()
-                exp2.fulfill()
-            }
-        }
-        ops.delegate = delegate2
-        NotificationCenter.default.post(name: UIApplication.didBecomeActiveNotification, object: nil)
-        wait(for: [exp2], timeout: 5)
-        XCTAssertEqual(delegate2.loadingCount, 1, "Loading did continue after the active notification")
-        XCTAssertFalse(ops.isPollingOperations)
-    }
-    
-    // Testing that operations polling stop works when paused
-    func testOperationPollingPauseAndStop() {
-        XCTAssertTrue(ops.pollingOptions.contains(.pauseWhenOnBackground), "Operation service is not set to pause on background")
-        let exp = expectation(description: "Timeout expectation")
-        XCTAssertFalse(ops.isPollingOperations, "Polling should be inactive")
-        let delegate = OpDelegate()
-        delegate.loadingCountCallback = { count in
-            if count == 1 {
-                // will resign active should stop polling as the app "is on background"
-                NotificationCenter.default.post(name: UIApplication.willResignActiveNotification, object: nil)
-            }
-        }
-        ops.delegate = delegate
-        ops.startPollingOperations(interval: 1, delayStart: false)
-        XCTAssertTrue(ops.isPollingOperations)
-
-        // The expectation should time out
-        if XCTWaiter.wait(for: [exp], timeout: 5) == XCTWaiter.Result.timedOut {
-            XCTAssertEqual(delegate.loadingCount, 1, "only one loading should be made")
-            XCTAssertTrue(ops.isPollingOperations, "Polling should be active")
-            exp.fulfill()
-        } else {
-            XCTFail("expectation should not have been met")
-        }
-        
-        // After the pause, we will stop the polling and "activate" the app again.
-        // In such case, the polling should not be started since it was stopped.
-        
-        let exp2 = expectation(description: "Polling pause expectation")
-        let delegate2 = OpDelegate()
-        ops.delegate = delegate2
-        ops.stopPollingOperations()
-        XCTAssertFalse(ops.isPollingOperations)
-        NotificationCenter.default.post(name: UIApplication.didBecomeActiveNotification, object: nil)
-        if XCTWaiter.wait(for: [exp2], timeout: 5) == XCTWaiter.Result.timedOut {
-            XCTAssertEqual(delegate2.loadingCount, 0, "Loading continued after the active notification")
-            XCTAssertFalse(ops.isPollingOperations)
-            exp2.fulfill()
-        } else {
-            XCTFail("expectation should not have been met")
-        }
+        waitForExpectations(timeout: defaultTimeout, handler: nil)
     }
     
     func testOperationChangedDelegate() {
@@ -711,10 +589,14 @@ class IntegrationTests: XCTestCase {
     }
     
     func testQROperation() {
+        
         let exp = expectation(description: "QR Operation integration test")
+        let measure = MeasureElapsed("QROperation")
         
         // create regular operation
         proxy.createOperation { op in
+            
+            measure.mark("Operation created")
             
             guard let op = op else {
                 XCTFail("Failed to create operation")
@@ -723,7 +605,10 @@ class IntegrationTests: XCTestCase {
             }
             
             // get QR data of the operation
-            self.proxy.getQROperation(operation: op) { qrData in
+            self.proxy.getQROperation(operationId: op.operationId) { qrData in
+                
+                measure.mark("QR data retrieved")
+                
                 guard let qrData = qrData else {
                     XCTFail("Failed to retrieve QR data")
                     exp.fulfill()
@@ -737,12 +622,17 @@ class IntegrationTests: XCTestCase {
                     let auth = PowerAuthAuthentication.possessionWithPassword(password: self.pin)
                     
                     // get the OTP with the "offline" signing
-                    _ = self.ops.authorize(qrOperation: qrOp, authentication: auth) { qrAuthResult in
+                    self.ops.authorize(qrOperation: qrOp, authentication: auth) { qrAuthResult in
+                        
+                        measure.mark("Authorized")
+                        
                         switch qrAuthResult {
                         case .success(let otp):
                             
                             // verify the operation on the backend with the OTP
-                            self.proxy.verifyQROperation(operation: op, operationData: qrData, otp: otp) { verified in
+                            self.proxy.verifyQROperation(operationId: op.operationId, operationData: qrData, otp: otp) { verified in
+                                
+                                measure.mark("OTP verified")
                                 
                                 print("Operation verified with \(verified?.otpValid.description ?? "ERROR") result")
                                 
@@ -765,8 +655,65 @@ class IntegrationTests: XCTestCase {
                 }
             }
         }
-        // there are 3 backend calls, give it some time...
-        waitForExpectations(timeout: 20, handler: nil)
+        // there are several backend calls, give it some time...
+        waitForExpectations(timeout: 40, handler: nil)
+    }
+    
+    // MARK: - Push
+    
+    func testRegisterPushLegacy() {
+        let expect = expectation(description: "Register push legacy")
+        push.registerDeviceTokenForPushNotifications(token: "testtoken".data(using: .utf8)!) { result in
+            if case .failure(let error) = result {
+                XCTFail("Failed to register push legacy: \(error.description)")
+            }
+            expect.fulfill()
+        }
+        XCTWaiter().wait(for: [expect], timeout: defaultTimeout)
+    }
+    
+    func testRegisterPushApns() {
+        let expect = expectation(description: "Register push APNS")
+        push.register(to: .apns(token: "testtoken".data(using: .utf8)!)) { result in
+            if case .failure(let error) = result {
+                XCTFail("Failed to register APNS push: \(error)")
+            }
+            expect.fulfill()
+        }
+        XCTWaiter().wait(for: [expect], timeout: defaultTimeout)
+    }
+    
+    func testRegisterPushApnsProduction() {
+        let expect = expectation(description: "Register push APNS")
+        push.register(to: .apns(token: "testtoken".data(using: .utf8)!, environment: .production)) { result in
+            if case .failure(let error) = result {
+                XCTFail("Failed to register APNS push: \(error)")
+            }
+            expect.fulfill()
+        }
+        XCTWaiter().wait(for: [expect], timeout: defaultTimeout)
+    }
+    
+    func testRegisterPushApnsDevelopment() {
+        let expect = expectation(description: "Register push APNS")
+        push.register(to: .apns(token: "testtoken".data(using: .utf8)!, environment: .development)) { result in
+            if case .failure(let error) = result {
+                XCTFail("Failed to register APNS push: \(error)")
+            }
+            expect.fulfill()
+        }
+        XCTWaiter().wait(for: [expect], timeout: defaultTimeout)
+    }
+    
+    func testRegisterPushFcm() {
+        let expect = expectation(description: "Register push APNS")
+        push.register(to: .fcm(token: "testtoken")) { result in
+            if case .failure(let error) = result {
+                XCTFail("Failed to register FCM push: \(error)")
+            }
+            expect.fulfill()
+        }
+        XCTWaiter().wait(for: [expect], timeout: defaultTimeout)
     }
     
     // MARK: - Inbox
@@ -790,7 +737,7 @@ class IntegrationTests: XCTestCase {
             }
             getMessages.fulfill()
         }
-        XCTWaiter().wait(for: [getMessages], timeout: 20)
+        XCTWaiter().wait(for: [getMessages], timeout: defaultTimeout)
         
         // Now test received messages
         compareMessages(expected: messages, received: messageList)
@@ -808,7 +755,7 @@ class IntegrationTests: XCTestCase {
             }
             getMessageDetail.fulfill()
         }
-        XCTWaiter().wait(for: [getMessageDetail], timeout: 20)
+        XCTWaiter().wait(for: [getMessageDetail], timeout: defaultTimeout)
         
         XCTAssertNotNil(messageDetail)
         XCTAssertEqual(firstMessage.id, messageDetail?.id)
@@ -835,7 +782,7 @@ class IntegrationTests: XCTestCase {
             }
             getAllMessages.fulfill()
         }
-        XCTWaiter().wait(for: [getAllMessages], timeout: 20)
+        XCTWaiter().wait(for: [getAllMessages], timeout: defaultTimeout)
         XCTAssertEqual(count, receivedMessages.count)
         compareMessages(expected: messages, received: receivedMessages)
     }
@@ -870,7 +817,7 @@ class IntegrationTests: XCTestCase {
             }
             setMessageAsRead.fulfill()
         }
-        XCTWaiter().wait(for: [setMessageAsRead, readMessageDetail], timeout: 20)
+        XCTWaiter().wait(for: [setMessageAsRead, readMessageDetail], timeout: defaultTimeout)
         
         // Now update list
         receivedMessages = fetchAllMessages(onlyUnread: true)
@@ -927,7 +874,7 @@ class IntegrationTests: XCTestCase {
             }
             setMessagesAsRead.fulfill()
         }
-        XCTWaiter().wait(for: [setMessagesAsRead, allReadMessages, allUnreadMessages], timeout: 20)
+        XCTWaiter().wait(for: [setMessagesAsRead, allReadMessages, allUnreadMessages], timeout: defaultTimeout)
         XCTAssertEqual(0, allMsgsUnread.count)
         XCTAssertEqual(count, allMsgsRead.count)
         
@@ -948,7 +895,7 @@ class IntegrationTests: XCTestCase {
             }
             getMessagesCount.fulfill()
         }
-        XCTWaiter().wait(for: [getMessagesCount], timeout: 20)
+        XCTWaiter().wait(for: [getMessagesCount], timeout: defaultTimeout)
         return receivedCount
     }
     
@@ -964,7 +911,7 @@ class IntegrationTests: XCTestCase {
             }
             getAllMessages.fulfill()
         }
-        XCTWaiter().wait(for: [getAllMessages], timeout: 20)
+        XCTWaiter().wait(for: [getAllMessages], timeout: defaultTimeout)
         return receivedMessages
     }
     
@@ -975,7 +922,7 @@ class IntegrationTests: XCTestCase {
             messages = msgs
             prepareExp.fulfill()
         }
-        XCTWaiter().wait(for: [prepareExp], timeout: 20)
+        XCTWaiter().wait(for: [prepareExp], timeout: defaultTimeout)
         XCTAssertEqual(count, messages.count)
         return messages
     }
@@ -1028,5 +975,20 @@ private extension Array where Element == WMTInboxMessage {
             return self[index]
         }
         return nil
+    }
+}
+
+class MeasureElapsed {
+    
+    private let started = Date()
+    private let name: String
+    
+    init(_ name: String) {
+        self.name = name
+        print("Measuring elapsed time: \(name)")
+    }
+    
+    func mark(_ reason: String? = nil) {
+        print("Elapsed time for '\(name)\(reason != nil ? ":\(reason!)" : "")' - \(String(format: "%.3f", Date().timeIntervalSince(started)))s.")
     }
 }

@@ -21,8 +21,10 @@ import WultraPowerAuthNetworking
 class IntegrationProxy {
     
     private(set) var powerAuth: PowerAuthSDK?
-    private(set) var operations: WMTOperations?
+    private(set) var wmt: WultraMobileToken?
+    private(set) var ops: WMTOperations?
     private(set) var inbox: WMTInbox?
+    private(set) var push: WMTPush?
     
     private var config: IntegrationConfig!
     private let activationName = UUID().uuidString
@@ -30,7 +32,45 @@ class IntegrationProxy {
     
     typealias Callback = (_ error: String?) -> Void
     
-    func prepareActivation(pin: String, callback: @escaping Callback) {
+    func prepareActivation(pin: String, configFileName: String = "config", callback: @escaping Callback) {
+        WPNLogger.verboseLevel = .debug
+        
+        guard let configPath = Bundle.init(for: IntegrationProxy.self).path(forResource: configFileName, ofType: "json", inDirectory: "Configs") else {
+            callback("Config file \(configFileName).json is not present.")
+            return
+        }
+        
+        do {
+            let configContent = try String(contentsOfFile: configPath)
+            config = try JSONDecoder().decode(IntegrationConfig.self, from: configContent.data(using: .utf8)!)
+        } catch _ {
+            callback("Config file \(configFileName).json cannot be parsed.")
+            return
+        }
+        
+        let pa = preparePAInstance()
+        enrollPAInstance(pa: pa, pin: pin) { error in
+            if let error = error {
+                callback(error)
+            } else {
+                self.powerAuth = pa
+            
+                // use in case you have only one enrollment server baseURL
+                //self.wmt = try! pa.createWultraMobileToken()
+                
+                // use if your operations and inbox urls are diffferent - set in config file `WultraMobileTokenSDKTests/Configs/Readme.md`
+                let wpnOperationsConf = WPNConfig(baseUrl: URL(string: self.config.operationsServerUrl)!, sslValidation: .noValidation)
+                let wpnInboxConf = WPNConfig(baseUrl: URL(string: self.config.inboxServerUrl)!, sslValidation: .noValidation)
+                let wpnPushConf = WPNConfig(baseUrl: URL(string: self.config.pushServerUrl)!, sslValidation: .noValidation)
+                self.ops = WMTOperations(networking: WPNNetworkingService(powerAuth: pa, config: wpnOperationsConf, serviceName: "WMTOperations"))
+                self.inbox = WMTInbox(networking: WPNNetworkingService(powerAuth: pa, config: wpnInboxConf, serviceName: "WMTInbox"))
+                self.push = WMTPush(networking: WPNNetworkingService(powerAuth: pa, config: wpnPushConf, serviceName: "WMTPush"))
+                callback(nil)
+            }
+        }
+    }
+    
+    func prepareForOIDC(callback: @escaping Callback) {
         WPNLogger.verboseLevel = .debug
         guard let configPath = Bundle.init(for: IntegrationProxy.self).path(forResource: "config", ofType: "json", inDirectory: "Configs") else {
             callback("Config file config.json is not present.")
@@ -40,24 +80,18 @@ class IntegrationProxy {
         do {
             let configContent = try String(contentsOfFile: configPath)
             config = try JSONDecoder().decode(IntegrationConfig.self, from: configContent.data(using: .utf8)!)
-        } catch _ {
+        } catch {
             callback("Config file config.json cannot be parsed.")
             return
         }
         
-        let pa = preparePAInstance()
-        enrollPAInstance(pa: pa, pin: pin) { error in
-            if let error = error {
-                callback(error)
-            } else {
-                let wpnOperationsConf = WPNConfig(baseUrl: URL(string: self.config.operationsServerUrl)!, sslValidation: .noValidation)
-                let wpnInboxConf = WPNConfig(baseUrl: URL(string: self.config.inboxServerUrl)!, sslValidation: .noValidation)
-                self.powerAuth = pa
-                self.operations = pa.createWMTOperations(networkingConfig: wpnOperationsConf, pollingOptions: [.pauseWhenOnBackground])
-                self.inbox = pa.createWMTInbox(networkingConfig: wpnInboxConf)
-                callback(nil)
-            }
+        powerAuth = preparePAInstance()
+        do {
+            wmt = try powerAuth?.createWultraMobileToken()
+        } catch {
+            callback("Failed to create WultraMobileToken from PA baseUrl.")
         }
+        callback(nil)
     }
     
     enum Factors {
@@ -95,7 +129,7 @@ class IntegrationProxy {
         }
     }
     
-    func createNonPersonalisedPACOperation(_ factors: Factors = .F_2FA, completion: @escaping (NonPersonalisedTOTPOperationObject?) -> Void) {
+    func createNonPersonalisedPACOperation(_ factors: Factors = .F_2FA, completion: @escaping (OperationObject?) -> Void) {
         DispatchQueue.global().async {
             let opBody: String
             switch factors {
@@ -118,19 +152,19 @@ class IntegrationProxy {
         }
     }
     
-    func getOperation(operation: NonPersonalisedTOTPOperationObject, completion: @escaping (NonPersonalisedTOTPOperationObject?) -> Void) {
+    func getOperation(operationId: String, completion: @escaping (OperationObject?) -> Void) {
         DispatchQueue.global().async {
-            completion(self.makeRequest(url: URL(string: "\(self.config.cloudServerUrl)/v2/operations/\(operation.operationId)")!, body: "", httpMethod: "GET"))
+            completion(self.makeRequest(url: URL(string: "\(self.config.cloudServerUrl)/v2/operations/\(operationId)")!, body: "", httpMethod: "GET"))
         }
     }
     
-    func getQROperation(operation: OperationObject, completion: @escaping (QROperationData?) -> Void) {
+    func getQROperation(operationId: String, completion: @escaping (QROperationData?) -> Void) {
         DispatchQueue.global().async {
-            completion(self.makeRequest(url: URL(string: "\(self.config.cloudServerUrl)/v2/operations/\(operation.operationId)/offline/qr?registrationId=\(self.registrationId)")!, body: "", httpMethod: "GET"))
+            completion(self.makeRequest(url: URL(string: "\(self.config.cloudServerUrl)/v2/operations/\(operationId)/offline/qr?registrationId=\(self.registrationId)")!, body: "", httpMethod: "GET"))
         }
     }
     
-    func verifyQROperation(operation: OperationObject, operationData: QROperationData, otp: String, completion: @escaping (QROperationVerify?) -> Void) {
+    func verifyQROperation(operationId: String, operationData: QROperationData, otp: String, completion: @escaping (QROperationVerify?) -> Void) {
         DispatchQueue.global().async {
             let body = """
                 {
@@ -139,7 +173,7 @@ class IntegrationProxy {
                   "registrationId": "\(self.registrationId)"
                 }
             """
-            completion(self.makeRequest(url: URL(string: "\(self.config.cloudServerUrl)/v2/operations/\(operation.operationId)/offline/otp")!, body: body))
+            completion(self.makeRequest(url: URL(string: "\(self.config.cloudServerUrl)/v2/operations/\(operationId)/offline/otp")!, body: body))
         }
     }
     
@@ -254,6 +288,12 @@ class IntegrationProxy {
         let resp: CommitObject? = makeRequest(url: URL(string: "\(config.cloudServerUrl)/v2/registrations/\(registrationId)/commit")!, body: body)
         return resp
     }
+    
+    func getOIDCProviders() -> OIDCProperties? {
+        guard let providerId = config.oidcProviderId, let providerIdPkce = config.oidcProviderIdPkce else { return nil
+        }
+        return OIDCProperties(providerId: providerId, providerIdPkce: providerIdPkce)
+    }
 }
 
 private struct RegistrationObject: Codable {
@@ -273,25 +313,29 @@ struct CancelObject: Codable {
 
 struct OperationObject: Codable {
     let operationId: String
-    let userId: String
+    let userId: String?
     let status: String
     let operationType: String
-    //let parameters: [] // not needed for test right now
-    let failureCount: Int
-    let maxFailureCount: Int
-    let timestampCreated: Int
-    let timestampExpires: Int
-}
-
-struct NonPersonalisedTOTPOperationObject: Codable {
-    let operationId: String
-    let status: String
-    let operationType: String
+    // let parameters: [String: Any]? // Decoded but not used in tests
     let failureCount: Int
     let maxFailureCount: Int
     let timestampCreated: Int
     let timestampExpires: Int
     let proximityOtp: String?
+    /// Additional data is dictionary of [String: Any] but we use TestAdditionalData for tests to be able to decode it in non-generic way
+    /// if you need any more specific data, you can add it to TestAdditionalData
+    let additionalData: TestAdditionalData?
+}
+
+struct TestAdditionalData: Codable {
+    let mobileTokenData: TestMobileTokenData?
+}
+
+struct TestMobileTokenData: Codable {
+    let test1: Int?
+    let test2: Double?
+    let test3: String?
+    let test4: [String: Bool]?
 }
 
 private struct IntegrationConfig: Codable {
@@ -302,7 +346,10 @@ private struct IntegrationConfig: Codable {
     let enrollmentServerUrl: String
     let operationsServerUrl: String
     let inboxServerUrl: String
+    let pushServerUrl: String
     let sdkConfig: String
+    let oidcProviderId: String?
+    let oidcProviderIdPkce: String?
 }
 
 struct QROperationData: Codable {
@@ -336,4 +383,9 @@ struct InboxMessageDetail: Codable {
     let type: String
     let timestamp: Date
     let read: Bool
+}
+
+struct OIDCProperties {
+    let providerId: String
+    let providerIdPkce: String
 }

@@ -2,7 +2,9 @@
 
 ### Usage
 
-Both `WMTOperations` and `WMTPush` contain an `acceptLanguage` property that should be set to the user's preferred language.
+You can use `WultraMobileToken.setAcceptLanguage` set to the user's preferred language for all WMT services. 
+
+If you're creating services manually (e.g., `WMTOperations`), you can set the `acceptLanguage` property directly.
 
 ### Format
 
