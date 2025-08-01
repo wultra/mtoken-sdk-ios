@@ -21,11 +21,11 @@ public class WMTOperationAttributeAlert: WMTOperationAttribute {
     /// The type of alert to display. Possible values: SUCCESS, WARNING, INFO, ERROR.
     public let alertType: AlertType
     
+    /// The body text of the alert message.
+    public let message: String
+    
     /// The title of the alert message. Optional.
     public let title: String?
-    
-    /// The body text of the alert message. Optional.
-    public let message: String?
     
     public enum AlertType: String, Codable {
         case success = "SUCCESS"
@@ -40,7 +40,7 @@ public class WMTOperationAttributeAlert: WMTOperationAttribute {
         case alertType, title, message
     }
     
-    public init(label: AttributeLabel, alertType: AlertType, title: String?, message: String?) {
+    public init(label: AttributeLabel, alertType: AlertType, title: String?, message: String) {
         self.alertType = alertType
         self.title = title
         self.message = message
@@ -53,7 +53,7 @@ public class WMTOperationAttributeAlert: WMTOperationAttribute {
         
         self.alertType = try c.decode(AlertType.self, forKey: .alertType)
         self.title = try c.decodeIfPresent(String.self, forKey: .title)
-        self.message = try c.decodeIfPresent(String.self, forKey: .message)
+        self.message = try c.decode(String.self, forKey: .message)
         
         try super.init(from: decoder)
     }
