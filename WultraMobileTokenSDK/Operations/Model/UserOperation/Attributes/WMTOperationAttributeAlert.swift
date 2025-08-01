@@ -15,12 +15,16 @@
 //
 import Foundation
 
+/// Represents an alert attribute for an operation, used to display alert messages to the user.
 public class WMTOperationAttributeAlert: WMTOperationAttribute {
     
-    /// Alert type: SUCCESS, WARNING, INFO, ERROR
+    /// The type of alert to display. Possible values: SUCCESS, WARNING, INFO, ERROR.
     public let alertType: AlertType
     
+    /// The title of the alert message. Optional.
     public let title: String?
+    
+    /// The body text of the alert message. Optional.
     public let message: String?
     
     public enum AlertType: String, Codable {
