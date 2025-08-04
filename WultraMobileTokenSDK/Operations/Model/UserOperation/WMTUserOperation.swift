@@ -129,6 +129,6 @@ open class WMTUserOperation: WMTOperation, Decodable {
         allowedSignatureType = try c.decode(WMTAllowedOperationSignature.self, forKey: .allowedSignatureType)
         ui = try? c.decode(WMTOperationUIData.self, forKey: .ui)
         statusReason = try? c.decode(String.self, forKey: .statusReason)
-        status = (try? c.decode(Status.self, forKey: .status)) ?? .pending
+        status = try c.decodeIfPresent(Status.self, forKey: .status) ?? .pending
     }
 }
