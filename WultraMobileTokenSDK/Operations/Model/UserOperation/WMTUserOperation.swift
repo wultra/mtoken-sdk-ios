@@ -67,7 +67,9 @@ open class WMTUserOperation: WMTOperation, Decodable {
     public let statusReason: String?
     
     /// Processing status of the operation
-    public let status: Status?
+    ///
+    /// The value fallbacks to PENDING on legacy systems
+    public let status: Status
     
     // MARK: - Data not retrieved from the server
     
@@ -127,6 +129,6 @@ open class WMTUserOperation: WMTOperation, Decodable {
         allowedSignatureType = try c.decode(WMTAllowedOperationSignature.self, forKey: .allowedSignatureType)
         ui = try? c.decode(WMTOperationUIData.self, forKey: .ui)
         statusReason = try? c.decode(String.self, forKey: .statusReason)
-        status = try? c.decode(Status.self, forKey: .status)
+        status = (try? c.decode(Status.self, forKey: .status)) ?? .pending
     }
 }

@@ -546,7 +546,7 @@ class NetworkingObjectsTests: XCTestCase {
     
     func testOperationWithStatus() {
         let response = """
-            {"responseObject":[{"id":"e10bbc25-cf42-4812-815e-3972f49d8f7f","name":"login","data":"A2","status":"PENDING","operationCreated":"2025-07-29T14:43:33+0000","operationExpires":"2025-07-29T14:48:33+0000","allowedSignatureType":{"type":"2FA","variants":["possession_knowledge","possession_biometry"]},"formData":{"title":"Login Approval","message":"Are you logging in to the internet banking?","attributes":[]}}],"status":"OK","currentTimestamp":"2025-07-29T14:43:36+0000"}
+            {"responseObject":[{"id":"e10bbc25-cf42-4812-815e-3972f49d8f7f","name":"login","data":"A2","status":"CANCELED","operationCreated":"2025-07-29T14:43:33+0000","operationExpires":"2025-07-29T14:48:33+0000","allowedSignatureType":{"type":"2FA","variants":["possession_knowledge","possession_biometry"]},"formData":{"title":"Login Approval","message":"Are you logging in to the internet banking?","attributes":[]}}],"status":"OK","currentTimestamp":"2025-07-29T14:43:36+0000"}
             """
         
         guard let result = try? jsonDecoder.decode(WPNResponseArray<WMTUserOperation>.self, from: response.data(using: .utf8)!).responseObject?[0] else {
@@ -554,7 +554,7 @@ class NetworkingObjectsTests: XCTestCase {
             return
         }
         
-        XCTAssertEqual(result.status, .pending)
+        XCTAssertEqual(result.status, .canceled)
     }
     
     func testOperationWithoutStatus() {
@@ -567,7 +567,8 @@ class NetworkingObjectsTests: XCTestCase {
             return
         }
         
-        XCTAssertNil(result.status)
+        // when status is missing, defaults to "PENDING"
+        XCTAssertEqual(result.status, .pending)
     }
 }
 
