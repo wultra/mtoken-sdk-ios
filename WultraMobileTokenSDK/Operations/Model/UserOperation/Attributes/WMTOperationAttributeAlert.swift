@@ -1,0 +1,60 @@
+//
+// Copyright 2025 Wultra s.r.o.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions
+// and limitations under the License.
+//
+import Foundation
+
+/// Represents an alert attribute for an operation, used to display alert messages to the user.
+public class WMTOperationAttributeAlert: WMTOperationAttribute {
+    
+    /// The type of alert to display. Possible values: SUCCESS, WARNING, INFO, ERROR.
+    public let alertType: AlertType
+    
+    /// The body text of the alert message.
+    public let message: String
+    
+    /// The title of the alert message. Optional.
+    public let title: String?
+    
+    public enum AlertType: String, Codable {
+        case success = "SUCCESS"
+        case warning = "WARNING"
+        case info = "INFO"
+        case error = "ERROR"
+    }
+    
+    // MARK: - INTERNALS
+    
+    private enum Keys: CodingKey {
+        case alertType, title, message
+    }
+    
+    public init(label: AttributeLabel, alertType: AlertType, title: String?, message: String) {
+        self.alertType = alertType
+        self.title = title
+        self.message = message
+        super.init(type: .alert, label: label)
+    }
+    
+    public required init(from decoder: Decoder) throws {
+        
+        let c = try decoder.container(keyedBy: Keys.self)
+        
+        self.alertType = try c.decode(AlertType.self, forKey: .alertType)
+        self.title = try c.decodeIfPresent(String.self, forKey: .title)
+        self.message = try c.decode(String.self, forKey: .message)
+        
+        try super.init(from: decoder)
+    }
+}

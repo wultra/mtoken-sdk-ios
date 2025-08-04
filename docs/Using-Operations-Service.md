@@ -635,7 +635,8 @@ Attributes types:
 - `HEADING` single highlighted text, written in a larger font, used as a section heading  
 - `PARTY_INFO` providing structured information about third-party data (for example known e-shop)  
 - `AMOUNT_CONVERSION` provides data about Money conversion  
-- `IMAGE` image row  
+- `IMAGE` image row 
+- `ALERT` alert view with title and message, used for displaying important information (warnings, errors or success) 
 - `UNKNOWN` fallback option when an unknown attribute type is passed. Such an attribute only contains the label.
 
 Definition of `WMTOperationUIData`:
