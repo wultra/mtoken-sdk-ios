@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.2.1 (Aug 2025)
+- When the `status` property for `WMTUserOperation` is missing, it now falls back to the `.pending` value (happens only on legacy server API).
+
 ## 2.2.0 (Jul 2025)
 
 - Added option for Firebase Cloud Messaging for Push Notifications and automatic APNS environment detection [(#174)](https://github.com/wultra/mtoken-sdk-ios/issues/174).
