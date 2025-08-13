@@ -56,5 +56,9 @@ public class WMTOperationAttributeAlert: WMTOperationAttribute {
         self.message = try c.decode(String.self, forKey: .message)
         
         try super.init(from: decoder)
+        
+        if !self.label.value.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            D.warning("The title should be an empty string, since a specific alert title is used as the cell header.")
+        }
     }
 }
