@@ -47,7 +47,7 @@ public class WMTProximityCheck: Codable {
     ///   - totp: The TOTP code.
     ///   - type: The proximity check type.
     ///   - powerAuthSDK: Instance of `PowerAuthSDK`.
-    static func withSynchronizedTime(
+    public static func withSynchronizedTime(
         totp: String,
         type: WMTProximityCheckType,
         powerAuthSDK: PowerAuthSDK
