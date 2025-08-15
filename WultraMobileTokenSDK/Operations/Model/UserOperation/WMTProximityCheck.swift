@@ -15,6 +15,7 @@
 //
 
 import Foundation
+import PowerAuth2
 
 /// Object which is used to hold data about proximity check
 ///
@@ -28,12 +29,35 @@ public class WMTProximityCheck: Codable {
     public let type: WMTProximityCheckType
     
     /// Timestamp when the operation was scanned (qrCode) or delivered to the device (deeplink)
+    ///
+    /// We **strongly recommend** using `withSynchronizedTime()` to ensure
+    /// the timestamp is aligned with the server time, especially for time-sensitive operations.
     public let timestampReceived: Date
     
+    /// Initializes a new proximity check object.
+    ///
+    /// Prefer `withSynchronizedTime(...)` for accurate server-aligned timestamps.
     public init(totp: String, type: WMTProximityCheckType, timestampReceived: Date = Date()) {
         self.totp = totp
         self.type = type
         self.timestampReceived = timestampReceived
+    }
+
+    /// Creates a new instance using time synchronized with PowerAuth server, if available.
+    /// Falls back to the device time when synchronization is not available.
+    ///
+    /// - Parameters:
+    ///   - totp: The TOTP code.
+    ///   - type: The proximity check type.
+    ///   - powerAuthSDK: Instance of `PowerAuthSDK`.
+    public static func withSynchronizedTime(
+        totp: String,
+        type: WMTProximityCheckType,
+        powerAuthSDK: PowerAuthSDK
+    ) -> WMTProximityCheck {
+        let timeService = powerAuthSDK.timeSynchronizationService
+        let currentDate = timeService.isTimeSynchronized ? Date(timeIntervalSince1970: timeService.currentTime()) : Date()
+        return WMTProximityCheck(totp: totp, type: type, timestampReceived: currentDate)
     }
 }
 
