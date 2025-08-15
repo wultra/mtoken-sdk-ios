@@ -34,6 +34,9 @@ public class WMTProximityCheck: Codable {
     /// the timestamp is aligned with the server time, especially for time-sensitive operations.
     public let timestampReceived: Date
     
+    /// Initializes a new proximity check object.
+    ///
+    /// Prefer `withSynchronizedTime(...)` for accurate server-aligned timestamps.
     public init(totp: String, type: WMTProximityCheckType, timestampReceived: Date = Date()) {
         self.totp = totp
         self.type = type
