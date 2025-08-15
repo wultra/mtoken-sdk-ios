@@ -4,81 +4,81 @@
 
 - Added option for Firebase Cloud Messaging for Push Notifications and automatic APNS environment detection [(#174)](https://github.com/wultra/mtoken-sdk-ios/issues/174).
 
-## 2.1.0 (Jul 2025)
+## 2.1.0
 
 - Added `mobileTokenData` to authorize request for passing customer-specific data ([documentation](Using-Operations-Service.md#Passing-Additional-Mobile-Token-Data))
   - Available with PowerAuth server 1.10+
   - Can be used for fraud detection systems (FDS) or other custom business logic
 - Dependency `networking-apple` is now required in version `1.5.1`
 
-## 2.0.0 (Feb 2025)
+## 2.0.0
 
 - Added status to `UserOperation` and removed redundant `OperationHistoryEntry` [(#171)](https://github.com/wultra/mtoken-sdk-ios/pull/171)
 - SDK simplification and added `OIDC` activation feature [(#185)](https://github.com/wultra/mtoken-sdk-ios/pull/185)
     - [Migration guide](Migration-2.0.md)
 
-## 1.12.0 (Oct 2024)
+## 1.12.0
 
 - PowerAuth "server stack" `1.9+` is now required
 - Dependency `powerauth-mobile-sdk` is now required in version `1.9.x`
 - Dependency `networking-apple` is now required in version `1.5.x`
 
-## 1.11.1 (Jul 2024)
+## 1.11.1
 
 - Dependency `networking-apple` is now required in version `1.4.x`
 
-## 1.11.0 (Jul 2024)
+## 1.11.0
 
 - Added `resultTexts` to the `UserOperation` [(#160)](https://github.com/wultra/mtoken-sdk-ios/pull/160)
 - Extended `PushParser` to support parsing of inbox notifications [(#158)](https://github.com/wultra/mtoken-sdk-ios/pull/158)
 - Added `statusReason` to the `UserOperation` [(#156)](https://github.com/wultra/mtoken-sdk-ios/pull/156)
 - Improved logging options [(#164)](https://github.com/wultra/mtoken-sdk-ios/pull/164)
 
-## 1.10.0 (Apr 18, 2024)
+## 1.10.0
 
 - Removed `currentServerTime` property [(#148)](https://github.com/wultra/mtoken-sdk-android/pull/139)
 - Added default and minimum pollingInterval [(#151)](https://github.com/wultra/mtoken-sdk-ios/pull/151)
 
-## 1.9.0 (Jan 24, 2024)
+## 1.9.0
 
 - Added possibility for custom reject reason [(#143)](https://github.com/wultra/mtoken-sdk-ios/pull/143)
 - Updated Amount and Conversion attributes to the new backend scheme [(#142)](https://github.com/wultra/mtoken-sdk-ios/pull/142)
 - Fixed attribute deserialization [(#141)](https://github.com/wultra/mtoken-sdk-ios/pull/141)
 - Added this changelog to the documentation
 
-## 1.8.3 (Jan 9, 2024)
+## 1.8.3
 
 - Operation detail and non-personalized operation claim [(#132)](https://github.com/wultra/mtoken-sdk-ios/pull/132)
 
-## 1.8.2 (Dec 15, 2023)
+## 1.8.2
 
 - Renamed proximity timestamps [(#135)](https://github.com/wultra/mtoken-sdk-ios/pull/135)
 
-## 1.8.1 (Nov 30, 2023)
+## 1.8.1
 
 - Added `PACUtils` [(#133)](https://github.com/wultra/mtoken-sdk-ios/pull/133)
 
-## 1.8.0 (Nov 24, 2023)
+## 1.8.0
 
 ⚠️ This version of SDK requires PowerAuth Server version 1.5.0 and newer.
 
 - Upgrade to PowerAuthSDK 1.8.0 [(#128)](https://github.com/wultra/mtoken-sdk-ios/pull/128)
 
-## 1.7.3 (Dec 15, 2023)
+## 1.7.3
 
 - Renamed proximity timestamps [(#136)](https://github.com/wultra/mtoken-sdk-ios/pull/136)
 
-## 1.7.2 (Nov 30, 2023)
+## 1.7.2
 
 - Added `PACUtils` [(#133)](https://github.com/wultra/mtoken-sdk-ios/pull/133)
 
-## 1.7.0 (Nov 13, 2023)
+## 1.7.0
 
 - Fixed warnings when integrated with using SPM [(#119)](https://github.com/wultra/mtoken-sdk-ios/pull/119)
 - Added support of QR Code & Deeplink - Proximity check [(#122)](https://github.com/wultra/mtoken-sdk-ios/pull/122)
 
 
-## 1.6.0 (Jun 23, 2023)
+## 1.6.0
 
 - Added amount conversion attribute [(#109)](https://github.com/wultra/mtoken-sdk-ios/pull/109)
 - Image attribute [(#110)](https://github.com/wultra/mtoken-sdk-ios/pull/110)
@@ -87,29 +87,29 @@
 - Moved UI object from the mtoken to SDK [(#118)](https://github.com/wultra/mtoken-sdk-ios/pull/118)
 
 
-## 1.5.2  (Jan 16, 2023)
+## 1.5.2
 
 - Updated Inbox model classes
 
-## 1.5.1 (Jan 12, 2023)
+## 1.5.1
 
 - Fixed podspec for inbox
 
-## 1.5.0 (Jan 12, 2023)
+## 1.5.0
 
 - Added inbox feature
 - Fixes and improvements
 
 
-## 1.4.5 (Oct 5, 2022)
+## 1.4.5
 
 - Updated dependencies + running on Xcode 14 [(#98)](https://github.com/wultra/mtoken-sdk-ios/pull/98)
 
-## 1.4.4 (Aug 30, 2022)
+## 1.4.4
 
 - Reject operation fix [(#97)](https://github.com/wultra/mtoken-sdk-ios/pull/97)
 
-## 1.4.3 (Aug 25, 2022)
+## 1.4.3
 
 - Customizable URI ID used for offline signature [(#79)](https://github.com/wultra/mtoken-sdk-ios/pull/79)
 - Possibility to use own WPNNetworkingService [(#80)](https://github.com/wultra/mtoken-sdk-ios/pull/80)
@@ -119,19 +119,19 @@
 - Minor improvements and maintenance
 
 
-## 1.4.2 (Jul 27, 2022)
+## 1.4.2
 
 - Updated dependencies
 
-## 1.4.1 (Feb 3, 2022)
+## 1.4.1
 
 - Swift Package Manager support 🚀
 
-## 1.4.0 (Sep 24, 2021)
+## 1.4.0
 
 - Networking code was moved to its own library. This allows sharing configuration and some error handling across Wultra libraries.
 
-## 1.3.0 (Aug 18, 2021)
+## 1.3.0
 
 ### Features
 
@@ -146,40 +146,43 @@
 - Updated dependencies
 
 
-## 1.2.0 (Mar 5, 2021)
+## 1.2.0
 
 - Added option to start polling without waiting [(#45)](https://github.com/wultra/mtoken-sdk-ios/pull/45)
 - Added "Operation Expiration Watcher" utility [(#42)](https://github.com/wultra/mtoken-sdk-ios/pull/42)
 
-## 1.1.5 (Oct 30, 2020)
+## 1.1.5
 
 - An improved priority of error handling [(#35)](https://github.com/wultra/mtoken-sdk-ios/pull/35)
 
-## 1.1.4 (Oct 26, 2020)
+## 1.1.4
 
 - Better error handling in networking [(#31)](https://github.com/wultra/mtoken-sdk-ios/pull/31)
 - Executing public callbacks on the main thread [(#34)](https://github.com/wultra/mtoken-sdk-ios/pull/34)
 
 
-## 1.1.3 (Aug 24, 2020)
+## 1.1.3
 
 - Added `WMTPushParser` class for parsing push notifications.
 
-## 1.1.2 (Jun 1, 2020)
+## 1.1.2
 
 - Fixed validation error in `WMTQROperationParser`.
 
-## 1.1.1 (Jun 1, 2020)
+## 1.1.1
 
 - Added the possibility to approve or reject operations received via different channels than this SDK.
 
-## 1.1.0 (May 19, 2020)
+## 1.1.0
 
 - Naming changes to be consistent with the Android version
 - Improved documentation.
 
-## 1.0.1 (May 6, 2020)
+## 1.0.1
 
 - Documentation Improvements
 - Improved offline operation parser
 
+## 1.0.0
+
+- Initial release of the iOS SDK.
