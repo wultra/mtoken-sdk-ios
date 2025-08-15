@@ -22,19 +22,17 @@ SCRIPT_FOLDER=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 URL="https://raw.githubusercontent.com/wultra/wultra-infrastructure/refs/heads/mobile-release/mobile-release/v1/prepare-release.js"
 
 # Create a temporary file
-#TMP_FILE=$(mktemp)
+TMP_FILE=$(mktemp)
 
 # Ensure the temporary file is removed on exit
-#trap 'rm -f "$TMP_FILE"' EXIT
-
-FILE="${SCRIPT_FOLDER}/../../wultra-infrastructure/mobile-release/v1/prepare-release.js"
+trap 'rm -f "$TMP_FILE"' EXIT
 
 # Download the file
-#echo "Downloading prepare-release.js script from Wultra infrastructure repository..."
-#curl -fsSL "$URL" -o "$TMP_FILE"
+echo "Downloading prepare-release.js script from Wultra infrastructure repository..."
+curl -fsSL "$URL" -o "$TMP_FILE"
 
 # Run the file with Node.js in a root directory of the repository
-COMMAND="node $FILE -p $SCRIPT_FOLDER/.. --ignore-git-clean" # uncomment to ignore git clean errors
+COMMAND="node $TMP_FILE -p $SCRIPT_FOLDER/.." # --ignore-git-clean" # uncomment to ignore git clean errors
 if [ $# -ge 1 ]; then
   COMMAND="$COMMAND -v $1"
 fi

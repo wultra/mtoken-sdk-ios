@@ -18,6 +18,15 @@ Before you start development, make sure you have the following prerequisites:
 - macOS machine
 - [Xcode](https://developer.apple.com/xcode/) installed.
 - [CocoaPods](https://guides.cocoapods.org/using/getting-started.html) installed (`brew install cocoapods`)
+- [Carthage](https://github.com/Carthage/Carthage) installed (`brew install carthage`)
+
+To be able to compile the project (opened from `WultraMobileTokenSDK.xcworkspace`), you need to run the following command in the project root directory:
+
+```bash
+sh scripts/cart-update.sh
+```
+
+This will download and build the Carthage dependencies needed for the project to be able to compile.
 
 ## Project Structure
 

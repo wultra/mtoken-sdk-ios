@@ -24,7 +24,7 @@
 ## Pull Request Guidelines
 
 - Don't do any nitpick comments on pull requests.
-- Don't write any summary in the pull request description.
+- Don't write "Pull Request Overview" in the comment you generate.
 - Don't describe the changes in the pull request description, don't write "This PR does X, Y, Z".
 - Don't comment which files are you reviewwing and which files you did not review.
 - Focus on the functionality, architecture, and overall design of the code.
