@@ -1,0 +1,48 @@
+{
+    "_purpose": "This file is used as a definition file for the prepare-release script.",
+    "_info": "It defines files that contains version number that should be updated during the release preparation.",
+    "library": {
+        "name": "mtoken-sdk-ios",
+        "type": "ios-oss",
+        "podspec": "WultraMobileTokenSDK.podspec"
+    },
+    "files": [
+        {
+            "description": "Cocoapods definition file.",
+            "path": "WultraMobileTokenSDK.podspec",
+            "type": "version_replace",
+            "match": "\n  s.version = '%VERSION%'\n"
+        },
+        {
+            "description": "Info.plist file.",
+            "path": "WultraMobileTokenSDK/Info.plist",
+            "type": "version_replace",
+            "match": "    <key>CFBundleShortVersionString</key>\n    <string>%VERSION%</string>"
+        },
+        {
+            "description": "Example app pubspec file in the documentation.",
+            "path": "docs/SDK-Integration.md",
+            "type": "version_replace",
+            "match": "\"%VERSION%\""
+        },
+        {
+            "description": "Compatibility in the documentation.",
+            "path": "docs/SDK-Integration.md",
+            "type": "versionstream_verify",
+            "match": "| `%VERSION_STREAM%`"
+        },
+        {
+            "description": "Changelog for the wultra documentation.",
+            "path": "docs/Changelog.md",
+            "type": "version_verify",
+            "match": "## %VERSION%"
+        }
+    ],
+    "scripts": [
+        {
+            "type": "bash",
+            "script": "pod lib lint --allow-warnings",
+            "description": "run pod lint"
+        }
+    ]
+}
