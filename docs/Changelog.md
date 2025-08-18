@@ -1,15 +1,15 @@
 # Changelog
 
-## 2.3.0 (TBA)
+## 2.3.0
 
 - Added factory method `WMTProximityCheck.withSynchronizedTime` [(#201)](https://github.com/wultra/mtoken-sdk-ios/issues/201).
 - Added support for Alert Attribute type [(#189)](https://github.com/wultra/mtoken-sdk-ios/issues/189).
 
-## 2.2.1 (Aug 2025)
+## 2.2.1
 
 - Fallback value (.pending) for `WMTUserOperation.status` if it is missing  [(#197)](https://github.com/wultra/mtoken-sdk-ios/issues/197).
 
-## 2.2.0 (Jul 2025)
+## 2.2.0
 
 - Added option for Firebase Cloud Messaging for Push Notifications and automatic APNS environment detection [(#174)](https://github.com/wultra/mtoken-sdk-ios/issues/174).
 
