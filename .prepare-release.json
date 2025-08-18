@@ -29,7 +29,7 @@
             "description": "Compatibility in the documentation.",
             "path": "docs/SDK-Integration.md",
             "type": "versionstream_verify",
-            "match": "| `%VERSION_STREAM%`"
+            "match": "`%VERSION_STREAM%`"
         },
         {
             "description": "Changelog for the wultra documentation.",

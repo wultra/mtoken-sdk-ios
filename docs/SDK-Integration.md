@@ -26,7 +26,7 @@ let package = Package(
         ),
     ],
     dependencies: [
-        .package(url: "https://github.com/wultra/mtoken-sdk-ios.git", .from("1.0.0"))
+        .package(url: "https://github.com/wultra/mtoken-sdk-ios.git", .from("2.3.0"))
     ],
     targets: [
         .target(
@@ -49,7 +49,7 @@ pod 'WultraMobileTokenSDK'
 
 | WMT SDK               | PowerAuth SDK |
 |-----------------------|---------------|
-| `2.0.x`               | `1.9.x`       |
+| `2.0.x` - `2.3.x`     | `1.9.x`       |
 | `1.12.x`              | `1.9.x`       |
 | `1.8.x` - `1.11.x`    | `1.8.x`       |
 | `1.6.x` - `1.7.x`     | `1.7.x`       |
