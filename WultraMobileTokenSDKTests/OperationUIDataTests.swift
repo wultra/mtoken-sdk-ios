@@ -193,6 +193,71 @@ class OperationUIDataTests: XCTestCase {
         XCTAssertEqual(resultAttributeLabel?.value, uiAttributeLabel?.value)
     }
     
+    func testPreApprovalScreensResponseWithPreApprovalFallback() {
+        guard let result = prepareResult(response: preApprovalScreensResponse) else {
+            XCTFail("Failed to parse JSON data")
+            return
+        }
+
+        // New apps: array should be present with 2 screens
+        guard let screens = result.ui?.preApprovalScreens, screens.count == 2 else {
+            XCTFail("preApprovalScreens missing or has wrong count")
+            return
+        }
+
+        // Screen1 (WARNING)
+        let s1 = screens[0]
+        XCTAssertEqual(s1.id, "id1")
+        XCTAssertEqual(s1.type, .warning)
+        XCTAssertEqual(s1.backButton, true)
+        XCTAssertEqual(s1.image, "image-label")
+        XCTAssertEqual(s1.heading, "Watch out!")
+        XCTAssertEqual(s1.message, "You may become a victim of an attack.")
+        XCTAssertEqual(s1.controls?.flip, true)
+        XCTAssertEqual(s1.controls?.decline?.type, .reject)
+        XCTAssertEqual(s1.controls?.decline?.text, "Reject Payment")
+        XCTAssertEqual(s1.controls?.approve?.type, .button)
+        XCTAssertEqual(s1.controls?.approve?.text, "Approve Payment")
+        XCTAssertEqual(s1.controls?.approve?.counter, 10)
+        XCTAssertEqual(s1.elements?.count, 3)
+        if let e0 = s1.elements?.first {
+            XCTAssertEqual(e0.type, .alert)
+            XCTAssertEqual(e0.style, .info)
+            XCTAssertEqual(e0.text, "Make sure the activation takes place on your device")
+        }
+
+        // Screen2 (QR_SCAN)
+        let s2 = screens[1]
+        XCTAssertEqual(s2.id, "id2")
+        XCTAssertEqual(s2.type, .qr)
+        XCTAssertNil(s2.backButton)
+        XCTAssertNil(s2.image)
+        XCTAssertEqual(s2.heading, "Watch out!")
+        XCTAssertEqual(s2.message, "You may become a victim of an attack.")
+        XCTAssertNil(s2.controls)
+        XCTAssertEqual(s2.elements?.count, 1)
+        if let e = s2.elements?.first {
+            XCTAssertEqual(e.type, .listItem)
+            XCTAssertEqual(e.icon, "icon-label")
+            XCTAssertEqual(e.text, "You activate a new app and allow access to your accounts")
+        }
+
+        // Fallback: single preApprovalScreen (for QR scanning scenarios should also be present)
+        guard let legacy = result.ui?.preApprovalScreen else {
+            XCTFail("legacy preApprovalScreen missing")
+            return
+        }
+        XCTAssertEqual(legacy.type, .qr)
+        XCTAssertEqual(legacy.heading, "Watch out!")
+        XCTAssertEqual(legacy.message, "You may become a victim of an attack.")
+        XCTAssertEqual(legacy.items, ["You activate a new app and allow access to your accounts"])
+        XCTAssertNil(legacy.approvalType)
+
+        // Sanity: top-level flags still parsed
+        XCTAssertEqual(result.ui?.flipButtons, true)
+        XCTAssertEqual(result.ui?.blockApprovalOnCall, false)
+    }
+    
     
     // MARK: Helpers
     private func prepareResult(response: String) -> WMTUserOperation? {
@@ -418,5 +483,99 @@ class OperationUIDataTests: XCTestCase {
         }
     }
     """
+    }()
+    
+    private let preApprovalScreensResponse: String = {
+        """
+        {
+            "id": "74654880-6db9-4b84-9174-386fc5e7d8ab",
+            "name": "authorize_payment_preApproval_multi",
+            "data": "A1*A100.00EUR*ICZ3855000000003643174999",
+            "status": "PENDING",
+            "operationCreated": "2023-04-25T13:09:52+0000",
+            "operationExpires": "2023-04-25T13:14:52+0000",
+            "ui": {
+                "flipButtons": true,
+                "blockApprovalOnCall": false,
+                "preApprovalScreens": [
+                    {
+                        "id": "id1",
+                        "type": "WARNING",
+                        "backButton": true,
+                        "image": "image-label",
+                        "heading": "Watch out!",
+                        "message": "You may become a victim of an attack.",
+                        "elements": [
+                            {
+                                "id": "e1",
+                                "type": "ALERT",
+                                "style": "INFO",
+                                "text": "Make sure the activation takes place on your device"
+                            },
+                            {
+                                "id": "e2",
+                                "type": "BUTTON",
+                                "action": "PHONE",
+                                "text": "Call center",
+                                "href": "+42012345678"
+                            },
+                            {
+                                "id": "e3",
+                                "type": "LISTITEM",
+                                "icon": "icon-label",
+                                "text": "You activate a new app and allow access to your accounts"
+                            }
+                        ],
+                        "controls": {
+                            "flip": true,
+                            "decline": { "type": "REJECT", "text": "Reject Payment" },
+                            "approve": { "type": "BUTTON", "text": "Approve Payment", "counter": 10 }
+                        }
+                    },
+                    {
+                        "id": "id2",
+                        "type": "QR_SCAN",
+                        "backButton": null,
+                        "image": null,
+                        "heading": "Watch out!",
+                        "message": "You may become a victim of an attack.",
+                        "elements": [
+                            { "type": "LISTITEM", "icon": "icon-label", "text": "You activate a new app and allow access to your accounts" }
+                        ],
+                        "controls": null
+                    }
+                ],
+                "preApprovalScreen": {
+                    "type": "QR_SCAN",
+                    "heading": "Watch out!",
+                    "message": "You may become a victim of an attack.",
+                    "items": ["You activate a new app and allow access to your accounts"],
+                    "approvalType": null
+                }
+            },
+            "allowedSignatureType": {
+                "type": "2FA",
+                "variants": ["possession_knowledge", "possession_biometry"]
+            },
+            "formData": {
+                "title": "Payment Approval",
+                "message": "Please confirm the payment",
+                "attributes": [{
+                    "type": "AMOUNT",
+                    "id": "operation.amount",
+                    "label": "Amount",
+                    "amount": 100.00,
+                    "currency": "EUR",
+                    "amountFormatted": "100,00",
+                    "currencyFormatted": "€"
+                }, {
+                    "type": "KEY_VALUE",
+                    "id": "operation.account",
+                    "label": "To Account",
+                    "value": "CZ3855000000003643174999"
+                }]
+            }
+        }
+        """
     }()
 }

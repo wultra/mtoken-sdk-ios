@@ -37,6 +37,12 @@ public class WMTPreApprovalScreen: Codable {
     /// Type of the approval button
     public let approvalType: WMTPreApprovalScreenConfirmAction?
     
+    public let id: String?
+    public let backButton: Bool?
+    public let image: String?
+    public let elements: [WMTPreApprovalElement]?
+    public let controls: WMTPreApprovalControls?
+    
     // MARK: - INTERNALS
     
     public enum ScreenType: String, Codable {
@@ -47,7 +53,7 @@ public class WMTPreApprovalScreen: Codable {
     }
     
     private enum Keys: String, CodingKey {
-        case type, heading, message, items, approvalType
+        case type, heading, message, items, approvalType, id, backButton, image, elements, controls
     }
     
     public required init(from decoder: Decoder) throws {
@@ -58,14 +64,24 @@ public class WMTPreApprovalScreen: Codable {
         message = try c.decode(String.self, forKey: .message)
         items = try? c.decode([String].self, forKey: .items)
         approvalType = try? c.decode(WMTPreApprovalScreenConfirmAction.self, forKey: .approvalType)
+        id = try? c.decode(String.self, forKey: .id)
+        backButton = try? c.decode(Bool.self, forKey: .backButton)
+        image = try? c.decode(String.self, forKey: .image)
+        elements = try? c.decode([WMTPreApprovalElement].self, forKey: .elements)
+        controls = try? c.decode(WMTPreApprovalControls.self, forKey: .controls)
     }
     
-    public init(type: ScreenType, heading: String, message: String, items: [String]? = nil, approvalType: WMTPreApprovalScreenConfirmAction?) {
+    public init(type: ScreenType, heading: String, message: String, items: [String]? = nil, approvalType: WMTPreApprovalScreenConfirmAction?, id: String? = nil, backButton: Bool? = nil, image: String? = nil, elements: [WMTPreApprovalElement]? = nil, controls: WMTPreApprovalControls? = nil) {
         self.type = type
         self.heading = heading
         self.message = message
         self.items = items
         self.approvalType = approvalType
+        self.id = id
+        self.backButton = backButton
+        self.image = image
+        self.elements = elements
+        self.controls = controls
     }
 }
 
@@ -73,4 +89,37 @@ public class WMTPreApprovalScreen: Codable {
 /// how the confirm action shall be performed
 public enum WMTPreApprovalScreenConfirmAction: String, Codable {
     case slider = "SLIDER"
+}
+
+public struct WMTPreApprovalElement: Codable {
+    public let id: String?
+    public let type: ElementType
+    public let style: AlertStyle?
+    public let action: ButtonAction?
+    public let href: String?
+    public let icon: String?
+    public let text: String?
+
+    public enum ElementType: String, Codable { case listItem = "LISTITEM", alert = "ALERT", button = "BUTTON" }
+    public enum AlertStyle: String, Codable { case info = "INFO", warning = "WARNING", danger = "DANGER" }
+    public enum ButtonAction: String, Codable { case link = "LINK", mail = "MAIL", phone = "PHONE" }
+}
+
+public struct WMTPreApprovalControls: Codable {
+    public let flip: Bool?
+    public let decline: Decline?
+    public let approve: Approve?
+
+    public struct Decline: Codable {
+        public let type: DeclineType
+        public let text: String?
+    }
+    public struct Approve: Codable {
+        public let type: ApproveType
+        public let text: String?
+        public let counter: Int?
+    }
+
+    public enum DeclineType: String, Codable { case back = "BACK", reject = "REJECT" }
+    public enum ApproveType: String, Codable { case slider = "SLIDER", button = "BUTTON" }
 }
