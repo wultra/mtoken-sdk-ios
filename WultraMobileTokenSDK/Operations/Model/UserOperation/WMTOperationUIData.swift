@@ -42,12 +42,18 @@ open class WMTOperationUIData: Codable {
         case flipButtons, blockApprovalOnCall, preApprovalScreen, preApprovalScreens, postApprovalScreen
     }
     
+    // TODO: REMOVE when BE is finalized
+    public static var defaultPreApprovalScreensProvider: (() -> [WMTPreApprovalScreen]?)?
+    
     public required init(from decoder: Decoder) throws {
         let c = try decoder.container(keyedBy: Keys.self)
         flipButtons = try? c.decode(Bool.self, forKey: .flipButtons)
         blockApprovalOnCall = try? c.decode(Bool.self, forKey: .blockApprovalOnCall)
         preApprovalScreen = try? c.decode(WMTPreApprovalScreen.self, forKey: .preApprovalScreen)
-        preApprovalScreens = try? c.decode([WMTPreApprovalScreen].self, forKey: .preApprovalScreens)
+        // TODO: REMOVE when BE is finalized
+        preApprovalScreens = (try? c.decode([WMTPreApprovalScreen].self, forKey: .preApprovalScreens)) ?? Self.defaultPreApprovalScreensProvider?()
+//        preApprovalScreens = try? c.decode([WMTPreApprovalScreen].self, forKey: .preApprovalScreens)
+        
         postApprovalScreen = try? c.decode(WMTPostApprovalScreenDecodable.self, forKey: .postApprovalScreen).postApprovalObject
     }
     
