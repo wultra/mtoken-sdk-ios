@@ -102,11 +102,12 @@ public struct WMTPreApprovalElement: Codable {
 
     public enum ElementType: String, Codable { case listItem = "LISTITEM", alert = "ALERT", button = "BUTTON" }
     public enum AlertStyle: String, Codable { case info = "INFO", warning = "WARNING", danger = "DANGER" }
-    public enum ButtonAction: String, Codable { case link = "LINK", mail = "MAIL", phone = "PHONE" }
+    public enum ButtonAction: String, Codable { case link = "LINK", mail = "MAIL", phone = "PHONE", reject = "REJECT" }
 }
 
 public struct WMTPreApprovalControls: Codable {
     public let flip: Bool?
+    public let axis: ButtonAxis?
     public let decline: Decline?
     public let approve: Approve?
 
@@ -120,6 +121,7 @@ public struct WMTPreApprovalControls: Codable {
         public let counter: Int?
     }
 
+    public enum ButtonAxis: String, Codable { case vertical = "VERTICAL", horizontal = "HORIZONTAL" }
     public enum DeclineType: String, Codable { case back = "BACK", reject = "REJECT" }
     public enum ApproveType: String, Codable { case slider = "SLIDER", button = "BUTTON" }
 }
