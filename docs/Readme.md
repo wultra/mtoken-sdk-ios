@@ -28,4 +28,5 @@ Remarks:
 - [Language Configuration](Language-Configuration.md)
 - [Logging](Logging.md)
 - [Changelog](./Changelog.md)
+- [Migration Guides](./Migration-Guides.md)
 <!-- end -->
