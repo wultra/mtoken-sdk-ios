@@ -44,7 +44,8 @@ public class WMTPush: WMTService {
     
     /// Registers the current powerauth activation for push notifications.
     ///
-    /// This method is compatible with server stack `1.9.x`
+    /// This method is compatible with server stack `1.9.x`.
+    /// This method will on the server version `1.10.x`, but will lack support for the environment specification.
     ///
     /// - Parameters:
     ///   - token: Push token.
@@ -65,7 +66,8 @@ public class WMTPush: WMTService {
     
     /// Registers the current Powerauth activation for push notifications.
     ///
-    /// This method is compatible with server stack `1.10.x` and higher
+    /// This method is compatible with server stack `1.10.x` and higher. 
+    /// If you are using an older version, please use the `registerDeviceTokenForPushNotifications(token:completion:)` method instead.
     ///
     /// - Parameters:
     ///   - platform: Platform that you're registering to
