@@ -14,4 +14,4 @@
 **Other**
 
 - [Changelog](./Changelog.md)
-- [Migration Guides](./Readme.md#migration-guides)
+- [Migration Guides](./Migration-Guides.md)
