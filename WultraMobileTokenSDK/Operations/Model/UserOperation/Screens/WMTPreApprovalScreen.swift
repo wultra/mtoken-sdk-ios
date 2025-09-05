@@ -94,14 +94,14 @@ public enum WMTPreApprovalScreenConfirmAction: String, Codable {
 public struct WMTPreApprovalElement: Codable {
     public let id: String?
     public let type: ElementType
-    public let style: AlertStyle?
+    public let style: ElementStyle?
     public let action: ButtonAction?
     public let href: String?
     public let icon: String?
     public let text: String?
 
     public enum ElementType: String, Codable { case listItem = "LISTITEM", alert = "ALERT", button = "BUTTON" }
-    public enum AlertStyle: String, Codable { case info = "INFO", warning = "WARNING", danger = "DANGER" }
+    public enum ElementStyle: String, Codable { case info = "INFO", warning = "WARNING", danger = "DANGER" }
     public enum ButtonAction: String, Codable { case link = "LINK", mail = "MAIL", phone = "PHONE", reject = "REJECT" }
 }
 
