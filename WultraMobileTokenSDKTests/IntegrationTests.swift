@@ -187,7 +187,7 @@ class IntegrationTests: XCTestCase {
                     _ = self.ops.claim(operationId: op.operationId) { result in
                         switch result {
                         case .success(let operation):
-                            if operation.ui?.preApprovalScreen?.type == .qr {
+                            if operation.ui?.preApprovalScreens?[0].type == .qr {
                                 self.proxy.getOperation(operationId: op.operationId) { totpOP in
                                     XCTAssertNotNil(totpOP?.proximityOtp, "Even with proximityCheckEnabled: true, in proximityOtp nil")
                                     if let totpOP = totpOP, let proximityOtp = totpOP.proximityOtp {

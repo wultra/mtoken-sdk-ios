@@ -25,9 +25,6 @@ open class WMTOperationUIData: Codable {
     /// Block approval when on call (for example when on phone or skype call)
     public let blockApprovalOnCall: Bool?
     
-    /// UI for pre-approval operation screen
-    public let preApprovalScreen: WMTPreApprovalScreen?
-    
     /// UI for multiple pre-approval screens
     public let preApprovalScreens: [WMTPreApprovalScreen]?
     
@@ -39,7 +36,9 @@ open class WMTOperationUIData: Codable {
     // MARK: - INTERNALS
     
     private enum Keys: String, CodingKey {
-        case flipButtons, blockApprovalOnCall, preApprovalScreen, preApprovalScreens, postApprovalScreen
+        case flipButtons, blockApprovalOnCall, postApprovalScreen
+        case preApprovalScreens
+        case preApprovalScreenLegacy = "preApprovalScreen" // legacy, singular
     }
     
     // TODO: REMOVE when BE is finalized
@@ -49,18 +48,26 @@ open class WMTOperationUIData: Codable {
         let c = try decoder.container(keyedBy: Keys.self)
         flipButtons = try? c.decode(Bool.self, forKey: .flipButtons)
         blockApprovalOnCall = try? c.decode(Bool.self, forKey: .blockApprovalOnCall)
-        preApprovalScreen = try? c.decode(WMTPreApprovalScreen.self, forKey: .preApprovalScreen)
         // TODO: REMOVE when BE is finalized
-        preApprovalScreens = (try? c.decode([WMTPreApprovalScreen].self, forKey: .preApprovalScreens)) ?? Self.defaultPreApprovalScreensProvider?()
-//        preApprovalScreens = try? c.decode([WMTPreApprovalScreen].self, forKey: .preApprovalScreens)
+//        preApprovalScreens = (try? c.decode([WMTPreApprovalScreen].self, forKey: .preApprovalScreens)) ?? Self.defaultPreApprovalScreensProvider?()
+        
+        // 1) New plural
+        if let screens = try? c.decode([WMTPreApprovalScreen].self, forKey: .preApprovalScreens) {
+            preApprovalScreens = screens
+        
+        // 2) If legacy singular is in the payload map to plural
+        } else if c.contains(.preApprovalScreenLegacy), let legacyDecoder = try? c.superDecoder(forKey: .preApprovalScreenLegacy) {
+            preApprovalScreens = WMTPreApprovalScreen.fromLegacy(legacyDecoder)
+        } else {
+            preApprovalScreens = nil
+        }
         
         postApprovalScreen = try? c.decode(WMTPostApprovalScreenDecodable.self, forKey: .postApprovalScreen).postApprovalObject
     }
     
-    public init(flipButtons: Bool?, blockApprovalOnCall: Bool?, preApprovalScreen: WMTPreApprovalScreen?, preApprovalScreens: [WMTPreApprovalScreen]? = nil, postApprovalScreen: WMTPostApprovalScreen?) {
+    public init(flipButtons: Bool?, blockApprovalOnCall: Bool?, preApprovalScreens: [WMTPreApprovalScreen]? = nil, postApprovalScreen: WMTPostApprovalScreen?) {
         self.flipButtons = flipButtons
         self.blockApprovalOnCall = blockApprovalOnCall
-        self.preApprovalScreen = preApprovalScreen
         self.preApprovalScreens = preApprovalScreens
         self.postApprovalScreen = postApprovalScreen
     }
