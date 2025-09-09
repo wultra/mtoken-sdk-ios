@@ -223,10 +223,10 @@ class OperationUIDataTests: XCTestCase {
         XCTAssertEqual(s1.controls?.approve?.text, "Approve Payment")
         XCTAssertEqual(s1.controls?.approve?.counter, 10)
         XCTAssertEqual(s1.elements?.count, 3)
-        if let e0 = s1.elements?.first {
-            XCTAssertEqual(e0.type, .alert)
-            XCTAssertEqual(e0.style, .info)
-            XCTAssertEqual(e0.text, "Make sure the activation takes place on your device")
+        if let e1 = s1.elements?.first as? WMTPreApprovalElementAlert {
+            XCTAssertEqual(e1.type, .alert)
+            XCTAssertEqual(e1.style, .info)
+            XCTAssertEqual(e1.text, "Make sure the activation takes place on your device")
         }
         
         // Screen2 (QR_SCAN)
@@ -238,16 +238,8 @@ class OperationUIDataTests: XCTestCase {
         XCTAssertEqual(s2.heading, "Watch out!")
         XCTAssertEqual(s2.message, "You may become a victim of an attack.")
         XCTAssertNil(s2.controls)
-        XCTAssertEqual(s2.elements?.count, 1)
-        if let e = s2.elements?.first {
-            XCTAssertEqual(e.type, .listItem)
-            XCTAssertEqual(e.icon, "icon-label")
-            XCTAssertEqual(e.text, "You activate a new app and allow access to your accounts")
-        }
-        
-        // Legacy singular must be ignored when plural exists
-        //        XCTAssertNil(result.ui?.preApprovalScreen, "legacy preApprovalScreen should be ignored when preApprovalScreens is present")
-        
+        XCTAssertNil(s2.elements)
+
         // Sanity: top-level flags still parsed
         XCTAssertEqual(result.ui?.flipButtons, true)
         XCTAssertEqual(result.ui?.blockApprovalOnCall, false)
@@ -549,14 +541,8 @@ class OperationUIDataTests: XCTestCase {
                     {
                         "id": "id2",
                         "type": "QR_SCAN",
-                        "backButton": null,
-                        "image": null,
                         "heading": "Watch out!",
-                        "message": "You may become a victim of an attack.",
-                        "elements": [
-                            { "type": "LISTITEM", "icon": "icon-label", "text": "You activate a new app and allow access to your accounts" }
-                        ],
-                        "controls": null
+                        "message": "You may become a victim of an attack."
                     }
                 ],
                 "preApprovalScreen": {
