@@ -83,7 +83,7 @@ public class WMTPreApprovalScreen: Codable {
                 }
             }
         } catch {
-            D.error("No elements in WMTPreApprovalElement: \(error)")
+            D.debug("No elements in WMTPreApprovalElement: \(error)")
         }
         self.elements = decodedElements.isEmpty ? nil : decodedElements
         controls = try? c.decode(WMTPreApprovalControls.self, forKey: .controls)

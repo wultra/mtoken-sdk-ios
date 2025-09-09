@@ -245,8 +245,8 @@ class OperationUIDataTests: XCTestCase {
         XCTAssertEqual(result.ui?.blockApprovalOnCall, false)
     }
     
-    func testLegacyWithoutApprovalTypeMapsNoControls() {
-        guard let result = prepareResult(response: legacyNoApproval) else {
+    func testLegacyPreApproval() {
+        guard let result = prepareResult(response: legacyPreApproval) else {
             XCTFail("Failed to parse JSON data")
             return
         }
@@ -254,7 +254,9 @@ class OperationUIDataTests: XCTestCase {
         let first = result.ui?.preApprovalScreens?.first
         XCTAssertEqual(first?.type, .warning)
         XCTAssertEqual(first?.elements?.map(\.text), ["A","B","C"])
-        XCTAssertNil(first?.controls?.approve, "approve should not be injected when approvalType is missing")
+        XCTAssertEqual(first?.controls?.approve?.type, .slider)
+        XCTAssertEqual(first?.controls?.approve?.counter, nil)
+        XCTAssertEqual(first?.controls?.approve?.text, nil)
     }
     
     func testLegacyEmptyItemsBecomeEmptyElements() {
@@ -579,7 +581,7 @@ class OperationUIDataTests: XCTestCase {
         """
     }()
     
-    let legacyNoApproval: String = {
+    let legacyPreApproval: String = {
         """
         {
             "id": "f68f6e70-a3d8-4616-b138-358e1799599d",
@@ -599,7 +601,8 @@ class OperationUIDataTests: XCTestCase {
                         "A",
                         "B",
                         "C"
-                    ]
+                    ],
+                    "approvalType": "SLIDER"
                 }
             },
             "allowedSignatureType": {

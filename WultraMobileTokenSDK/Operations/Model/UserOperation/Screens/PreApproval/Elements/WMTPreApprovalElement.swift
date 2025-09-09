@@ -72,7 +72,7 @@ public class WMTPreApprovalElement: Codable {
         let raw = try c.decode(String.self, forKey: .type)
         self.type = ElementType(rawValue: raw) ?? .unknown
         self.id = try? c.decode(String.self, forKey: .id)
-        self.icon = try? c.decode(String.self, forKey: .id)
+        self.icon = try? c.decode(String.self, forKey: .icon)
         self.text = try? c.decode(String.self, forKey: .text)
     }
 
