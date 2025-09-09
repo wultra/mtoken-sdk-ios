@@ -49,19 +49,19 @@ open class WMTOperationUIData: Codable {
         flipButtons = try? c.decode(Bool.self, forKey: .flipButtons)
         blockApprovalOnCall = try? c.decode(Bool.self, forKey: .blockApprovalOnCall)
         // TODO: REMOVE when BE is finalized
-//        preApprovalScreens = (try? c.decode([WMTPreApprovalScreen].self, forKey: .preApprovalScreens)) ?? Self.defaultPreApprovalScreensProvider?()
+        preApprovalScreens = (try? c.decode([WMTPreApprovalScreen].self, forKey: .preApprovalScreens)) ?? Self.defaultPreApprovalScreensProvider?()
         
         // 1) New plural
-        if let screens = try? c.decode([WMTPreApprovalScreen].self, forKey: .preApprovalScreens) {
-            preApprovalScreens = screens
-        
-        // 2) If legacy singular is in the payload map to plural
-        } else if c.contains(.preApprovalScreenLegacy), let legacyDecoder = try? c.superDecoder(forKey: .preApprovalScreenLegacy) {
-            preApprovalScreens = WMTPreApprovalScreen.fromLegacy(legacyDecoder)
-        } else {
-            preApprovalScreens = nil
-        }
-        
+//        if let screens = try? c.decode([WMTPreApprovalScreen].self, forKey: .preApprovalScreens) {
+//            preApprovalScreens = screens
+//        
+//        // 2) If legacy singular is in the payload map to plural
+//        } else if c.contains(.preApprovalScreenLegacy), let legacyDecoder = try? c.superDecoder(forKey: .preApprovalScreenLegacy) {
+//            preApprovalScreens = WMTPreApprovalScreen.fromLegacy(legacyDecoder)
+//        } else {
+//            preApprovalScreens = nil
+//        }
+//        
         postApprovalScreen = try? c.decode(WMTPostApprovalScreenDecodable.self, forKey: .postApprovalScreen).postApprovalObject
     }
     
