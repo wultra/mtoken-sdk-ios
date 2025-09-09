@@ -86,7 +86,9 @@ public class WMTPreApprovalElement: Codable {
         case .listItem: return try WMTPreApprovalElementListItem(from: decoder)
         case .alert:    return try WMTPreApprovalElementAlert(from: decoder)
         case .button:   return try WMTPreApprovalElementButton(from: decoder)
-        case .unknown:  return try WMTPreApprovalElement(from: decoder)
+        case .unknown:
+            D.debug("Unknown Pre-Approval element type: \(rawType)")
+            return try WMTPreApprovalElement(from: decoder)
         }
     }
 }

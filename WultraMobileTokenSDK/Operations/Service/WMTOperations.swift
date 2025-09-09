@@ -310,7 +310,7 @@ public class WMTOperations: WMTService {
         }
                 
         return networking.post(
-            data: .init(.init(operationId: operation.id, reason: reason)),
+            data: .init(.init(operationId: operation.id, reason: reason, mobileTokenData: operation.mobileTokenData)),
             signedWith: .possession(),
             to: WMTOperationEndpoints.Reject.endpoint
         ) { response, error in
