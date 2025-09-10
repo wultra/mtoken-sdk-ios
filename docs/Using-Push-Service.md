@@ -62,6 +62,10 @@ All available methods of the `WMTPush` API are:
 
 ### Using APNS (Apple Push Notification Service)
 
+<!-- begin box warning -->
+If your server is running an older version than `1.10.x`, use the `registerDeviceTokenForPushNotifications(token:completion:)` deprecated method instead to stay compatible.
+<!-- end -->
+
 To register your app to push notifications regarding the operations, you can simply call the `register` method with `.apns` platform parameter:
 
 ```swift
