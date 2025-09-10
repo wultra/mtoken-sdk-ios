@@ -1,6 +1,7 @@
 # Changelog
 
 ## X.X.X (TBA)
+- Added multiple PreApprovalScreens support [(#208)](https://github.com/wultra/mtoken-sdk-ios/issues/208).
 
 ## 2.3.0
 
