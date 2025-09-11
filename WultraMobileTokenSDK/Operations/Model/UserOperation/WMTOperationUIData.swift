@@ -28,7 +28,7 @@ open class WMTOperationUIData: Codable {
     /// UI for multiple pre-approval screens
     public let preApprovalScreens: [WMTPreApprovalScreen]?
     
-    /// UI for post-approval opration screen
+    /// UI for post-approval operation screen
     ///
     /// Type of PostApprovalScrren is presented with different classes (Starting with `WMTPostApprovalScreen*`)
     public let postApprovalScreen: WMTPostApprovalScreen?

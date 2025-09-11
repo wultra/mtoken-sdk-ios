@@ -135,7 +135,7 @@ class OperationUIDataTests: XCTestCase {
         
         XCTAssertEqual(result.ui?.flipButtons, ui.flipButtons)
         XCTAssertEqual(result.ui?.blockApprovalOnCall, ui.blockApprovalOnCall)
-        XCTAssertEqual(result.ui?.preApprovalScreens?[0].type,ui.preApprovalScreens?[0].type)
+        XCTAssertNil(result.ui?.preApprovalScreens)
         XCTAssertEqual((result.ui?.postApprovalScreen as? WMTPostApprovalScreenRedirect)?.heading, (ui.postApprovalScreen as? WMTPostApprovalScreenRedirect)?.heading)
         XCTAssertEqual((result.ui?.postApprovalScreen as? WMTPostApprovalScreenRedirect)?.message, (ui.postApprovalScreen as? WMTPostApprovalScreenRedirect)?.message)
         XCTAssertEqual(((result.ui?.postApprovalScreen as? WMTPostApprovalScreenRedirect)?.payload as? WMTRedirectPostApprovalScreenPayload)?.text, ((ui.postApprovalScreen as? WMTPostApprovalScreenRedirect)?.payload as? WMTRedirectPostApprovalScreenPayload)?.text)
