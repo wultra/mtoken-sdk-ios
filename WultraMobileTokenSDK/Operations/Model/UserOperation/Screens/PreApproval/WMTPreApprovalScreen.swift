@@ -37,7 +37,7 @@ public class WMTPreApprovalScreen: Codable {
     /// Whether the back button should be visible
     public let backButton: Bool?
     
-    /// Image identifier/url
+    /// Image identifier
     public let image: String?
 
     /// Structured elements to display on the screen
