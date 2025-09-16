@@ -31,7 +31,7 @@ public class WMTPreApprovalElement: Codable {
         case unknown  = "UNKNOWN"    // Forward-compat fallback
     }
     
-    /// Supported alert styles.
+    /// Supported element styles.
     public enum ElementStyle: String, Codable { case info = "INFO", warning = "WARNING", danger = "DANGER" }
 
     /// Unique identifier of the element.
@@ -54,7 +54,6 @@ public class WMTPreApprovalElement: Codable {
         case type
         case icon
         case text
-        // common-but-optional keys live in subclasses; we still peek them here if needed
     }
 
     /// Designated initializer for the base type.

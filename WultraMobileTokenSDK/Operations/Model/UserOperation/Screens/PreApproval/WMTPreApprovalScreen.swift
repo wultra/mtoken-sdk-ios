@@ -118,18 +118,9 @@ public extension WMTPreApprovalScreen {
     /// - Returns a one-element array on success, otherwise `nil`.
     static func fromLegacy(_ decoder: Decoder) -> [WMTPreApprovalScreen]? {
 
-        // Peek legacy-only keys we need to translate
-        struct LegacyKeys: CodingKey {
-            var stringValue: String
-            init?(stringValue: String) { self.stringValue = stringValue }
-            var intValue: Int? { nil }
-            init?(intValue: Int) { return nil }
-
-            static let type         = LegacyKeys(stringValue: "type")!
-            static let heading      = LegacyKeys(stringValue: "heading")!
-            static let message      = LegacyKeys(stringValue: "message")!
-            static let items        = LegacyKeys(stringValue: "items")!
-            static let approvalType = LegacyKeys(stringValue: "approvalType")!
+        // Legacy-only keys we need to translate
+        enum LegacyKeys: String, CodingKey {
+            case type, heading, message, items, approvalType
         }
         
         do {
@@ -139,13 +130,15 @@ public extension WMTPreApprovalScreen {
             let type      = ScreenType(rawValue: typeRaw) ?? .unknown
             let heading   = try c.decode(String.self, forKey: .heading)
             let message   = try c.decode(String.self, forKey: .message)
-            let items     = try? c.decode([String].self, forKey: .items)
             let approval  = try? c.decode(String.self, forKey: .approvalType)
 
             // Items -> listItem elements
-            let elements: [WMTPreApprovalElement]? = items?.map {
-                WMTPreApprovalElementListItem(text: $0)
-            }
+            let elements: [WMTPreApprovalElement]? = {
+                guard c.contains(.items) else { return nil }
+                let items = (try? c.decode([String].self, forKey: .items)) ?? []
+                guard !items.isEmpty else { return nil }
+                return items.map { WMTPreApprovalElementListItem(text: $0) }
+            }()
 
             // controls only if approvalType == SLIDER
             let controls = approval == "SLIDER" ? WMTPreApprovalControls(approve: .init(.slider)) : nil

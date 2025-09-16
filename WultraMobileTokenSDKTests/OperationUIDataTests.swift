@@ -267,6 +267,72 @@ class OperationUIDataTests: XCTestCase {
         XCTAssertEqual(first?.elements?.count ?? 0, 0)
     }
     
+    func testSingularIsWrappedIntoPlural() {
+        guard let result = prepareResult(response: preApprovalResponse) else {
+            XCTFail("Failed to parse JSON data")
+            return
+        }
+        let screens = result.ui?.preApprovalScreens
+        XCTAssertNotNil(screens)
+        XCTAssertEqual(1, screens?.count)
+    }
+
+    func testUnknownScreenTypeForwardCompat() {
+        let json = """
+        {
+          "id":"1","name":"n","data":"d","status":"PENDING",
+          "operationCreated":"2023-04-25T13:09:52+0000",
+          "operationExpires":"2023-04-25T13:14:52+0000",
+          "ui":{"preApprovalScreen":{"type":"FUTURE","heading":"Future","message":"Future is now, old man."}},
+          "allowedSignatureType":{"type":"2FA","variants":[]},
+          "formData":{"title":"t","message":"m","attributes":[]}
+        }
+        """
+        guard let r = prepareResult(response: json) else {
+            XCTFail("parse fail"); return
+        }
+        guard let s = r.ui?.preApprovalScreens?.first else {
+            XCTFail("no screen"); return
+        }
+        XCTAssertEqual(s.type, .unknown)
+        XCTAssertEqual(s.heading, "Future")
+        XCTAssertEqual(s.message, "Future is now, old man.")
+    }
+
+    func testUnknownElementTypeForwardCompat() {
+        let json = """
+        {
+          "id":"1","name":"n","data":"d","status":"PENDING",
+          "operationCreated":"2023-04-25T13:09:52+0000",
+          "operationExpires":"2023-04-25T13:14:52+0000",
+          "ui":{
+            "preApprovalScreens":[{
+              "type":"WARNING","heading":"H","message":"M",
+              "elements":[ {"type":"TOTALLY_NEW","text":"new-kind"} ]
+            }]
+          },
+          "allowedSignatureType":{"type":"2FA","variants":[]},
+          "formData":{"title":"t","message":"m","attributes":[]}
+        }
+        """
+        guard let result = prepareResult(response: json) else {
+            XCTFail("Failed to parse JSON data")
+            return
+        }
+        XCTAssertNotNil(result.ui?.preApprovalScreens?.first)
+        XCTAssertNotNil(result.ui?.preApprovalScreens?.first?.elements?.first)
+        XCTAssertEqual(result.ui?.preApprovalScreens?.first?.elements?.first?.text, "new-kind")
+    }
+    
+    func testLegacyEmptyItemsBecomeNilElements() {
+        guard let result = prepareResult(response: preApprovalFutureResponse) else {
+            XCTFail("parse fail"); return
+        }
+        let first = result.ui?.preApprovalScreens?.first
+        XCTAssertEqual(first?.type, .unknown)
+        XCTAssertNil(first?.elements)  // empty items → nil
+    }
+    
     // MARK: Helpers
     private func prepareResult(response: String) -> WMTUserOperation? {
         let result = try? jsonDecoder.decode(WMTUserOperation.self, from: response.data(using: .utf8)!)
