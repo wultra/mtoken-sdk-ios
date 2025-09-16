@@ -244,6 +244,8 @@ func approveWithFDSData() {
 }
 ```
 
+Similarly to approving an operation, you can also pass mobileTokenData when rejecting and operation.
+
 The `mobileTokenData` is completely optional and the structure is customer-specific. If you don't need this functionality, you can continue using operations without providing this property.
 
 ## Reject an Operation
