@@ -259,12 +259,12 @@ class OperationUIDataTests: XCTestCase {
         XCTAssertEqual(first?.controls?.approve?.text, nil)
     }
     
-    func testLegacyEmptyItemsBecomeEmptyElements() {
+    func testLegacyEmptyItemsBecomeNil() {
         let legacyEmptyItems = preApprovalFutureResponse
         let result = prepareResult(response: legacyEmptyItems)
         let first = result?.ui?.preApprovalScreens?.first
         XCTAssertEqual(first?.type, .unknown)
-        XCTAssertEqual(first?.elements?.count ?? 0, 0)
+        XCTAssertNil(first?.elements)
     }
     
     func testSingularIsWrappedIntoPlural() {
