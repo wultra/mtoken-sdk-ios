@@ -308,9 +308,11 @@ public class WMTOperations: WMTService {
         guard validateActivation(completion) else {
             return nil
         }
+        
+        let data = WMTRejectionData(operationId: operation.id, reason: reason, mobileTokenData: operation.mobileTokenData)
                 
         return networking.post(
-            data: .init(.init(operationId: operation.id, reason: reason, mobileTokenData: operation.mobileTokenData)),
+            data: .init(data),
             signedWith: .possession(),
             to: WMTOperationEndpoints.Reject.endpoint
         ) { response, error in
