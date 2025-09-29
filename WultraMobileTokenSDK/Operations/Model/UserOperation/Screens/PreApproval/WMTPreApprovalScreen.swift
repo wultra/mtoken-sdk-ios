@@ -116,8 +116,9 @@ public extension WMTPreApprovalScreen {
     /// - Maps `"approvalType":"SLIDER"` → `controls.approve = .slider`.
     /// - Ignores any other keys (no merging with new-model fields).
     /// - Returns a one-element array on success, otherwise `nil`.
-    static func fromLegacy(_ decoder: Decoder) -> [WMTPreApprovalScreen]? {
-
+    static func fromLegacy(_ decoder: Decoder?) -> [WMTPreApprovalScreen]? {
+        guard let decoder else { return nil }
+        
         // Legacy-only keys we need to translate
         enum LegacyKeys: String, CodingKey {
             case type, heading, message, items, approvalType
