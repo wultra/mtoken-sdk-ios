@@ -129,6 +129,7 @@ public extension WMTPreApprovalScreen {
             
             let typeRaw   = try c.decode(String.self, forKey: .type)
             let type      = ScreenType(rawValue: typeRaw) ?? .unknown
+            let image     = "fallback_image"
             let heading   = try c.decode(String.self, forKey: .heading)
             let message   = try c.decode(String.self, forKey: .message)
             let approval  = try? c.decode(String.self, forKey: .approvalType)
@@ -149,6 +150,7 @@ public extension WMTPreApprovalScreen {
                 type: type,
                 heading: heading,
                 message: message,
+                image: image,
                 elements: elements,
                 controls: controls
             )
