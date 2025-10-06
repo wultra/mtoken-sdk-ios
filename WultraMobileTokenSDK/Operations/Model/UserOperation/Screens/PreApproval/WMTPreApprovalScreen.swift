@@ -139,7 +139,7 @@ public extension WMTPreApprovalScreen {
                 guard c.contains(.items) else { return nil }
                 let items = (try? c.decode([String].self, forKey: .items)) ?? []
                 guard !items.isEmpty else { return nil }
-                return items.map { WMTPreApprovalElementListItem(text: $0) }
+                return items.map { WMTPreApprovalElementListItem(icon: "fallback_icon", text: $0) }
             }()
 
             // controls only if approvalType == SLIDER
