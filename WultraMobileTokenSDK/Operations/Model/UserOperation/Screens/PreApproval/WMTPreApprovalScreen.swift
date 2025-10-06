@@ -143,7 +143,11 @@ public extension WMTPreApprovalScreen {
             }()
 
             // controls only if approvalType == SLIDER
-            let controls = approval == "SLIDER" ? WMTPreApprovalControls(approve: .init(.slider)) : nil
+            let controls = approval == "SLIDER" ? WMTPreApprovalControls(
+                flip: true,
+                decline: .init(.back),
+                approve: .init(.slider)
+            ) : nil
 
             // Build the new-model screen strictly from legacy bits (no mixing)
             let screen = WMTPreApprovalScreen(
