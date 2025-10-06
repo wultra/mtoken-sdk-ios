@@ -374,7 +374,7 @@ class IntegrationTests: XCTestCase {
                                 }
                                 
                                 guard let mtd = finalOp.additionalData?.mobileTokenData else {
-                                    XCTFail("mobileTokenData not in additonalData")
+                                    XCTFail("mobileTokenData not in additionalData")
                                     return
                                 }
                                     
@@ -385,7 +385,7 @@ class IntegrationTests: XCTestCase {
                             }
                             
                         case .failure(let failure):
-                            XCTFail("Failed to auhtorize operation: \(failure.description)")
+                            XCTFail("Failed to authorize operation: \(failure.description)")
                             exp.fulfill()
                         }
                         
@@ -443,7 +443,7 @@ class IntegrationTests: XCTestCase {
                                 }
                                 
                                 guard let mtd = finalOp.additionalData?.mobileTokenData else {
-                                    XCTFail("mobileTokenData not in additonalData")
+                                    XCTFail("mobileTokenData not in additionalData")
                                     return
                                 }
                                     
@@ -454,7 +454,7 @@ class IntegrationTests: XCTestCase {
                             }
                             
                         case .failure(let failure):
-                            XCTFail("Failed to auhtorize operation: \(failure.description)")
+                            XCTFail("Failed to authorize operation: \(failure.description)")
                             exp.fulfill()
                         }
                     }
