@@ -25,7 +25,7 @@ public class WMTPreApprovalElement: Codable {
     /// Type of the element. Based on this type, a proper subclass
     /// will be chosen during deserialization.
     public enum ElementType: String, Codable {
-        case listItem = "LISTITEM"   // Basic list row with optional icon + text
+        case listItem = "LIST_ITEM"   // Basic list row with optional icon + text
         case alert    = "ALERT"      // Highlighted alert box with style + text
         case button   = "BUTTON"     // Action button with action + optional href
         case unknown  = "UNKNOWN"    // Forward-compat fallback
@@ -37,7 +37,7 @@ public class WMTPreApprovalElement: Codable {
     /// Unique identifier of the element.
     public let id: String?
 
-    /// Element type (LISTITEM, ALERT, BUTTON, or UNKNOWN).
+    /// Element type (LIST_ITEM, ALERT, BUTTON, or UNKNOWN).
     public let type: ElementType
         
     /// Icon name (asset identifier).
