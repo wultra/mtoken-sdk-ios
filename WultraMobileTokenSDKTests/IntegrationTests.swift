@@ -427,7 +427,7 @@ class IntegrationTests: XCTestCase {
                         "test4": ["nested": true]
                     ]
 
-                    self.ops.reject(operation: opToReject, with: .custom("POSSIBLE_FRAUD")) { result in
+                    self.ops.reject(operation: opToReject, with: .preapproval) { result in
                         switch result {
                         case .success:
                             
