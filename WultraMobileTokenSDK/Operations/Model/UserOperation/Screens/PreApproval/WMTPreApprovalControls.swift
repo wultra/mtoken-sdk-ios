@@ -17,7 +17,7 @@
 import Foundation
 
 /// Defines approve/decline control configuration on the screen.
-public struct WMTPreApprovalControls: Codable {
+public struct WMTPreApprovalControls: Decodable {
     
     /// Whether to flip the order of approve/decline buttons.
     public let flip: Bool?
@@ -34,7 +34,7 @@ public struct WMTPreApprovalControls: Codable {
     /// Creates a controls payload for the pre-approval screen.
     /// - Parameters:
     ///   - flip: When `true`, the approve control is placed before the decline control.
-    ///   - axis: Layout axis for controls (`.vertical` or `.horizontal`).
+    ///   - axis: Layout axis for controls.
     ///   - decline: Decline control spec.
     ///   - approve: Approve control spec.
     public init(
@@ -50,9 +50,9 @@ public struct WMTPreApprovalControls: Codable {
     }
     
     /// Decline control specification.
-    public struct Decline: Codable {
+    public struct Decline: Decodable {
         
-        /// Type of decline action (`BACK` or `REJECT`).
+        /// Type of decline action.
         public let type: DeclineType
         
         /// Text for the decline button.
@@ -69,7 +69,7 @@ public struct WMTPreApprovalControls: Codable {
     }
     
     /// Approve control specification.
-    public struct Approve: Codable {
+    public struct Approve: Decodable {
         
         /// Type of approve action (`SLIDER` or `BUTTON`).
         public let type: ApproveType
@@ -82,7 +82,7 @@ public struct WMTPreApprovalControls: Codable {
         
         /// Creates an approve control.
         /// - Parameters:
-        ///   - type: `.slider` or `.button`.
+        ///   - type: Type of the action button.
         ///   - text: Optional label override.
         ///   - counter: Optional countdown in seconds before enabling the control.
         public init(_ type: WMTPreApprovalControls.ApproveType, text: String? = nil, counter: Int? = nil) {
@@ -93,11 +93,11 @@ public struct WMTPreApprovalControls: Codable {
     }
 
     /// Axis for arranging controls.
-    public enum ButtonAxis: String, Codable { case vertical = "VERTICAL", horizontal = "HORIZONTAL" }
+    public enum ButtonAxis: String, Decodable { case vertical = "VERTICAL", horizontal = "HORIZONTAL" }
     
     /// Decline action types.
-    public enum DeclineType: String, Codable { case back = "BACK", reject = "REJECT" }
+    public enum DeclineType: String, Decodable { case back = "BACK", reject = "REJECT" }
     
     /// Approve action types.
-    public enum ApproveType: String, Codable { case slider = "SLIDER", button = "BUTTON" }
+    public enum ApproveType: String, Decodable { case slider = "SLIDER", button = "BUTTON" }
 }

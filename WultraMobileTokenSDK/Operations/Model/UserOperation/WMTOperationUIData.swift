@@ -17,7 +17,7 @@
 import Foundation
 
 /// Operation UI contains data for screens pre and/or post approved operation
-open class WMTOperationUIData: Codable {
+open class WMTOperationUIData: Decodable {
     
     /// Confirm and Reject buttons should be flipped both in position and style
     public let flipButtons: Bool?
@@ -36,13 +36,12 @@ open class WMTOperationUIData: Codable {
     // MARK: - INTERNALS
     
     private enum Keys: String, CodingKey {
-        case flipButtons, blockApprovalOnCall, postApprovalScreen
+        case flipButtons
+        case blockApprovalOnCall
+        case postApprovalScreen
         case preApprovalScreens
         case preApprovalScreenLegacy = "preApprovalScreen" // legacy, singular
     }
-    
-    // TODO: REMOVE when BE is finalized
-    public static var defaultPreApprovalScreensProvider: (() -> [WMTPreApprovalScreen]?)?
     
     public required init(from decoder: Decoder) throws {
         let c = try decoder.container(keyedBy: Keys.self)

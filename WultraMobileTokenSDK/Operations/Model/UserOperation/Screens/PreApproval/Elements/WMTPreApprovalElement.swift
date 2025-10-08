@@ -20,11 +20,11 @@ import Foundation
 ///
 /// `WMTPreApprovalElement` is considered to be "abstract".
 /// Every concrete element type has its own strongly typed implementation.
-public class WMTPreApprovalElement: Codable {
+public class WMTPreApprovalElement: Decodable {
 
     /// Type of the element. Based on this type, a proper subclass
     /// will be chosen during deserialization.
-    public enum ElementType: String, Codable {
+    public enum ElementType: String, Decodable {
         case listItem = "LIST_ITEM"   // Basic list row with optional icon + text
         case alert    = "ALERT"      // Highlighted alert box with style + text
         case button   = "BUTTON"     // Action button with action + optional href
@@ -32,12 +32,12 @@ public class WMTPreApprovalElement: Codable {
     }
     
     /// Supported element styles.
-    public enum ElementStyle: String, Codable { case info = "INFO", warning = "WARNING", danger = "DANGER" }
+    public enum ElementStyle: String, Decodable { case info = "INFO", warning = "WARNING", danger = "DANGER" }
 
     /// Unique identifier of the element.
     public let id: String?
 
-    /// Element type (LIST_ITEM, ALERT, BUTTON, or UNKNOWN).
+    /// Element type.
     public let type: ElementType
         
     /// Icon name (asset identifier).
@@ -86,7 +86,7 @@ public class WMTPreApprovalElement: Codable {
         case .alert:    return try WMTPreApprovalElementAlert(from: decoder)
         case .button:   return try WMTPreApprovalElementButton(from: decoder)
         case .unknown:
-            D.debug("Unknown Pre-Approval element type: \(rawType)")
+            D.warning("Unknown Pre-Approval element type: \(rawType)")
             return try WMTPreApprovalElement(from: decoder)
         }
     }

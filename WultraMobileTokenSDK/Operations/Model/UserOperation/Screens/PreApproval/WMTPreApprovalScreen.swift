@@ -20,9 +20,9 @@ import Foundation
 ///
 /// `type` define different kind of data which can be passed with operation
 /// and shall be displayed before operation is confirmed
-public class WMTPreApprovalScreen: Codable {
+public class WMTPreApprovalScreen: Decodable {
     
-    /// Type of PreApprovalScreen (`WARNING`, `INFO`, `QR_SCAN` or unknown for future compatibility )
+    /// Type of the PreApprovalScreen
     public let type: ScreenType
     
     /// Heading of the pre-approval screen
@@ -49,7 +49,7 @@ public class WMTPreApprovalScreen: Codable {
     // MARK: - INTERNALS
     
     /// Supported types of pre-approval screen.
-    public enum ScreenType: String, Codable {
+    public enum ScreenType: String, Decodable {
         case info = "INFO"
         case warning = "WARNING"
         case qr = "QR_SCAN"
@@ -83,7 +83,7 @@ public class WMTPreApprovalScreen: Codable {
                 }
             }
         } catch {
-            D.debug("No elements in WMTPreApprovalElement: \(error)")
+            D.warning("No elements in WMTPreApprovalElement: \(error)")
         }
         self.elements = decodedElements.isEmpty ? nil : decodedElements
         controls = try? c.decode(WMTPreApprovalControls.self, forKey: .controls)
@@ -165,6 +165,7 @@ public extension WMTPreApprovalScreen {
                 controls: controls
             )
             
+            D.warning("Using legacy pre-approval format — consider updating backend/operation template to the new model.")
             return [screen]
         } catch {
             D.error("Failed to parse legacy WMTPreApprovalScreen: \(error)")

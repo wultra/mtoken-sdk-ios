@@ -26,10 +26,10 @@ Version `2.4.x` introduces a new, extensible **Pre‑approval UI Template** and 
    - `axis: HORIZONTAL | VERTICAL` and `flip: Bool` control layout order/stacking
 
 5. **Configurable Visuals**  
-   - Screen `image` and list item `icon` are resolved from app assets (e.g., SVG). When not provided, nothing is shown.
+   - Screen `image` and list item `icon` are resolved from app assets (e.g., SVG).
 
 6. **Reject method**  
-    - The OperationsService reject method now also accepts mobileTokenData, just like confirm. If applicable these values should be attached to WMTOperation when calling confirm/reject methods. 
+    - The OperationsService reject method now also accepts mobileTokenData, just like confirm. If applicable, these values should be attached to WMTOperation when calling confirm/reject methods. 
 
 ---
 

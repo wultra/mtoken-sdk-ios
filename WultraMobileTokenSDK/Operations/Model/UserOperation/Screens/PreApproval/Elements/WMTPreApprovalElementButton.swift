@@ -20,12 +20,12 @@ import Foundation
 public final class WMTPreApprovalElementButton: WMTPreApprovalElement {
 
     /// Supported button actions.
-    public enum ButtonAction: String, Codable { case link = "LINK", mail = "MAIL", phone = "PHONE" }
+    public enum ButtonAction: String, Decodable { case link = "LINK", mail = "MAIL", phone = "PHONE" }
 
     /// Action for the button.
     public let action: ButtonAction?
 
-    /// URL / resource reference (for `LINK`, `MAIL`, `PHONE` actions).
+    /// URL / resource reference.
     public let href: String?
 
     private enum Keys: String, CodingKey { case action, href }

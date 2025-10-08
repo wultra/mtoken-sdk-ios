@@ -27,7 +27,7 @@ class WMTRejectionData: Encodable {
     
     /// Optional mobile token data, structure is customer-specific.
     /// Could be used, for example, for passing FDS data.
-    /// Available with PowerAuth server 1.10+.
+    /// Available with PowerAuth server 2.0+
     let mobileTokenData: [String: WMTAnyEncodable]?
     
     init(operationId: String, reason: WMTRejectionReason, mobileTokenData: [String: Encodable]? = nil) {
