@@ -17,7 +17,7 @@
 import Foundation
 
 /// Operation UI contains data for screens pre and/or post approved operation
-open class WMTOperationUIData: Codable {
+open class WMTOperationUIData: Decodable {
     
     /// Confirm and Reject buttons should be flipped both in position and style
     public let flipButtons: Bool?
@@ -25,10 +25,10 @@ open class WMTOperationUIData: Codable {
     /// Block approval when on call (for example when on phone or skype call)
     public let blockApprovalOnCall: Bool?
     
-    /// UI for pre-approval operation screen
-    public let preApprovalScreen: WMTPreApprovalScreen?
+    /// UI for multiple pre-approval screens
+    public let preApprovalScreens: [WMTPreApprovalScreen]?
     
-    /// UI for post-approval opration screen
+    /// UI for post-approval operation screen
     ///
     /// Type of PostApprovalScrren is presented with different classes (Starting with `WMTPostApprovalScreen*`)
     public let postApprovalScreen: WMTPostApprovalScreen?
@@ -36,21 +36,26 @@ open class WMTOperationUIData: Codable {
     // MARK: - INTERNALS
     
     private enum Keys: String, CodingKey {
-        case flipButtons, blockApprovalOnCall, preApprovalScreen, postApprovalScreen
+        case flipButtons
+        case blockApprovalOnCall
+        case postApprovalScreen
+        case preApprovalScreens
+        case preApprovalScreenLegacy = "preApprovalScreen" // legacy, singular
     }
     
     public required init(from decoder: Decoder) throws {
         let c = try decoder.container(keyedBy: Keys.self)
         flipButtons = try? c.decode(Bool.self, forKey: .flipButtons)
         blockApprovalOnCall = try? c.decode(Bool.self, forKey: .blockApprovalOnCall)
-        preApprovalScreen = try? c.decode(WMTPreApprovalScreen.self, forKey: .preApprovalScreen)
+        preApprovalScreens = (try? c.decode([WMTPreApprovalScreen].self, forKey: .preApprovalScreens)) // plural
+            ?? WMTPreApprovalScreen.fromLegacy(try? c.superDecoder(forKey: .preApprovalScreenLegacy)) // singular fallback else nil
         postApprovalScreen = try? c.decode(WMTPostApprovalScreenDecodable.self, forKey: .postApprovalScreen).postApprovalObject
     }
     
-    public init(flipButtons: Bool?, blockApprovalOnCall: Bool?, preApprovalScreen: WMTPreApprovalScreen?, postApprovalScreen: WMTPostApprovalScreen?) {
+    public init(flipButtons: Bool?, blockApprovalOnCall: Bool?, preApprovalScreens: [WMTPreApprovalScreen]? = nil, postApprovalScreen: WMTPostApprovalScreen?) {
         self.flipButtons = flipButtons
         self.blockApprovalOnCall = blockApprovalOnCall
-        self.preApprovalScreen = preApprovalScreen
+        self.preApprovalScreens = preApprovalScreens
         self.postApprovalScreen = postApprovalScreen
     }
 }

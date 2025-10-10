@@ -17,7 +17,7 @@
 import Foundation
 
 /// Backend payload
-class WMTRejectionData: Codable {
+class WMTRejectionData: Encodable {
     
     /// Operation id
     let id: String
@@ -25,8 +25,14 @@ class WMTRejectionData: Codable {
     /// Rejection reason
     let reason: String
     
-    init(operationId: String, reason: WMTRejectionReason) {
+    /// Optional mobile token data, structure is customer-specific.
+    /// Could be used, for example, for passing FDS data.
+    /// Available with PowerAuth server 2.0+
+    let mobileTokenData: [String: WMTAnyEncodable]?
+    
+    init(operationId: String, reason: WMTRejectionReason, mobileTokenData: [String: Encodable]? = nil) {
         self.id     = operationId
         self.reason = reason.serialized
+        self.mobileTokenData = mobileTokenData?.toAnyEncodable()
     }
 }

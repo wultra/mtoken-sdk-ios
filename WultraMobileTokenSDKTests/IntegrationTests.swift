@@ -187,7 +187,7 @@ class IntegrationTests: XCTestCase {
                     _ = self.ops.claim(operationId: op.operationId) { result in
                         switch result {
                         case .success(let operation):
-                            if operation.ui?.preApprovalScreen?.type == .qr {
+                            if operation.ui?.preApprovalScreens?[0].type == .qr {
                                 self.proxy.getOperation(operationId: op.operationId) { totpOP in
                                     XCTAssertNotNil(totpOP?.proximityOtp, "Even with proximityCheckEnabled: true, in proximityOtp nil")
                                     if let totpOP = totpOP, let proximityOtp = totpOP.proximityOtp {
@@ -374,7 +374,7 @@ class IntegrationTests: XCTestCase {
                                 }
                                 
                                 guard let mtd = finalOp.additionalData?.mobileTokenData else {
-                                    XCTFail("mobileTokenData not in additonalData")
+                                    XCTFail("mobileTokenData not in additionalData")
                                     return
                                 }
                                     
@@ -385,7 +385,7 @@ class IntegrationTests: XCTestCase {
                             }
                             
                         case .failure(let failure):
-                            XCTFail("Failed to auhtorize operation: \(failure.description)")
+                            XCTFail("Failed to authorize operation: \(failure.description)")
                             exp.fulfill()
                         }
                         
@@ -398,6 +398,74 @@ class IntegrationTests: XCTestCase {
             }
         }
         
+        waitForExpectations(timeout: defaultTimeout, handler: nil)
+    }
+    
+    func testRejectPaymentWithMobileTokenData() {
+        let exp = expectation(description: "Reject payment with mobileTokenData")
+
+        proxy.createOperation { op in
+            guard let op = op else {
+                XCTFail("Failed to create operation")
+                exp.fulfill()
+                return
+            }
+
+            self.ops.getOperations { opResult in
+                switch opResult {
+                case .success(let ops):
+                    guard let opToReject = ops.first(where: { $0.id == op.operationId }) else {
+                        XCTFail("Operation was not in the operation list")
+                        exp.fulfill()
+                        return
+                    }
+
+                    opToReject.mobileTokenData = [
+                        "test1": 1,
+                        "test2": 2.3,
+                        "test3": "string",
+                        "test4": ["nested": true]
+                    ]
+
+                    self.ops.reject(operation: opToReject, with: .preApproval) { result in
+                        switch result {
+                        case .success:
+                            
+                            self.proxy.getOperation(operationId: op.operationId) { finalOp in
+                                
+                                defer {
+                                    exp.fulfill()
+                                }
+                                
+                                guard let finalOp else {
+                                    XCTFail("Failed to get operation detail.")
+                                    return
+                                }
+                                
+                                guard let mtd = finalOp.additionalData?.mobileTokenData else {
+                                    XCTFail("mobileTokenData not in additionalData")
+                                    return
+                                }
+                                    
+                                XCTAssertEqual(mtd.test1, 1, "test1 should be 1")
+                                XCTAssertEqual(mtd.test2, 2.3, "test2 should be 2.3")
+                                XCTAssertEqual(mtd.test3, "string", "test3 should be 'string'")
+                                XCTAssertEqual(mtd.test4?["nested"], true, "test4 should be a nested object with 'nested' key")
+                            }
+                            
+                        case .failure(let failure):
+                            XCTFail("Failed to authorize operation: \(failure.description)")
+                            exp.fulfill()
+                        }
+                    }
+
+                case .failure(let error):
+                    XCTFail("Failed to retrieve operations: \(error.description)")
+                    exp.fulfill()
+                }
+            }
+        }
+
         waitForExpectations(timeout: defaultTimeout, handler: nil)
     }
     

@@ -98,6 +98,11 @@
 		EAB7AA7C2D2BFA8F00C50FDC /* WMTPushErrors.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAB7AA7B2D2BFA8900C50FDC /* WMTPushErrors.swift */; };
 		EAB7AA7E2D2C00D100C50FDC /* WMTOperationsErrors.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAB7AA7D2D2C00CA00C50FDC /* WMTOperationsErrors.swift */; };
 		EACAF7B02A126B7D0021CA54 /* WMTJsonValue.swift in Sources */ = {isa = PBXBuildFile; fileRef = EACAF7AF2A126B7D0021CA54 /* WMTJsonValue.swift */; };
+		EAED619E2E7022A6005E173F /* WMTPreApprovalElement.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAED619D2E70229C005E173F /* WMTPreApprovalElement.swift */; };
+		EAED61A12E703FD7005E173F /* WMTPreApprovalElementListItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAED61A02E703FC8005E173F /* WMTPreApprovalElementListItem.swift */; };
+		EAED61A32E703FE0005E173F /* WMTPreApprovalElementAlert.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAED61A22E703FDD005E173F /* WMTPreApprovalElementAlert.swift */; };
+		EAED61A52E703FE8005E173F /* WMTPreApprovalElementButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAED61A42E703FE4005E173F /* WMTPreApprovalElementButton.swift */; };
+		EAED61A72E705360005E173F /* WMTPreApprovalControls.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAED61A62E705356005E173F /* WMTPreApprovalControls.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -207,6 +212,11 @@
 		EAB7AA7B2D2BFA8900C50FDC /* WMTPushErrors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTPushErrors.swift; sourceTree = "<group>"; };
 		EAB7AA7D2D2C00CA00C50FDC /* WMTOperationsErrors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTOperationsErrors.swift; sourceTree = "<group>"; };
 		EACAF7AF2A126B7D0021CA54 /* WMTJsonValue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTJsonValue.swift; sourceTree = "<group>"; };
+		EAED619D2E70229C005E173F /* WMTPreApprovalElement.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTPreApprovalElement.swift; sourceTree = "<group>"; };
+		EAED61A02E703FC8005E173F /* WMTPreApprovalElementListItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTPreApprovalElementListItem.swift; sourceTree = "<group>"; };
+		EAED61A22E703FDD005E173F /* WMTPreApprovalElementAlert.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTPreApprovalElementAlert.swift; sourceTree = "<group>"; };
+		EAED61A42E703FE4005E173F /* WMTPreApprovalElementButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTPreApprovalElementButton.swift; sourceTree = "<group>"; };
+		EAED61A62E705356005E173F /* WMTPreApprovalControls.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTPreApprovalControls.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -557,13 +567,42 @@
 		EA6DDF0D29F8031F0011E234 /* Screens */ = {
 			isa = PBXGroup;
 			children = (
+				EAED619C2E70228E005E173F /* PostApproval */,
+				EAED619B2E70227F005E173F /* PreApproval */,
+			);
+			path = Screens;
+			sourceTree = "<group>";
+		};
+		EAED619B2E70227F005E173F /* PreApproval */ = {
+			isa = PBXGroup;
+			children = (
+				EAED61A62E705356005E173F /* WMTPreApprovalControls.swift */,
+				EAED619F2E7022D8005E173F /* Elements */,
 				EA6DDF0E29F8036B0011E234 /* WMTPreApprovalScreen.swift */,
+			);
+			path = PreApproval;
+			sourceTree = "<group>";
+		};
+		EAED619C2E70228E005E173F /* PostApproval */ = {
+			isa = PBXGroup;
+			children = (
 				EA6DDF1929F804D60011E234 /* WMTPostApprovalScreen.swift */,
 				EA44366B29F9297100DDEC1C /* WMTPostApprovaScreenRedirect.swift */,
 				EA44366929F9294600DDEC1C /* WMTPostApprovaScreenReview.swift */,
 				EA44366D29F9298100DDEC1C /* WMTPostApprovaScreenGeneric.swift */,
 			);
-			path = Screens;
+			path = PostApproval;
+			sourceTree = "<group>";
+		};
+		EAED619F2E7022D8005E173F /* Elements */ = {
+			isa = PBXGroup;
+			children = (
+				EAED61A42E703FE4005E173F /* WMTPreApprovalElementButton.swift */,
+				EAED61A22E703FDD005E173F /* WMTPreApprovalElementAlert.swift */,
+				EAED61A02E703FC8005E173F /* WMTPreApprovalElementListItem.swift */,
+				EAED619D2E70229C005E173F /* WMTPreApprovalElement.swift */,
+			);
+			path = Elements;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -718,6 +757,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				DC68CFD02D538FC500D7468C /* WMTLazy.swift in Sources */,
+				EAED619E2E7022A6005E173F /* WMTPreApprovalElement.swift in Sources */,
+				EAED61A52E703FE8005E173F /* WMTPreApprovalElementButton.swift in Sources */,
 				DC81D1C9244F38DB00F80CD6 /* WMTPushEndpoints.swift in Sources */,
 				DC0268DF29965495000BB9FA /* WMTOperationListResponse.swift in Sources */,
 				EA6807972D43AA350029D3E0 /* WMTPKCECodes.swift in Sources */,
@@ -739,6 +780,7 @@
 				EA6807A32D43D1AD0029D3E0 /* WMTOIDCPowerAuthActivationAttributes.swift in Sources */,
 				BFEEB20B2937AD700047941D /* WMTCancellable.swift in Sources */,
 				DC6E52D6259C964600FC25BE /* WMTOperationExpirationWatcher.swift in Sources */,
+				EAED61A32E703FE0005E173F /* WMTPreApprovalElementAlert.swift in Sources */,
 				DCC5CCDA244DBBE2004679AC /* WMTRejectionData.swift in Sources */,
 				DC48803F292282FF00DB844B /* WMTInboxMessageDetail.swift in Sources */,
 				EA6DDF0F29F8036B0011E234 /* WMTPreApprovalScreen.swift in Sources */,
@@ -777,12 +819,14 @@
 				DC8CB206244DD007009DDAA3 /* WMTAllowedOperationSignature.swift in Sources */,
 				EA1871352E3784D5008F9035 /* WMTOperationAttributeAlert.swift in Sources */,
 				EA6807912D4290C10029D3E0 /* WMTOIDCConfig.swift in Sources */,
+				EAED61A72E705360005E173F /* WMTPreApprovalControls.swift in Sources */,
 				DCC3420424E3DB310045D27D /* WMTPushParser.swift in Sources */,
 				BFEEB20529379C700047941D /* WMTInboxGetMessageDetail.swift in Sources */,
 				EACAF7B02A126B7D0021CA54 /* WMTJsonValue.swift in Sources */,
 				DCAB7BCA24580BAC0006989D /* WMTQROperation.swift in Sources */,
 				DCE6D5742CF5F46000865D6E /* WMTSignatureAPNSEnvironmentDetector.swift in Sources */,
 				DCC5CCBF2449F981004679AC /* WMTOperationAttributePartyInfo.swift in Sources */,
+				EAED61A12E703FD7005E173F /* WMTPreApprovalElementListItem.swift in Sources */,
 				EA9CE2BE2AEAA9FD00FE4E35 /* WMTProximityCheck.swift in Sources */,
 				DC488041292282FF00DB844B /* WMTInboxEndpoints.swift in Sources */,
 				BF53DFC82971905600829814 /* WMTInboxContentType.swift in Sources */,
@@ -848,6 +892,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = DCC5CCA92449F2E1004679AC /* Debug.xcconfig */;
 			buildSettings = {
+				DEVELOPMENT_TEAM = KTT9G859MR;
 			};
 			name = Debug;
 		};
@@ -855,6 +900,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = DCC5CCAA2449F2ED004679AC /* Release.xcconfig */;
 			buildSettings = {
+				DEVELOPMENT_TEAM = KTT9G859MR;
 			};
 			name = Release;
 		};

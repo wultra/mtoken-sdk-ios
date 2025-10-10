@@ -24,6 +24,8 @@ public enum WMTRejectionReason {
     case incorrectData
     /// User didn't started this operation
     case unexpectedOperation
+    /// The operation was rejected on the PreApproval screen.
+    case preApproval
     /// Represents a custom reason for rejection, allowing for flexibility in specifying rejection reasons.
     /// - Parameter reason: A string describing the custom rejection reason, e.g., `POSSIBLE_FRAUD`.
     case custom(_ reason: String)
@@ -34,6 +36,7 @@ public enum WMTRejectionReason {
         case .unknown: "UNKNOWN"
         case .incorrectData: "INCORRECT_DATA"
         case .unexpectedOperation: "UNEXPECTED_OPERATION"
+        case .preApproval: "PREAPPROVAL"
         case .custom(let reason): reason
         }
     }
