@@ -198,10 +198,9 @@ func approveWithBiometry(operation: WMTOperation) {
 
 With PowerAuth server 1.10+, you can pass additional customer-specific data during operation authorization using the `mobileTokenData` property. This can be useful for fraud detection systems (FDS) or other custom business logic.
 
-```swift
-import WultraMobileTokenSDK
-import PowerAuth2
+You can create your own structure:
 
+```swift
 // Create a custom operation with mobile token data
 class CustomOperation: WMTOperation {
     let id: String
@@ -243,6 +242,83 @@ func approveWithFDSData() {
     }
 }
 ```
+
+Or the SDK introduces a helper - `MobileTokenData.Builder`:
+
+### WMTMobileTokenData Builder
+
+The WMTMobileTokenData.Builder lets you compose additional structured data to an operation before it’s approved or rejected.
+
+- You can:
+  - Pass your map of key–values to the builder init
+  - Add generic key–value pairs using `put(key, value)`.
+  - Use predefined structured sections (records), such as `WMTPreApprovalScreensRecorder`.
+  - Extend it with your **own record types** if needed.
+
+#### Example usage
+
+```swift
+// 1) Create the builder (optionally with base values)
+let builder = WMTMobileTokenData.Builder(
+    powerAuthSDK: pa,
+    base: yourPredefinedArrayOfKeyValues
+)
+
+// You can add generic entries
+builder.put("deviceFingerprint", "abc123")
+builder.put("riskScore", 0.82)
+
+// You can record Pre-approval flow
+builder.preApproval
+    .begin("intro-warning")
+    .end("intro-warning", action: .close)
+    .begin("intro-warning")
+    .end("intro-warning", action: .continue)
+    .begin("qr")
+    .end("qr", action: .scan)
+    .build() // finalize & attach this record to the builder
+
+// Attach to the operation right before approve/reject
+operation.mobileTokenData = builder.build()
+```
+
+> [!NOTE]
+> Once builder.build() is called, the resulting data is immutable and can be safely assigned to an operation.
+
+
+#### Custom record
+
+To integrate your own data section, implement the `MobileTokenDataRecord` interface:
+
+```kotlin
+class CustomRecord(private val parent: MobileTokenData.Builder): MobileTokenDataRecord {
+    override val key = "customSection"
+    private val data = mutableMapOf<String, Any>()
+
+    fun add(name: String, value: Any) = apply { data[name] = value }
+
+    override fun build() = parent.put(this) // build will put the Record to the parent Builder
+    override fun reset() = data.clear()
+    override fun toValue() = data
+}
+
+val builder = MobileTokenData.Builder(pa)
+
+val customRecord = CustomRecord(builder)
+customRecord.add("flag", true)
+customRecord.add("mode", "debug")
+customRecord.build()
+
+// And build the final map
+val mtd = builder.build() // creates the mobileTokenData
+
+// Assign created MobileTokenData to the Operation before approving/rejecting
+operation.mobileTokenData = mtd
+
+```
+
+---
+
 
 Similarly to approving an operation, you can also pass mobileTokenData when rejecting an operation.
 
@@ -674,16 +750,19 @@ Types:
 
 A pre-approval screen can contain the following building blocks:
 
-	•	Heading and message – textual content displayed at the top of the screen.
-	•	Optional metadata – id (unique identifier), backButton (show navigation back button), and image (in-app asset identifier).
-	•	Elements – structured items that form the main content of the screen:
-	   - List item – text with optional icon with style (INFO, WARNING, DANGER).
-	   - Alert – highlighted box with style (INFO, WARNING, DANGER).
-	   - Button – action element with LINK, MAIL, or PHONE.
-	•	Controls – configuration of approve/decline actions:
-	   - Decline – BACK or REJECT, with optional text. 
-	   - Approve – SLIDER or BUTTON, with optional text and optional countdown (counter). 
-	   - Layout options – axis (HORIZONTAL or VERTICAL) and flip (swap order of controls).
+- Heading and message – textual content displayed at the top of the screen.
+- Optional metadata
+  - id - unique identifier) 
+  - backButton - show navigation back button
+  - image - in-app asset identifier
+- Elements – structured items that form the main content of the screen:
+  - List item – text with optional icon with style (INFO, WARNING, DANGER).
+  - Alert – highlighted box with style (INFO, WARNING, DANGER).
+  - Button – action element with LINK, MAIL, or PHONE.
+- Controls – configuration of approve/decline actions:
+  - Decline – BACK or REJECT, with optional text. 
+  - Approve – SLIDER or BUTTON, with optional text and optional countdown (counter). 
+  - Layout options – axis (HORIZONTAL or VERTICAL) and flip (swap order of controls).
 
 #### PostApprovalScreen:
 `WMTPostApprovalScreen*` classes commonly contain `heading` and `message` and different payload data
