@@ -290,27 +290,42 @@ operation.mobileTokenData = builder.build()
 
 To integrate your own data section, implement the `MobileTokenDataRecord` interface:
 
-```kotlin
-class CustomRecord(private val parent: MobileTokenData.Builder): MobileTokenDataRecord {
-    override val key = "customSection"
-    private val data = mutableMapOf<String, Any>()
-
-    fun add(name: String, value: Any) = apply { data[name] = value }
-
-    override fun build() = parent.put(this) // build will put the Record to the parent Builder
-    override fun reset() = data.clear()
-    override fun toValue() = data
+```swift
+class CustomRecord: MobileTokenDataRecord {
+    private let parent: MobileTokenData.Builder
+    let key = "customSection"
+    private var data: [String: Any] = [:]
+    init(parent: MobileTokenData.Builder) {
+        self.parent = parent
+    }
+    
+    @discardableResult
+    func add(name: String, value: Any) -> CustomRecord {
+        data[name] = value
+        return self
+    }
+    
+    func build() {
+        parent.put(self) // build will put the Record to the parent Builder
+    }
+    
+    func reset() {
+        data.removeAll()
+    }
+    
+    func toValue() -> [String: Any] {
+        return data
+    }
 }
 
-val builder = MobileTokenData.Builder(pa)
-
-val customRecord = CustomRecord(builder)
-customRecord.add("flag", true)
-customRecord.add("mode", "debug")
+let builder = MobileTokenData.Builder(pa)
+let customRecord = CustomRecord(parent: builder)
+customRecord.add(name: "flag", value: true)
+customRecord.add(name: "mode", value: "debug")
 customRecord.build()
 
-// And build the final map
-val mtd = builder.build() // creates the mobileTokenData
+id - unique identifier // And build the final map
+let mtd = builder.build() // creates the mobileTokenData
 
 // Assign created MobileTokenData to the Operation before approving/rejecting
 operation.mobileTokenData = mtd
@@ -752,7 +767,7 @@ A pre-approval screen can contain the following building blocks:
 
 - Heading and message – textual content displayed at the top of the screen.
 - Optional metadata
-  - id - unique identifier) 
+  - id - unique identifier
   - backButton - show navigation back button
   - image - in-app asset identifier
 - Elements – structured items that form the main content of the screen:
