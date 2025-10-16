@@ -29,9 +29,6 @@ public extension WMTMobileTokenData {
     /// and structured `WMTMobileTokenDataRecord` instances.
     final class Builder {
 
-        /// PowerAuth used for time synchronization when records need timestamps.
-        public let powerAuthSDK: PowerAuthSDK
-
         /// Base content used as the initial state of the builder.
         /// This content is copied into the output first.
         private var baseMap: [String: Encodable]
@@ -53,8 +50,7 @@ public extension WMTMobileTokenData {
         /// - Parameters:
         ///   - powerAuthSDK: `PowerAuthSDK` instance (for time sync).
         ///   - base: Optional initial content copied into the output first.
-        public init(powerAuthSDK: PowerAuthSDK, base: [String: Encodable]? = nil) {
-            self.powerAuthSDK = powerAuthSDK
+        public init(base: [String: Encodable]? = nil) {
             self.baseMap = base ?? [:]
         }
 
@@ -143,10 +139,22 @@ public extension WMTMobileTokenData {
 // MARK: - Built-in helper accessor
 
 public extension WMTMobileTokenData.Builder {
-    /// Lazily provides a cached `WMTPreApprovalScreensRecorder` for this builder.
-    var preApproval: WMTPreApprovalScreensRecorder {
+    
+    /// Returns the pre-approval screens recorder bound to this builder.
+    ///
+    /// - Behavior:
+    ///   - Returns the same recorder instance for the lifetime of this builder.
+    ///   - This is intentional: a single operation should produce a single
+    ///     pre-approval flow payload.
+    /// - Reset:
+    ///   - If you need to discard the current timeline and start over,
+    ///     call `pre.reset()` and continue recording.
+    ///
+    /// - Note:
+    ///   The recorder is only attached to the output map when you call `pre.build()`.
+    func preApproval(powerAuthSDK: PowerAuthSDK) -> WMTPreApprovalScreensRecorder {
         helper(key: "preApprovalScreensRecorder") {
-            WMTPreApprovalScreensRecorder(parent: self)
+            WMTPreApprovalScreensRecorder(powerAuthSDK: powerAuthSDK, dataBuilder: self)
         }
     }
 }

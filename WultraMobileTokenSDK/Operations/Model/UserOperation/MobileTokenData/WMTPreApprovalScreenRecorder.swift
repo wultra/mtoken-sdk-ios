@@ -17,24 +17,17 @@
 import Foundation
 import PowerAuth2
 
-/// Helper used to document the user flow through Pre-approval Screens.
-///
-/// The recorder tracks when each screen in the Pre-approval flow is opened
-/// and closed, together with the user action that caused the transition.
-/// Each recorded visit contains timestamps and an optional `ScreenAction`.
-///
-/// When finalized via `build()`, the recorder produces a structured record
-/// that can be attached to a `WMTMobileTokenData.Builder` and later serialized
-/// into `mobileTokenData` during operation authorization or rejection.
+/// Helper recording user navigation through Pre-approval Screens.
+/// Captures open/close timestamps and the action that ended each visit.
+/// When `build()` (final on the base class) is called, this record is attached
+/// to `WMTMobileTokenData.Builder` and later serialized to `mobileTokenData`.
 public final class WMTPreApprovalScreensRecorder: WMTMobileTokenDataRecord {
-
-    // MARK: Record metadata
 
     /// Top-level key under which this record is stored in `mobileTokenData`.
     public static let key = "preApprovalScreens"
-    public var key: String { Self.key }
+    public override var key: String { Self.key }
 
-    // MARK: Action enumeration (extensible)
+    // MARK: Action (extensible)
 
     /// Extensible action set. Serializes to `name`.
     public enum ScreenAction: Encodable {
@@ -59,7 +52,7 @@ public final class WMTPreApprovalScreensRecorder: WMTMobileTokenDataRecord {
 
     // MARK: Visit model
 
-    /// Represents a single screen visit in the Pre-approval flow.
+    /// One screen visit within the Pre-approval flow.
     private struct Visit: Encodable {
         let screen: String
         let timestampOpened: Date
@@ -67,31 +60,29 @@ public final class WMTPreApprovalScreensRecorder: WMTMobileTokenDataRecord {
         var action: String?
     }
 
-    // MARK: Internal state
+    // MARK: - State
 
-    /// Parent builder to which this record attaches itself on `build()`.
-    private let parent: WMTMobileTokenData.Builder
+    /// PowerAuthSDK instance from which the time synchronization service will be used
+    private let powerAuthSDK: PowerAuthSDK
 
     /// Currently open visit (if any).
-    private var open: Visit?
+    private var openVisit: Visit?
 
     /// Finalized visits accumulated by the recorder.
-    private var finalized: [Visit] = []
+    private var visits: [Visit] = []
 
     /// `true` once `build()` has been called – the record is frozen.
     private var sealed = false
-
-    /// Frozen payload after `build()`; emitted by `toValue()`.
-    private var snapshot: [Visit]?
 
     /// Synchronization primitive that protects recorder state.
     private let lock = WMTLock()
 
     // MARK: Init
 
-    /// Creates a new recorder bound to a specific MobileTokenData builder.
-    public init(parent: WMTMobileTokenData.Builder) {
-        self.parent = parent
+    /// Binds this recorder to a specific MobileTokenData builder.
+    public init(powerAuthSDK: PowerAuthSDK, dataBuilder: WMTMobileTokenData.Builder) {
+        self.powerAuthSDK = powerAuthSDK
+        super.init(dataBuilder: dataBuilder)
     }
 
     // MARK: Recording API
@@ -101,12 +92,12 @@ public final class WMTPreApprovalScreensRecorder: WMTMobileTokenDataRecord {
     @discardableResult
     public func begin(_ id: String) -> Self {
         lock.synchronized {
-            guard sealed == false, id.isEmpty == false else { return }
-            if let live = open {
+            guard !sealed, !id.isEmpty else { return }
+            if let live = openVisit {
                 if live.screen == id { return }
-                finalized.append(live)
+                visits.append(live)
             }
-            open = Visit(screen: id, timestampOpened: now(), timestampClosed: nil, action: nil)
+            openVisit = Visit(screen: id, timestampOpened: now(), timestampClosed: nil, action: nil)
         }
         return self
     }
@@ -116,63 +107,40 @@ public final class WMTPreApprovalScreensRecorder: WMTMobileTokenDataRecord {
     @discardableResult
     public func end(_ id: String, action: ScreenAction) -> Self {
         lock.synchronized {
-            guard sealed == false, var live = open, live.screen == id else { return }
+            guard !sealed, var live = openVisit, live.screen == id else { return }
             live.timestampClosed = now()
             live.action = action.name
-            finalized.append(live)
-            open = nil
+            visits.append(live)
+            openVisit = nil
         }
         return self
     }
 
-    /// Closes any open visit and marks it with the given `action`.
-    /// Useful for unexpected termination paths (dismiss, background, etc.).
-    @discardableResult
-    public func closeOpen(as action: ScreenAction) -> Self {
+    // MARK: - WMTMobileTokenDataRecord overrides
+    
+    /// Serialize to an array of visit dictionaries; seals on first call.
+    public override func toValue() -> Encodable {
         lock.synchronized {
-            guard sealed == false, var live = open else { return }
-            live.timestampClosed = now()
-            live.action = action.name
-            finalized.append(live)
-            open = nil
-        }
-        return self
-    }
-
-    // MARK: WMTMobileTokenDataRecord
-
-    /// Finalizes the recorder and attaches itself to the parent builder.
-    /// Multiple calls are safe (idempotent).
-    public func build() {
-        lock.synchronized {
-            guard sealed == false else { return }
             sealed = true
-            snapshot = finalized
-            parent.put(self)
+            // Only emit finalized visits.
+            return visits as [Visit]
         }
     }
 
-    /// Clears collected visits and allows the recorder to be used again.
-    public func reset() {
+    /// Clear collected visits so the recorder can be reused if needed.
+    public override func reset() {
         lock.synchronized {
-            open = nil
-            finalized.removeAll()
-            snapshot = nil
+            openVisit = nil
+            visits.removeAll()
             sealed = false
         }
     }
-
-    /// Returns the frozen representation produced by `build()`.
-    /// Until `build()` is called, this returns an empty array.
-    public func toValue() -> Encodable {
-        lock.synchronized { snapshot ?? [] as [Visit] }
-    }
-
+    
     // MARK: Time helper
 
     /// Current time using `PowerAuthSDK` time synchronization when available.
     private func now() -> Date {
-        let timeService = parent.powerAuthSDK.timeSynchronizationService
+        let timeService = powerAuthSDK.timeSynchronizationService
         return timeService.isTimeSynchronized ? Date(timeIntervalSince1970: timeService.currentTime()) : Date()
     }
 }

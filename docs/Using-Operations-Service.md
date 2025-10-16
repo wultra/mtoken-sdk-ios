@@ -247,7 +247,7 @@ Or the SDK introduces a helper - `MobileTokenData.Builder`:
 
 ### WMTMobileTokenData Builder
 
-The WMTMobileTokenData.Builder lets you compose additional structured data to an operation before it’s approved or rejected.
+The WMTMobileTokenData.Builder helps you safely compose additional structured data to an operation before it’s approved or rejected.
 
 - You can:
   - Pass your map of key–values to the builder init
@@ -255,12 +255,12 @@ The WMTMobileTokenData.Builder lets you compose additional structured data to an
   - Use predefined structured sections (records), such as `WMTPreApprovalScreensRecorder`.
   - Extend it with your **own record types** if needed.
 
+
 #### Example usage
 
 ```swift
-// 1) Create the builder (optionally with base values)
+// Create the builder (optionally with base values)
 let builder = WMTMobileTokenData.Builder(
-    powerAuthSDK: pa,
     base: yourPredefinedArrayOfKeyValues
 )
 
@@ -268,8 +268,10 @@ let builder = WMTMobileTokenData.Builder(
 builder.put("deviceFingerprint", "abc123")
 builder.put("riskScore", 0.82)
 
-// You can record Pre-approval flow
-builder.preApproval
+// You can record the Pre-approval flow.
+// The PowerAuthSDK instance provides a timeSynchronizationService used
+// to create accurate, server-aligned timestamps for each recorded event.
+builder.preApproval(powerAuthSDK)
     .begin("intro-warning")
     .end("intro-warning", action: .close)
     .begin("intro-warning")
@@ -291,46 +293,47 @@ operation.mobileTokenData = builder.build()
 To integrate your own data section, implement the `MobileTokenDataRecord` interface:
 
 ```swift
-class CustomRecord: MobileTokenDataRecord {
-    private let parent: MobileTokenData.Builder
+final class CustomRecord: WMTMobileTokenDataRecord {
     let key = "customSection"
-    private var data: [String: Any] = [:]
-    init(parent: MobileTokenData.Builder) {
-        self.parent = parent
+    private var data: [String: Encodable] = [:]
+    
+    override init(dataBuilder: WMTMobileTokenData.Builder) {
+        super.init(dataBuilder: dataBuilder)
     }
     
     @discardableResult
-    func add(name: String, value: Any) -> CustomRecord {
+    func add(_ name: String, _ value: Encodable) -> Self {
         data[name] = value
         return self
     }
     
-    func build() {
-        parent.put(self) // build will put the Record to the parent Builder
+    override func toValue() -> Encodable {
+        data
     }
     
-    func reset() {
+    override func reset() {
         data.removeAll()
-    }
-    
-    func toValue() -> [String: Any] {
-        return data
     }
 }
 
-let builder = MobileTokenData.Builder(pa)
+let builder = MobileTokenData.Builder()
 let customRecord = CustomRecord(parent: builder)
 customRecord.add(name: "flag", value: true)
 customRecord.add(name: "mode", value: "debug")
-customRecord.build()
+customRecord.build() // call build() when you are finished - data added to the builder
 
-id - unique identifier // And build the final map
 let mtd = builder.build() // creates the mobileTokenData
 
 // Assign created MobileTokenData to the Operation before approving/rejecting
 operation.mobileTokenData = mtd
 
 ```
+
+
+> [!NOTE]
+> Always call build() on your custom record to attach it to the parent builder.
+> This ensures the record’s content is included in the final mobileTokenData map.
+
 
 ---
 

@@ -421,7 +421,6 @@ class IntegrationTests: XCTestCase {
 
                     // --- Build mobileTokenData ---
                     let builder = WMTMobileTokenData.Builder(
-                        powerAuthSDK: self.pa,
                         base: [
                             "test1": 8
                         ]
@@ -433,7 +432,7 @@ class IntegrationTests: XCTestCase {
                         .put("test3", "someString")
 
                     // Pre-approval flow timeline
-                    builder.preApproval
+                    builder.preApproval(powerAuthSDK: self.proxy.powerAuth!)
                         .begin("intro-warning")
                         .end("intro-warning", action: .close)
                         .begin("intro-warning")
@@ -534,36 +533,30 @@ class IntegrationTests: XCTestCase {
 
                     // CustomRecord implementation
                     final class CustomRecord: WMTMobileTokenDataRecord {
-                        let parent: WMTMobileTokenData.Builder
-                        let key = "customRecord"
+                        public static let key = "customRecord"
+                        public override var key: String { Self.key }
+                        
                         private var data: [String: Encodable] = [:]
 
-                        init(parent: WMTMobileTokenData.Builder) {
-                            self.parent = parent
+                        override init(dataBuilder: WMTMobileTokenData.Builder) {
+                            super.init(dataBuilder: dataBuilder)
                         }
 
+                        @discardableResult
                         func add(_ name: String, _ value: Encodable) -> Self {
                             data[name] = value
                             return self
                         }
 
-                        func build() {
-                            parent.put(self)
-                        }
-
-                        func reset() {
-                            data.removeAll()
-                        }
-
-                        func toValue() -> Encodable {
+                        override func toValue() -> Encodable {
                             data.toAnyEncodable()
                         }
                     }
 
                     // Build the MobileTokenData
-                    let builder = WMTMobileTokenData.Builder(powerAuthSDK: self.pa)
+                    let builder = WMTMobileTokenData.Builder()
 
-                    CustomRecord(parent: builder)
+                    CustomRecord(dataBuilder: builder)
                         .add("flag", true)
                         .add("mode", "debug")
                         .build()
