@@ -65,6 +65,21 @@ public extension WMTMobileTokenData {
             }
             return self
         }
+        
+        /// Removes a generic key–value entry. Returns `true` if the key existed.
+        @discardableResult
+        public func removeGeneric(key: String) -> Bool {
+            lock.synchronized {
+                return generic.removeValue(forKey: key) != nil
+            }
+        }
+        
+        /// Clear all generic entries (does not touch records).
+        @discardableResult
+        public func clearGeneric() -> Builder {
+            lock.synchronized { generic.removeAll() }
+            return self
+        }
 
         // MARK: Records
 
@@ -73,9 +88,7 @@ public extension WMTMobileTokenData {
         @discardableResult
         public func put(_ record: WMTMobileTokenDataRecord) -> Builder {
             lock.synchronized {
-                if let idx = records.firstIndex(where: { $0.key == record.key }) {
-                    records.remove(at: idx)
-                }
+                records.removeAll { $0.key == record.key }
                 records.append(record)
             }
             return self
@@ -85,11 +98,9 @@ public extension WMTMobileTokenData {
         @discardableResult
         public func removeRecord(key: String) -> Bool {
             return lock.synchronized {
-                if let idx = records.firstIndex(where: { $0.key == key }) {
-                    records.remove(at: idx)
-                    return true
-                }
-                return false
+                let originalCount = records.count
+                records.removeAll { $0.key == key }
+                return records.count < originalCount
             }
         }
 
