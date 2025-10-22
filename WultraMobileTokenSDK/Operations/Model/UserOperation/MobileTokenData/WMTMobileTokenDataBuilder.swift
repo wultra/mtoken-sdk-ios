@@ -17,155 +17,79 @@
 import Foundation
 import PowerAuth2
 
-/// Helper for building additional data passed to the [IOperation].
-///
-/// The container allows combining generic key–value pairs with structured
-/// records that define their own key and value representation.
+/// Helper for composing additional data passed with an `WMTOperation`.
 public enum WMTMobileTokenData {}
 
 public extension WMTMobileTokenData {
 
-    /// Builds a map of additional data composed from generic entries
+    /// Builds a dictionary of additional data composed from generic key-value entries
     /// and structured `WMTMobileTokenDataRecord` instances.
+    ///
+    /// Thread-safe: all mutations are synchronized.
+    /// Replacement semantics: putting the same key again overwrites the prior value.
     final class Builder {
 
-        /// Base content used as the initial state of the builder.
-        /// This content is copied into the output first.
-        private var baseMap: [String: Encodable]
-
-        /// Generic key–value entries added directly by the application.
-        private var generic: [String: Encodable] = [:]
-
-        /// Finalized record objects to be written into the output map.
-        private var records: [WMTMobileTokenDataRecord] = []
-
-        /// Cache of *helpers/recorders* keyed by name.
-        /// Helpers are not serialized; they are internal to the builder.
-        private var helpers: [String: Any] = [:]
+         /// Thread-safe key–value data dictionary.
+        private var mobileTokenData: [String: Encodable]
 
         /// Synchronization primitive that protects internal state.
         private let lock = WMTLock()
 
-        /// Designated initializer.
-        /// - Parameters:
-        ///   - powerAuthSDK: `PowerAuthSDK` instance (for time sync).
-        ///   - base: Optional initial content copied into the output first.
-        public init(base: [String: Encodable]? = nil) {
-            self.baseMap = base ?? [:]
+        /// Creates a new builder.
+        /// - Parameter initialData: Optional initial entries inserted into the builder.
+        public init(initialData: [String: Encodable]? = nil) {
+            self.mobileTokenData = initialData ?? [:]
         }
-
-        // MARK: Generic entries
 
         /// Adds or replaces a generic key–value entry.
         /// If a key already exists, its value is replaced.
         @discardableResult
         public func put(_ key: String, _ value: Encodable) -> Builder {
             lock.synchronized {
-                generic[key] = value
+                mobileTokenData[key] = value
             }
             return self
         }
-        
-        /// Removes a generic key–value entry. Returns `true` if the key existed.
-        @discardableResult
-        public func removeGeneric(key: String) -> Bool {
-            lock.synchronized {
-                return generic.removeValue(forKey: key) != nil
-            }
-        }
-        
-        /// Clear all generic entries (does not touch records).
-        @discardableResult
-        public func clearGeneric() -> Builder {
-            lock.synchronized { generic.removeAll() }
-            return self
-        }
 
-        // MARK: Records
-
-        /// Adds or replaces a finalized record.
-        /// If another record with the same `key` exists, it is replaced.
+        /// Adds or replaces a structured record under its declared `key`.
+        /// The record’s `build()` is invoked and the resulting value is stored.
+        /// If an entry with the same key already exists, it is replaced.
         @discardableResult
         public func put(_ record: WMTMobileTokenDataRecord) -> Builder {
-            lock.synchronized {
-                records.removeAll { $0.key == record.key }
-                records.append(record)
-            }
-            return self
+            return put(record.key, record.build())
         }
 
-        /// Removes a finalized record by key. Returns `true` if removed.
+        /// Removes an entry by its key.
+        /// - Returns: `true` if the key was present and removed.
         @discardableResult
-        public func removeRecord(key: String) -> Bool {
+        public func remove(key: String) -> Bool {
             return lock.synchronized {
-                let originalCount = records.count
-                records.removeAll { $0.key == key }
-                return records.count < originalCount
+                let hadKey = mobileTokenData[key] != nil
+                mobileTokenData.removeValue(forKey: key)
+                return hadKey
             }
         }
 
-        /// Removes the given record (by its key). Returns `true` if removed.
+        /// Removes the given record by its `key`.
+        /// - Returns: `true` if the key was present and removed.
         @discardableResult
         public func remove(_ record: WMTMobileTokenDataRecord) -> Bool {
-            removeRecord(key: record.key)
+            return remove(key: record.key)
         }
-
-        /// Removes all finalized records.
+        
+        /// Removes all entries from the builder.
         @discardableResult
-        public func clearAllRecords() -> Builder {
-            lock.synchronized {
-                records.removeAll()
-            }
+        public func clear() -> Builder {
+            lock.synchronized { mobileTokenData.removeAll() }
             return self
-        }
-
-        // MARK: Helpers
-
-        /// Lazily create & cache a helper/recorder instance by string key.
-        /// Helpers are not part of the serialized payload.
-        public func helper<T>(key: String, make: () -> T) -> T {
-            return lock.synchronized {
-                if let cached = helpers[key] as? T { return cached }
-                let created = make()
-                helpers[key] = created
-                return created
-            }
         }
 
         // MARK: Output
 
-        /// Produces the final immutable map containing base entries,
-        /// generic entries and all finalized records.
+        /// Returns a snapshot of the collected data.
+        /// The returned dictionary is a value copy and can be assigned to `operation.mobileTokenData`.
         public func build() -> [String: Encodable] {
-            return lock.synchronized {
-                var out = baseMap
-                for (k, v) in generic { out[k] = v }
-                for r in records { out[r.key] = r.toValue() }
-                return out
-            }
-        }
-    }
-}
-
-// MARK: - Built-in helper accessor
-
-public extension WMTMobileTokenData.Builder {
-    
-    /// Returns the pre-approval screens recorder bound to this builder.
-    ///
-    /// - Behavior:
-    ///   - Returns the same recorder instance for the lifetime of this builder.
-    ///   - This is intentional: a single operation should produce a single
-    ///     pre-approval flow payload.
-    /// - Reset:
-    ///   - If you need to discard the current timeline and start over,
-    ///     call `pre.reset()` and continue recording.
-    ///
-    /// - Note:
-    ///   The recorder is only attached to the output map when you call `pre.build()`.
-    func preApproval(powerAuthSDK: PowerAuthSDK) -> WMTPreApprovalScreensRecorder {
-        helper(key: "preApprovalScreensRecorder") {
-            WMTPreApprovalScreensRecorder(powerAuthSDK: powerAuthSDK, dataBuilder: self)
+            return lock.synchronized { mobileTokenData }
         }
     }
 }

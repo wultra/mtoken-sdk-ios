@@ -250,42 +250,44 @@ Or the SDK introduces a helper - `MobileTokenData.Builder`:
 The WMTMobileTokenData.Builder helps you safely compose additional structured data to an operation before it’s approved or rejected.
 
 - You can:
-  - Pass your map of key–values to the builder init
-  - Add generic key–value pairs using `put(key, value)`.
-  - Use predefined structured sections (records), such as `WMTPreApprovalScreensRecorder`.
-  - Extend it with your **own record types** if needed.
+  - Initialize it with optional initialData key–value entries.
+  - Add or replace key–value pairs using `put(key, value)`.
+  - Use predefined structured records (e.g. `WMTPreApprovalScreensRecorder`) via `put(record)`.
+  - Extend it with your **own record types** conforming to `WMTMobileTokenDataRecord`
 
 
 #### Example usage
 
 ```swift
-// Create the builder (optionally with base values)
-let builder = WMTMobileTokenData.Builder(
-    base: yourPredefinedArrayOfKeyValues
-)
+// Optional initial data entries (e.g., FDS hints)
+let initialData = [
+    "deviceFingerprint": "abc123"
+]
 
-// You can add generic entries
-builder.put("deviceFingerprint", "abc123")
+// Create the builder (optionally with initial data)
+let builder = WMTMobileTokenData.Builder(initialData: initialData)
+
+// You can add generic entries ([String: Encodable] pairs)
 builder.put("riskScore", 0.82)
 
-// You can record the Pre-approval flow.
+// You can record the Pre-approval flow over time
 // The PowerAuthSDK instance provides a timeSynchronizationService used
 // to create accurate, server-aligned timestamps for each recorded event.
-builder.preApproval(powerAuthSDK)
-    .begin("intro-warning")
-    .end("intro-warning", action: .close)
-    .begin("intro-warning")
-    .end("intro-warning", action: .continue)
-    .begin("qr")
-    .end("qr", action: .scan)
-    .build() // finalize & attach this record to the builder
+let screenRecorder = WMTPreApprovalScreensRecorder(powerAuthSDK)
+    
+// Display UI for the PreApproval screen and record it 
+screenRecorder.begin(screen.id)
+// Record when user leaves the PreApproval screen
+screenRecorder.end(screen.id, action: .close)
+
+// ... repeat for the whole screens flow from the PreApprovalScreens array    
+    
+// When your PreApproval flow is finished pass the WMTPreApprovalScreensRecorder to the WMTMobileTokenData.Builder    
+builder.put(screenRecorder)
 
 // Attach to the operation right before approve/reject
 operation.mobileTokenData = builder.build()
 ```
-
-> [!NOTE]
-> Once builder.build() is called, the resulting data is immutable and can be safely assigned to an operation.
 
 
 #### Custom record
@@ -294,33 +296,33 @@ To integrate your own data section, implement the `MobileTokenDataRecord` interf
 
 ```swift
 final class CustomRecord: WMTMobileTokenDataRecord {
-    let key = "customSection"
+
+    public static let key = "customRecord"
+    public var key: String { Self.key }
+    
     private var data: [String: Encodable] = [:]
-    
-    override init(dataBuilder: WMTMobileTokenData.Builder) {
-        super.init(dataBuilder: dataBuilder)
-    }
-    
+
     @discardableResult
     func add(_ name: String, _ value: Encodable) -> Self {
         data[name] = value
         return self
     }
-    
-    override func toValue() -> Encodable {
-        data
-    }
-    
-    override func reset() {
-        data.removeAll()
+
+    func build() -> Encodable {
+        data.toAnyEncodable()
     }
 }
 
 let builder = MobileTokenData.Builder()
-let customRecord = CustomRecord(parent: builder)
+let customRecord = CustomRecord()
 customRecord.add(name: "flag", value: true)
 customRecord.add(name: "mode", value: "debug")
-customRecord.build() // call build() when you are finished - data added to the builder
+
+// You can attach the record directly…
+builder.put(record)
+
+// …or manually by key and value:
+builder.put(record.key, record.build())
 
 let mtd = builder.build() // creates the mobileTokenData
 
@@ -328,11 +330,6 @@ let mtd = builder.build() // creates the mobileTokenData
 operation.mobileTokenData = mtd
 
 ```
-
-
-> [!NOTE]
-> Always call build() on your custom record to attach it to the parent builder.
-> This ensures the record’s content is included in the final mobileTokenData map.
 
 
 ---

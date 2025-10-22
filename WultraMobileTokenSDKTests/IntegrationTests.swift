@@ -421,7 +421,7 @@ class IntegrationTests: XCTestCase {
 
                     // --- Build mobileTokenData ---
                     let builder = WMTMobileTokenData.Builder(
-                        base: [
+                        initialData: [
                             "test1": 8
                         ]
                     )
@@ -432,7 +432,7 @@ class IntegrationTests: XCTestCase {
                         .put("test3", "someString")
 
                     // Pre-approval flow timeline
-                    builder.preApproval(powerAuthSDK: self.proxy.powerAuth!)
+                    let recorder = WMTPreApprovalScreensRecorder(powerAuthSDK: self.proxy.powerAuth!)
                         .begin("intro-warning")
                         .end("intro-warning", action: .close)
                         .begin("intro-warning")
@@ -441,7 +441,8 @@ class IntegrationTests: XCTestCase {
                         .end("qr", action: .scan)
                         .begin("call-or-confirm")
                         .end("call-or-confirm", action: .continue)
-                        .build() // attaches the record to the builder
+                    
+                    builder.put(recorder)
 
                     // Attach to operation
                     detail.mobileTokenData = builder.build()
@@ -533,14 +534,11 @@ class IntegrationTests: XCTestCase {
 
                     // CustomRecord implementation
                     final class CustomRecord: WMTMobileTokenDataRecord {
+
                         public static let key = "customRecord"
-                        public override var key: String { Self.key }
+                        public var key: String { Self.key }
                         
                         private var data: [String: Encodable] = [:]
-
-                        override init(dataBuilder: WMTMobileTokenData.Builder) {
-                            super.init(dataBuilder: dataBuilder)
-                        }
 
                         @discardableResult
                         func add(_ name: String, _ value: Encodable) -> Self {
@@ -548,7 +546,7 @@ class IntegrationTests: XCTestCase {
                             return self
                         }
 
-                        override func toValue() -> Encodable {
+                        func build() -> Encodable {
                             data.toAnyEncodable()
                         }
                     }
@@ -556,10 +554,11 @@ class IntegrationTests: XCTestCase {
                     // Build the MobileTokenData
                     let builder = WMTMobileTokenData.Builder()
 
-                    CustomRecord(dataBuilder: builder)
+                    let record = CustomRecord()
                         .add("flag", true)
                         .add("mode", "debug")
-                        .build()
+                    
+                    builder.put(record.key, record.build())
 
                     detail.mobileTokenData = builder.build()
 

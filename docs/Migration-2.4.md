@@ -37,9 +37,9 @@ Version `2.4.x` introduces a new, extensible **Pre‑approval UI Template** and 
 8. **MobileTokenData Builder**
 
 	-	Introduced MobileTokenData.Builder, a helper for composing structured data attached to operations during authorization or rejection.
-	-	Supports both generic key–value entries `put(key, value)` and structured records such as WMTPreApprovalScreensRecorder.
-	- 	Records subclass the abstract base class WMTMobileTokenDataRecord, which defines common behavior for building, resetting, and serializing record data.
-	-	Once build() is called on a record, it becomes immutable and is attached to the builder, builder.build() produces the final [String: Encodable] map for operation.mobileTokenData.
+	-	Supports both generic key–value entries `builder.put(key, value)` and structured records such as WMTPreApprovalScreensRecorder `builder.put(record)`.
+	-	Structured records conform to the WMTMobileTokenDataRecord protocol (defines a stable key and a build() -> Encodable).
+	-	builder.build() produces the [String: Encodable] dictionary to be assigned to operation.mobileTokenData.
 
 
 ---
