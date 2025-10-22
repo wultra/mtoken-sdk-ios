@@ -292,7 +292,7 @@ operation.mobileTokenData = builder.build()
 
 #### Custom record
 
-To integrate your own data section, implement the `MobileTokenDataRecord` interface:
+To integrate your own data section, implement the `WMTMobileTokenDataRecord` protocol:
 
 ```swift
 final class CustomRecord: WMTMobileTokenDataRecord {
