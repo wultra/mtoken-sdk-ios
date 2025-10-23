@@ -93,19 +93,40 @@ public final class WMTPreApprovalScreensRecorder: WMTMobileTokenDataRecord {
     @discardableResult
     public func end(_ id: String, action: ScreenAction) -> Self {
         lock.synchronized {
-            guard var live = openVisit, live.screen == id else { return }
-            live.timestampClosed = now()
-            live.action = action.name
-            visits.append(live)
-            openVisit = nil
+            // An open visit matches this id → close & append
+            if var live = openVisit, live.screen == id {
+                live.timestampClosed = now()
+                live.action = action.name
+                visits.append(live)
+                openVisit = nil
+                return self
+            }
+
+            // No openVisit, but the last recorded visit with same id is still unfinished
+            if let lastIdx = visits.indices.last, visits[lastIdx].screen == id,
+               visits[lastIdx].timestampClosed == nil, visits[lastIdx].action == nil {
+                var v = visits[lastIdx]
+                v.timestampClosed = now()
+                v.action = action.name
+                visits[lastIdx] = v
+                return self
+            }
+            return self
         }
-        return self
     }
     
     /// Produces the value representation for `mobileTokenData`.
     /// Returns an array of visit objects with timestamps and actions.
     public func build() -> Encodable {
         lock.synchronized {
+            // If a visit is still open, close it now (no action)
+            if var live = openVisit {
+                WMTLogger.warning("WMTPreApprovalScreensRecorder is building unended visit for screen '\(live.screen)', ending it automatically with no action")
+                live.timestampClosed = now()
+                visits.append(live)
+                openVisit = nil
+            }
+            
             return visits
         }
     }
