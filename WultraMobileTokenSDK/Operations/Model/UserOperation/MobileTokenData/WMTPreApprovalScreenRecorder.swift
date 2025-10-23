@@ -99,17 +99,13 @@ public final class WMTPreApprovalScreensRecorder: WMTMobileTokenDataRecord {
                 live.action = action.name
                 visits.append(live)
                 openVisit = nil
-                return self
-            }
-
             // No openVisit, but the last recorded visit with same id is still unfinished
-            if let lastIdx = visits.indices.last, visits[lastIdx].screen == id,
+            } else if let lastIdx = visits.indices.last, visits[lastIdx].screen == id,
                visits[lastIdx].timestampClosed == nil, visits[lastIdx].action == nil {
                 var v = visits[lastIdx]
                 v.timestampClosed = now()
                 v.action = action.name
                 visits[lastIdx] = v
-                return self
             }
             return self
         }

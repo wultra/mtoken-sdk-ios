@@ -13,33 +13,33 @@ Version `2.4.x` introduces a new, extensible **Pre‑approval UI Template** and 
 
 2. **New Screen Fields**  
    Each screen may now specify:
-   - `id: String?` - unique identifier for the screen
-   - `backButton: Bool?` - when true, show a back button in navigation bar instead of using decline as “back”
-   - `image: String?` - asset identifier to be mapped in the app
+ - `id: String?` - unique identifier for the screen
+ - `backButton: Bool?` - when true, show a back button in navigation bar instead of using decline as “back”
+ - `image: String?` - asset identifier to be mapped in the app
 
 3. **Structured Screen Content**  
    Each screen can include **typed `elements`** (`LIST_ITEM`, `ALERT`, `BUTTON`) and **configurable `controls`** (approve/decline UI).
 
 4. **Configurable Controls**  
-   - `decline` is optional (`type: BACK | REJECT`, optional `text`)
-   - `approve` is optional (`type: SLIDER | BUTTON`, optional `text`, optional `counter`). Apps should provide a default approve control if missing. The counter defines how long (in seconds) the approve control remains disabled after the screen appears.
-   - `axis: HORIZONTAL | VERTICAL` and `flip: Bool` control layout order/stacking
+ - `decline` is optional (`type: BACK | REJECT`, optional `text`)
+ - `approve` is optional (`type: SLIDER | BUTTON`, optional `text`, optional `counter`). Apps should provide a default approve control if missing. The counter defines how long (in seconds) the approve control remains disabled after the screen appears.
+ - `axis: HORIZONTAL | VERTICAL` and `flip: Bool` control layout order/stacking
 
 5. **Configurable Visuals**  
-   - Screen `image` and list item `icon` are resolved from app assets (e.g., SVG).
+ - Screen `image` and list item `icon` are resolved from app assets (e.g., SVG).
 
 6. **Reject method**  
-    - The OperationsService reject method now also accepts mobileTokenData, just like confirm. If applicable, these values should be attached to WMTOperation when calling confirm/reject methods. 
+ - The OperationsService reject method now also accepts mobileTokenData, just like confirm. If applicable, these values should be attached to WMTOperation when calling confirm/reject methods. 
 
 7. **New RejectionReason**
-    - New rejection reason `PREAPPROVAL` indicates the user cancelled the operation during the Pre-Approval flow.
+ - New rejection reason `PREAPPROVAL` indicates the user cancelled the operation during the Pre-Approval flow.
 
 8. **MobileTokenData Builder**
-
-	-	Introduced MobileTokenData.Builder, a helper for composing structured data attached to operations during authorization or rejection.
-	-	Supports both generic key–value entries `builder.put(key, value)` and structured records such as WMTPreApprovalScreensRecorder `builder.put(record)`.
-	-	Structured records conform to the WMTMobileTokenDataRecord protocol (defines a stable key and a build() -> Encodable).
-	-	builder.build() produces the [String: Encodable] dictionary to be assigned to operation.mobileTokenData.
+ 
+ - Introduced MobileTokenData.Builder, a helper for composing structured data attached to operations during authorization or rejection.
+ - Supports both generic key–value entries `builder.put(key, value)` and structured records such as WMTPreApprovalScreensRecorder `builder.put(record)`.
+ - Structured records conform to the WMTMobileTokenDataRecord protocol (defines a stable key and a build() -> Encodable).
+ - builder.build() produces the [String: Encodable] dictionary to be assigned to operation.mobileTokenData.
 
 
 ---

@@ -216,7 +216,7 @@ func reject(operation: WMTOperation, reason: WMTRejectionReason) {
 ```
 
 
-## Mobile Token Data (iOS)
+## Mobile Token Data
 
 With PowerAuth Server **1.10+**, you can attach additional, customer-specific metadata during operation authorization via `mobileTokenData`.  
 Since PowerAuth Server **2.0+**, you can also pass `mobileTokenData` when rejecting an operation.
