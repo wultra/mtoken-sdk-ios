@@ -24,8 +24,7 @@ import PowerAuth2
 public final class WMTPreApprovalScreensRecorder: WMTMobileTokenDataRecord {
 
     /// Top-level key under which this record is stored in `mobileTokenData`.
-    public static let key = "preApprovalScreens"
-    public var key: String { Self.key }
+    public var key: String { "preApprovalScreens" }
 
     /// Extensible action set. Stored as its string form (`name`) in the payload.
     public enum ScreenAction: Encodable {

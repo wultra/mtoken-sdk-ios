@@ -37,11 +37,12 @@ public extension WMTMobileTokenData {
 
         /// Creates a new builder.
         /// - Parameter initialData: Optional initial entries inserted into the builder.
-        public init(initialData: [String: Encodable]? = nil) {
-            self.mobileTokenData = initialData ?? [:]
+        public init(initialData: [String: Encodable] = [:]) {
+            self.mobileTokenData = initialData
         }
 
         /// Adds or replaces a generic key–value entry.
+        ///
         /// If a key already exists, its value is replaced.
         @discardableResult
         public func put(_ key: String, _ value: Encodable) -> Builder {
@@ -53,6 +54,7 @@ public extension WMTMobileTokenData {
 
         /// Adds or replaces a structured record under its declared `key`.
         /// The record’s `build()` is invoked and the resulting value is stored.
+        ///
         /// If an entry with the same key already exists, it is replaced.
         @discardableResult
         public func put(_ record: WMTMobileTokenDataRecord) -> Builder {
@@ -64,9 +66,7 @@ public extension WMTMobileTokenData {
         @discardableResult
         public func remove(key: String) -> Bool {
             return lock.synchronized {
-                let hadKey = mobileTokenData[key] != nil
-                mobileTokenData.removeValue(forKey: key)
-                return hadKey
+                mobileTokenData.removeValue(forKey: key) != nil
             }
         }
 
