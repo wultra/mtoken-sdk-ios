@@ -25,9 +25,9 @@ public final class WMTPreApprovalElementAlert: WMTPreApprovalElement {
     private enum Keys: String, CodingKey { case style }
 
     /// Public convenience initializer.
-    public init(id: String? = nil, style: ElementStyle? = nil, icon: String? = nil, text: String? = nil) {
+    public init(id: String? = nil, style: ElementStyle? = nil, text: String? = nil) {
         self.style = style
-        super.init(id: id, type: .alert, icon: icon, text: text)
+        super.init(id: id, type: .alert, text: text)
     }
 
     public required init(from decoder: Decoder) throws {

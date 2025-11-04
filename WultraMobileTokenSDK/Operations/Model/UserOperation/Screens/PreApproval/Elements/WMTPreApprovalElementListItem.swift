@@ -21,18 +21,23 @@ public final class WMTPreApprovalElementListItem: WMTPreApprovalElement {
 
     /// Visual style for the list item.
     public let style: ElementStyle?
+    
+    /// Icon name (asset identifier).
+    public let icon: String?
 
-    private enum Keys: String, CodingKey { case style }
+    private enum Keys: String, CodingKey { case style, icon }
 
     /// Public convenience initializer.
     public init(id: String? = nil, style: ElementStyle? = nil, icon: String? = nil, text: String? = nil) {
         self.style = style
-        super.init(id: id, type: .listItem, icon: icon, text: text)
+        self.icon = icon
+        super.init(id: id, type: .listItem, text: text)
     }
 
     public required init(from decoder: Decoder) throws {
         let c = try decoder.container(keyedBy: Keys.self)
         self.style = try? c.decode(ElementStyle.self, forKey: .style)
+        self.icon = try? c.decode(String.self, forKey: .icon)
         try super.init(from: decoder)
     }
 }

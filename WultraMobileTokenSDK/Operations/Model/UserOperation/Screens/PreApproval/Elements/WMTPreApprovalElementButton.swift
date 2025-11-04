@@ -34,11 +34,11 @@ public final class WMTPreApprovalElementButton: WMTPreApprovalElement {
     private enum Keys: String, CodingKey { case action, href, actionSettings }
 
     /// Public convenience initializer.
-    public init(id: String? = nil, action: ButtonAction? = nil, actionSettings: String? = nil, href: String? = nil, icon: String? = nil, text: String? = nil) {
+    public init(id: String? = nil, action: ButtonAction? = nil, actionSettings: String? = nil, href: String? = nil, text: String? = nil) {
         self.action = action
         self.actionSettings = actionSettings
         self.href = href
-        super.init(id: id, type: .button, icon: icon, text: text)
+        super.init(id: id, type: .button, text: text)
     }
 
     public required init(from decoder: Decoder) throws {

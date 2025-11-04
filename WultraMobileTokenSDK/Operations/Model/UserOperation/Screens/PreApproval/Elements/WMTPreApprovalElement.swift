@@ -40,9 +40,6 @@ public class WMTPreApprovalElement: Decodable {
     /// Element type.
     public let type: ElementType
         
-    /// Icon name (asset identifier).
-    public let icon: String?
-        
     /// Textual content.
     public let text: String?
 
@@ -52,15 +49,13 @@ public class WMTPreApprovalElement: Decodable {
     fileprivate enum Keys: String, CodingKey {
         case id
         case type
-        case icon
         case text
     }
 
     /// Designated initializer for the base type.
-    public init(id: String? = nil, type: ElementType, icon: String? = nil, text: String? = nil) {
+    public init(id: String? = nil, type: ElementType, text: String? = nil) {
         self.id = id
         self.type = type
-        self.icon = icon
         self.text = text
     }
 
@@ -71,7 +66,6 @@ public class WMTPreApprovalElement: Decodable {
         let raw = try c.decode(String.self, forKey: .type)
         self.type = ElementType(rawValue: raw) ?? .unknown
         self.id = try? c.decode(String.self, forKey: .id)
-        self.icon = try? c.decode(String.self, forKey: .icon)
         self.text = try? c.decode(String.self, forKey: .text)
     }
 
