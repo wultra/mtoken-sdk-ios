@@ -68,6 +68,9 @@
 		DCE6D5772CF5F5D500865D6E /* WMTMachOReader.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCE6D5762CF5F5D500865D6E /* WMTMachOReader.swift */; };
 		EA1871352E3784D5008F9035 /* WMTOperationAttributeAlert.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA1871342E3784D5008F9035 /* WMTOperationAttributeAlert.swift */; };
 		EA294F3D29F6A07A00A0494E /* WMTOperationUIData.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA294F3C29F6A07A00A0494E /* WMTOperationUIData.swift */; };
+		EA2F7C0E2E9E78D9004C55D1 /* WMTMobileTokenDataBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA2F7C0D2E9E78D1004C55D1 /* WMTMobileTokenDataBuilder.swift */; };
+		EA2F7C102E9E78F8004C55D1 /* WMTMobileTokenDataRecord.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA2F7C0F2E9E78F6004C55D1 /* WMTMobileTokenDataRecord.swift */; };
+		EA2F7C122E9E791B004C55D1 /* WMTPreApprovalScreenRecorder.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA2F7C112E9E7916004C55D1 /* WMTPreApprovalScreenRecorder.swift */; };
 		EA3439982D48D53600222C7A /* WMTOIDCExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA3439972D48D52F00222C7A /* WMTOIDCExtensions.swift */; };
 		EA3D1F062E1EB16100C7CA95 /* WMTPushPlatform.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA3D1F052E1EB16100C7CA95 /* WMTPushPlatform.swift */; };
 		EA3D1F082E1EB1B800C7CA95 /* WMTPushAPNSEnvironment.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA3D1F072E1EB1B800C7CA95 /* WMTPushAPNSEnvironment.swift */; };
@@ -182,6 +185,9 @@
 		DCE6D5762CF5F5D500865D6E /* WMTMachOReader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTMachOReader.swift; sourceTree = "<group>"; };
 		EA1871342E3784D5008F9035 /* WMTOperationAttributeAlert.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTOperationAttributeAlert.swift; sourceTree = "<group>"; };
 		EA294F3C29F6A07A00A0494E /* WMTOperationUIData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTOperationUIData.swift; sourceTree = "<group>"; };
+		EA2F7C0D2E9E78D1004C55D1 /* WMTMobileTokenDataBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTMobileTokenDataBuilder.swift; sourceTree = "<group>"; };
+		EA2F7C0F2E9E78F6004C55D1 /* WMTMobileTokenDataRecord.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTMobileTokenDataRecord.swift; sourceTree = "<group>"; };
+		EA2F7C112E9E7916004C55D1 /* WMTPreApprovalScreenRecorder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTPreApprovalScreenRecorder.swift; sourceTree = "<group>"; };
 		EA3439972D48D52F00222C7A /* WMTOIDCExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTOIDCExtensions.swift; sourceTree = "<group>"; };
 		EA3D1F052E1EB16100C7CA95 /* WMTPushPlatform.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTPushPlatform.swift; sourceTree = "<group>"; };
 		EA3D1F072E1EB1B800C7CA95 /* WMTPushAPNSEnvironment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTPushAPNSEnvironment.swift; sourceTree = "<group>"; };
@@ -279,6 +285,7 @@
 		DC3D0B352480F368000DC4D9 /* UserOperation */ = {
 			isa = PBXGroup;
 			children = (
+				EA2F7C0C2E9E78BD004C55D1 /* MobileTokenData */,
 				EA6DDF0D29F8031F0011E234 /* Screens */,
 				DC059A3C244DD30900B24878 /* Attributes */,
 				DCC5CCAD2449F7AC004679AC /* WMTUserOperation.swift */,
@@ -509,6 +516,16 @@
 				EA7A6E572B0E639800C1D4F4 /* WMTOperationDetailRequest.swift */,
 			);
 			path = Requests;
+			sourceTree = "<group>";
+		};
+		EA2F7C0C2E9E78BD004C55D1 /* MobileTokenData */ = {
+			isa = PBXGroup;
+			children = (
+				EA2F7C112E9E7916004C55D1 /* WMTPreApprovalScreenRecorder.swift */,
+				EA2F7C0F2E9E78F6004C55D1 /* WMTMobileTokenDataRecord.swift */,
+				EA2F7C0D2E9E78D1004C55D1 /* WMTMobileTokenDataBuilder.swift */,
+			);
+			path = MobileTokenData;
 			sourceTree = "<group>";
 		};
 		EA3D1F0A2E1EB2AF00C7CA95 /* Utils */ = {
@@ -757,8 +774,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				DC68CFD02D538FC500D7468C /* WMTLazy.swift in Sources */,
+				EA2F7C0E2E9E78D9004C55D1 /* WMTMobileTokenDataBuilder.swift in Sources */,
 				EAED619E2E7022A6005E173F /* WMTPreApprovalElement.swift in Sources */,
 				EAED61A52E703FE8005E173F /* WMTPreApprovalElementButton.swift in Sources */,
+				EA2F7C122E9E791B004C55D1 /* WMTPreApprovalScreenRecorder.swift in Sources */,
 				DC81D1C9244F38DB00F80CD6 /* WMTPushEndpoints.swift in Sources */,
 				DC0268DF29965495000BB9FA /* WMTOperationListResponse.swift in Sources */,
 				EA6807972D43AA350029D3E0 /* WMTPKCECodes.swift in Sources */,
@@ -812,6 +831,7 @@
 				DCC5CCAE2449F7AC004679AC /* WMTUserOperation.swift in Sources */,
 				EA7C94572D07111B000A3EFA /* WultraMobileToken.swift in Sources */,
 				DC9511F926EA02C100FF40AD /* WPNIntegration.swift in Sources */,
+				EA2F7C102E9E78F8004C55D1 /* WMTMobileTokenDataRecord.swift in Sources */,
 				DCE6D5772CF5F5D500865D6E /* WMTMachOReader.swift in Sources */,
 				EA3D1F062E1EB16100C7CA95 /* WMTPushPlatform.swift in Sources */,
 				DCC5CCBD2449F965004679AC /* WMTOperationAttributeHeading.swift in Sources */,

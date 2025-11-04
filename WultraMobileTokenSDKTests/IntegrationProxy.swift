@@ -336,6 +336,21 @@ struct TestMobileTokenData: Codable {
     let test2: Double?
     let test3: String?
     let test4: [String: Bool]?
+    
+    let preApprovalScreens: [TestPreApprovalVisit]?
+    let customRecord: CustomRecordData?
+}
+
+struct TestPreApprovalVisit: Codable {
+    let screen: String?
+    let timestampOpened: String?
+    let timestampClosed: String?
+    let action: String?
+}
+
+struct CustomRecordData: Codable {
+    let flag: Bool?
+    let mode: String?
 }
 
 private struct IntegrationConfig: Codable {
