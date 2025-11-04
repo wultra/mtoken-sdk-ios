@@ -24,15 +24,19 @@ public final class WMTPreApprovalElementButton: WMTPreApprovalElement {
 
     /// Action for the button.
     public let action: ButtonAction?
+    
+    /// Custom extended behavior or secondary action for the button, for example "REJECT".
+    public let actionSettings: String?
 
     /// URL / resource reference.
     public let href: String?
 
-    private enum Keys: String, CodingKey { case action, href }
+    private enum Keys: String, CodingKey { case action, href, actionSettings }
 
     /// Public convenience initializer.
-    public init(id: String? = nil, action: ButtonAction? = nil, href: String? = nil, icon: String? = nil, text: String? = nil) {
+    public init(id: String? = nil, action: ButtonAction? = nil, actionSettings: String? = nil, href: String? = nil, icon: String? = nil, text: String? = nil) {
         self.action = action
+        self.actionSettings = actionSettings
         self.href = href
         super.init(id: id, type: .button, icon: icon, text: text)
     }
@@ -40,6 +44,7 @@ public final class WMTPreApprovalElementButton: WMTPreApprovalElement {
     public required init(from decoder: Decoder) throws {
         let c = try decoder.container(keyedBy: Keys.self)
         self.action = try? c.decode(ButtonAction.self, forKey: .action)
+        self.actionSettings = try? c.decode(String.self, forKey: .actionSettings)
         self.href   = try? c.decode(String.self, forKey: .href)
         try super.init(from: decoder)
     }

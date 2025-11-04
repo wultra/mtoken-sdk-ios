@@ -223,10 +223,34 @@ class OperationUIDataTests: XCTestCase {
         XCTAssertEqual(s1.controls?.approve?.text, "Approve Payment")
         XCTAssertEqual(s1.controls?.approve?.counter, 10)
         XCTAssertEqual(s1.elements?.count, 3)
+        
+        // Alert element (first)
         if let e1 = s1.elements?.first as? WMTPreApprovalElementAlert {
             XCTAssertEqual(e1.type, .alert)
             XCTAssertEqual(e1.style, .info)
             XCTAssertEqual(e1.text, "Make sure the activation takes place on your device")
+        }
+        
+        // Button element (second)
+        if let e2 = s1.elements?[1] as? WMTPreApprovalElementButton {
+            XCTAssertEqual(e2.type, .button)
+            XCTAssertEqual(e2.id, "e2")
+            XCTAssertEqual(e2.action, .phone)
+            XCTAssertEqual(e2.actionSettings, "REJECT")
+            XCTAssertEqual(e2.href, "+42012345678")
+            XCTAssertEqual(e2.text, "Call center")
+        } else {
+            XCTFail("Second element should be WMTPreApprovalElementButton")
+        }
+
+        // List item element (third)
+        if let e3 = s1.elements?[2] as? WMTPreApprovalElementListItem {
+            XCTAssertEqual(e3.type, .listItem)
+            XCTAssertEqual(e3.id, "e3")
+            XCTAssertEqual(e3.icon, "icon-label")
+            XCTAssertEqual(e3.text, "You activate a new app and allow access to your accounts")
+        } else {
+            XCTFail("Third element should be WMTPreApprovalElementListItem")
         }
         
         // Screen2 (QR_SCAN)
@@ -590,6 +614,7 @@ class OperationUIDataTests: XCTestCase {
                                 "id": "e2",
                                 "type": "BUTTON",
                                 "action": "PHONE",
+                                "actionSettings": "REJECT",
                                 "text": "Call center",
                                 "href": "+42012345678"
                             },
