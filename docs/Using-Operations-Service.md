@@ -7,6 +7,7 @@
 - [Start Periodic Polling](#start-periodic-polling)
 - [Approve an Operation](#approve-an-operation)
 - [Reject an Operation](#reject-an-operation)
+- [Mobile Token Data](#mobile-token-data)
 - [Operation detail](#operation-detail)
 - [Claim the Operation](#claim-the-operation)
 - [Operation History](#operation-history)
@@ -194,60 +195,6 @@ func approveWithBiometry(operation: WMTOperation) {
 }
 ```
 
-### Passing Additional Mobile Token Data
-
-With PowerAuth server 1.10+, you can pass additional customer-specific data during operation authorization using the `mobileTokenData` property. This can be useful for fraud detection systems (FDS) or other custom business logic.
-
-```swift
-import WultraMobileTokenSDK
-import PowerAuth2
-
-// Create a custom operation with mobile token data
-class CustomOperation: WMTOperation {
-    let id: String
-    let data: String
-    let mobileTokenData: [String: Encodable]?
-    
-    init(id: String, data: String, mobileTokenData: [String: Encodable]? = nil) {
-        self.id = id
-        self.data = data
-        self.mobileTokenData = mobileTokenData
-    }
-}
-
-// Approve operation with additional FDS data
-func approveWithFDSData() {
-    let fdsData: [String: Encodable] = [
-        "deviceFingerprint": "abc123def456",
-        "riskScore": 0.8,
-        "location": [
-            "latitude": 50.0755,
-            "longitude": 14.4378
-        ]
-    ]
-    
-    let operation = CustomOperation(
-        id: "operationId123",
-        data: "operationData",
-        mobileTokenData: fdsData
-    )
-    
-    let auth = PowerAuthAuthentication.possessionWithPassword(password: "password123")
-    
-    operationService.authorize(operation: operation, authentication: auth) { error in
-        if let error = error {
-            // show error UI
-        } else {
-            // show success UI
-        }
-    }
-}
-```
-
-Similarly to approving an operation, you can also pass mobileTokenData when rejecting an operation.
-
-The `mobileTokenData` is completely optional and the structure is customer-specific. If you don't need this functionality, you can continue using operations without providing this property.
-
 ## Reject an Operation
 
 To reject an operation use `WMTOperations.reject`. Operation rejection is confirmed by a possession factor, so there is no need for creating a `PowerAuthAuthentication` object. You can simply use it with the following example.
@@ -267,6 +214,198 @@ func reject(operation: WMTOperation, reason: WMTRejectionReason) {
     }
 }
 ```
+
+
+## Mobile Token Data
+
+With PowerAuth Server **1.10+**, you can attach additional, customer-specific metadata during operation authorization via `mobileTokenData`.  
+Since PowerAuth Server **2.0+**, you can also pass `mobileTokenData` when rejecting an operation.
+
+This is especially useful for **fraud detection systems (FDS)**, risk scoring, or other backend-specific logic.
+
+You can provide this data in two ways:
+
+---
+
+### Direct Dictionary Approach
+
+If you already have a static set of key–value pairs, build a `[String: Encodable]` dictionary and assign it to the operation:
+
+```swift
+// Example: directly attaching a static dictionary of metadata
+let fdsData: [String: Encodable] = [
+    "deviceFingerprint": "abc123def456",
+    "riskScore": 0.8,
+    "location": [
+        "latitude": 50.0755,
+        "longitude": 14.4378
+    ]
+]
+
+operation.mobileTokenData = fdsData
+
+let auth = PowerAuthAuthentication.possessionWithPassword(password: "password123")
+operationsService.authorize(operation: operation, with: auth) { result in
+    switch result {
+    case .success:
+        // Operation approved successfully
+        break
+    case .failure(let error):
+        // Handle network or SDK error
+        print(error)
+    }
+}
+```
+
+---
+
+### Builder-Based Approach
+
+For **dynamic, structured, or multi-step** data, use `WMTMobileTokenData.Builder`.
+
+The builder offers a thread-safe API for collecting and organizing entries before producing the final dictionary for submission.
+
+#### WMTMobileTokenData Builder
+
+- **Initialize** with optional `initialData: [String: Encodable]`.
+- **Add generic entries** using `put(_ key: String, _ value: Encodable)`.
+- **Attach structured records** (e.g., `WMTPreApprovalScreensRecorder`) using `put(_ record: WMTMobileTokenDataRecord)`.
+- **Extend** with your own record types by conforming to `WMTMobileTokenDataRecord`.
+
+##### Example
+
+```swift
+// Optional initial data entries (e.g., FDS hints)
+let initialData: [String: Encodable] = ["deviceFingerprint": "abc123"]
+
+// Create the builder
+let builder = WMTMobileTokenData.Builder(initialData: initialData)
+
+// Add generic entries
+builder.put("riskScore", 0.82)
+
+// Assign to the operation right before approve/reject
+operation.mobileTokenData = builder.build()
+```
+
+---
+
+### Record Helpers
+
+Sometimes your `mobileTokenData` isn’t just a couple of fields — it’s a **structured section** (e.g., a timeline of user actions or device events).  
+For this, the SDK exposes the `WMTMobileTokenDataRecord` protocol.
+
+#### The `WMTMobileTokenDataRecord` Protocol
+
+A record contributes one **top-level entry** (a single key and its value) to the final `mobileTokenData` dictionary.
+
+- `key` — the top-level field name under which your record appears
+- `build()` — returns the **value** (any `Encodable`) for that key
+
+```swift
+public protocol WMTMobileTokenDataRecord {
+    /// Top-level key under which this record is stored.
+    var key: String { get }
+
+    /// Produces the value to be stored for `key`.
+    /// Called by the builder during `put(record)`.
+    func build() -> Encodable
+}
+```
+
+---
+
+##### Example: Custom Record
+
+Create your own record for any structured section — for example, app configuration flags.
+
+```swift
+final class CustomRecord: WMTMobileTokenDataRecord {
+    static let key = "customSection"
+    var key: String { Self.key }
+
+    private var data: [String: Encodable] = [:]
+
+    @discardableResult
+    func add(_ name: String, _ value: Encodable) -> Self {
+        data[name] = value
+        return self
+    }
+
+    func build() -> Encodable {
+        data // value snapshot
+    }
+}
+
+// Usage
+let builder = WMTMobileTokenData.Builder()
+let record = CustomRecord()
+    .add("flag", true)
+    .add("mode", "debug")
+
+// Either pass the whole record…
+builder.put(record)
+// …or manually by key/value (equivalent):
+// builder.put(record.key, record.build())
+
+operation.mobileTokenData = builder.build()
+```
+
+---
+
+#### Predefined Record Helper: `WMTPreApprovalScreensRecorder`
+
+The SDK includes `WMTPreApprovalScreensRecorder`, which records how users move through **Pre-Approval screens**.
+
+Each recorded **visit** contains:
+- `screen` (identifier)
+- `timestampOpened`
+- `timestampClosed`
+- `action` (`CONTINUE`, `CLOSE`, `REJECT`, `SCAN`, or a custom string)
+
+Timestamps are aligned with server time via `PowerAuthSDK.timeSynchronizationService` (when available).
+
+The recorder exposes few methods:
+
+- `begin(_ id: String)` — starts a new visit for the given screen ID.  
+  If a different visit is open, that previous visit is finalized *without* a closing timestamp or action.
+
+- `end(_ id: String, action: ScreenAction)` — closes the current visit if the `id` matches.  
+  If there’s no open visit, but the most recent recorded visit has the same `id` and is still unclosed, it is finalized instead.
+  
+- `reset()` - resets recorded visits
+
+#### Example
+
+```swift
+// Create the builder used to assemble mobileTokenData
+let builder = WMTMobileTokenData.Builder()
+
+// Recorder for the Pre-Approval flow.
+// PowerAuthSDK provides server-aligned time via timeSynchronizationService.
+let recorder = WMTPreApprovalScreensRecorder(powerAuthSDK: pa)
+
+// As the user navigates Pre-Approval screens:
+recorder.begin("intro-warning")
+// ... user reads content ...
+recorder.end("intro-warning", action: .close)
+
+recorder.begin("intro-warning")
+recorder.end("intro-warning", action: .continue)
+
+recorder.begin("qr")
+recorder.end("qr", action: .scan)
+
+// When your Pre-Approval flow is finished, attach the recorder to the builder
+builder.put(recorder)
+
+// Assign to the operation right before approve/reject
+operation.mobileTokenData = builder.build()
+```
+
+---
+
+The `mobileTokenData` is completely optional and the structure is customer-specific. If you don't need this functionality, you can continue using operations without providing this property.
 
 ## Operation detail
 
@@ -674,16 +813,19 @@ Types:
 
 A pre-approval screen can contain the following building blocks:
 
-	•	Heading and message – textual content displayed at the top of the screen.
-	•	Optional metadata – id (unique identifier), backButton (show navigation back button), and image (in-app asset identifier).
-	•	Elements – structured items that form the main content of the screen:
-	   - List item – text with optional icon with style (INFO, WARNING, DANGER).
-	   - Alert – highlighted box with style (INFO, WARNING, DANGER).
-	   - Button – action element with LINK, MAIL, or PHONE.
-	•	Controls – configuration of approve/decline actions:
-	   - Decline – BACK or REJECT, with optional text. 
-	   - Approve – SLIDER or BUTTON, with optional text and optional countdown (counter). 
-	   - Layout options – axis (HORIZONTAL or VERTICAL) and flip (swap order of controls).
+- Heading and message – textual content displayed at the top of the screen.
+- Optional metadata
+  - id - unique identifier
+  - backButton - show navigation back button
+  - image - in-app asset identifier
+- Elements – structured items that form the main content of the screen:
+  - List item – text with optional icon with style (INFO, WARNING, DANGER).
+  - Alert – highlighted box with style (INFO, WARNING, DANGER).
+  - Button – action element with LINK, MAIL, or PHONE.
+- Controls – configuration of approve/decline actions:
+  - Decline – BACK or REJECT, with optional text. 
+  - Approve – SLIDER or BUTTON, with optional text and optional countdown (counter). 
+  - Layout options – axis (HORIZONTAL or VERTICAL) and flip (swap order of controls).
 
 #### PostApprovalScreen:
 `WMTPostApprovalScreen*` classes commonly contain `heading` and `message` and different payload data

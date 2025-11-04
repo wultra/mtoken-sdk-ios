@@ -401,6 +401,206 @@ class IntegrationTests: XCTestCase {
         waitForExpectations(timeout: defaultTimeout, handler: nil)
     }
     
+    func testMobileTokenDataWithMoBileTokenBuilder() {
+        let exp = expectation(description: "Test Mobile Token Data (Builder)")
+
+        proxy.createOperation { op in
+            guard let op else {
+                XCTFail("Failed to create operation")
+                exp.fulfill()
+                return
+            }
+
+            self.ops.getDetail(operationId: op.operationId) { opResult in
+                switch opResult {
+                case .failure(let failure):
+                    XCTFail("Failed to retrieve operation: \(failure.description)")
+                    exp.fulfill()
+
+                case .success(let detail):
+
+                    // --- Build mobileTokenData ---
+                    let builder = WMTMobileTokenData.Builder(
+                        initialData: [
+                            "test1": 8
+                        ]
+                    )
+
+                    // Generic entries
+                    builder
+                        .put("test2", 0.82)
+                        .put("test3", "someString")
+
+                    // Pre-approval flow timeline
+                    let recorder = WMTPreApprovalScreensRecorder(powerAuthSDK: self.proxy.powerAuth!)
+                        .begin("intro-warning")
+                        .end("intro-warning", action: .close)
+                        .begin("intro-warning")
+                        .end("intro-warning", action: .continue)
+                        .begin("qr")
+                        .end("qr", action: .scan)
+                        .begin("call-or-confirm")
+                        .end("call-or-confirm", action: .continue)
+                    
+                    builder.put(recorder)
+
+                    // Attach to operation
+                    detail.mobileTokenData = builder.build()
+
+                    let auth = PowerAuthAuthentication.possessionWithPassword(password: self.pin)
+                    self.ops.authorize(operation: detail, with: auth) { authResult in
+                        switch authResult {
+                        case .failure(let err):
+                            XCTFail("Failed to authorize operation: \(err.description)")
+                            exp.fulfill()
+
+                        case .success:
+                            self.proxy.getOperation(operationId: op.operationId) { finalOp in
+                                defer { exp.fulfill() }
+
+                                guard let finalOp else {
+                                    XCTFail("Failed to get operation detail.")
+                                    return
+                                }
+
+                                // Server returns additionalData.mobileTokenData
+                                guard let mtd = finalOp.additionalData?.mobileTokenData else {
+                                    XCTFail("mobileTokenData not in additionalData")
+                                    return
+                                }
+
+                                // Base & generic assertions
+                                XCTAssertEqual(mtd.test1, 8, "test1 should be 8")
+                                XCTAssertEqual(mtd.test2, 0.82, "test2 should be '0.82'")
+                                XCTAssertEqual(mtd.test3, "someString", "test2 should be 'someString'")
+
+                                // Pre-approval screen assertions
+                                guard let screens = mtd.preApprovalScreens else {
+                                    XCTFail("preApprovalScreens missing or invalid shape")
+                                    return
+                                }
+                                XCTAssertEqual(screens.count, 4, "Expected two screen visits")
+
+                                // Visit 1
+                                XCTAssertEqual(screens[0].screen, "intro-warning")
+                                XCTAssertEqual(screens[0].action, "CLOSE")
+                                XCTAssertNotNil(screens[0].timestampOpened)
+                                XCTAssertNotNil(screens[0].timestampClosed)
+
+                                // Visit 2
+                                XCTAssertEqual(screens[1].screen, "intro-warning")
+                                XCTAssertEqual(screens[1].action, "CONTINUE")
+                                XCTAssertNotNil(screens[1].timestampOpened)
+                                XCTAssertNotNil(screens[1].timestampClosed)
+                                
+                                // Visit 3
+                                XCTAssertEqual(screens[2].screen, "qr")
+                                XCTAssertEqual(screens[2].action, "SCAN")
+                                XCTAssertNotNil(screens[2].timestampOpened)
+                                XCTAssertNotNil(screens[2].timestampClosed)
+                                
+                                // Visit 4
+                                XCTAssertEqual(screens[3].screen, "call-or-confirm")
+                                XCTAssertEqual(screens[3].action, "CONTINUE")
+                                XCTAssertNotNil(screens[3].timestampOpened)
+                                XCTAssertNotNil(screens[3].timestampClosed)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        waitForExpectations(timeout: defaultTimeout, handler: nil)
+    }
+    
+    func testMobileTokenDataCustomRecord() {
+        let exp = expectation(description: "Test Mobile Token Data (CustomRecord)")
+
+        proxy.createOperation { op in
+            guard let op else {
+                XCTFail("Failed to create operation")
+                exp.fulfill()
+                return
+            }
+
+            self.ops.getDetail(operationId: op.operationId) { opResult in
+                switch opResult {
+                case .failure(let failure):
+                    XCTFail("Failed to retrieve operation: \(failure.description)")
+                    exp.fulfill()
+
+                case .success(let detail):
+
+                    // CustomRecord implementation
+                    final class CustomRecord: WMTMobileTokenDataRecord {
+
+                        public static let key = "customRecord"
+                        public var key: String { Self.key }
+                        
+                        private var data: [String: Encodable] = [:]
+
+                        @discardableResult
+                        func add(_ name: String, _ value: Encodable) -> Self {
+                            data[name] = value
+                            return self
+                        }
+
+                        func build() -> Encodable {
+                            data.toAnyEncodable()
+                        }
+                    }
+
+                    // Build the MobileTokenData
+                    let builder = WMTMobileTokenData.Builder()
+
+                    let record = CustomRecord()
+                        .add("flag", true)
+                        .add("mode", "debug")
+                    
+                    builder.put(record.key, record.build())
+
+                    detail.mobileTokenData = builder.build()
+
+                    let auth = PowerAuthAuthentication.possessionWithPassword(password: self.pin)
+                    self.ops.authorize(operation: detail, with: auth) { authResult in
+                        switch authResult {
+                        case .failure(let err):
+                            XCTFail("Failed to authorize operation: \(err.description)")
+                            exp.fulfill()
+
+                        case .success:
+                            self.proxy.getOperation(operationId: op.operationId) { finalOp in
+                                defer { exp.fulfill() }
+
+                                guard let finalOp else {
+                                    XCTFail("Failed to get operation detail.")
+                                    return
+                                }
+
+                                guard let mtd = finalOp.additionalData?.mobileTokenData else {
+                                    XCTFail("mobileTokenData not found in additionalData")
+                                    return
+                                }
+
+                                // customRecord check
+                                guard let custom = mtd.customRecord else {
+                                    XCTFail("customRecord missing or malformed")
+                                    return
+                                }
+
+                                XCTAssertEqual(custom.flag, true)
+                                XCTAssertEqual(custom.mode, "debug")
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        waitForExpectations(timeout: defaultTimeout, handler: nil)
+    }
+    
     func testRejectPaymentWithMobileTokenData() {
         let exp = expectation(description: "Reject payment with mobileTokenData")
 
