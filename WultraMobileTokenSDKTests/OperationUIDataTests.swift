@@ -202,8 +202,8 @@ class OperationUIDataTests: XCTestCase {
             return
         }
         
-        // New apps: array should be present with 2 screens
-        guard let screens = result.ui?.preApprovalScreens, screens.count == 2 else {
+        // New apps: array should be present with 3 screens
+        guard let screens = result.ui?.preApprovalScreens, screens.count == 3 else {
             XCTFail("preApprovalScreens missing or has wrong count")
             return
         }
@@ -263,6 +263,10 @@ class OperationUIDataTests: XCTestCase {
         XCTAssertEqual(s2.message, "You may become a victim of an attack.")
         XCTAssertNil(s2.controls)
         XCTAssertNil(s2.elements)
+        
+        // Screen3 (Log test of incorrect elements structure)
+        let s3 = screens[2]
+        XCTAssertNil(s3.elements)
 
         // Sanity: top-level flags still parsed
         XCTAssertEqual(result.ui?.flipButtons, true)
@@ -636,7 +640,16 @@ class OperationUIDataTests: XCTestCase {
                         "type": "QR_SCAN",
                         "heading": "Watch out!",
                         "message": "You may become a victim of an attack."
-                    }
+                    },
+                    {
+                        "id": "id3",
+                        "type": "WARNING",
+                        "heading": "Watch out!",
+                        "message": "You may become a victim of an attack.",
+                        "elements": {
+                            "incorrect": "structure"
+                        }
+                    },
                 ],
                 "preApprovalScreen": {
                     "type": "QR_SCAN",
