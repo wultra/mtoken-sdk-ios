@@ -70,22 +70,27 @@ public class WMTPreApprovalScreen: Decodable {
         backButton = try? c.decode(Bool.self, forKey: .backButton)
         image = try? c.decode(String.self, forKey: .image)
         
-        var decodedElements: [WMTPreApprovalElement] = []
-        do {
-            var container = try c.nestedUnkeyedContainer(forKey: .elements)
-            // If decoding fails log it and continue decoding until the end of container
-            while container.isAtEnd == false {
-                do {
-                    let wrapper = try WMTPreApprovalElementDecodable(from: container.superDecoder())
-                    decodedElements.append(wrapper.elementObject)
-                } catch {
-                    D.error("Error decoding WMTPreApprovalElement: \(error)")
+        if c.contains(.elements) {
+            var decodedElements: [WMTPreApprovalElement] = []
+            do {
+                var container = try c.nestedUnkeyedContainer(forKey: .elements)
+                // If decoding fails log it and continue decoding until the end of container
+                while container.isAtEnd == false {
+                    do {
+                        let wrapper = try WMTPreApprovalElementDecodable(from: container.superDecoder())
+                        decodedElements.append(wrapper.elementObject)
+                    } catch {
+                        D.error("Error decoding WMTPreApprovalElement: \(error)")
+                    }
                 }
+            } catch {
+                D.error("Invalid WMTPreApprovalElement container: \(error)")
             }
-        } catch {
-            D.warning("No elements in WMTPreApprovalElement: \(error)")
+            self.elements = decodedElements.isEmpty ? nil : decodedElements
+        } else {
+            self.elements = nil
         }
-        self.elements = decodedElements.isEmpty ? nil : decodedElements
+        
         controls = try? c.decode(WMTPreApprovalControls.self, forKey: .controls)
     }
     
