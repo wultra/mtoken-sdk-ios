@@ -38,6 +38,7 @@ xcuserdata
 
 ## App build artifacts
 Build/
+scripts/Lib
 
 # CocoaPods
 #
@@ -68,3 +69,4 @@ swiftlint
 # Swift Package Manager
 Package.resolved
 Cartfile.resolved
+
