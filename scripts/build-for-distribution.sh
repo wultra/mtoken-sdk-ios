@@ -118,6 +118,13 @@ function BUILD_LIB
     ditto -c -k --sequesterRsrc --keepParent "${dsym_root}" "${dsym_zip}"
     
     popd
+
+    echo ""
+    echo "Xcode used for build: ${xcver}"
+    echo "Build finished successfully. Output files:"
+    echo "  XCFramework: ${xcframework_zip}"
+    echo "  dSYMs: ${dsym_zip}"
+    echo ""
 }
 
 # -----------------------------------------------------------------------------
