@@ -60,6 +60,10 @@ function BUILD_LIB
 
     local ios_archive="${OUT_DIR}/ios.xcarchive"
     local sim_archive="${OUT_DIR}/ios_sim.xcarchive"
+    local xcframework_path="${OUT_DIR}/WultraMobileTokenSDK.xcframework"
+    local xcframework_zip="${OUT_DIR}/WultraMobileTokenSDK.xcframework.zip"
+    local dsym_root="${OUT_DIR}/WultraMobileTokenSDK.dSYMs"
+    local dsym_zip="${OUT_DIR}/WultraMobileTokenSDK.dSYMs.zip"
 
     rm -rf "${OUT_DIR}" # delete old builds
     mkdir -p "${OUT_DIR}"
@@ -76,8 +80,13 @@ function BUILD_LIB
         -scheme WultraMobileTokenSDK \
         -archivePath "${ios_archive}" \
         -configuration "Release" \
-        -sdk iphoneos \
-        SKIP_INSTALL=NO CODE_SIGN_IDENTITY="" CODE_SIGNING_ALLOWED=NO SWIFT_SERIALIZE_DEBUGGING_OPTIONS=NO BUILD_LIBRARY_FOR_DISTRIBUTION=YES
+        -destination "generic/platform=iOS" \
+        SKIP_INSTALL=NO \
+        CODE_SIGN_IDENTITY="" \
+        CODE_SIGNING_ALLOWED=NO \
+        SWIFT_SERIALIZE_DEBUGGING_OPTIONS=NO \
+        BUILD_LIBRARY_FOR_DISTRIBUTION=YES \
+        DEBUG_INFORMATION_FORMAT=dwarf-with-dsym
 
     # build for ios simulator
     xcodebuild archive \
@@ -85,14 +94,28 @@ function BUILD_LIB
         -scheme WultraMobileTokenSDK \
         -archivePath "${sim_archive}" \
         -configuration "Release" \
-        -sdk iphonesimulator \
-        SKIP_INSTALL=NO CODE_SIGN_IDENTITY="" CODE_SIGNING_ALLOWED=NO SWIFT_SERIALIZE_DEBUGGING_OPTIONS=NO BUILD_LIBRARY_FOR_DISTRIBUTION=YES
+        -destination "generic/platform=iOS Simulator" \
+        SKIP_INSTALL=NO \
+        CODE_SIGN_IDENTITY="" \
+        CODE_SIGNING_ALLOWED=NO \
+        SWIFT_SERIALIZE_DEBUGGING_OPTIONS=NO \
+        BUILD_LIBRARY_FOR_DISTRIBUTION=YES \
+        DEBUG_INFORMATION_FORMAT=dwarf-with-dsym
 
     # create xcframwork
     xcodebuild -create-xcframework \
         -framework "${ios_archive}/Products/Library/Frameworks/WultraMobileTokenSDK.framework" \
         -framework "${sim_archive}/Products/Library/Frameworks/WultraMobileTokenSDK.framework" \
-        -output "${OUT_DIR}/WultraMobileTokenSDK.xcframework"
+        -output "${xcframework_path}"
+
+    # copy dSYMs to separate folder
+    mkdir -p "${dsym_root}/ios" "${dsym_root}/simulator"
+    cp -R "${ios_archive}/dSYMs/WultraMobileTokenSDK.framework.dSYM" "${dsym_root}/ios/"
+    cp -R "${sim_archive}/dSYMs/WultraMobileTokenSDK.framework.dSYM" "${dsym_root}/simulator/"
+
+    # create zip files (of xcframework and dSYMs) for distribution
+    ditto -c -k --sequesterRsrc --keepParent "${xcframework_path}" "${xcframework_zip}"
+    ditto -c -k --sequesterRsrc --keepParent "${dsym_root}" "${dsym_zip}"
     
     popd
 }
