@@ -49,14 +49,6 @@ Pods/
 # Temp. folder for our local CocoaPods build
 Library/
 
-# Carthage
-#
-# Add this line if you want to avoid checking in source code from Carthage dependencies.
-Carthage/Checkouts
-Carthage
-#ignoring gitmodules to disable dependency propagation of the carthage
-.gitmodules
-
 *.jar
 
 # test config file
@@ -66,5 +58,4 @@ WultraMobileTokenSDKTests/Configs/*.json
 swiftlint
 
 # Swift Package Manager
-Package.resolved
-Cartfile.resolved
+/Package.resolved

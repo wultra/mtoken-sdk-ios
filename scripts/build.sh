@@ -6,17 +6,20 @@ set -u # stop when undefined variable is used
 
 SCRIPT_FOLDER=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 
-pushd "${SCRIPT_FOLDER}"
-sh cart-update.sh
-popd
-
 pushd "${SCRIPT_FOLDER}/.."
+
+echo "Resolving Swift package dependencies"
+xcrun xcodebuild \
+    -project "WultraMobileTokenSDK.xcodeproj" \
+    -resolvePackageDependencies \
+    -onlyUsePackageVersionsFromResolvedFile
 
 xcrun xcodebuild \
     -project "WultraMobileTokenSDK.xcodeproj" \
     -scheme "WultraMobileTokenSDK" \
     -configuration "Release" \
     -sdk "iphonesimulator" \
+    -onlyUsePackageVersionsFromResolvedFile \
     build
 
 popd
