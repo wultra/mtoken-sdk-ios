@@ -1,7 +1,0 @@
-{
-    "cloudServerUrl"        : "https://stable-mtoken-dev.wultra.app/powerauth-cloud",
-    "cloudServerLogin"      : "system-admin",
-    "cloudServerPassword"   : "mYUhYYbVKTakE2+6",
-    "cloudApplicationId"    : "demo-mobile-token",
-    "enrollmentServerUrl"   : "https://stable-mtoken-dev.wultra.app/enrollment-server"
-}
