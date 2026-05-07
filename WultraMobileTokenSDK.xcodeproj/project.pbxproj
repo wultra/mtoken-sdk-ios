@@ -36,6 +36,10 @@
 		DC9C03C12E168A880030BA1B /* WMTAnyEncodable.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC9C03C02E168A880030BA1B /* WMTAnyEncodable.swift */; };
 		DCA43C6B29927C960059A163 /* WMTOperationAttributeAmountConversion.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCA43C6A29927C960059A163 /* WMTOperationAttributeAmountConversion.swift */; };
 		DCA43C6D2993F63E0059A163 /* WMTOperationAttributeImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCA43C6C2993F63E0059A163 /* WMTOperationAttributeImage.swift */; };
+		DCA576612FAC907100CB2889 /* PowerAuth2 in Frameworks */ = {isa = PBXBuildFile; productRef = DCA576602FAC907100CB2889 /* PowerAuth2 */; };
+		DCA576632FAC907100CB2889 /* PowerAuthCore in Frameworks */ = {isa = PBXBuildFile; productRef = DCA576622FAC907100CB2889 /* PowerAuthCore */; };
+		DCA576662FAC907A00CB2889 /* PowerAuth2 in Frameworks */ = {isa = PBXBuildFile; productRef = DCA576652FAC907A00CB2889 /* PowerAuth2 */; };
+		DCA576682FAC907A00CB2889 /* PowerAuthCore in Frameworks */ = {isa = PBXBuildFile; productRef = DCA576672FAC907A00CB2889 /* PowerAuthCore */; };
 		DCAB7BC824580B4C0006989D /* WMTQROperationParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCAB7BC724580B4C0006989D /* WMTQROperationParser.swift */; };
 		DCAB7BCA24580BAC0006989D /* WMTQROperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCAB7BC924580BAC0006989D /* WMTQROperation.swift */; };
 		DCAC55992CE68C2A0070644A /* ProvisioningUtilsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCAC55982CE68C2A0070644A /* ProvisioningUtilsTests.swift */; };
@@ -226,7 +230,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				E1A7C0012E0B000100000006 /* WultraPowerAuthNetworking in Frameworks */,
+				DCA576682FAC907A00CB2889 /* PowerAuthCore in Frameworks */,
 				DC616238248508F8000DED17 /* WultraMobileTokenSDK.framework in Frameworks */,
+				DCA576662FAC907A00CB2889 /* PowerAuth2 in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -235,6 +241,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				E1A7C0012E0B000100000003 /* WultraPowerAuthNetworking in Frameworks */,
+				DCA576612FAC907100CB2889 /* PowerAuth2 in Frameworks */,
+				DCA576632FAC907100CB2889 /* PowerAuthCore in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -424,6 +432,13 @@
 			path = Common;
 			sourceTree = "<group>";
 		};
+		DCA576642FAC907A00CB2889 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		DCAB7BC624580B2B0006989D /* QR */ = {
 			isa = PBXGroup;
 			children = (
@@ -438,6 +453,7 @@
 			children = (
 				DCC5CC9C2449EE21004679AC /* WultraMobileTokenSDK */,
 				DC616234248508F8000DED17 /* WultraMobileTokenSDKTests */,
+				DCA576642FAC907A00CB2889 /* Frameworks */,
 				DCC5CC9B2449EE21004679AC /* Products */,
 			);
 			sourceTree = "<group>";
@@ -634,6 +650,8 @@
 			name = WultraMobileTokenSDKTests;
 			packageProductDependencies = (
 				E1A7C0012E0B00010000000E /* WultraPowerAuthNetworking */,
+				DCA576652FAC907A00CB2889 /* PowerAuth2 */,
+				DCA576672FAC907A00CB2889 /* PowerAuthCore */,
 			);
 			productName = WultraMobileTokenSDKTests;
 			productReference = DC616233248508F8000DED17 /* WultraMobileTokenSDKTests.xctest */;
@@ -656,6 +674,8 @@
 			name = WultraMobileTokenSDK;
 			packageProductDependencies = (
 				E1A7C0012E0B00010000000B /* WultraPowerAuthNetworking */,
+				DCA576602FAC907100CB2889 /* PowerAuth2 */,
+				DCA576622FAC907100CB2889 /* PowerAuthCore */,
 			);
 			productName = MobileTokenSDK;
 			productReference = DCC5CC9A2449EE21004679AC /* WultraMobileTokenSDK.framework */;
@@ -691,6 +711,7 @@
 			mainGroup = DCC5CC902449EE21004679AC;
 			packageReferences = (
 				E1A7C0012E0B000100000008 /* XCRemoteSwiftPackageReference "networking-apple" */,
+				DCA5765F2FAC907100CB2889 /* XCRemoteSwiftPackageReference "powerauth-mobile-sdk-spm" */,
 			);
 			productRefGroup = DCC5CC9B2449EE21004679AC /* Products */;
 			projectDirPath = "";
@@ -958,6 +979,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		DCA5765F2FAC907100CB2889 /* XCRemoteSwiftPackageReference "powerauth-mobile-sdk-spm" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/wultra/powerauth-mobile-sdk-spm";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.9.6;
+			};
+		};
 		E1A7C0012E0B000100000008 /* XCRemoteSwiftPackageReference "networking-apple" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/wultra/networking-apple.git";
@@ -969,6 +998,26 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		DCA576602FAC907100CB2889 /* PowerAuth2 */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = DCA5765F2FAC907100CB2889 /* XCRemoteSwiftPackageReference "powerauth-mobile-sdk-spm" */;
+			productName = PowerAuth2;
+		};
+		DCA576622FAC907100CB2889 /* PowerAuthCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = DCA5765F2FAC907100CB2889 /* XCRemoteSwiftPackageReference "powerauth-mobile-sdk-spm" */;
+			productName = PowerAuthCore;
+		};
+		DCA576652FAC907A00CB2889 /* PowerAuth2 */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = DCA5765F2FAC907100CB2889 /* XCRemoteSwiftPackageReference "powerauth-mobile-sdk-spm" */;
+			productName = PowerAuth2;
+		};
+		DCA576672FAC907A00CB2889 /* PowerAuthCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = DCA5765F2FAC907100CB2889 /* XCRemoteSwiftPackageReference "powerauth-mobile-sdk-spm" */;
+			productName = PowerAuthCore;
+		};
 		E1A7C0012E0B00010000000B /* WultraPowerAuthNetworking */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = E1A7C0012E0B000100000008 /* XCRemoteSwiftPackageReference "networking-apple" */;
