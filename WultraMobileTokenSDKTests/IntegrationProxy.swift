@@ -14,6 +14,7 @@
 // and limitations under the License.
 //
 
+import Foundation
 import PowerAuth2
 import WultraMobileTokenSDK
 import WultraPowerAuthNetworking
@@ -31,6 +32,18 @@ class IntegrationProxy {
     private var registrationId = "" // will be filled when activation is created
     
     typealias Callback = (_ error: String?) -> Void
+    
+    func prepareActivation(pin: String, configFileName: String = "config") async throws {
+        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+            prepareActivation(pin: pin, configFileName: configFileName) { error in
+                if let error {
+                    continuation.resume(throwing: IntegrationProxyError(message: error))
+                } else {
+                    continuation.resume()
+                }
+            }
+        }
+    }
     
     func prepareActivation(pin: String, configFileName: String = "config", callback: @escaping Callback) {
         WPNLogger.verboseLevel = .debug
@@ -70,6 +83,18 @@ class IntegrationProxy {
         }
     }
     
+    func prepareForOIDC() async throws {
+        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+            prepareForOIDC { error in
+                if let error {
+                    continuation.resume(throwing: IntegrationProxyError(message: error))
+                } else {
+                    continuation.resume()
+                }
+            }
+        }
+    }
+    
     func prepareForOIDC(callback: @escaping Callback) {
         WPNLogger.verboseLevel = .debug
         guard let configPath = Bundle.init(for: IntegrationProxy.self).path(forResource: "config", ofType: "json", inDirectory: "Configs") else {
@@ -100,6 +125,12 @@ class IntegrationProxy {
         case F_2FA
     }
     
+    func createOperation(_ factors: Factors = .F_2FA) async throws -> OperationObject {
+        try await asyncObject { completion in
+            createOperation(factors, completion: completion)
+        }
+    }
+    
     func createOperation(_ factors: Factors = .F_2FA, completion: @escaping (OperationObject?) -> Void) {
         DispatchQueue.global().async {
             let opBody: String
@@ -123,9 +154,21 @@ class IntegrationProxy {
         }
     }
     
+    func cancelOperation(operationId: String, reason: String) async throws -> CancelObject {
+        try await asyncObject { completion in
+            cancelOperation(operationId: operationId, reason: reason, completion: completion)
+        }
+    }
+    
     func cancelOperation(operationId: String, reason: String, completion: @escaping (CancelObject?) -> Void) {
         DispatchQueue.global().async {
             completion(self.makeRequest(url: URL(string: "\(self.config.cloudServerUrl)/v2/operations/\(operationId)?statusReason=\(reason)")!, body: "", httpMethod: "DELETE"))
+        }
+    }
+    
+    func createNonPersonalisedPACOperation(_ factors: Factors = .F_2FA) async throws -> OperationObject {
+        try await asyncObject { completion in
+            createNonPersonalisedPACOperation(factors, completion: completion)
         }
     }
     
@@ -152,15 +195,33 @@ class IntegrationProxy {
         }
     }
     
+    func getOperation(operationId: String) async throws -> OperationObject {
+        try await asyncObject { completion in
+            getOperation(operationId: operationId, completion: completion)
+        }
+    }
+    
     func getOperation(operationId: String, completion: @escaping (OperationObject?) -> Void) {
         DispatchQueue.global().async {
             completion(self.makeRequest(url: URL(string: "\(self.config.cloudServerUrl)/v2/operations/\(operationId)")!, body: "", httpMethod: "GET"))
         }
     }
     
+    func getQROperation(operationId: String) async throws -> QROperationData {
+        try await asyncObject { completion in
+            getQROperation(operationId: operationId, completion: completion)
+        }
+    }
+    
     func getQROperation(operationId: String, completion: @escaping (QROperationData?) -> Void) {
         DispatchQueue.global().async {
             completion(self.makeRequest(url: URL(string: "\(self.config.cloudServerUrl)/v2/operations/\(operationId)/offline/qr?registrationId=\(self.registrationId)")!, body: "", httpMethod: "GET"))
+        }
+    }
+    
+    func verifyQROperation(operationId: String, operationData: QROperationData, otp: String) async throws -> QROperationVerify {
+        try await asyncObject { completion in
+            verifyQROperation(operationId: operationId, operationData: operationData, otp: otp, completion: completion)
         }
     }
     
@@ -177,7 +238,15 @@ class IntegrationProxy {
         }
     }
     
-    func createInboxMessages(count: Int, defaultType: String = "text", createFunc: ((Int) -> InboxMessage)? = nil, completion: @escaping ([InboxMessageDetail]) ->Void) {
+    func createInboxMessages(count: Int, defaultType: String = "text", createFunc: ((Int) -> InboxMessage)? = nil) async -> [InboxMessageDetail] {
+        await withCheckedContinuation { continuation in
+            createInboxMessages(count: count, defaultType: defaultType, createFunc: createFunc) { messages in
+                continuation.resume(returning: messages)
+            }
+        }
+    }
+    
+    func createInboxMessages(count: Int, defaultType: String = "text", createFunc: ((Int) -> InboxMessage)? = nil, completion: @escaping ([InboxMessageDetail]) -> Void) {
         DispatchQueue.global().async {
             var result = [InboxMessageDetail]()
             for index in 1...count {
@@ -208,6 +277,18 @@ class IntegrationProxy {
                 result.append(createdMessage)
             }
             completion(result)
+        }
+    }
+    
+    private func asyncObject<T>(_ work: (@escaping (T?) -> Void) -> Void) async throws -> T {
+        try await withCheckedThrowingContinuation { continuation in
+            work { object in
+                if let object {
+                    continuation.resume(returning: object)
+                } else {
+                    continuation.resume(throwing: IntegrationProxyError(message: "Request failed."))
+                }
+            }
         }
     }
     
@@ -403,4 +484,46 @@ struct InboxMessageDetail: Codable {
 struct OIDCProperties {
     let providerId: String
     let providerIdPkce: String
+}
+
+struct IntegrationProxyError: Error, CustomStringConvertible {
+    let message: String
+    var description: String { message }
+}
+
+actor AsyncTestSignal {
+    private var fulfilled = false
+    private var continuations = [CheckedContinuation<Void, Never>]()
+    
+    func fulfill() {
+        guard !fulfilled else { return }
+        fulfilled = true
+        continuations.forEach { $0.resume() }
+        continuations.removeAll()
+    }
+    
+    func wait() async {
+        if fulfilled { return }
+        await withCheckedContinuation { continuation in
+            continuations.append(continuation)
+        }
+    }
+}
+
+struct AsyncTestTimeout: Error, CustomStringConvertible {
+    let description: String
+}
+
+func wait(for signal: AsyncTestSignal, timeout: TimeInterval) async throws {
+    try await withThrowingTaskGroup(of: Void.self) { group in
+        group.addTask {
+            await signal.wait()
+        }
+        group.addTask {
+            try await Task.sleep(nanoseconds: UInt64(timeout * 1_000_000_000))
+            throw AsyncTestTimeout(description: "Timed out after \(timeout) seconds.")
+        }
+        try await group.next()
+        group.cancelAll()
+    }
 }

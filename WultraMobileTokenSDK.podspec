@@ -10,13 +10,13 @@ Pod::Spec.new do |s|
   s.source = { :git => 'https://github.com/wultra/mtoken-sdk-ios.git', :tag => s.version }
   # Deployment targets
   s.swift_version = '5.9'
-  s.ios.deployment_target = '12.0'
+  s.ios.deployment_target = '13.0'
   
   # Source files
   s.source_files = 'WultraMobileTokenSDK/**/*.{swift}'
   
   # Dependencies
   s.dependency 'PowerAuth2', '~> 1.9.5'
-  s.dependency 'WultraPowerAuthNetworking', '~> 1.5.1'
+  s.dependency 'WultraPowerAuthNetworking', '~> 1.5.2'
 
 end

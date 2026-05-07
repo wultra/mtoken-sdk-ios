@@ -14,8 +14,9 @@
 // and limitations under the License.
 //
 
-import XCTest
+import Foundation
 import PowerAuth2
+import Testing
 @testable import WultraMobileTokenSDK
 
 /**
@@ -23,9 +24,10 @@ import PowerAuth2
  configuration json file. To more information, visit `WultraMobileTokenSDKTests/Configs/Readme.md`.
  */
 
-class IntegrationTests: XCTestCase {
+@Suite(.serialized)
+final class IntegrationTests {
     
-    private var proxy: IntegrationProxy!
+    private let proxy: IntegrationProxy
     private var pa: PowerAuthSDK! { proxy.powerAuth }
     private var ops: WMTOperations! { proxy.wmt?.operations ?? proxy.ops }
     private var inbox: WMTInbox! { proxy.wmt?.inbox ?? proxy.inbox }
@@ -33,1193 +35,474 @@ class IntegrationTests: XCTestCase {
     
     private let pin = "1234"
     
-    private let defaultTimeout: TimeInterval = 30 // quite some time, because azure infra is very slow simetimes
-    
-    override func setUp() {
-        super.setUp()
+    init() async throws {
         WMTLogger.verboseLevel = .debug
         proxy = IntegrationProxy()
-        
-        let exp = XCTestExpectation(description: "setup expectation")
-        
-        // Integration Utils prepares an valid activation and sets is as primary
-        // token activation on nextstep server
-        proxy.prepareActivation(pin: pin/*, configFileName: "config-stable"*/) { error in
-            if let error = error {
-                XCTFail(error)
-            }
-            exp.fulfill()
-        }
-        
-        let waiter = XCTWaiter()
-        waiter.wait(for: [exp], timeout: defaultTimeout)
+        try await proxy.prepareActivation(pin: pin/*, configFileName: "config-stable"*/)
     }
     
-    override func tearDown() {
-        super.tearDown()
-        let exp = XCTestExpectation(description: "setup expectation")
-        
-        // after each batch of tests, remove the activation
+    deinit {
         let auth = PowerAuthAuthentication.possessionWithPassword(password: pin)
-        if let pa = pa {
-            pa.removeActivation(with: auth) { err in
-                exp.fulfill()
+        let semaphore = DispatchSemaphore(value: 0)
+        if let pa = proxy.powerAuth {
+            pa.removeActivation(with: auth) { _ in
+                semaphore.signal()
             }
-        } else {
-            XCTFail("Failed to remove activation")
-            exp.fulfill()
+            semaphore.wait()
         }
-        
-        let waiter = XCTWaiter()
-        waiter.wait(for: [exp], timeout: defaultTimeout)
     }
     
     /// By default, operation list should be empty
-    func testList() {
-        let exp = expectation(description: "Empty list of operations")
-        
-        _ = ops.getOperations() { result in
-            
-            switch result {
-            case .success(let ops):
-                XCTAssertTrue(ops.isEmpty)
-            case .failure(let err):
-                XCTFail(err.description)
-            }
-            exp.fulfill()
-            
-        }
-        
-        waitForExpectations(timeout: defaultTimeout, handler: nil)
+    @Test
+    func testList() async throws {
+        let operations = try await ops.getOperations()
+        #expect(operations.isEmpty)
     }
-    
     
     /// Test of the getOperations WMTCancellable
-    func testCancelList() {
-        let exp = expectation(description: "Cancel list of operations")
-        
-        let list = ops.getOperations { result in
-            XCTFail("Operation should be already canceled")
-            exp.fulfill()
+    @Test
+    func testCancelList() async throws {
+        var callbackCalled = false
+        let list = ops.getOperations { _ in
+            callbackCalled = true
+            Issue.record("Operation should be already canceled")
         }
-        
         list.cancel()
-        
-        // Allowing most of the timeout duration for potential completion of the getOperations call.
-        DispatchQueue.main.asyncAfter(deadline: .now() + 4) {
-            XCTAssertTrue(list.isCanceled, "WMTCancellable should be cancelled")
-            exp.fulfill()
-        }
-        
-        waitForExpectations(timeout: 5, handler: nil)
+        try await Task.sleep(nanoseconds: 4_000_000_000)
+        #expect(list.isCanceled, "WMTCancellable should be cancelled")
+        #expect(!callbackCalled)
     }
     
     /// Operation IDs should be equal
-    func testDetail() {
-        let exp = expectation(description: "Operation detail")
-        
-        proxy.createNonPersonalisedPACOperation { op in
-            if let op {
-                DispatchQueue.main.async {
-                    _ = self.ops.getDetail(operationId: op.operationId) { result in
-                        switch result {
-                        case .success(let operation):
-                            XCTAssertEqual(op.operationId, operation.id)
-                        case .failure(let err):
-                            XCTFail(err.description)
-                        }
-                        exp.fulfill()
-                    }
-                }
-            } else {
-                XCTFail("Failed to get operation detail")
-                exp.fulfill()
-            }
-        }
-        
-        waitForExpectations(timeout: defaultTimeout, handler: nil)
+    @Test
+    func testDetail() async throws {
+        let op = try await proxy.createNonPersonalisedPACOperation()
+        let operation = try await ops.getDetail(operationId: op.operationId)
+        #expect(op.operationId == operation.id)
     }
     
-    func testOperationCanceledWithReason() {
-        let exp = expectation(description: "Cancel operation with reason")
+    @Test
+    func testOperationCanceledWithReason() async throws {
         let cancelReason = "PREARRANGED_REASON"
-        
-        proxy.createOperation { op in
-            guard let op else {
-                XCTFail("Failed to create operation")
-                exp.fulfill()
-                return
-            }
-            self.proxy.cancelOperation(operationId: op.operationId, reason: cancelReason) { cancelOp in
-                if cancelOp != nil {
-                    let auth = PowerAuthAuthentication.possessionWithPassword(password: self.pin)
-                    DispatchQueue.main.async {
-                        _ = self.ops.getHistory(authentication: auth) { result in
-                            switch result {
-                            case .success(let ops):
-                                if let opFromList = ops.first(where: { $0.id == op.operationId }) {
-                                    XCTAssertEqual(opFromList.statusReason, cancelReason, "statusReason and cancelReason must be the same")
-                                } else {
-                                    XCTFail("Created operation was not in the history")
-                                }
-                            case .failure:
-                                XCTFail("History was not retrieved")
-                            }
-                            exp.fulfill()
-                        }
-                    }
-                } else {
-                    XCTFail("Failed to cancel operation")
-                    exp.fulfill()
-                }
-            }
-        }
-        waitForExpectations(timeout: defaultTimeout, handler: nil)
+        let op = try await proxy.createOperation()
+        _ = try await proxy.cancelOperation(operationId: op.operationId, reason: cancelReason)
+        let auth = PowerAuthAuthentication.possessionWithPassword(password: pin)
+        let operations = try await ops.getHistory(authentication: auth)
+        let opFromList = try #require(operations.first(where: { $0.id == op.operationId }), "Created operation was not in the history")
+        #expect(opFromList.statusReason == cancelReason, "statusReason and cancelReason must be the same")
     }
     
     /// Operation IDs should be equal
-    func testClaim() {
-        let exp = expectation(description: "Operation Claim should return UserOperation with operation.id")
-        
-        proxy.createNonPersonalisedPACOperation { op in
-            if let op {
-                DispatchQueue.main.async {
-                    _ = self.ops.claim(operationId: op.operationId) { result in
-                        switch result {
-                        case .success(let operation):
-                            if operation.ui?.preApprovalScreens?[0].type == .qr {
-                                self.proxy.getOperation(operationId: op.operationId) { totpOP in
-                                    XCTAssertNotNil(totpOP?.proximityOtp, "Even with proximityCheckEnabled: true, in proximityOtp nil")
-                                    if let totpOP = totpOP, let proximityOtp = totpOP.proximityOtp {
-                                        operation.proximityCheck = WMTProximityCheck(totp: proximityOtp, type: .qrCode)
-                                        //  wrong password on purpose
-                                        let auth = PowerAuthAuthentication.possessionWithPassword(password: "xxxx")
-                                        self.ops.authorize(operation: operation, with: auth) { result in
-                                            switch result {
-                                            case .failure:
-                                                let auth = PowerAuthAuthentication.possessionWithPassword(password: self.pin)
-                                                self.ops.authorize(operation: operation, with: auth) { result in
-                                                    if case .failure(let error) = result {
-                                                        XCTFail("Failed to authorize op: \(error.description)")
-                                                    }
-                                                    exp.fulfill()
-                                                }
-                                            case .success:
-                                                XCTFail("Operation approved with wrong password")
-                                                exp.fulfill()
-                                            }
-                                        }
-                                    } else {
-                                        XCTFail("Operation or TOTP is NIL")
-                                        exp.fulfill()
-                                    }
-                                }
-                            }
-  
-                            case .failure(let err):
-                                XCTFail(err.description)
-                                exp.fulfill()
-                            }
-                        }
-                    }
-            } else {
-                XCTFail("Failed to get operation detail")
-                exp.fulfill()
-            }
+    @Test
+    func testClaim() async throws {
+        let op = try await proxy.createNonPersonalisedPACOperation()
+        let operation = try await ops.claim(operationId: op.operationId)
+        guard operation.ui?.preApprovalScreens?[0].type == .qr else {
+            return
         }
-        
-        waitForExpectations(timeout: defaultTimeout, handler: nil)
+        let totpOP = try await proxy.getOperation(operationId: op.operationId)
+        let proximityOtp = try #require(totpOP.proximityOtp, "Even with proximityCheckEnabled: true, proximityOtp is nil")
+        operation.proximityCheck = WMTProximityCheck(totp: proximityOtp, type: .qrCode)
+        let wrongAuth = PowerAuthAuthentication.possessionWithPassword(password: "xxxx")
+        do {
+            try await ops.authorize(operation: operation, with: wrongAuth)
+            Issue.record("Operation approved with wrong password")
+        } catch {
+            let auth = PowerAuthAuthentication.possessionWithPassword(password: pin)
+            try await ops.authorize(operation: operation, with: auth)
+        }
     }
     
     /// `currentServerDate` was removed from WMTOperations in favor of more precise powerAuth timeService
+    @Test
     func testCurrentServerDate() {
-        var synchronizedServerDate: Date? = nil
-        
+        var synchronizedServerDate: Date?
         let timeService = pa.timeSynchronizationService
         if timeService.isTimeSynchronized {
             synchronizedServerDate = Date(timeIntervalSince1970: timeService.currentTime())
         }
-        
-        XCTAssertNotNil(synchronizedServerDate)
+        #expect(synchronizedServerDate != nil)
     }
     
     /// Test of Payment approval (2FA)
-    func testApprovePayment() {
-        
-        let exp = expectation(description: "Approve payment")
-        
-        proxy.createOperation { op in
-            guard op != nil else {
-                XCTFail("Failed to create operation")
-                exp.fulfill()
-                return
-            }
-            
-            DispatchQueue.main.async {
-                _  = self.ops.getOperations { opResult in
-                    switch opResult {
-                    case .success(let ops):
-                        guard ops.count == 1 else {
-                            XCTFail("1 operation expected. Actual: \(ops.count)")
-                            exp.fulfill()
-                            return
-                        }
-                        //  wrong password on purpose
-                        let auth = PowerAuthAuthentication.possessionWithPassword(password: "xxxx")
-                        self.ops.authorize(operation: ops.first!, with: auth) { result in
-                            switch result {
-                            case .failure:
-                                let auth = PowerAuthAuthentication.possessionWithPassword(password: self.pin)
-                                self.ops.authorize(operation: ops.first!, with: auth) { result in
-                                    if case .failure(let error) = result {
-                                        XCTFail("Failed to authorize op: \(error.description)")
-                                    }
-                                    exp.fulfill()
-                                }
-                            case .success:
-                                XCTFail("Operation approved with wrong password")
-                                exp.fulfill()
-                            }
-                        }
-                    case .failure(let error):
-                        XCTFail("Failed to retrieve operations: \(error.description)")
-                        exp.fulfill()
-                    }
-                }
-            }
+    @Test
+    func testApprovePayment() async throws {
+        _ = try await proxy.createOperation()
+        let operations = try await ops.getOperations()
+        #expect(operations.count == 1, "1 operation expected. Actual: \(operations.count)")
+        let operation = try #require(operations.first)
+        let wrongAuth = PowerAuthAuthentication.possessionWithPassword(password: "xxxx")
+        do {
+            try await ops.authorize(operation: operation, with: wrongAuth)
+            Issue.record("Operation approved with wrong password")
+        } catch {
+            let auth = PowerAuthAuthentication.possessionWithPassword(password: pin)
+            try await ops.authorize(operation: operation, with: auth)
         }
-        
-        waitForExpectations(timeout: defaultTimeout, handler: nil)
     }
     
     /// Test of Payment rejecting (1FA)
-    func testRejectPayment() {
-        
-        let exp = expectation(description: "Reject payment")
-        
-        proxy.createOperation { op in
-            guard let op = op else {
-                XCTFail("Failed to create operation")
-                exp.fulfill()
-                return
-            }
-            
-            DispatchQueue.main.async {
-                _  = self.ops.getOperations { opResult in
-                    switch opResult {
-                    case .success(let ops):
-                        guard let opToReject = ops.first(where: { $0.id == op.operationId }) else {
-                            XCTFail("Operation was not in the oiperation list")
-                            exp.fulfill()
-                            return
-                        }
-                        self.ops.reject(operation: opToReject, with: .unexpectedOperation) { result in
-                            if case .failure(let error) = result {
-                                XCTFail("Failed to reject op: \(error.description)")
-                            }
-                            exp.fulfill()
-                        }
-                    case .failure(let error):
-                        XCTFail("Failed to retrieve operations: \(error.description)")
-                        exp.fulfill()
-                    }
-                }
-            }
-        }
-        
-        waitForExpectations(timeout: defaultTimeout, handler: nil)
+    @Test
+    func testRejectPayment() async throws {
+        let op = try await proxy.createOperation()
+        let operations = try await ops.getOperations()
+        let opToReject = try #require(operations.first(where: { $0.id == op.operationId }), "Operation was not in the operation list")
+        try await ops.reject(operation: opToReject, with: .unexpectedOperation)
     }
     
     /// Test of Payment approval (2FA)
-    func testMobileTokenData() {
-        
-        let exp = expectation(description: "Test Mobile Token Data")
-        
-        proxy.createOperation { op in
-            guard let op else {
-                XCTFail("Failed to create operation")
-                exp.fulfill()
-                return
+    @Test
+    func testMobileTokenData() async throws {
+        let op = try await proxy.createOperation()
+        let detail = try await ops.getDetail(operationId: op.operationId)
+        detail.mobileTokenData = [
+            "test1": 1,
+            "test2": 2.3,
+            "test3": "string",
+            "test4": [
+                "nested": true
+            ]
+        ]
+        try await ops.authorize(operation: detail, with: PowerAuthAuthentication.possessionWithPassword(password: pin))
+        let finalOp = try await proxy.getOperation(operationId: op.operationId)
+        let mtd = try #require(finalOp.additionalData?.mobileTokenData, "mobileTokenData not in additionalData")
+        #expect(mtd.test1 == 1, "test1 should be 1")
+        #expect(mtd.test2 == 2.3, "test2 should be 2.3")
+        #expect(mtd.test3 == "string", "test3 should be 'string'")
+        #expect(mtd.test4?["nested"] == true, "test4 should be a nested object with 'nested' key")
+    }
+    
+    @Test
+    func testMobileTokenDataWithMoBileTokenBuilder() async throws {
+        let op = try await proxy.createOperation()
+        let detail = try await ops.getDetail(operationId: op.operationId)
+        let builder = WMTMobileTokenData.Builder(initialData: ["test1": 8])
+        builder
+            .put("test2", 0.82)
+            .put("test3", "someString")
+        let recorder = WMTPreApprovalScreensRecorder(powerAuthSDK: proxy.powerAuth!)
+            .begin("intro-warning")
+            .end("intro-warning", action: .close)
+            .begin("intro-warning")
+            .end("intro-warning", action: .continue)
+            .begin("qr")
+            .end("qr", action: .scan)
+            .begin("call-or-confirm")
+            .end("call-or-confirm", action: .continue)
+        builder.put(recorder)
+        detail.mobileTokenData = builder.build()
+        let auth = PowerAuthAuthentication.possessionWithPassword(password: pin)
+        try await ops.authorize(operation: detail, with: auth)
+        let finalOp = try await proxy.getOperation(operationId: op.operationId)
+        let mtd = try #require(finalOp.additionalData?.mobileTokenData, "mobileTokenData not in additionalData")
+        #expect(mtd.test1 == 8, "test1 should be 8")
+        #expect(mtd.test2 == 0.82, "test2 should be '0.82'")
+        #expect(mtd.test3 == "someString", "test2 should be 'someString'")
+        let screens = try #require(mtd.preApprovalScreens, "preApprovalScreens missing or invalid shape")
+        #expect(screens.count == 4, "Expected two screen visits")
+        #expect(screens[0].screen == "intro-warning")
+        #expect(screens[0].action == "CLOSE")
+        #expect(screens[0].timestampOpened != nil)
+        #expect(screens[0].timestampClosed != nil)
+        #expect(screens[1].screen == "intro-warning")
+        #expect(screens[1].action == "CONTINUE")
+        #expect(screens[1].timestampOpened != nil)
+        #expect(screens[1].timestampClosed != nil)
+        #expect(screens[2].screen == "qr")
+        #expect(screens[2].action == "SCAN")
+        #expect(screens[2].timestampOpened != nil)
+        #expect(screens[2].timestampClosed != nil)
+        #expect(screens[3].screen == "call-or-confirm")
+        #expect(screens[3].action == "CONTINUE")
+        #expect(screens[3].timestampOpened != nil)
+        #expect(screens[3].timestampClosed != nil)
+    }
+    
+    @Test
+    func testMobileTokenDataCustomRecord() async throws {
+        final class CustomRecord: WMTMobileTokenDataRecord {
+            static let key = "customRecord"
+            var key: String { Self.key }
+            private var data: [String: Encodable] = [:]
+            
+            @discardableResult
+            func add(_ name: String, _ value: Encodable) -> Self {
+                data[name] = value
+                return self
             }
             
-            self.ops.getDetail(operationId: op.operationId) { opResult in
-                
-                switch opResult {
-                case .success(let detail):
-                    
-                    
-                    detail.mobileTokenData = [
-                        "test1": 1,
-                        "test2": 2.3,
-                        "test3": "string",
-                        "test4": [
-                            "nested": true
-                        ]
-                    ]
-                    
-                    self.ops.authorize(operation: detail, with: PowerAuthAuthentication.possessionWithPassword(password: self.pin)) { authResult in
-                        
-                        switch authResult {
-                        case .success:
-                            
-                            self.proxy.getOperation(operationId: op.operationId) { finalOp in
-                                
-                                defer {
-                                    exp.fulfill()
-                                }
-                                
-                                guard let finalOp else {
-                                    XCTFail("Failed to get operation detail.")
-                                    return
-                                }
-                                
-                                guard let mtd = finalOp.additionalData?.mobileTokenData else {
-                                    XCTFail("mobileTokenData not in additionalData")
-                                    return
-                                }
-                                    
-                                XCTAssertEqual(mtd.test1, 1, "test1 should be 1")
-                                XCTAssertEqual(mtd.test2, 2.3, "test2 should be 2.3")
-                                XCTAssertEqual(mtd.test3, "string", "test3 should be 'string'")
-                                XCTAssertEqual(mtd.test4?["nested"], true, "test4 should be a nested object with 'nested' key")
-                            }
-                            
-                        case .failure(let failure):
-                            XCTFail("Failed to authorize operation: \(failure.description)")
-                            exp.fulfill()
-                        }
-                        
-                    }
-                    
-                case .failure(let failure):
-                    XCTFail("Failed to retrieve operation: \(failure.description)")
-                    exp.fulfill()
-                }
+            func build() -> Encodable {
+                data.toAnyEncodable()
             }
         }
         
-        waitForExpectations(timeout: defaultTimeout, handler: nil)
+        let op = try await proxy.createOperation()
+        let detail = try await ops.getDetail(operationId: op.operationId)
+        let builder = WMTMobileTokenData.Builder()
+        let record = CustomRecord()
+            .add("flag", true)
+            .add("mode", "debug")
+        builder.put(record.key, record.build())
+        detail.mobileTokenData = builder.build()
+        let auth = PowerAuthAuthentication.possessionWithPassword(password: pin)
+        try await ops.authorize(operation: detail, with: auth)
+        let finalOp = try await proxy.getOperation(operationId: op.operationId)
+        let mtd = try #require(finalOp.additionalData?.mobileTokenData, "mobileTokenData not found in additionalData")
+        let custom = try #require(mtd.customRecord, "customRecord missing or malformed")
+        #expect(custom.flag == true)
+        #expect(custom.mode == "debug")
     }
     
-    func testMobileTokenDataWithMoBileTokenBuilder() {
-        let exp = expectation(description: "Test Mobile Token Data (Builder)")
-
-        proxy.createOperation { op in
-            guard let op else {
-                XCTFail("Failed to create operation")
-                exp.fulfill()
-                return
-            }
-
-            self.ops.getDetail(operationId: op.operationId) { opResult in
-                switch opResult {
-                case .failure(let failure):
-                    XCTFail("Failed to retrieve operation: \(failure.description)")
-                    exp.fulfill()
-
-                case .success(let detail):
-
-                    // --- Build mobileTokenData ---
-                    let builder = WMTMobileTokenData.Builder(
-                        initialData: [
-                            "test1": 8
-                        ]
-                    )
-
-                    // Generic entries
-                    builder
-                        .put("test2", 0.82)
-                        .put("test3", "someString")
-
-                    // Pre-approval flow timeline
-                    let recorder = WMTPreApprovalScreensRecorder(powerAuthSDK: self.proxy.powerAuth!)
-                        .begin("intro-warning")
-                        .end("intro-warning", action: .close)
-                        .begin("intro-warning")
-                        .end("intro-warning", action: .continue)
-                        .begin("qr")
-                        .end("qr", action: .scan)
-                        .begin("call-or-confirm")
-                        .end("call-or-confirm", action: .continue)
-                    
-                    builder.put(recorder)
-
-                    // Attach to operation
-                    detail.mobileTokenData = builder.build()
-
-                    let auth = PowerAuthAuthentication.possessionWithPassword(password: self.pin)
-                    self.ops.authorize(operation: detail, with: auth) { authResult in
-                        switch authResult {
-                        case .failure(let err):
-                            XCTFail("Failed to authorize operation: \(err.description)")
-                            exp.fulfill()
-
-                        case .success:
-                            self.proxy.getOperation(operationId: op.operationId) { finalOp in
-                                defer { exp.fulfill() }
-
-                                guard let finalOp else {
-                                    XCTFail("Failed to get operation detail.")
-                                    return
-                                }
-
-                                // Server returns additionalData.mobileTokenData
-                                guard let mtd = finalOp.additionalData?.mobileTokenData else {
-                                    XCTFail("mobileTokenData not in additionalData")
-                                    return
-                                }
-
-                                // Base & generic assertions
-                                XCTAssertEqual(mtd.test1, 8, "test1 should be 8")
-                                XCTAssertEqual(mtd.test2, 0.82, "test2 should be '0.82'")
-                                XCTAssertEqual(mtd.test3, "someString", "test2 should be 'someString'")
-
-                                // Pre-approval screen assertions
-                                guard let screens = mtd.preApprovalScreens else {
-                                    XCTFail("preApprovalScreens missing or invalid shape")
-                                    return
-                                }
-                                XCTAssertEqual(screens.count, 4, "Expected two screen visits")
-
-                                // Visit 1
-                                XCTAssertEqual(screens[0].screen, "intro-warning")
-                                XCTAssertEqual(screens[0].action, "CLOSE")
-                                XCTAssertNotNil(screens[0].timestampOpened)
-                                XCTAssertNotNil(screens[0].timestampClosed)
-
-                                // Visit 2
-                                XCTAssertEqual(screens[1].screen, "intro-warning")
-                                XCTAssertEqual(screens[1].action, "CONTINUE")
-                                XCTAssertNotNil(screens[1].timestampOpened)
-                                XCTAssertNotNil(screens[1].timestampClosed)
-                                
-                                // Visit 3
-                                XCTAssertEqual(screens[2].screen, "qr")
-                                XCTAssertEqual(screens[2].action, "SCAN")
-                                XCTAssertNotNil(screens[2].timestampOpened)
-                                XCTAssertNotNil(screens[2].timestampClosed)
-                                
-                                // Visit 4
-                                XCTAssertEqual(screens[3].screen, "call-or-confirm")
-                                XCTAssertEqual(screens[3].action, "CONTINUE")
-                                XCTAssertNotNil(screens[3].timestampOpened)
-                                XCTAssertNotNil(screens[3].timestampClosed)
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        waitForExpectations(timeout: defaultTimeout, handler: nil)
-    }
-    
-    func testMobileTokenDataCustomRecord() {
-        let exp = expectation(description: "Test Mobile Token Data (CustomRecord)")
-
-        proxy.createOperation { op in
-            guard let op else {
-                XCTFail("Failed to create operation")
-                exp.fulfill()
-                return
-            }
-
-            self.ops.getDetail(operationId: op.operationId) { opResult in
-                switch opResult {
-                case .failure(let failure):
-                    XCTFail("Failed to retrieve operation: \(failure.description)")
-                    exp.fulfill()
-
-                case .success(let detail):
-
-                    // CustomRecord implementation
-                    final class CustomRecord: WMTMobileTokenDataRecord {
-
-                        public static let key = "customRecord"
-                        public var key: String { Self.key }
-                        
-                        private var data: [String: Encodable] = [:]
-
-                        @discardableResult
-                        func add(_ name: String, _ value: Encodable) -> Self {
-                            data[name] = value
-                            return self
-                        }
-
-                        func build() -> Encodable {
-                            data.toAnyEncodable()
-                        }
-                    }
-
-                    // Build the MobileTokenData
-                    let builder = WMTMobileTokenData.Builder()
-
-                    let record = CustomRecord()
-                        .add("flag", true)
-                        .add("mode", "debug")
-                    
-                    builder.put(record.key, record.build())
-
-                    detail.mobileTokenData = builder.build()
-
-                    let auth = PowerAuthAuthentication.possessionWithPassword(password: self.pin)
-                    self.ops.authorize(operation: detail, with: auth) { authResult in
-                        switch authResult {
-                        case .failure(let err):
-                            XCTFail("Failed to authorize operation: \(err.description)")
-                            exp.fulfill()
-
-                        case .success:
-                            self.proxy.getOperation(operationId: op.operationId) { finalOp in
-                                defer { exp.fulfill() }
-
-                                guard let finalOp else {
-                                    XCTFail("Failed to get operation detail.")
-                                    return
-                                }
-
-                                guard let mtd = finalOp.additionalData?.mobileTokenData else {
-                                    XCTFail("mobileTokenData not found in additionalData")
-                                    return
-                                }
-
-                                // customRecord check
-                                guard let custom = mtd.customRecord else {
-                                    XCTFail("customRecord missing or malformed")
-                                    return
-                                }
-
-                                XCTAssertEqual(custom.flag, true)
-                                XCTAssertEqual(custom.mode, "debug")
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        waitForExpectations(timeout: defaultTimeout, handler: nil)
-    }
-    
-    func testRejectPaymentWithMobileTokenData() {
-        let exp = expectation(description: "Reject payment with mobileTokenData")
-
-        proxy.createOperation { op in
-            guard let op = op else {
-                XCTFail("Failed to create operation")
-                exp.fulfill()
-                return
-            }
-
-            self.ops.getOperations { opResult in
-                switch opResult {
-                case .success(let ops):
-                    guard let opToReject = ops.first(where: { $0.id == op.operationId }) else {
-                        XCTFail("Operation was not in the operation list")
-                        exp.fulfill()
-                        return
-                    }
-
-                    opToReject.mobileTokenData = [
-                        "test1": 1,
-                        "test2": 2.3,
-                        "test3": "string",
-                        "test4": ["nested": true]
-                    ]
-
-                    self.ops.reject(operation: opToReject, with: .preApproval) { result in
-                        switch result {
-                        case .success:
-                            
-                            self.proxy.getOperation(operationId: op.operationId) { finalOp in
-                                
-                                defer {
-                                    exp.fulfill()
-                                }
-                                
-                                guard let finalOp else {
-                                    XCTFail("Failed to get operation detail.")
-                                    return
-                                }
-                                
-                                guard let mtd = finalOp.additionalData?.mobileTokenData else {
-                                    XCTFail("mobileTokenData not in additionalData")
-                                    return
-                                }
-                                    
-                                XCTAssertEqual(mtd.test1, 1, "test1 should be 1")
-                                XCTAssertEqual(mtd.test2, 2.3, "test2 should be 2.3")
-                                XCTAssertEqual(mtd.test3, "string", "test3 should be 'string'")
-                                XCTAssertEqual(mtd.test4?["nested"], true, "test4 should be a nested object with 'nested' key")
-                            }
-                            
-                        case .failure(let failure):
-                            XCTFail("Failed to authorize operation: \(failure.description)")
-                            exp.fulfill()
-                        }
-                    }
-
-                case .failure(let error):
-                    XCTFail("Failed to retrieve operations: \(error.description)")
-                    exp.fulfill()
-                }
-            }
-        }
-
-        waitForExpectations(timeout: defaultTimeout, handler: nil)
+    @Test
+    func testRejectPaymentWithMobileTokenData() async throws {
+        let op = try await proxy.createOperation()
+        let operations = try await ops.getOperations()
+        let opToReject = try #require(operations.first(where: { $0.id == op.operationId }), "Operation was not in the operation list")
+        opToReject.mobileTokenData = [
+            "test1": 1,
+            "test2": 2.3,
+            "test3": "string",
+            "test4": ["nested": true]
+        ]
+        try await ops.reject(operation: opToReject, with: .preApproval)
+        let finalOp = try await proxy.getOperation(operationId: op.operationId)
+        let mtd = try #require(finalOp.additionalData?.mobileTokenData, "mobileTokenData not in additionalData")
+        #expect(mtd.test1 == 1, "test1 should be 1")
+        #expect(mtd.test2 == 2.3, "test2 should be 2.3")
+        #expect(mtd.test3 == "string", "test3 should be 'string'")
+        #expect(mtd.test4?["nested"] == true, "test4 should be a nested object with 'nested' key")
     }
     
     /// Testing that operation polling works.
-    func testOperationPolling() {
-        let exp = expectation(description: "Polling expectation")
-        XCTAssertFalse(ops.isPollingOperations)
+    @Test
+    func testOperationPolling() async throws {
+        #expect(!ops.isPollingOperations)
         let delegate = OpDelegate()
+        let signal = AsyncTestSignal()
         delegate.loadingCountCallback = { count in
             if count == 3 {
                 self.ops.stopPollingOperations()
-                exp.fulfill()
+                Task { await signal.fulfill() }
             }
         }
         ops.delegate = delegate
-        ops.startPollingOperations()
-        XCTAssertTrue(ops.isPollingOperations)
-
-        waitForExpectations(timeout: 30, handler: nil)
-        
-        XCTAssertFalse(ops.isPollingOperations)
+        ops.startPollingOperations(interval: 5, delayStart: false)
+        #expect(ops.isPollingOperations)
+        try await wait(for: signal, timeout: 30)
+        #expect(!ops.isPollingOperations)
     }
     
-    func testHistory() {
-        let exp = expectation(description: "history expectation")
-        
-        // lets create 1 operation and leave it in the state of "pending"
-        proxy.createOperation { op in
-            
-            guard let op = op else {
-                XCTFail("Failed to create operation")
-                exp.fulfill()
-                return
-            }
-            
-            let auth = PowerAuthAuthentication.possessionWithPassword(password: self.pin)
-            self.ops.getHistory(authentication: auth) { result in
-                switch result {
-                case .success(let ops):
-                    if let opFromList = ops.first(where: { $0.id == op.operationId }) {
-                        XCTAssertEqual(opFromList.status, .pending)
-                    } else {
-                        XCTFail("Created operation was not in the history")
-                    }
-                case .failure:
-                    XCTFail("History was not retrieved")
-                }
-                exp.fulfill()
-            }
-        }
-        
-        waitForExpectations(timeout: defaultTimeout, handler: nil)
+    @Test
+    func testHistory() async throws {
+        let op = try await proxy.createOperation()
+        let auth = PowerAuthAuthentication.possessionWithPassword(password: pin)
+        let operations = try await ops.getHistory(authentication: auth)
+        let opFromList = try #require(operations.first(where: { $0.id == op.operationId }), "Created operation was not in the history")
+        #expect(opFromList.status == .pending)
     }
     
-    func testOperationChangedDelegate() {
-        
-        // overall process expectation
-        let exp = expectation(description: "Operation delegates called properly")
-        
-        // expectation for each delegate
-        let expD1 = expectation(description: "Delegate 1 was handeled")
-        let expD2 = expectation(description: "Delegate 2 was handeled")
-        let expD3 = expectation(description: "Delegate 3 was handeled")
-        let expD4 = expectation(description: "Delegate 4 was handeled")
-        
-        // keeping the delegates to retain the objects
+    @Test
+    func testOperationChangedDelegate() async throws {
         let d1 = OpDelegate()
         let d2 = OpDelegate()
         let d3 = OpDelegate()
         let d4 = OpDelegate()
         
-        // first delegate confirms adding 1 operation to empty list
+        let signal1 = AsyncTestSignal()
         d1.changedCallback = { all, removed, added in
-            XCTAssertEqual(all.count, 1)
-            XCTAssertTrue(removed.isEmpty)
-            XCTAssertEqual(added.count, 1)
-            expD1.fulfill()
+            #expect(all.count == 1)
+            #expect(removed.isEmpty)
+            #expect(added.count == 1)
+            Task { await signal1.fulfill() }
         }
         ops.delegate = d1
+        _ = try await proxy.createOperation()
+        ops.refreshOperations()
+        try await wait(for: signal1, timeout: 4)
         
-        proxy.createOperation { op in
-            
-            guard op != nil else {
-                XCTFail("Failed to create operation")
-                exp.fulfill()
-                return
-            }
-            
-            // refresh operation to trigger onChanged callback
-            self.ops.refreshOperations()
-            self.wait(for: [expD1], timeout: 4)
-            
-            // second delegate confirms adding 1 operation to list with 1 operation already added
-            d2.changedCallback = { all, removed, added in
-                XCTAssertEqual(all.count, 2)
-                XCTAssertTrue(removed.isEmpty)
-                XCTAssertEqual(added.count, 1)
-                expD2.fulfill()
-            }
-            self.ops.delegate = d2
-            
-            self.proxy.createOperation { op2 in
-                
-                guard op2 != nil else {
-                    XCTFail("Failed to create operation")
-                    exp.fulfill()
-                    return
-                }
-                
-                // refresh operation to trigger onChanged callback
-                self.ops.refreshOperations()
-                self.wait(for: [expD2], timeout: 4)
-                
-                self.ops.delegate = nil // to disable repeated call on d2 fullfill
-                self.ops.getOperations { rOps in
-                    
-                    guard case .success(let ops) = rOps else {
-                        XCTFail("Failed to retreive ops")
-                        exp.fulfill()
-                        return
-                    }
-                    
-                    guard ops.count == 2 else {
-                        XCTFail("\(ops.count) operations retreived instead of 2")
-                        exp.fulfill()
-                        return
-                    }
-                    XCTAssertEqual(ops.count, 2) // just to make a point
-                    
-                    // third delegate confirms properly removed operation after reject
-                    d3.changedCallback = { all, removed, added in
-                        XCTAssertEqual(all.count, 1)
-                        XCTAssertTrue(added.isEmpty)
-                        XCTAssertEqual(removed.count, 1)
-                        expD3.fulfill()
-                    }
-                    self.ops.delegate = d3
-                    
-                    self.ops.reject(operation: ops[0], with: .unknown) { result in
-                        
-                        switch result {
-                        case .failure(let error):
-                            XCTFail("Failed to reject operation: \(error)")
-                            exp.fulfill()
-                            return
-                        case .success:
-                            self.wait(for: [expD3], timeout: 4)
-                            
-                            // last delegate confirms properly removed operation after authorize
-                            d4.changedCallback = { all, removed, added in
-                                XCTAssertTrue(all.isEmpty)
-                                XCTAssertTrue(added.isEmpty)
-                                XCTAssertEqual(removed.count, 1)
-                                expD4.fulfill()
-                            }
-                            self.ops.delegate = d4
-                            
-                            let auth = PowerAuthAuthentication.possessionWithPassword(password: self.pin)
-                            self.ops.authorize(operation: ops[1], with: auth) { result2 in
-                                
-                                switch result2 {
-                                case .failure(let error):
-                                    XCTFail("Failed to reject operation: \(error)")
-                                    exp.fulfill()
-                                    return
-                                case .success:
-                                    self.wait(for: [expD4], timeout: 2)
-                                    self.ops.delegate = nil // to disable repeated call on d4 fullfill
-                                    
-                                    // final confirm that there are no operation left to resolve
-                                    self.ops.getOperations { resultOps in
-                                        switch resultOps {
-                                        case .success(let ops):
-                                            XCTAssertEqual(ops.count, 0)
-                                        case .failure(let error):
-                                            XCTFail("Failed to reject operation: \(error)")
-                                        }
-                                        exp.fulfill()
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
+        let signal2 = AsyncTestSignal()
+        d2.changedCallback = { all, removed, added in
+            #expect(all.count == 2)
+            #expect(removed.isEmpty)
+            #expect(added.count == 1)
+            Task { await signal2.fulfill() }
         }
+        ops.delegate = d2
+        _ = try await proxy.createOperation()
+        ops.refreshOperations()
+        try await wait(for: signal2, timeout: 4)
         
-        wait(for: [exp], timeout: 10)
+        ops.delegate = nil
+        let operations = try await ops.getOperations()
+        #expect(operations.count == 2)
+        
+        let signal3 = AsyncTestSignal()
+        d3.changedCallback = { all, removed, added in
+            #expect(all.count == 1)
+            #expect(added.isEmpty)
+            #expect(removed.count == 1)
+            Task { await signal3.fulfill() }
+        }
+        ops.delegate = d3
+        try await ops.reject(operation: operations[0], with: .unknown)
+        try await wait(for: signal3, timeout: 4)
+        
+        let signal4 = AsyncTestSignal()
+        d4.changedCallback = { all, removed, added in
+            #expect(all.isEmpty)
+            #expect(added.isEmpty)
+            #expect(removed.count == 1)
+            Task { await signal4.fulfill() }
+        }
+        ops.delegate = d4
+        let auth = PowerAuthAuthentication.possessionWithPassword(password: pin)
+        try await ops.authorize(operation: operations[1], with: auth)
+        try await wait(for: signal4, timeout: 2)
+        ops.delegate = nil
+        let finalOperations = try await ops.getOperations()
+        #expect(finalOperations.count == 0)
     }
     
-    func testQROperation() {
-        
-        let exp = expectation(description: "QR Operation integration test")
+    @Test
+    func testQROperation() async throws {
         let measure = MeasureElapsed("QROperation")
-        
-        // create regular operation
-        proxy.createOperation { op in
-            
-            measure.mark("Operation created")
-            
-            guard let op = op else {
-                XCTFail("Failed to create operation")
-                exp.fulfill()
-                return
-            }
-            
-            // get QR data of the operation
-            self.proxy.getQROperation(operationId: op.operationId) { qrData in
-                
-                measure.mark("QR data retrieved")
-                
-                guard let qrData = qrData else {
-                    XCTFail("Failed to retrieve QR data")
-                    exp.fulfill()
-                    return
-                }
-                
-                // parse the data
-                switch WMTQROperationParser().parse(string: qrData.operationQrCodeData) {
-                case .success(let qrOp):
-                    
-                    let auth = PowerAuthAuthentication.possessionWithPassword(password: self.pin)
-                    
-                    // get the OTP with the "offline" signing
-                    self.ops.authorize(qrOperation: qrOp, authentication: auth) { qrAuthResult in
-                        
-                        measure.mark("Authorized")
-                        
-                        switch qrAuthResult {
-                        case .success(let otp):
-                            
-                            // verify the operation on the backend with the OTP
-                            self.proxy.verifyQROperation(operationId: op.operationId, operationData: qrData, otp: otp) { verified in
-                                
-                                measure.mark("OTP verified")
-                                
-                                print("Operation verified with \(verified?.otpValid.description ?? "ERROR") result")
-                                
-                                // success?
-                                if verified?.otpValid == true {
-                                    exp.fulfill()
-                                } else {
-                                    XCTFail("Failed to verify QR operation")
-                                    exp.fulfill()
-                                }
-                            }
-                        case .failure:
-                            XCTFail("Failed to authorize QR operation")
-                            exp.fulfill()
-                        }
-                    }
-                case .failure:
-                    XCTFail("Failed to parse QR operation")
-                    exp.fulfill()
-                }
-            }
-        }
-        // there are several backend calls, give it some time...
-        waitForExpectations(timeout: 40, handler: nil)
+        let op = try await proxy.createOperation()
+        measure.mark("Operation created")
+        let qrData = try await proxy.getQROperation(operationId: op.operationId)
+        measure.mark("QR data retrieved")
+        let qrOp = try WMTQROperationParser().parse(string: qrData.operationQrCodeData).get()
+        let auth = PowerAuthAuthentication.possessionWithPassword(password: pin)
+        let otp = try await ops.authorize(qrOperation: qrOp, authentication: auth)
+        measure.mark("Authorized")
+        let verified = try await proxy.verifyQROperation(operationId: op.operationId, operationData: qrData, otp: otp)
+        measure.mark("OTP verified")
+        print("Operation verified with \(verified.otpValid.description) result")
+        #expect(verified.otpValid, "Failed to verify QR operation")
     }
     
     // MARK: - Push
     
-    func testRegisterPushLegacy() {
-        let expect = expectation(description: "Register push legacy")
-        push.registerDeviceTokenForPushNotifications(token: "testtoken".data(using: .utf8)!) { result in
-            if case .failure(let error) = result {
-                XCTFail("Failed to register push legacy: \(error.description)")
-            }
-            expect.fulfill()
-        }
-        XCTWaiter().wait(for: [expect], timeout: defaultTimeout)
+    @Test
+    func testRegisterPushApns() async throws {
+        try await push.register(to: .apns(token: "testtoken".data(using: .utf8)!))
     }
     
-    func testRegisterPushApns() {
-        let expect = expectation(description: "Register push APNS")
-        push.register(to: .apns(token: "testtoken".data(using: .utf8)!)) { result in
-            if case .failure(let error) = result {
-                XCTFail("Failed to register APNS push: \(error)")
-            }
-            expect.fulfill()
-        }
-        XCTWaiter().wait(for: [expect], timeout: defaultTimeout)
+    @Test
+    func testRegisterPushApnsProduction() async throws {
+        try await push.register(to: .apns(token: "testtoken".data(using: .utf8)!, environment: .production))
     }
     
-    func testRegisterPushApnsProduction() {
-        let expect = expectation(description: "Register push APNS")
-        push.register(to: .apns(token: "testtoken".data(using: .utf8)!, environment: .production)) { result in
-            if case .failure(let error) = result {
-                XCTFail("Failed to register APNS push: \(error)")
-            }
-            expect.fulfill()
-        }
-        XCTWaiter().wait(for: [expect], timeout: defaultTimeout)
+    @Test
+    func testRegisterPushApnsDevelopment() async throws {
+        try await push.register(to: .apns(token: "testtoken".data(using: .utf8)!, environment: .development))
     }
     
-    func testRegisterPushApnsDevelopment() {
-        let expect = expectation(description: "Register push APNS")
-        push.register(to: .apns(token: "testtoken".data(using: .utf8)!, environment: .development)) { result in
-            if case .failure(let error) = result {
-                XCTFail("Failed to register APNS push: \(error)")
-            }
-            expect.fulfill()
-        }
-        XCTWaiter().wait(for: [expect], timeout: defaultTimeout)
-    }
-    
-    func testRegisterPushFcm() {
-        let expect = expectation(description: "Register push APNS")
-        push.register(to: .fcm(token: "testtoken")) { result in
-            if case .failure(let error) = result {
-                XCTFail("Failed to register FCM push: \(error)")
-            }
-            expect.fulfill()
-        }
-        XCTWaiter().wait(for: [expect], timeout: defaultTimeout)
+    @Test
+    func testRegisterPushFcm() async throws {
+        try await push.register(to: .fcm(token: "testtoken"))
     }
     
     // MARK: - Inbox
     
-    func testInboxMessages() {
+    @Test
+    func testInboxMessages() async throws {
         let messagesToTest = 5
-        let messages = prepareMessages(count: messagesToTest)
-        let unreadCount = fetchUnreadMessagesCount()
-        XCTAssertEqual(messagesToTest, unreadCount)
-        
-        // Read all messages at once
-        let getMessages = expectation(description: "Get inbox messages list")
-        var messageList = [WMTInboxMessage]()
-        inbox.getMessageList(pageNumber: 0, pageSize: 50, onlyUnread: true) { result in
-            switch result {
-            case .success(let messages):
-                XCTAssertEqual(messagesToTest, messages.count)
-                messageList = messages
-            case .failure(let error):
-                XCTFail("Request failed with error: \(error)")
-            }
-            getMessages.fulfill()
-        }
-        XCTWaiter().wait(for: [getMessages], timeout: defaultTimeout)
-        
-        // Now test received messages
+        let messages = await prepareMessages(count: messagesToTest)
+        let unreadCount = try await fetchUnreadMessagesCount()
+        #expect(messagesToTest == unreadCount)
+        let messageList = try await inbox.getMessageList(pageNumber: 0, pageSize: 50, onlyUnread: true)
+        #expect(messagesToTest == messageList.count)
         compareMessages(expected: messages, received: messageList)
-        
-        // Try to get message detail
-        var messageDetail: WMTInboxMessageDetail?
-        let firstMessage = messages.first!
-        let getMessageDetail = expectation(description: "Get message detail")
-        inbox.getMessageDetail(messageId: firstMessage.id) { result in
-            switch result {
-            case .success(let detail):
-                messageDetail = detail
-            case .failure(let error):
-                XCTFail("Request failed with error: \(error)")
-            }
-            getMessageDetail.fulfill()
-        }
-        XCTWaiter().wait(for: [getMessageDetail], timeout: defaultTimeout)
-        
-        XCTAssertNotNil(messageDetail)
-        XCTAssertEqual(firstMessage.id, messageDetail?.id)
-        XCTAssertEqual(firstMessage.subject, messageDetail?.subject)
-        XCTAssertEqual(firstMessage.summary, messageDetail?.summary)
-        XCTAssertEqual(firstMessage.body, messageDetail?.body)
-        XCTAssertEqual(firstMessage.read, messageDetail?.read)
-        XCTAssertEqual(firstMessage.type, messageDetail?.type.rawValue)
-        XCTAssertEqual(floor(firstMessage.timestamp.timeIntervalSince1970), floor(messageDetail!.timestampCreated.timeIntervalSince1970))
+        let firstMessage = try #require(messages.first)
+        let messageDetail = try await inbox.getMessageDetail(messageId: firstMessage.id)
+        #expect(firstMessage.id == messageDetail.id)
+        #expect(firstMessage.subject == messageDetail.subject)
+        #expect(firstMessage.summary == messageDetail.summary)
+        #expect(firstMessage.body == messageDetail.body)
+        #expect(firstMessage.read == messageDetail.read)
+        #expect(firstMessage.type == messageDetail.type.rawValue)
+        #expect(floor(firstMessage.timestamp.timeIntervalSince1970) == floor(messageDetail.timestampCreated.timeIntervalSince1970))
     }
     
-    func testGetAllInboxMessages() {
+    @Test
+    func testGetAllInboxMessages() async throws {
         let count = 11
-        let messages = prepareMessages(count: count, type: "html")
-        var receivedMessages = [WMTInboxMessage]()
-        let getAllMessages = expectation(description: "Get all messages")
-        inbox.getAllMessages(pageSize: 5) { result in
-            switch result {
-            case .success(let msgs):
-                receivedMessages = msgs
-                
-            case .failure:
-                XCTFail()
-            }
-            getAllMessages.fulfill()
-        }
-        XCTWaiter().wait(for: [getAllMessages], timeout: defaultTimeout)
-        XCTAssertEqual(count, receivedMessages.count)
+        let messages = await prepareMessages(count: count, type: "html")
+        let receivedMessages = try await inbox.getAllMessages(pageSize: 5)
+        #expect(count == receivedMessages.count)
         compareMessages(expected: messages, received: receivedMessages)
     }
     
-    func testMarkMessageRead() {
+    @Test
+    func testMarkMessageRead() async throws {
         let count = 4
-        let messages = prepareMessages(count: count)
-        var receivedMessages = fetchAllMessages()
-        XCTAssertEqual(count, receivedMessages.count)
+        let messages = await prepareMessages(count: count)
+        var receivedMessages = try await fetchAllMessages()
+        #expect(count == receivedMessages.count)
         compareMessages(expected: messages, received: receivedMessages)
-        
-        // Mark first as read and receive its detail
-        let setMessageAsRead = expectation(description: "Set message as read")
-        let readMessageDetail = expectation(description: "Get read message's detail")
         let messageId = receivedMessages[0].id
-        inbox.markRead(messageId: messageId) { result in
-            switch result {
-            case .success:
-                // If success, then read message detail and test whether the message was set as read
-                self.inbox.getMessageDetail(messageId: messageId) { result in
-                    switch result {
-                    case .success(let detail):
-                        XCTAssertTrue(detail.read)
-                    case .failure:
-                        XCTFail()
-                    }
-                    readMessageDetail.fulfill()
-                }
-            case .failure:
-                XCTFail()
-                readMessageDetail.fulfill()
-            }
-            setMessageAsRead.fulfill()
-        }
-        XCTWaiter().wait(for: [setMessageAsRead, readMessageDetail], timeout: defaultTimeout)
-        
-        // Now update list
-        receivedMessages = fetchAllMessages(onlyUnread: true)
-        XCTAssertEqual(count - 1, receivedMessages.count)
-        XCTAssertNil(receivedMessages.findMessage(messageId: messageId))
-        
-        receivedMessages = fetchAllMessages(onlyUnread: false)
-        XCTAssertEqual(count, receivedMessages.count)
-        let alreadyRead = receivedMessages.findMessage(messageId: messageId)
-        XCTAssertNotNil(alreadyRead)
-        XCTAssertTrue(alreadyRead?.read ?? false)
+        try await inbox.markRead(messageId: messageId)
+        let detail = try await inbox.getMessageDetail(messageId: messageId)
+        #expect(detail.read)
+        receivedMessages = try await fetchAllMessages(onlyUnread: true)
+        #expect(count - 1 == receivedMessages.count)
+        #expect(receivedMessages.findMessage(messageId: messageId) == nil)
+        receivedMessages = try await fetchAllMessages(onlyUnread: false)
+        #expect(count == receivedMessages.count)
+        let alreadyRead = try #require(receivedMessages.findMessage(messageId: messageId))
+        #expect(alreadyRead.read)
     }
     
-    func testMarkAllMessagesRead() {
+    @Test
+    func testMarkAllMessagesRead() async throws {
         let count = 4
-        let messages = prepareMessages(count: count)
-        let receivedMessages = fetchAllMessages()
-        XCTAssertEqual(count, receivedMessages.count)
+        let messages = await prepareMessages(count: count)
+        let receivedMessages = try await fetchAllMessages()
+        #expect(count == receivedMessages.count)
         compareMessages(expected: messages, received: receivedMessages)
-        
-        // Mark first as read and receive its detail
-        let setMessagesAsRead = expectation(description: "Set all messages as read")
-        let allReadMessages = expectation(description: "Get all messages (read)")
-        let allUnreadMessages = expectation(description: "Get all messages (unread)")
-        
-        var allMsgsRead = [WMTInboxMessage]()
-        var allMsgsUnread = [WMTInboxMessage]()
-        inbox.markAllRead { result in
-            switch result {
-            case .success:
-                // If success, then read message all messages
-                self.inbox.getAllMessages(onlyUnread: false) { result in
-                    switch result {
-                    case .success(let msgs):
-                        allMsgsRead = msgs
-                    case .failure:
-                        XCTFail()
-                    }
-                    allReadMessages.fulfill()
-                }
-                self.inbox.getAllMessages(onlyUnread: true) { result in
-                    switch result {
-                    case .success(let msgs):
-                        allMsgsUnread = msgs
-                    case .failure:
-                        XCTFail()
-                    }
-                    allUnreadMessages.fulfill()
-                }
-            case .failure:
-                XCTFail()
-                allReadMessages.fulfill()
-                allUnreadMessages.fulfill()
-            }
-            setMessagesAsRead.fulfill()
-        }
-        XCTWaiter().wait(for: [setMessagesAsRead, allReadMessages, allUnreadMessages], timeout: defaultTimeout)
-        XCTAssertEqual(0, allMsgsUnread.count)
-        XCTAssertEqual(count, allMsgsRead.count)
-        
-        // Now test all messages
+        try await inbox.markAllRead()
+        let allMsgsRead = try await inbox.getAllMessages(onlyUnread: false)
+        let allMsgsUnread = try await inbox.getAllMessages(onlyUnread: true)
+        #expect(0 == allMsgsUnread.count)
+        #expect(count == allMsgsRead.count)
     }
     
     // Support functions
     
-    private func fetchUnreadMessagesCount() -> Int {
-        let getMessagesCount = expectation(description: "Get inbox messages count")
-        var receivedCount = -1
-        inbox.getUnreadCount { result in
-            switch result {
-            case .success(let count):
-                receivedCount = count.countUnread
-            case .failure(let error):
-                XCTFail("Request failed with error: \(error)")
-            }
-            getMessagesCount.fulfill()
-        }
-        XCTWaiter().wait(for: [getMessagesCount], timeout: defaultTimeout)
-        return receivedCount
+    private func fetchUnreadMessagesCount() async throws -> Int {
+        try await inbox.getUnreadCount().countUnread
     }
     
-    private func fetchAllMessages(onlyUnread: Bool = false) -> [WMTInboxMessage] {
-        var receivedMessages = [WMTInboxMessage]()
-        let getAllMessages = expectation(description: "Get all messages")
-        inbox.getAllMessages(onlyUnread: onlyUnread) { result in
-            switch result {
-            case .success(let msgs):
-                receivedMessages = msgs
-            case .failure:
-                XCTFail()
-            }
-            getAllMessages.fulfill()
-        }
-        XCTWaiter().wait(for: [getAllMessages], timeout: defaultTimeout)
-        return receivedMessages
+    private func fetchAllMessages(onlyUnread: Bool = false) async throws -> [WMTInboxMessage] {
+        try await inbox.getAllMessages(onlyUnread: onlyUnread)
     }
     
-    private func prepareMessages(count: Int, type: String = "text") -> [InboxMessageDetail] {
-        let prepareExp = expectation(description: "Prepare inbox messages")
-        var messages = [InboxMessageDetail]()
-        proxy.createInboxMessages(count: count) { msgs in
-            messages = msgs
-            prepareExp.fulfill()
-        }
-        XCTWaiter().wait(for: [prepareExp], timeout: defaultTimeout)
-        XCTAssertEqual(count, messages.count)
+    private func prepareMessages(count: Int, type: String = "text") async -> [InboxMessageDetail] {
+        let messages = await proxy.createInboxMessages(count: count, defaultType: type)
+        #expect(count == messages.count)
         return messages
     }
     
     private func compareMessages(expected: [InboxMessageDetail], received: [WMTInboxMessage]) {
         for e in expected {
             guard let r = received.findMessage(messageId: e.id) else {
-                XCTFail("Message \(e.id) not found")
+                Issue.record("Message \(e.id) not found")
                 continue
             }
-            XCTAssertEqual(e.read, r.read)
-            XCTAssertEqual(e.subject, r.subject)
-            XCTAssertEqual(e.summary, r.summary)
-            XCTAssertEqual(e.type, r.type.rawValue)
-            XCTAssertEqual(floor(e.timestamp.timeIntervalSince1970), floor(r.timestampCreated.timeIntervalSince1970))
+            #expect(e.read == r.read)
+            #expect(e.subject == r.subject)
+            #expect(e.summary == r.summary)
+            #expect(e.type == r.type.rawValue)
+            #expect(floor(e.timestamp.timeIntervalSince1970) == floor(r.timestampCreated.timeIntervalSince1970))
         }
     }
 }
-
 
 private class OpDelegate: WMTOperationsDelegate {
     
     var loadingCountCallback: ((Int) -> Void)?
     var changedCallback: ((_ operations: [WMTUserOperation], _ removed: [WMTUserOperation], _ added: [WMTUserOperation]) -> Void)?
     private(set) var loadingCount = 0
-    
-    init() {
-        
-    }
     
     func operationsLoading(loading: Bool) {
         if loading {
@@ -1239,7 +522,7 @@ private class OpDelegate: WMTOperationsDelegate {
 
 private extension Array where Element == WMTInboxMessage {
     func findMessage(messageId: String) -> WMTInboxMessage? {
-        if let index = self.firstIndex(where: { $0.id == messageId }) {
+        if let index = firstIndex(where: { $0.id == messageId }) {
             return self[index]
         }
         return nil

@@ -14,10 +14,11 @@
 // and limitations under the License.
 //
 
-import XCTest
+import Foundation
+import Testing
 import WultraMobileTokenSDK
 
-class OperationExpirationTests: XCTestCase {
+final class OperationExpirationTests {
     
     private let watcher = WMTOperationExpirationWatcher()
     private var delegate: WatcherDelegate? {
@@ -26,93 +27,98 @@ class OperationExpirationTests: XCTestCase {
         }
     }
     
-    override func setUp() {
-        super.setUp()
-    }
-    
-    override func tearDown() {
+    deinit {
         delegate = nil
         watcher.removeAll()
     }
     
+    @Test
     func testAddOperation() {
         let op = Operation()
         watcher.add(op)
         let ops = watcher.getWatchedOperations()
-        XCTAssert(ops.count == 1 && ops.first!.equals(other: op))
+        #expect(ops.count == 1 && ops.first!.equals(other: op))
     }
     
+    @Test
     func testAddSameOperationTwice() {
         let op = Operation()
         watcher.add(op)
         let ops = watcher.add(op)
-        XCTAssert(ops.count == 1 && ops.first!.equals(other: op))
+        #expect(ops.count == 1 && ops.first!.equals(other: op))
     }
     
+    @Test
     func testAddOperations() {
         let ops = watcher.add([Operation(), Operation()])
-        XCTAssert(ops.count == 2)
+        #expect(ops.count == 2)
     }
     
+    @Test
     func testRemoveOperation() {
         let op = Operation()
         let ops = watcher.add(op)
-        XCTAssert(ops.count == 1 && ops.first!.equals(other: op))
+        #expect(ops.count == 1 && ops.first!.equals(other: op))
         let opsAfterRemoved = watcher.remove(op)
-        XCTAssert(opsAfterRemoved.isEmpty)
+        #expect(opsAfterRemoved.isEmpty)
     }
     
+    @Test
     func testRemoveNonAddedOperation() {
         let op = Operation()
         let ops = watcher.add(op)
-        XCTAssert(ops.count == 1 && ops.first!.equals(other: op))
+        #expect(ops.count == 1 && ops.first!.equals(other: op))
         let opsAfterRemoved = watcher.remove(Operation())
-        XCTAssert(opsAfterRemoved.count == 1)
+        #expect(opsAfterRemoved.count == 1)
     }
     
+    @Test
     func testRemoveOperations() {
         let op = Operation()
         let op2 = Operation()
         watcher.add(op)
         let ops = watcher.add(op2)
-        XCTAssert(ops.count == 2)
+        #expect(ops.count == 2)
         let opsAfterRemoved = watcher.remove([op, op2])
-        XCTAssert(opsAfterRemoved.isEmpty)
+        #expect(opsAfterRemoved.isEmpty)
     }
     
+    @Test
     func testRemoveAllOperations() {
         watcher.add(Operation())
         let ops = watcher.add([Operation(), Operation()])
-        XCTAssert(ops.count == 3)
+        #expect(ops.count == 3)
         let opsAfterRemoved = watcher.removeAll()
-        XCTAssert(opsAfterRemoved.isEmpty)
+        #expect(opsAfterRemoved.isEmpty)
     }
     
-    func testExpiring() {
-        let exp = expectation(description: "Operation will expire")
+    @Test
+    func testExpiring() async throws {
+        let signal = AsyncTestSignal()
         let op = Operation()
         delegate = WatcherDelegate { ops in
-            XCTAssert(ops.count == 1 && ops.first!.equals(other: op))
+            #expect(ops.count == 1 && ops.first!.equals(other: op))
             let curOps = self.watcher.getWatchedOperations()
-            XCTAssert(curOps.isEmpty)
-            exp.fulfill()
+            #expect(curOps.isEmpty)
+            Task { await signal.fulfill() }
         }
         watcher.add(op)
         // we need to wait longer, because minimum report time is 5 seconds
-        waitForExpectations(timeout: 10, handler: nil)
+        try await wait(for: signal, timeout: 10)
     }
     
-    func testExpiring2() {
-        let exp = expectation(description: "Operation will expire")
+    @Test
+    func testExpiring2() async throws {
+        let signal = AsyncTestSignal()
         delegate = WatcherDelegate { ops in
-            XCTAssert(ops.count == 1)
+            #expect(ops.count == 1)
             let curOps = self.watcher.getWatchedOperations()
-            XCTAssert(curOps.count == 1)
-            exp.fulfill()
+            #expect(curOps.count == 1)
+            Task { await signal.fulfill() }
         }
         watcher.add([Operation(), Operation(Date().addingTimeInterval(20))])
         // we need to wait longer, because minimum report time is 5 seconds
-        waitForExpectations(timeout: 10, handler: nil)
+        try await wait(for: signal, timeout: 10)
     }
 }
 

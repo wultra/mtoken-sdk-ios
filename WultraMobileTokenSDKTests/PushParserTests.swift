@@ -14,72 +14,80 @@
 // and limitations under the License.
 //
 
-import XCTest
+import Foundation
+import Testing
 import WultraMobileTokenSDK
 
-class PushParserTests: XCTestCase {
+struct PushParserTests {
     
+    @Test
     func testEmptyUserInfo() {
-        XCTAssertNil(WMTPushParser.parseNotification([:]))
+        #expect(WMTPushParser.parseNotification([:]) == nil)
     }
     
+    @Test
     func testInitPushValid() {
         let oid = "1", oname = "test", otitle = "title", omessage = "message"
         guard let push = makePush(type: "mtoken.operationInit", id: oid, name: oname, title: otitle, message: omessage, opResult: nil) else {
-            XCTFail("Failed to parse valid push.")
+            Issue.record("Failed to parse valid push.")
             return
         }
         guard case .operationCreated(let id, let name, let content, _) = push else {
-            XCTFail("Expected operation created push.")
+            Issue.record("Expected operation created push.")
             return
         }
         
-        XCTAssertEqual(id, oid)
-        XCTAssertEqual(name, oname)
-        XCTAssertEqual(content?.title, otitle)
-        XCTAssertEqual(content?.message, omessage)
+        #expect(id == oid)
+        #expect(name == oname)
+        #expect(content?.title == otitle)
+        #expect(content?.message == omessage)
     }
     
+    @Test
     func testInitPushValidNoTitle() {
         let oid = "1", oname = "test", otitle: String? = nil, omessage = "message"
         guard let push = makePush(type: "mtoken.operationInit", id: oid, name: oname, title: otitle, message: omessage, opResult: nil) else {
-            XCTFail("Failed to parse valid push.")
+            Issue.record("Failed to parse valid push.")
             return
         }
         guard case .operationCreated(let id, let name, let content, _) = push else {
-            XCTFail("Expected operation created push.")
+            Issue.record("Expected operation created push.")
             return
         }
         
-        XCTAssertEqual(id, oid)
-        XCTAssertEqual(name, oname)
-        XCTAssertNil(content)
+        #expect(id == oid)
+        #expect(name == oname)
+        #expect(content == nil)
     }
     
+    @Test
     func testInitPushValidNoMessage() {
         let oid = "1", oname = "test", otitle = "title", omessage: String? = nil
         guard let push = makePush(type: "mtoken.operationInit", id: oid, name: oname, title: otitle, message: omessage, opResult: nil) else {
-            XCTFail("Failed to parse valid push.")
+            Issue.record("Failed to parse valid push.")
             return
         }
         guard case .operationCreated(let id, let name, let content, _) = push else {
-            XCTFail("Expected operation created push.")
+            Issue.record("Expected operation created push.")
             return
         }
         
-        XCTAssertEqual(id, oid)
-        XCTAssertEqual(name, oname)
-        XCTAssertNil(content)
+        #expect(id == oid)
+        #expect(name == oname)
+        #expect(content == nil)
     }
     
+    @Test
     func testInitPushMissingId() {
-        XCTAssertNil(makePush(type: "mtoken.operationInit", id: nil, name: "name", title: nil, message: nil, opResult: nil))
+        #expect(makePush(type: "mtoken.operationInit", id: nil, name: "name", title: nil, message: nil, opResult: nil) == nil)
     }
     
+    @Test
     func testInitPushMissingName() {
-        XCTAssertNil(makePush(type: "mtoken.operationInit", id: "1", name: nil, title: nil, message: nil, opResult: nil))
+        #expect(makePush(type: "mtoken.operationInit", id: "1", name: nil, title: nil, message: nil, opResult: nil) == nil)
     }
     
+    @Test
     func testFinishPushValid() {
         let results = [
             "authentication.success": WMTPushOperationFinishedResult.success,
@@ -92,34 +100,38 @@ class PushParserTests: XCTestCase {
         for (value, expectedResult) in results {
             let oid = "1", oname = "test"
             guard let push = makePush(type: "mtoken.operationFinished", id: oid, name: oname, title: nil, message: nil, opResult: value) else {
-                XCTFail("Failed to parse valid push.")
+                Issue.record("Failed to parse valid push.")
                 return
             }
             guard case .operationFinished(let id, let name, let result, _) = push else {
-                XCTFail("Expected operation finished push.")
+                Issue.record("Expected operation finished push.")
                 return
             }
             
-            XCTAssertEqual(id, oid)
-            XCTAssertEqual(name, oname)
-            XCTAssertEqual(result, expectedResult)
+            #expect(id == oid)
+            #expect(name == oname)
+            #expect(result == expectedResult)
         }
     }
     
+    @Test
     func testFinishPushMissingResult() {
-        XCTAssertNil(makePush(type: "mtoken.operationFinished", id: "1", name: "name", title: nil, message: nil, opResult: nil))
+        #expect(makePush(type: "mtoken.operationFinished", id: "1", name: "name", title: nil, message: nil, opResult: nil) == nil)
     }
     
+    @Test
     func testFinishPushMissingId() {
-        XCTAssertNil(makePush(type: "mtoken.operationFinished", id: nil, name: "name", title: nil, message: nil, opResult: nil))
+        #expect(makePush(type: "mtoken.operationFinished", id: nil, name: "name", title: nil, message: nil, opResult: nil) == nil)
     }
     
+    @Test
     func testFinishPushMissingName() {
-        XCTAssertNil(makePush(type: "mtoken.operationFinished", id: "1", name: nil, title: nil, message: nil, opResult: nil))
+        #expect(makePush(type: "mtoken.operationFinished", id: "1", name: nil, title: nil, message: nil, opResult: nil) == nil)
     }
     
+    @Test
     func testInboxNewMessage() {
-        XCTAssertNotNil(makePush(type: "mtoken.inboxMessage.new", id: nil, name: nil, title: nil, message: nil, opResult: nil, inboxId: "666"))
+        #expect(makePush(type: "mtoken.inboxMessage.new", id: nil, name: nil, title: nil, message: nil, opResult: nil, inboxId: "666") != nil)
     }
     
     // helper methods

@@ -14,46 +14,52 @@
 // and limitations under the License.
 //
 
-import XCTest
+import Foundation
+import Testing
 @testable import WultraMobileTokenSDK
 
-class ProvisioningUtilsTests: XCTestCase {
+struct ProvisioningUtilsTests {
     
     // provisioning profile parsing
     
+    @Test
     func testParseProvisioningProfile() {
         guard let data = Data(base64Encoded: base64ProductionProfile) else {
-            XCTFail("Could not decode base64 profile")
+            Issue.record("Could not decode base64 profile")
             return
         }
         let profile = WMTProvisioningUtils.getProvisioningProfileFromData(data)
-        XCTAssertEqual(profile?.entitlements.apsEnvironment, .production)
+        #expect(profile?.entitlements.apsEnvironment == .production)
     }
     
     // plist parsing
     
+    @Test
     func testParseDevelopmentAPNS() {
         let plist = getPlist("development")
         let profile = WMTProvisioningUtils.parseProvisioningProfilePlist(plist)
-        XCTAssertEqual(profile?.entitlements.apsEnvironment, .development)
+        #expect(profile?.entitlements.apsEnvironment == .development)
     }
     
+    @Test
     func testParseProductionAPNS() {
         let plist = getPlist("production")
         let profile = WMTProvisioningUtils.parseProvisioningProfilePlist(plist)
-        XCTAssertEqual(profile?.entitlements.apsEnvironment, .production)
+        #expect(profile?.entitlements.apsEnvironment == .production)
     }
     
+    @Test
     func testParseMissingAPNS() {
         let plist = getPlist(nil)
         let profile = WMTProvisioningUtils.parseProvisioningProfilePlist(plist)
-        XCTAssertEqual(profile?.entitlements.apsEnvironment, nil)
+        #expect(profile?.entitlements.apsEnvironment == nil)
     }
     
+    @Test
     func testParseUnknownAPNS() {
         let plist = getPlist("integration") // unknown value
         let profile = WMTProvisioningUtils.parseProvisioningProfilePlist(plist)
-        XCTAssertEqual(profile?.entitlements.apsEnvironment, nil)
+        #expect(profile?.entitlements.apsEnvironment == nil)
     }
     
     private func getPlist(_ apnsEnvironment: String?) -> Data {

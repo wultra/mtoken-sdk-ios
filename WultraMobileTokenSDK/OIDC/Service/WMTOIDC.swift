@@ -95,3 +95,22 @@ public class WMTOIDC: WMTService {
         }
     }
 }
+
+// MARK: - Async API
+
+public extension WMTOIDC {
+
+    /// Retrieves configuration based on predefined providerId.
+    ///
+    /// Encrypted with the ECIES application scope.
+    /// - Parameter providerId: Identification of the configuration record, used as a key for the configuration.
+    /// - Returns: OIDC configuration.
+    /// - Throws: `WMTError` when the call fails.
+    func getConfig(providerId: String) async throws -> WMTOIDCConfig {
+        return try await withCheckedThrowingContinuation { continuation in
+            getConfig(providerId: providerId) { result in
+                continuation.resume(with: result)
+            }
+        }
+    }
+}

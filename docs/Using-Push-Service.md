@@ -60,19 +60,19 @@ All available methods of the `WMTPush` API are:
 
 ## Registering to WMT Push Notifications
 
-### Using APNS (Apple Push Notification Service)
+Note: The async/throws `register(to:)` method shown here also has a callback-based counterpart (`completion: @escaping (Result<Void, WMTError>) -> Void`) if you prefer the closure style.
 
-<!-- begin box warning -->
-If your server is running an older version than `1.10.x`, use the `registerDeviceTokenForPushNotifications(token:completion:)` deprecated method instead to stay compatible.
-<!-- end -->
+### Using APNS (Apple Push Notification Service)
 
 To register your app to push notifications regarding the operations, you can simply call the `register` method with `.apns` platform parameter:
 
 ```swift
 // UIApplicationDelegate method
 func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
-    pushService.register(to: .apns(token: deviceToken)) { result in
-        if case .failure(let error) = result {
+    Task {
+        do {
+            try await pushService.register(to: .apns(token: deviceToken))
+        } catch {
             // registration failed
         }
     }
@@ -93,8 +93,10 @@ func messaging(_ messaging: Messaging, didReceiveRegistrationToken fcmToken: Str
         // token not received
         return
     }
-    pushService.register(to: .fcm(token: fcmToken)) { result in
-        if case .failure(let error) = result {
+    Task {
+        do {
+            try await pushService.register(to: .fcm(token: fcmToken))
+        } catch {
             // registration failed
         }
     }

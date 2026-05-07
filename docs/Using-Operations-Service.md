@@ -63,20 +63,20 @@ let opsService = WMTOperations(networking: networkingService)
 
 ## Retrieve Pending Operations
 
+Note: All async/throws methods shown here also have callback-based counterparts (`completion: @escaping (Result<…, WMTError>) -> Void`) if you prefer the closure style.
+
 To fetch the list with pending operations, can call the `WMTOperations` API:
 
 ```swift
 import WultraMobileTokenSDK
 
-DispatchQueue.main.async {
+Task { @MainActor in
     // This method needs to be called on the main thread.
-    operationsService.getOperations { result in
-        switch result {
-        case .success(let ops):
-            // render success UI
-        case .failure(let err):
-            // render error UI
-        }
+    do {
+        let ops = try await operationsService.getOperations()
+        // render success UI
+    } catch {
+        // render error UI
     }
 }
 ```
@@ -164,11 +164,12 @@ func approve(operation: WMTOperation, password: String) {
 
     let auth = PowerAuthAuthentication.possessionWithPassword(password: password)
 
-    operationService.authorize(operation: operation, authentication: auth) { error in
-        if let error = error {
-            // show error UI
-        } else {
+    Task {
+        do {
+            try await operationService.authorize(operation: operation, with: auth)
             // show success UI
+        } catch {
+            // show error UI
         }
     }
 }
@@ -180,16 +181,17 @@ To approve offline operations with biometry, your PowerAuth instance [needs to b
 import WultraMobileTokenSDK
 import PowerAuth2
 
-// Approve operation with password
+// Approve operation with biometry
 func approveWithBiometry(operation: WMTOperation) {
 
     let auth = PowerAuthAuthentication.possessionWithBiometry(prompt: "Confirm operation.")
 
-    operationService.authorize(operation: operation, authentication: auth) { error in
-        if let error = error {
-            // show error UI
-        } else {
+    Task {
+        do {
+            try await operationService.authorize(operation: operation, with: auth)
             // show success UI
+        } catch {
+            // show error UI
         }
     }
 }
@@ -205,11 +207,12 @@ import PowerAuth2
 
 // Reject operation with some reason
 func reject(operation: WMTOperation, reason: WMTRejectionReason) {
-    operationService.reject(operation: operation, reason: reason) { error in
-        if let error = error {
-            // show error UI
-        } else {
+    Task {
+        do {
+            try await operationService.reject(operation: operation, with: reason)
             // show success UI
+        } catch {
+            // show error UI
         }
     }
 }
@@ -245,12 +248,11 @@ let fdsData: [String: Encodable] = [
 operation.mobileTokenData = fdsData
 
 let auth = PowerAuthAuthentication.possessionWithPassword(password: "password123")
-operationsService.authorize(operation: operation, with: auth) { result in
-    switch result {
-    case .success:
+Task {
+    do {
+        try await operationsService.authorize(operation: operation, with: auth)
         // Operation approved successfully
-        break
-    case .failure(let error):
+    } catch {
         // Handle network or SDK error
         print(error)
     }
@@ -417,14 +419,12 @@ import PowerAuth2
 
 // Retrieve operation details based on the operation ID.
 func getDetail(operationId: String) {
-    operationService.getDetail(operationId: operationId) { result in
-        switch result {
-        case .success(let operation):
+    Task {
+        do {
+            let operation = try await operationService.getDetail(operationId: operationId)
             // process operation
-            break
-        case .failure(let error):
+        } catch {
             // process error
-            break
         }
     }
 }
@@ -444,14 +444,12 @@ import PowerAuth2
 
 // Assigns the 'non-personalized' operation to the user
 func claim(operationId: String) {
-    operationService.claim(operationId: operationId) { result in
-        switch result {
-        case .success(let operation):
+    Task {
+        do {
+            let operation = try await operationService.claim(operationId: operationId)
             // process operation
-            break
-        case .failure(let error):
+        } catch {
             // process error
-            break
         }
     }
 }
@@ -468,14 +466,12 @@ import PowerAuth2
 // Retrieve operation history with password
 func history(password: String) {
     let auth = PowerAuthAuthentication.possessionWithPassword(password: password)
-    operationService.getHistory(authentication: auth) { result in
-        switch result {
-        case .success(let operations):
+    Task {
+        do {
+            let operations = try await operationService.getHistory(authentication: auth)
             // process operation history
-            break
-        case .failure(let error):
+        } catch {
             // process error
-            break
         }
     }
 }
@@ -487,14 +483,19 @@ Note that the operation history availability depends on the backend implementati
 
 ## Cancelling Operations
 
-Additionally, please note that WMTCancellable or Operation objects retrieved from the Operations Service methods (getOperations, getHistory, getDetail, claim, authorize and reject) can be canceled using the cancel() method. This allows you to interrupt ongoing operations as needed.
+With async/throws APIs, keep the Swift `Task` that performs the request and cancel it when needed.
 
 You can do so as shown below:
 
 ```swift
- let list = operationsService.getOperations { _ in }
- list.cancel()
-
+let task = Task { @MainActor in
+    do {
+        _ = try await operationsService.getOperations()
+    } catch {
+        // handle error
+    }
+}
+task.cancel()
 ```
 
 For more examples refer to `IntegrationTests` in this repository.
@@ -544,12 +545,12 @@ func approveQROperation(operation: WMTQROperation, password: String) {
 
     let auth = PowerAuthAuthentication.possessionWithPassword(password: password)
 
-    operationsService.authorize(qrOperation: operation, authentication: auth) { result in
-        switch result {
-        case .success(let code):
+    Task {
+        do {
+            let code = try await operationsService.authorize(qrOperation: operation, authentication: auth)
             // Display the signature to the user so it can be manually rewritten.
             // Note that the operation will be signed even with a wrong password!
-        case .failure(let error):
+        } catch {
             // Failed to sign the operation
         }
     }
@@ -570,13 +571,13 @@ func approveQROperation(operation: WMTQROperation, password: String) {
 
     let auth = PowerAuthAuthentication.possessionWithPassword(password: password)
 
-    // using the authorize method with custom uriId
-    operationsService.authorize(qrOperation: operation, uriId: "/confirm/offline/operation", authentication: auth) { result in
-        switch result {
-        case .success(let code):
+    Task {
+        do {
+            // using the authorize method with custom uriId
+            let code = try await operationsService.authorize(qrOperation: operation, uriId: "/confirm/offline/operation", authentication: auth)
             // Display the signature to the user so it can be manually rewritten.
             // Note that the operation will be signed even with a wrong password!
-        case .failure(let error):
+        } catch {
             // Failed to sign the operation
         }
     }
@@ -601,11 +602,11 @@ func approveQROperationWithBiometry(operation: WMTQROperation) {
 
     let auth = PowerAuthAuthentication.possessionWithBiometry(prompt: "Confirm operation.")
 
-    operationsService.authorize(qrOperation: operation, authentication: auth) { result in
-        switch result {
-        case .success(let code):
+    Task {
+        do {
+            let code = try await operationsService.authorize(qrOperation: operation, authentication: auth)
             // Display the signature to the user so it can be manually rewritten.
-        case .failure(let error):
+        } catch {
             // Failed to sign the operation
         }
     }
@@ -884,14 +885,13 @@ To set up the Operation Service to receive such objects, you need to create it w
 Example of the unboxing:
 
 ```swift
-opsService.getOperations { result in
-    switch result {
-    case .success(let ops):
-       // unbox operations into the [CustomUserOperation]
-    	let unboxed = ops.map { $0 as! CustomUserOperation }
-    case .failure(let error):
-    	// do something with the error
-    	break
+Task {
+    do {
+        let ops = try await opsService.getOperations()
+        // unbox operations into the [CustomUserOperation]
+        let unboxed = ops.map { $0 as! CustomUserOperation }
+    } catch {
+        // do something with the error
     }
 }
 ```

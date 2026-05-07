@@ -226,3 +226,88 @@ private class FetchOperation: WMTCancellable {
         return cancelFlag
     }
 }
+
+// MARK: - Async API
+
+public extension WMTInbox {
+
+    /// Get number of unread messages in the inbox.
+    ///
+    /// - Returns: Number of unread messages.
+    /// - Throws: `WMTError` when the call fails.
+    func getUnreadCount() async throws -> WMTInboxCount {
+        return try await withCheckedThrowingContinuation { continuation in
+            getUnreadCount { result in
+                continuation.resume(with: result)
+            }
+        }
+    }
+
+    /// Paged list of messages in the inbox. You can also use `getAllMessages()` to fetch all messages.
+    ///
+    /// - Parameters:
+    ///   - pageNumber: Page number. First page is `0`, second `1`, etc.
+    ///   - pageSize: Size of the page.
+    ///   - onlyUnread: Get only unread messages.
+    /// - Returns: Page of inbox messages.
+    /// - Throws: `WMTError` when the call fails.
+    func getMessageList(pageNumber: Int, pageSize: Int, onlyUnread: Bool) async throws -> [WMTInboxMessage] {
+        return try await withCheckedThrowingContinuation { continuation in
+            getMessageList(pageNumber: pageNumber, pageSize: pageSize, onlyUnread: onlyUnread) { result in
+                continuation.resume(with: result)
+            }
+        }
+    }
+
+    /// Get all messages in the inbox. The function will issue multiple HTTP requests until the list is complete.
+    ///
+    /// - Parameters:
+    ///   - pageSize: How many messages should be fetched at once. The default value is 100.
+    ///   - messageLimit: Maximum number of messages to be retrieved. Use 0 to set no limit. The default value is 1000.
+    ///   - onlyUnread: If `true` then only unread messages will be returned. The default value is `false`.
+    /// - Returns: All inbox messages collected from server pages.
+    /// - Throws: `WMTError` when the call fails.
+    func getAllMessages(pageSize: Int = 100, messageLimit: Int = 1000, onlyUnread: Bool = false) async throws -> [WMTInboxMessage] {
+        return try await withCheckedThrowingContinuation { continuation in
+            getAllMessages(pageSize: pageSize, messageLimit: messageLimit, onlyUnread: onlyUnread) { result in
+                continuation.resume(with: result)
+            }
+        }
+    }
+
+    /// Get message detail in the inbox.
+    ///
+    /// - Parameter messageId: Message ID.
+    /// - Returns: Message detail.
+    /// - Throws: `WMTError` when the call fails.
+    func getMessageDetail(messageId: String) async throws -> WMTInboxMessageDetail {
+        return try await withCheckedThrowingContinuation { continuation in
+            getMessageDetail(messageId: messageId) { result in
+                continuation.resume(with: result)
+            }
+        }
+    }
+
+    /// Mark the message with the given identifier as read.
+    ///
+    /// - Parameter messageId: Message identifier.
+    /// - Throws: `WMTError` when the call fails.
+    func markRead(messageId: String) async throws {
+        return try await withCheckedThrowingContinuation { continuation in
+            markRead(messageId: messageId) { result in
+                continuation.resume(with: result)
+            }
+        }
+    }
+
+    /// Marks all unread messages in the inbox as read.
+    ///
+    /// - Throws: `WMTError` when the call fails.
+    func markAllRead() async throws {
+        return try await withCheckedThrowingContinuation { continuation in
+            markAllRead { result in
+                continuation.resume(with: result)
+            }
+        }
+    }
+}
