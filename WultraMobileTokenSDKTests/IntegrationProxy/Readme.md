@@ -12,7 +12,7 @@ The file itself will be downloaded from a wultra-infrastructure during the build
 
 The download script can be found here:
 
-1. Click on the scheme name (e.g. `WultraMobileTOkenSDKTests`) at the top of the Xcode window.
+1. Click on the scheme name (e.g. `WultraMobileTokenSDKTests`) at the top of the Xcode window.
 2. Select **Edit Scheme…**
 3. Expand the **Build** item on the left side of the editor.
 4. Select **Pre-actions**.
