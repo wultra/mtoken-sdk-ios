@@ -18,15 +18,8 @@ Before you start development, make sure you have the following prerequisites:
 - macOS machine
 - [Xcode](https://developer.apple.com/xcode/) installed.
 - [CocoaPods](https://guides.cocoapods.org/using/getting-started.html) installed (`brew install cocoapods`)
-- [Carthage](https://github.com/Carthage/Carthage) installed (`brew install carthage`)
 
-To be able to compile the project (opened from `WultraMobileTokenSDK.xcworkspace`), you need to run the following command in the project root directory:
-
-```bash
-sh scripts/cart-update.sh
-```
-
-This will download and build the Carthage dependencies needed for the project to be able to compile.
+Open `WultraMobileTokenSDK.xcodeproj` in Xcode. Dependencies are resolved with Swift Package Manager automatically. The command-line build and test scripts resolve Swift package dependencies before running.
 
 ## Project Structure
 
@@ -35,8 +28,6 @@ The project structure is organized as follows (the most important files and dire
 ```
 mtoken-sdk-ios/
 ├── .github/                            # GitHub-related files (workflows, contributing guidelines)
-|── Cartfile                            # Carthage dependencies definitions (for development)
-├── Carthage                            # Carthage build directory
 ├── docs/                               # Documentation files that will be published on developers.wultra.com
 ├── Package.swift                       # Swift Package Manager definition file
 ├── README.md                           # Project overview and documentation
@@ -44,7 +35,6 @@ mtoken-sdk-ios/
 ├── WultraMobileTokenSDK/               # Main SDK source code
 ├── WultraMobileTokenSDK.podspec        # CocoaPods definition file
 ├── WultraMobileTokenSDK.xcodeproj      # Xcode project file
-├── WultraMobileTokenSDK.xcworkspace    # Xcode workspace file
 └── WultraMobileTokenSDKTests/          # Unit and integration tests for the SDK
     ├── Configs/                        # Test configurations (environment variables, etc.)
     └── Other test files...
@@ -55,10 +45,10 @@ mtoken-sdk-ios/
 Before you run the tests, make sure:
 - the `WultraMobileTokenSDKTests/Configs/config.json` file is set up correctly. See `Readme.md` inside the folder for more info.
   - variables needed can be provided by the Wultra team or your own development team in case of self-hosted environments
-- Carthage dependencies are built (see `scripts/cart-update.sh` script)
+- Swift package dependencies are resolved. Xcode and `scripts/test.sh` do this automatically.
 
 > [!NOTE]
-> You can simple run tests from the Xcode IDE by selecting the `WultraMobileTokenSDKTests` scheme and running tests. This will run all unit and integration tests.
+> You can simply run tests from the Xcode IDE by selecting the `WultraMobileTokenSDKTests` scheme and running tests. This will run all unit and integration tests.
 
 To run test from the command line, see `scripts/test.sh` script.
 

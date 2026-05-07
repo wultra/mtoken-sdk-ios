@@ -11,9 +11,9 @@ disabled_rules:
   - nesting
   - inclusive_language
 excluded:
-  - Carthage
   - WultraMobileTokenSDKTests
   - build
+  - .build
 type_name:
   max_length: 40
   excluded:

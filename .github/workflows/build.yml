@@ -4,20 +4,17 @@ on:
   push:
     branches:
       - develop
-      - master
       - releases/*
   pull_request:
 
 jobs:
   build:
     name: Build
-    runs-on: macos-14
+    runs-on: macos-26
     steps:
       - name: Checkout the repo
         uses: actions/checkout@v4
       - name: Set proper xcode version
         run: sh ./scripts/xcodeselect.sh
       - name: Building
-        env:
-          GITHUB_ACCESS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: ./scripts/build.sh

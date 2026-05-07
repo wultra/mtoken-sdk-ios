@@ -86,13 +86,15 @@ do
 	esac
 done
 
-pushd "${SCRIPT_FOLDER}"
-sh cart-update.sh
-popd
-
 pushd "${SCRIPT_FOLDER}/.."
 
 rm -rf "build" # clear build folder
+
+echo "Resolving Swift package dependencies"
+xcrun xcodebuild \
+    -project "WultraMobileTokenSDK.xcodeproj" \
+    -resolvePackageDependencies \
+    -onlyUsePackageVersionsFromResolvedFile
 
 echo """{
     \"cloudServerUrl\"        : \"${CL_URL}\",
@@ -113,6 +115,7 @@ xcrun xcodebuild \
     -destination "${DESTINATION}" \
     -parallel-testing-enabled NO \
     -configuration "Debug" \
+    -onlyUsePackageVersionsFromResolvedFile \
     test
 
 popd
