@@ -23,14 +23,18 @@ import Testing
 final class OIDCTests {
     
     private let proxy: IntegrationProxy
-    private var pa: PowerAuthSDK! { proxy.powerAuth! }
-    private var oidc: WMTOIDC! { proxy.wmt!.oidc }
+    private let wmt: WultraMobileToken
+    private var pa: PowerAuthSDK { proxy.powerAuth! }
+    private var oidc: WMTOIDC { wmt.oidc }
     private let pin = "1234"
     
     init() async throws {
         WMTLogger.verboseLevel = .debug
-        proxy = IntegrationProxy()
-        try await proxy.prepareForOIDC()
+        let loaded = try #require(TestConfiguration.load(), "Missing config.json — see WultraMobileTokenSDKTests/Configs/Readme.md")
+        proxy = IntegrationProxy(config: loaded.config, pin: pin)
+        try await proxy.initializePowerauth()
+        try await proxy.prepareActivation()
+        wmt = try proxy.powerAuth!.createWultraMobileToken()
     }
     
     deinit {

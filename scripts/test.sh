@@ -15,70 +15,22 @@ function getSimulatorDestination {
   curl -fsSL "${scriptUrl}" | node - -p "${SCRIPT_FOLDER}/.." "${XCODE_PROJECT}" "${XCODE_SCHEME}"
 }
 
-CL_URL=""
-CL_LGN=""
-CL_PWD=""
-CL_AID=""
-ER_URL=""
-PU_URL=""
-OP_URL=""
-IN_URL=""
-SDKCONFIG=""
+CONFIG_JSON=""
 
 # Parse parameters of this script
 while [[ $# -gt 0 ]]
 do
-	case "$1" in
-		-cl)
-			CL_URL="$2"
-			shift
-			shift
-			;;
-		-clu)
-			CL_LGN="$2"
-			shift
-			shift
-			;;
-		-clp)
-			CL_PWD="$2"
-			shift
-			shift
-			;;
-		-cla)
-			CL_AID="$2"
-			shift
-			shift
-			;;
-		-er)
-			ER_URL="$2"
-			shift
-			shift
-			;;
-		-op)
-			OP_URL="$2"
-			shift
-			shift
-			;;
-		-pu)
-			PU_URL="$2"
-			shift
-			shift
-			;;
-        -in)
-            IN_URL="$2"
-            shift
-            shift
-            ;;
-		-sdkconfig)
-			SDKCONFIG="$2"
-			shift
-			shift
-			;;
-		*)
-			echo "Unknown parameter ${1}"
-			exit 1
-			;;
-	esac
+  case "$1" in
+    -config)
+      CONFIG_JSON="$2"
+      shift
+      shift
+      ;;
+    *)
+      echo "Unknown parameter ${1}"
+      exit 1
+      ;;
+  esac
 done
 
 # Resolve the newest available iOS Simulator destination through the shared Node helper.
@@ -91,32 +43,28 @@ pushd "${SCRIPT_FOLDER}/.."
 
 rm -rf "${BUILD_FOLDER}" # clear build folder
 
-echo "Resolving Swift package dependencies"
-xcrun xcodebuild \
-    -project "${XCODE_PROJECT}" \
-    -resolvePackageDependencies \
-    -onlyUsePackageVersionsFromResolvedFile
+# Write integration test config if provided
+if [ -n "${CONFIG_JSON}" ]; then
+  echo "Writing integration test config..."
+  echo "${CONFIG_JSON}" > "WultraMobileTokenSDKTests/Configs/config.json"
+fi
 
-echo """{
-    \"cloudServerUrl\"        : \"${CL_URL}\",
-    \"cloudServerLogin\"      : \"${CL_LGN}\",
-    \"cloudServerPassword\"   : \"${CL_PWD}\",
-    \"cloudApplicationId\"    : \"${CL_AID}\",
-    \"enrollmentServerUrl\"   : \"${ER_URL}\",
-    \"operationsServerUrl\"   : \"${OP_URL}\",
-    \"pushServerUrl\"         : \"${PU_URL}\",
-    \"inboxServerUrl\"        : \"${IN_URL}\",
-    \"sdkConfig\"             : \"${SDKCONFIG}\"
-}""" > "WultraMobileTokenSDKTests/Configs/config.json"
+echo "Resolving SPM dependencies..."
+xcrun xcodebuild \
+  -project "${XCODE_PROJECT}" \
+  -resolvePackageDependencies \
+  -onlyUsePackageVersionsFromResolvedFile
+
+echo "Starting the test"
 
 xcrun xcodebuild \
-	-derivedDataPath "${BUILD_FOLDER}" \
-    -project "${XCODE_PROJECT}" \
-    -scheme "${XCODE_SCHEME}" \
-    -destination "${DESTINATION}" \
-    -parallel-testing-enabled NO \
-    -configuration "Debug" \
-    -onlyUsePackageVersionsFromResolvedFile \
-    test
+  -derivedDataPath "${BUILD_FOLDER}" \
+  -project "${XCODE_PROJECT}" \
+  -scheme "${XCODE_SCHEME}" \
+  -destination "${DESTINATION}" \
+  -parallel-testing-enabled NO \
+  -configuration "Debug" \
+  -onlyUsePackageVersionsFromResolvedFile \
+  test
 
 popd

@@ -1,17 +1,17 @@
 To run `WultraMobileTokenSDKTests` scheme you have to create a `config.json` file in this folder first with all the necessary information.
 
+The `sdkConfig` is fetched from the cloud server at test runtime and is **not** part of this file.
+
 _Example config:_
 
-```
+```json
 {
     "cloudServerUrl"        : "https://url-to-my-cloud.com/powerauth-cloud",
     "cloudServerLogin"      : "admin",
     "cloudServerPassword"   : "admin",
     "cloudApplicationId"    : "dev",
-    "enrollmentServerUrl"   : "https://url-to-my-cloud.com/enrollment-server",
-    "operationsServerUrl"   : "https://url-to-my-cloud.com/enrollment-server",
-    "inboxServerUrl"        : "https://url-to-my-cloud.com/enrollment-server",
-    "pushServerUrl"         : "https://url-to-my-cloud.com/enrollment-server",
-    "sdkConfig"             : "PB5YVmaON739UFGyBfog274wr3EJdcMLzVikqJMKOoPz+O11+45YGIPq+2z8L0p43LC/IVKrViJ+v1SHc1/PwPrtCsCQ5FX4fOFOJEFZZPLFs="
+    "enrollmentServerUrl"   : "https://url-to-my-cloud.com/enrollment-server"
 }
 ```
+
+OIDC tests additionally accept optional `oidcProviderId` and `oidcProviderIdPkce` keys.

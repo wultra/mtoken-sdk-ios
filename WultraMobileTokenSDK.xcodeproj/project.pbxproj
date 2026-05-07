@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 54;
+	objectVersion = 70;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -34,6 +34,7 @@
 		DC8CB206244DD007009DDAA3 /* WMTAllowedOperationSignature.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC8CB205244DD007009DDAA3 /* WMTAllowedOperationSignature.swift */; };
 		DC9511F926EA02C100FF40AD /* WPNIntegration.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC9511F826EA02C100FF40AD /* WPNIntegration.swift */; };
 		DC9C03C12E168A880030BA1B /* WMTAnyEncodable.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC9C03C02E168A880030BA1B /* WMTAnyEncodable.swift */; };
+		DCDEAD012FAD0001CB2889AA /* TestHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCDEAD002FAD0000CB2889AA /* TestHelpers.swift */; };
 		DCA43C6B29927C960059A163 /* WMTOperationAttributeAmountConversion.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCA43C6A29927C960059A163 /* WMTOperationAttributeAmountConversion.swift */; };
 		DCA43C6D2993F63E0059A163 /* WMTOperationAttributeImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCA43C6C2993F63E0059A163 /* WMTOperationAttributeImage.swift */; };
 		DCA576612FAC907100CB2889 /* PowerAuth2 in Frameworks */ = {isa = PBXBuildFile; productRef = DCA576602FAC907100CB2889 /* PowerAuth2 */; };
@@ -63,7 +64,6 @@
 		DCC5CCDA244DBBE2004679AC /* WMTRejectionData.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCC5CCD9244DBBE2004679AC /* WMTRejectionData.swift */; };
 		DCD8B336246C1BAF00385F02 /* WMTRejectionReason.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCD8B335246C1BAF00385F02 /* WMTRejectionReason.swift */; };
 		DCE660D124CEBECA00870E53 /* IntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCE660D024CEBECA00870E53 /* IntegrationTests.swift */; };
-		DCE660D324CEF56400870E53 /* IntegrationProxy.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCE660D224CEF56400870E53 /* IntegrationProxy.swift */; };
 		DCE6D5742CF5F46000865D6E /* WMTSignatureAPNSEnvironmentDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCE6D5732CF5F46000865D6E /* WMTSignatureAPNSEnvironmentDetector.swift */; };
 		DCE6D5772CF5F5D500865D6E /* WMTMachOReader.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCE6D5762CF5F5D500865D6E /* WMTMachOReader.swift */; };
 		E1A7C0012E0B000100000003 /* WultraPowerAuthNetworking in Frameworks */ = {isa = PBXBuildFile; productRef = E1A7C0012E0B00010000000B /* WultraPowerAuthNetworking */; };
@@ -149,6 +149,7 @@
 		DC8CB205244DD007009DDAA3 /* WMTAllowedOperationSignature.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTAllowedOperationSignature.swift; sourceTree = "<group>"; };
 		DC9511F826EA02C100FF40AD /* WPNIntegration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WPNIntegration.swift; sourceTree = "<group>"; };
 		DC9C03C02E168A880030BA1B /* WMTAnyEncodable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTAnyEncodable.swift; sourceTree = "<group>"; };
+		DCDEAD002FAD0000CB2889AA /* TestHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestHelpers.swift; sourceTree = "<group>"; };
 		DCA43C6A29927C960059A163 /* WMTOperationAttributeAmountConversion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTOperationAttributeAmountConversion.swift; sourceTree = "<group>"; };
 		DCA43C6C2993F63E0059A163 /* WMTOperationAttributeImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTOperationAttributeImage.swift; sourceTree = "<group>"; };
 		DCAB7BC724580B4C0006989D /* WMTQROperationParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTQROperationParser.swift; sourceTree = "<group>"; };
@@ -179,7 +180,6 @@
 		DCC5CCD9244DBBE2004679AC /* WMTRejectionData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTRejectionData.swift; sourceTree = "<group>"; };
 		DCD8B335246C1BAF00385F02 /* WMTRejectionReason.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTRejectionReason.swift; sourceTree = "<group>"; };
 		DCE660D024CEBECA00870E53 /* IntegrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntegrationTests.swift; sourceTree = "<group>"; };
-		DCE660D224CEF56400870E53 /* IntegrationProxy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntegrationProxy.swift; sourceTree = "<group>"; };
 		DCE6D5732CF5F46000865D6E /* WMTSignatureAPNSEnvironmentDetector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTSignatureAPNSEnvironmentDetector.swift; sourceTree = "<group>"; };
 		DCE6D5762CF5F5D500865D6E /* WMTMachOReader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTMachOReader.swift; sourceTree = "<group>"; };
 		EA1871342E3784D5008F9035 /* WMTOperationAttributeAlert.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTOperationAttributeAlert.swift; sourceTree = "<group>"; };
@@ -223,6 +223,10 @@
 		EAED61A42E703FE4005E173F /* WMTPreApprovalElementButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTPreApprovalElementButton.swift; sourceTree = "<group>"; };
 		EAED61A62E705356005E173F /* WMTPreApprovalControls.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WMTPreApprovalControls.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		DCA576692FACBCE300CB2889 /* IntegrationProxy */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = IntegrationProxy; sourceTree = "<group>"; };
+/* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		DC616230248508F8000DED17 /* Frameworks */ = {
@@ -342,18 +346,19 @@
 		DC616234248508F8000DED17 /* WultraMobileTokenSDKTests */ = {
 			isa = PBXGroup;
 			children = (
+				DCA576692FACBCE300CB2889 /* IntegrationProxy */,
 				DC5F6DE724E14FA100D351D3 /* Configs */,
 				DC616237248508F8000DED17 /* Info.plist */,
 				DC61624124852B6D000DED17 /* NetworkingObjectsTests.swift */,
 				EA6DDF1B29F807230011E234 /* OperationUIDataTests.swift */,
 				DCE660D024CEBECA00870E53 /* IntegrationTests.swift */,
-				DCE660D224CEF56400870E53 /* IntegrationProxy.swift */,
 				DC395C0924E55B9B0007C36E /* PushParserTests.swift */,
 				DCAC55982CE68C2A0070644A /* ProvisioningUtilsTests.swift */,
 				DC6EDB7825A49ED900A229E4 /* OperationExpirationTests.swift */,
 				DC616235248508F8000DED17 /* QROperationParserTests.swift */,
 				EAB705492AF1161500756AC2 /* PACParserTests.swift */,
 				EA6807A62D4785400029D3E0 /* OIDCTests.swift */,
+				DCDEAD002FAD0000CB2889AA /* TestHelpers.swift */,
 			);
 			path = WultraMobileTokenSDKTests;
 			sourceTree = "<group>";
@@ -647,6 +652,9 @@
 			dependencies = (
 				DC61623A248508F8000DED17 /* PBXTargetDependency */,
 			);
+			fileSystemSynchronizedGroups = (
+				DCA576692FACBCE300CB2889 /* IntegrationProxy */,
+			);
 			name = WultraMobileTokenSDKTests;
 			packageProductDependencies = (
 				E1A7C0012E0B00010000000E /* WultraPowerAuthNetworking */,
@@ -777,7 +785,7 @@
 				EA6DDF1C29F807230011E234 /* OperationUIDataTests.swift in Sources */,
 				DCE660D124CEBECA00870E53 /* IntegrationTests.swift in Sources */,
 				EA6807A72D4785400029D3E0 /* OIDCTests.swift in Sources */,
-				DCE660D324CEF56400870E53 /* IntegrationProxy.swift in Sources */,
+				DCDEAD012FAD0001CB2889AA /* TestHelpers.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

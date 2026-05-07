@@ -24,21 +24,24 @@ import Testing
  configuration json file. To more information, visit `WultraMobileTokenSDKTests/Configs/Readme.md`.
  */
 
-@Suite(.serialized)
 final class IntegrationTests {
     
     private let proxy: IntegrationProxy
-    private var pa: PowerAuthSDK! { proxy.powerAuth }
-    private var ops: WMTOperations! { proxy.wmt?.operations ?? proxy.ops }
-    private var inbox: WMTInbox! { proxy.wmt?.inbox ?? proxy.inbox }
-    private var push: WMTPush! { proxy.wmt?.push ?? proxy.push }
+    private let wmt: WultraMobileToken
+    private var pa: PowerAuthSDK { proxy.powerAuth! }
+    private var ops: WMTOperations { wmt.operations }
+    private var inbox: WMTInbox { wmt.inbox }
+    private var push: WMTPush { wmt.push }
     
     private let pin = "1234"
     
     init() async throws {
         WMTLogger.verboseLevel = .debug
-        proxy = IntegrationProxy()
-        try await proxy.prepareActivation(pin: pin/*, configFileName: "config-stable"*/)
+        let loaded = try #require(TestConfiguration.load(), "Missing config.json — see WultraMobileTokenSDKTests/Configs/Readme.md")
+        proxy = IntegrationProxy(config: loaded.config, pin: pin)
+        try await proxy.initializePowerauth()
+        try await proxy.prepareActivation()
+        wmt = try proxy.powerAuth!.createWultraMobileToken()
     }
     
     deinit {
@@ -407,7 +410,7 @@ final class IntegrationTests {
     @Test
     func testInboxMessages() async throws {
         let messagesToTest = 5
-        let messages = await prepareMessages(count: messagesToTest)
+        let messages = try await prepareMessages(count: messagesToTest)
         let unreadCount = try await fetchUnreadMessagesCount()
         #expect(messagesToTest == unreadCount)
         let messageList = try await inbox.getMessageList(pageNumber: 0, pageSize: 50, onlyUnread: true)
@@ -427,7 +430,7 @@ final class IntegrationTests {
     @Test
     func testGetAllInboxMessages() async throws {
         let count = 11
-        let messages = await prepareMessages(count: count, type: "html")
+        let messages = try await prepareMessages(count: count, type: "html")
         let receivedMessages = try await inbox.getAllMessages(pageSize: 5)
         #expect(count == receivedMessages.count)
         compareMessages(expected: messages, received: receivedMessages)
@@ -436,7 +439,7 @@ final class IntegrationTests {
     @Test
     func testMarkMessageRead() async throws {
         let count = 4
-        let messages = await prepareMessages(count: count)
+        let messages = try await prepareMessages(count: count)
         var receivedMessages = try await fetchAllMessages()
         #expect(count == receivedMessages.count)
         compareMessages(expected: messages, received: receivedMessages)
@@ -456,7 +459,7 @@ final class IntegrationTests {
     @Test
     func testMarkAllMessagesRead() async throws {
         let count = 4
-        let messages = await prepareMessages(count: count)
+        let messages = try await prepareMessages(count: count)
         let receivedMessages = try await fetchAllMessages()
         #expect(count == receivedMessages.count)
         compareMessages(expected: messages, received: receivedMessages)
@@ -477,8 +480,8 @@ final class IntegrationTests {
         try await inbox.getAllMessages(onlyUnread: onlyUnread)
     }
     
-    private func prepareMessages(count: Int, type: String = "text") async -> [InboxMessageDetail] {
-        let messages = await proxy.createInboxMessages(count: count, defaultType: type)
+    private func prepareMessages(count: Int, type: String = "text") async throws -> [InboxMessageDetail] {
+        let messages = try await proxy.createInboxMessages(count: count, defaultType: type)
         #expect(count == messages.count)
         return messages
     }

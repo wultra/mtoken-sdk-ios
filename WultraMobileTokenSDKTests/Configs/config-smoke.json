@@ -3,9 +3,5 @@
     "cloudServerLogin"      : "system-admin",
     "cloudServerPassword"   : "mYUhYYbVKTakE2+6",
     "cloudApplicationId"    : "demo-mobile-token",
-    "enrollmentServerUrl"   : "https://stable-mtoken-dev.wultra.app/enrollment-server",
-    "operationsServerUrl"   : "https://stable-mtoken-dev.wultra.app/enrollment-server",
-    "inboxServerUrl"        : "https://stable-mtoken-dev.wultra.app/enrollment-server",
-    "pushServerUrl"         : "https://stable-mtoken-dev.wultra.app/enrollment-server",
-    "sdkConfig"             : "ARD4W+HTaNvBsuglc5/x0tABELWenPoLv7BWxtNQo7VrcUIBAUEEAihug327GarWbLi4otvgfFUPpgrCzooG5eSYck4OsH9t0KbW8u3P1ZbOkmGDyfuiORL2XZR90LDgO1D+uE/SOw=="
+    "enrollmentServerUrl"   : "https://stable-mtoken-dev.wultra.app/enrollment-server"
 }
