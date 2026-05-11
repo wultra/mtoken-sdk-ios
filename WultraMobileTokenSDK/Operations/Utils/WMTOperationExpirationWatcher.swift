@@ -74,7 +74,7 @@ public class WMTOperationExpirationWatcher {
     // MARK: - Private properties
     
     private var operationsToWatch = [WMTExpirableOperation]() // source of "truth" of what is being watched
-    private var timer: Timer? // timer for scheduling
+    private var timer: DispatchSourceTimer?
     private let lock = WMTLock()
     
     // MARK: - Public interface
@@ -190,7 +190,7 @@ public class WMTOperationExpirationWatcher {
     private func prepareTimer() {
         
         // stop the previous timer
-        timer?.invalidate()
+        timer?.cancel()
         timer = nil
         
         guard operationsToWatch.isEmpty == false else {
@@ -203,39 +203,38 @@ public class WMTOperationExpirationWatcher {
             return
         }
         
-        DispatchQueue.main.async {
+        // This is a precaution when you'll receive an expired operation from the backend over and over again
+        // and it would lead to infinite refresh time. This also helps when device and backend time is out of sync heavily.
+        // This leads to a minimal "expire report time" of 5 seconds.
+        // The 0.1 addition is a correction to prevent firing slightly earlier than scheduled.
+        let interval = max(5, firstOp.operationExpires.timeIntervalSince1970 - self.currentDateProvider.currentDate.timeIntervalSince1970) + 0.1
+        
+        D.debug("WMTOperationExpirationWatcher: Scheduling operation expire check in \(Int(interval)) seconds.")
+        let source = DispatchSource.makeTimerSource(queue: .main)
+        source.schedule(deadline: .now() + interval)
+        source.setEventHandler { [weak self] in
             
-            // This is a precaution when you'll receive an expired operation from the backend over and over again
-            // and it would lead to infinite refresh time. This also helps when device and backend time is out of sync heavily.
-            // This leads to a minimal "expire report time" of 5 seconds.
-            // The 0.1 addition is a correction of the Timer class which can fire slightly (in order of 0.000x seconds) earlier than scheduled.
-            let interval = max(5, firstOp.operationExpires.timeIntervalSince1970 - self.currentDateProvider.currentDate.timeIntervalSince1970) + 0.1
+            guard let self else { return }
             
-            D.debug("WMTOperationExpirationWatcher: Scheduling operation expire check in \(Int(interval)) seconds.")
-            self.timer = Timer.scheduledTimer(withTimeInterval: interval, repeats: false) { [weak self] _ in
+            self.lock.synchronized {
                 
-                guard let self = self else {
+                let currentDate = self.currentDateProvider.currentDate
+                let expiredOps = self.operationsToWatch.filter { $0.isExpired(currentDate) }
+                
+                guard expiredOps.isEmpty == false else {
                     return
                 }
                 
-                self.lock.synchronized {
-                    
-                    let currentDate = self.currentDateProvider.currentDate
-                    let expiredOps = self.operationsToWatch.filter { $0.isExpired(currentDate) }
-                    
-                    guard expiredOps.isEmpty == false else {
-                        return
-                    }
-                    
-                    self.operationsToWatch.removeAll(where: { $0.isExpired(currentDate) })
-                    self.prepareTimer()
-                    DispatchQueue.main.async {
-                        D.info("WMTOperationExpirationWatcher: Reporting \(expiredOps.count) expired operations.")
-                        self.delegate?.operationsExpired(expiredOps)
-                    }
+                self.operationsToWatch.removeAll(where: { $0.isExpired(currentDate) })
+                self.prepareTimer()
+                DispatchQueue.main.async {
+                    D.info("WMTOperationExpirationWatcher: Reporting \(expiredOps.count) expired operations.")
+                    self.delegate?.operationsExpired(expiredOps)
                 }
             }
         }
+        timer = source
+        source.resume()
     }
 }
 

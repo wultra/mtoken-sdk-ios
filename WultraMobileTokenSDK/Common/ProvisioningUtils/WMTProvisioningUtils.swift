@@ -40,18 +40,17 @@ class WMTProvisioningUtils {
             return nil
         }
         let scanner = Scanner(string: string)
-        guard scanner.scanUpTo("<plist", into: nil) != false else {
+        guard scanner.scanUpToString("<plist") != nil else {
             D.error("Search for provisioning profile plist start tag failed.")
             return nil
         }
          
-        var extractedPlist: NSString?
-        guard scanner.scanUpTo("</plist>", into: &extractedPlist) != false else {
+        guard let extractedPlist = scanner.scanUpToString("</plist>") else {
             D.error("Search for provisioning profile plist end tag failed.")
             return nil
         }
          
-        guard let plist = extractedPlist?.appending("</plist>").data(using: .isoLatin1) else {
+        guard let plist = extractedPlist.appending("</plist>").data(using: .isoLatin1) else {
             D.error("Failed to convert provisioning profile plist to data.")
             return nil
         }

@@ -42,32 +42,7 @@ public class WMTPush: WMTService {
         self.networking = networking
     }
     
-    /// Registers the current powerauth activation for push notifications.
-    ///
-    /// This method is compatible with server stack `1.9.x`.
-    /// This method will work on the server version `1.10.x`, but will lack support for the environment specification.
-    ///
-    /// - Parameters:
-    ///   - token: Push token.
-    ///   - completion: Completion handler.
-    ///                 This completion is always called on the main thread.
-    /// - Returns: Operation object for its state observation.
-    @available(*, deprecated, renamed: "register", message: "This method is deprecated since server version 1.10.0. Use register(token:completion:) instead.")
-    @discardableResult
-    public func registerDeviceTokenForPushNotifications(token: Data, completion: @escaping (Result<Void, WMTError>) -> Void) -> Operation? {
-        // ios for backwards compatibility
-        return registerPush(
-            platform: .ios,
-            token: token.toHex(),
-            environment: getPushEnvironment(environment: .automatic),
-            completion: completion
-        )
-    }
-    
     /// Registers the current Powerauth activation for push notifications.
-    ///
-    /// This method is compatible with server stack `1.10.x` and higher. 
-    /// If you are using an older version, please use the `registerDeviceTokenForPushNotifications(token:completion:)` method instead.
     ///
     /// - Parameters:
     ///   - platform: Platform that you're registering to
@@ -150,6 +125,23 @@ extension WMTPushPlatform {
         return switch self {
         case .apns(token: let token, environment: _): token.toHex()
         case .fcm(token: let token): token
+        }
+    }
+}
+
+// MARK: - Async API
+
+public extension WMTPush {
+
+    /// Registers the current PowerAuth activation for push notifications.
+    ///
+    /// - Parameter platform: Platform that you're registering to.
+    /// - Throws: `WMTError` when the call fails.
+    func register(to platform: WMTPushPlatform) async throws {
+        return try await withCheckedThrowingContinuation { continuation in
+            register(to: platform) { result in
+                continuation.resume(with: result)
+            }
         }
     }
 }

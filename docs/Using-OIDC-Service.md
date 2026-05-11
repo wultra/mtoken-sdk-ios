@@ -52,6 +52,8 @@ let oidcService = WMTOIDC(networking: networkingService)
 
 ## Retrieving Configuration
 
+Note: The async/throws `getConfig(providerId:)` method shown here also has a callback-based counterpart (`completion: @escaping (Result<WMTOIDCConfig, WMTError>) -> Void`) if you prefer the closure style.
+
 The `getConfig` method retrieves the OIDC provider configuration based on a predefined `providerId`, returning a `WMTOIDCConfig` object with essential details about the provider, client, and PKCE settings.
 
 ### WMTOIDCConfig
@@ -71,11 +73,11 @@ The `WMTOIDCConfig` structure contains essential OIDC configuration values for a
 ##### Example:
 
 ```swift
-oidcService.getConfig(providerId: "example_provider") { result in
-    switch result {
-    case .success(let config):
+Task {
+    do {
+        let config = try await oidcService.getConfig(providerId: "example_provider")
         // OIDC configuration
-    case .failure(let error):
+    } catch {
         // show error
     }
 }

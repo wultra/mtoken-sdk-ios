@@ -30,7 +30,6 @@ class WMTPushRegistrationData: Codable {
 }
 
 enum WMTPushRegistrationPlatform: String, Codable {
-    case ios // for backwards compatibility
     case apns
     case fcm
     // case hms - Huawei Messaging Service not available for iOS

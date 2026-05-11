@@ -59,3 +59,4 @@ swiftlint
 
 # Swift Package Manager
 /Package.resolved
+WultraMobileTokenSDKTests/IntegrationProxy/IntegrationProxy.swift

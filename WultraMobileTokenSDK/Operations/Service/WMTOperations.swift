@@ -82,8 +82,8 @@ public class WMTOperations: WMTService {
     }
     
     private var tasks = [GetOperationsTask]() // Task that are waiting for operation fetch
-    private var pollingTimer: Timer? // Timer that manages operations polling when requested
-    private var isPollingPaused: Bool { return pollingTimer?.isValid == false }
+    private var pollingTimer: DispatchSourceTimer?
+    private var isPollingPaused: Bool { return pollingTimer?.isCancelled == true }
     private let pollingLock = WMTLock()
     private let minimumTimePollingInterval = 5.0
     
@@ -380,9 +380,13 @@ public class WMTOperations: WMTService {
         }
         
         D.info("Operations polling started with \(adjustedInterval) seconds interval")
-        pollingTimer = Timer.scheduledTimer(withTimeInterval: adjustedInterval, repeats: true) { [weak self] _ in
+        let timer = DispatchSource.makeTimerSource(queue: .main)
+        timer.schedule(deadline: .now() + adjustedInterval, repeating: adjustedInterval)
+        timer.setEventHandler { [weak self] in
             self?.refreshOperations()
         }
+        pollingTimer = timer
+        timer.resume()
     }
     
     /// Stops operations polling
@@ -397,7 +401,7 @@ public class WMTOperations: WMTService {
             return
         }
         pollingTimer = nil
-        timer.invalidate()
+        timer.cancel()
         D.info("Operations polling stopped")
     }
     
@@ -593,3 +597,106 @@ public extension Result where Success == [WMTUserOperation], Failure == WMTError
 
 public typealias GetOperationsResult = Result<[WMTUserOperation], WMTError>
 public typealias GetOperationsCompletion = (GetOperationsResult) -> Void
+
+// MARK: - Async API
+
+public extension WMTOperations {
+
+    /// Retrieves user operations.
+    ///
+    /// - Returns: Array of user operations.
+    /// - Throws: `WMTError` when the call fails.
+    func getOperations() async throws -> [WMTUserOperation] {
+        return try await withCheckedThrowingContinuation { continuation in
+            getOperations { result in
+                continuation.resume(with: result)
+            }
+        }
+    }
+
+    /// Retrieves the history of user operations with its current status.
+    ///
+    /// - Parameter authentication: A multi-factor authentication object for signing. 2FA should be used (password or biometrics).
+    /// - Returns: Array of user operations from history.
+    /// - Throws: `WMTError` when the call fails.
+    func getHistory(authentication: PowerAuthAuthentication) async throws -> [WMTUserOperation] {
+        return try await withCheckedThrowingContinuation { continuation in
+            getHistory(authentication: authentication) { result in
+                continuation.resume(with: result)
+            }
+        }
+    }
+
+    /// Retrieves operation detail based on operation ID.
+    ///
+    /// - Parameter operationId: Operation ID to get.
+    /// - Returns: Operation detail.
+    /// - Throws: `WMTError` when the call fails.
+    func getDetail(operationId: String) async throws -> WMTUserOperation {
+        return try await withCheckedThrowingContinuation { continuation in
+            getDetail(operationId: operationId) { result in
+                continuation.resume(with: result)
+            }
+        }
+    }
+
+    /// Assigns the 'non-personalized' operation to the user.
+    ///
+    /// - Parameter operationId: Operation ID which will be claimed to belong to the user.
+    /// - Returns: Claimed user operation.
+    /// - Throws: `WMTError` when the call fails.
+    func claim(operationId: String) async throws -> WMTUserOperation {
+        return try await withCheckedThrowingContinuation { continuation in
+            claim(operationId: operationId) { result in
+                continuation.resume(with: result)
+            }
+        }
+    }
+
+    /// Authorize operation with given PowerAuth authentication object.
+    ///
+    /// - Parameters:
+    ///   - operation: Operation that should be authorized.
+    ///   - authentication: Multi-factor authentication object for signing.
+    /// - Throws: `WMTError` when the call fails.
+    func authorize(operation: WMTOperation, with authentication: PowerAuthAuthentication) async throws {
+        return try await withCheckedThrowingContinuation { continuation in
+            authorize(operation: operation, with: authentication) { result in
+                continuation.resume(with: result)
+            }
+        }
+    }
+
+    /// Will sign the given QR operation with URI ID and authentication object.
+    ///
+    /// Note that the operation will be signed even if the authentication object is
+    /// not valid as it cannot be verified on the server.
+    ///
+    /// - Parameters:
+    ///   - qrOperation: QR operation data.
+    ///   - uriId: Custom signature URI ID of the operation. Default value is  `/operation/authorize/offline`.
+    ///   - authentication: Multi-factor authentication object for signing.
+    /// - Returns: Offline signature.
+    /// - Throws: `WMTError` when signing fails.
+    func authorize(qrOperation: WMTQROperation, uriId: String = "/operation/authorize/offline", authentication: PowerAuthAuthentication) async throws -> String {
+        return try await withCheckedThrowingContinuation { continuation in
+            authorize(qrOperation: qrOperation, uriId: uriId, authentication: authentication) { result in
+                continuation.resume(with: result)
+            }
+        }
+    }
+
+    /// Reject operation with a reason.
+    ///
+    /// - Parameters:
+    ///   - operation: Operation that should be rejected.
+    ///   - reason: Reason for the rejection.
+    /// - Throws: `WMTError` when the call fails.
+    func reject(operation: WMTOperation, with reason: WMTRejectionReason) async throws {
+        return try await withCheckedThrowingContinuation { continuation in
+            reject(operation: operation, with: reason) { result in
+                continuation.resume(with: result)
+            }
+        }
+    }
+}

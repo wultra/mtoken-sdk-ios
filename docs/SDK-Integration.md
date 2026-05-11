@@ -2,7 +2,7 @@
 
 ## Requirements
 
-- iOS 12.0+
+- iOS 13.0+
 - [PowerAuth Mobile SDK](https://github.com/wultra/powerauth-mobile-sdk) needs to be available in your project
 
 ## Swift Package Manager
@@ -17,7 +17,7 @@ import PackageDescription
 let package = Package(
     name: "YourLibrary",
     platforms: [
-        .iOS(.v12)
+        .iOS(.v13)
     ],
     products: [
         .library(

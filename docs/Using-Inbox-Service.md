@@ -52,22 +52,24 @@ let opsService = WMTInbox(networking: networkingService)
 
 ## Inbox Service Usage
 
+Note: All async/throws methods shown here also have callback-based counterparts (`completion: @escaping (Result<…, WMTError>) -> Void`) if you prefer the closure style.
+
 ### Get Number of Unread Messages
 
 To get the number of unread messages, use the following code:
 
 ```swift
-inboxService.getUnreadCount { result in
-    switch result {
-    case .success(let count):
+Task {
+    do {
+        let count = try await inboxService.getUnreadCount()
         if count.countUnread > 0 {
             print("There are \(count.countUnread) new message(s) in your inbox")
         } else {
             print("Your inbox is empty")
         }
-    case .failure(let error):
+    } catch {
         print("Error \(error)")
-    }    
+    }
 }
 ```
 
@@ -76,32 +78,32 @@ inboxService.getUnreadCount { result in
 The Inbox Service provides a paged list of messages:
 
 ```swift
-// First page is 0, next 1, etc...
-inboxService.getMessageList(pageNumber: 0, pageSize: 50, onlyUnread: false) { result in
-    switch result {
-    case .success(let messages):
+Task {
+    do {
+        // First page is 0, next 1, etc...
+        let messages = try await inboxService.getMessageList(pageNumber: 0, pageSize: 50, onlyUnread: false)
         if messages.count < 50 {
             // This is the last page
         }
         // Process result
-    case .faulure(let error):
+    } catch {
         // Process error...
-    } 
+    }
 }
 ```
 
 To get the list of all messages, call:
 
 ```swift
-inboxService.getAllMessages { result in 
-    switch result {
-    case .success(let messages):
+Task {
+    do {
+        let messages = try await inboxService.getAllMessages()
         print("Inbox contains the following message(s):")
         for msg in messages {
             print(" - \(msg.subject)")
             print("   * ID = \(msg.id)")
         }
-    case .failure(let error):
+    } catch {
         print("Error \(error)")
     }
 }
@@ -113,13 +115,13 @@ Each message has its unique identifier. To get the body of the message, use the 
 
 ```swift
 let messageId = messagesList.first!.id
-inboxService.getMessageDetail(messageId: messageId) { result in 
-    switch result {
-    case .success(let detail):
+Task {
+    do {
+        let detail = try await inboxService.getMessageDetail(messageId: messageId)
         print("Received message:")
         print("\(detail.subject)")
         print("\(detail.body)")
-    case .failure(let error):
+    } catch {
         print("Error \(error)")
     }
 }
@@ -131,11 +133,11 @@ To mark the message as read by the user, use the following code:
 
 ```swift
 let messageId = messagesList.first!.id
-inboxService.markRead(messageId: messageId) {
-    switch result {
-    case .success:
+Task {
+    do {
+        try await inboxService.markRead(messageId: messageId)
         print("OK")
-    case .failure(let error):
+    } catch {
         print("Error \(error)")
     }
 }
@@ -144,11 +146,11 @@ inboxService.markRead(messageId: messageId) {
 Alternatively, you can mark all messages as read:
 
 ```swift
-inboxService.markAllRead {
-    switch result {
-    case .success:
+Task {
+    do {
+        try await inboxService.markAllRead()
         print("OK")
-    case .failure(let error):
+    } catch {
         print("Error \(error)")
     }
 }

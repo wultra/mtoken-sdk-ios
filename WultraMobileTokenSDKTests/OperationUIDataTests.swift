@@ -14,15 +14,17 @@
 // and limitations under the License.
 //
 
-import XCTest
+import Foundation
+import Testing
 @testable import WultraMobileTokenSDK
 
-class OperationUIDataTests: XCTestCase {
+struct OperationUIDataTests {
     
     
+    @Test
     func testPreApprovalWarningResponseLegacy() {
         guard let result = prepareResult(response: preApprovalResponse) else {
-            XCTFail("Failed to parse JSON data")
+            Issue.record("Failed to parse JSON data")
             return
         }
         
@@ -44,21 +46,22 @@ class OperationUIDataTests: XCTestCase {
             postApprovalScreen: nil)
         
         let screens = result.ui?.preApprovalScreens
-        XCTAssertEqual(result.ui?.flipButtons, ui.flipButtons)
-        XCTAssertEqual(result.ui?.blockApprovalOnCall, ui.blockApprovalOnCall)
-        XCTAssertEqual(screens?[0].heading, ui.preApprovalScreens?[0].heading)
-        XCTAssertEqual(screens?[0].message, ui.preApprovalScreens?[0].message)
-        XCTAssertEqual(screens?[0].elements?.count, 3)
-        XCTAssertEqual(screens?[0].elements?[0].text, ui.preApprovalScreens?[0].elements?[0].text)
-        XCTAssertEqual(screens?[0].elements?[1].text, ui.preApprovalScreens?[0].elements?[1].text)
-        XCTAssertEqual(screens?[0].elements?[2].text, ui.preApprovalScreens?[0].elements?[2].text)
-        XCTAssertEqual(screens?[0].message, ui.preApprovalScreens?[0].message)
-        XCTAssertEqual(screens?[0].controls?.approve?.type, ui.preApprovalScreens?[0].controls?.approve?.type)
+        #expect(result.ui?.flipButtons == ui.flipButtons)
+        #expect(result.ui?.blockApprovalOnCall == ui.blockApprovalOnCall)
+        #expect(screens?[0].heading == ui.preApprovalScreens?[0].heading)
+        #expect(screens?[0].message == ui.preApprovalScreens?[0].message)
+        #expect(screens?[0].elements?.count == 3)
+        #expect(screens?[0].elements?[0].text == ui.preApprovalScreens?[0].elements?[0].text)
+        #expect(screens?[0].elements?[1].text == ui.preApprovalScreens?[0].elements?[1].text)
+        #expect(screens?[0].elements?[2].text == ui.preApprovalScreens?[0].elements?[2].text)
+        #expect(screens?[0].message == ui.preApprovalScreens?[0].message)
+        #expect(screens?[0].controls?.approve?.type == ui.preApprovalScreens?[0].controls?.approve?.type)
     }
     
+    @Test
     func testPreApprovalUnknownResponse() {
         guard let result = prepareResult(response: preApprovalFutureResponse) else {
-            XCTFail("Failed to parse JSON data")
+            Issue.record("Failed to parse JSON data")
             return
         }
         
@@ -73,13 +76,14 @@ class OperationUIDataTests: XCTestCase {
                 )],
             postApprovalScreen: nil)
         
-        XCTAssertEqual(result.ui?.preApprovalScreens?[0].type, ui.preApprovalScreens?[0].type)
-        XCTAssertEqual(result.ui?.preApprovalScreens?[0].heading, ui.preApprovalScreens?[0].heading)
+        #expect(result.ui?.preApprovalScreens?[0].type == ui.preApprovalScreens?[0].type)
+        #expect(result.ui?.preApprovalScreens?[0].heading == ui.preApprovalScreens?[0].heading)
     }
     
+    @Test
     func testPostApprovalGenericResponse() {
         guard let result = prepareGenericPostApproval(response: genericPostApproval) else {
-            XCTFail("Failed to parse JSON data")
+            Issue.record("Failed to parse JSON data")
             return
         }
         
@@ -101,20 +105,21 @@ class OperationUIDataTests: XCTestCase {
                                       )
         )
         
-        XCTAssertEqual(result.heading, generic.heading)
-        XCTAssertEqual(result.message, generic.message)
-        XCTAssertEqual(result.payload, generic.payload)
-        XCTAssertEqual(result.payload["nestedMessage"], .string("See you next time."))
-        XCTAssertEqual(result.payload["integer"], .int(1))
-        XCTAssertEqual(result.payload["boolean"], .bool(true))
-        XCTAssertEqual(result.payload["array"], .array([.string("firstElement"), .string("secondElement")]))
-        XCTAssertEqual(result.payload["object"], .object(["nestedObject" : .string("stringValue")])    )
+        #expect(result.heading == generic.heading)
+        #expect(result.message == generic.message)
+        #expect(result.payload == generic.payload)
+        #expect(result.payload["nestedMessage"] == .string("See you next time."))
+        #expect(result.payload["integer"] == .int(1))
+        #expect(result.payload["boolean"] == .bool(true))
+        #expect(result.payload["array"] == .array([.string("firstElement"), .string("secondElement")]))
+        #expect(result.payload["object"] == .object(["nestedObject" : .string("stringValue")]))
     }
     
     
+    @Test
     func testPostApprovalResponseRedirect() {
         guard let result = prepareResult(response: postApprovalResponseRedirect) else {
-            XCTFail("Failed to parse JSON data")
+            Issue.record("Failed to parse JSON data")
             return
         }
         
@@ -133,25 +138,26 @@ class OperationUIDataTests: XCTestCase {
                             countdown: 5),
                     type: WMTPostApprovalScreen.ScreenType(rawValue: "MERCHANT_REDIRECT")!))
         
-        XCTAssertEqual(result.ui?.flipButtons, ui.flipButtons)
-        XCTAssertEqual(result.ui?.blockApprovalOnCall, ui.blockApprovalOnCall)
-        XCTAssertNil(result.ui?.preApprovalScreens)
-        XCTAssertEqual((result.ui?.postApprovalScreen as? WMTPostApprovalScreenRedirect)?.heading, (ui.postApprovalScreen as? WMTPostApprovalScreenRedirect)?.heading)
-        XCTAssertEqual((result.ui?.postApprovalScreen as? WMTPostApprovalScreenRedirect)?.message, (ui.postApprovalScreen as? WMTPostApprovalScreenRedirect)?.message)
-        XCTAssertEqual(((result.ui?.postApprovalScreen as? WMTPostApprovalScreenRedirect)?.payload as? WMTRedirectPostApprovalScreenPayload)?.text, ((ui.postApprovalScreen as? WMTPostApprovalScreenRedirect)?.payload as? WMTRedirectPostApprovalScreenPayload)?.text)
-        XCTAssertEqual(
-            ((result.ui?.postApprovalScreen as? WMTPostApprovalScreenRedirect)?.payload as? WMTRedirectPostApprovalScreenPayload)?.url,
+        #expect(result.ui?.flipButtons == ui.flipButtons)
+        #expect(result.ui?.blockApprovalOnCall == ui.blockApprovalOnCall)
+        #expect(result.ui?.preApprovalScreens == nil)
+        #expect((result.ui?.postApprovalScreen as? WMTPostApprovalScreenRedirect)?.heading == (ui.postApprovalScreen as? WMTPostApprovalScreenRedirect)?.heading)
+        #expect((result.ui?.postApprovalScreen as? WMTPostApprovalScreenRedirect)?.message == (ui.postApprovalScreen as? WMTPostApprovalScreenRedirect)?.message)
+        #expect(((result.ui?.postApprovalScreen as? WMTPostApprovalScreenRedirect)?.payload as? WMTRedirectPostApprovalScreenPayload)?.text == ((ui.postApprovalScreen as? WMTPostApprovalScreenRedirect)?.payload as? WMTRedirectPostApprovalScreenPayload)?.text)
+        #expect(
+            ((result.ui?.postApprovalScreen as? WMTPostApprovalScreenRedirect)?.payload as? WMTRedirectPostApprovalScreenPayload)?.url ==
             ((ui.postApprovalScreen as? WMTPostApprovalScreenRedirect)?.payload as? WMTRedirectPostApprovalScreenPayload)?.url
         )
-        XCTAssertEqual(
-            ((result.ui?.postApprovalScreen as? WMTPostApprovalScreenRedirect)?.payload as? WMTRedirectPostApprovalScreenPayload)?.countdown,
+        #expect(
+            ((result.ui?.postApprovalScreen as? WMTPostApprovalScreenRedirect)?.payload as? WMTRedirectPostApprovalScreenPayload)?.countdown ==
             ((ui.postApprovalScreen as? WMTPostApprovalScreenRedirect)?.payload as? WMTRedirectPostApprovalScreenPayload)?.countdown
         )
     }
     
+    @Test
     func testPostApprovalResponseReview() {
         guard let result = prepareResult(response: postApprovalResponseReview) else {
-            XCTFail("Failed to parse JSON data")
+            Issue.record("Failed to parse JSON data")
             return
         }
         
@@ -181,130 +187,135 @@ class OperationUIDataTests: XCTestCase {
         let resultPostApproval = result.ui?.postApprovalScreen as? WMTPostApprovalScreenReview
         let uiPostApproval = ui.postApprovalScreen as? WMTPostApprovalScreenReview
         
-        XCTAssertEqual(resultPostApproval?.heading, uiPostApproval?.heading)
-        XCTAssertEqual(resultPostApproval?.message, uiPostApproval?.message)
+        #expect(resultPostApproval?.heading == uiPostApproval?.heading)
+        #expect(resultPostApproval?.message == uiPostApproval?.message)
         
         let resultNoteAttribute = (resultPostApproval?.payload as? WMTReviewPostApprovalScreenPayload)?.attributes[0] as? WMTOperationAttributeNote
         let uiNoteAttribute = (uiPostApproval?.payload as? WMTReviewPostApprovalScreenPayload)?.attributes[0] as? WMTOperationAttributeNote
         
-        XCTAssertEqual(resultNoteAttribute?.note, uiNoteAttribute?.note)
+        #expect(resultNoteAttribute?.note == uiNoteAttribute?.note)
         
         let resultAttributeLabel = (((result.ui?.postApprovalScreen as? WMTPostApprovalScreenReview)?.payload as? WMTReviewPostApprovalScreenPayload)?.attributes[0] as? WMTOperationAttributeNote)?.label as? WMTOperationAttribute.AttributeLabel
         let uiAttributeLabel = (((ui.postApprovalScreen as? WMTPostApprovalScreenReview)?.payload as? WMTReviewPostApprovalScreenPayload)?.attributes[0] as? WMTOperationAttributeNote)?.label as? WMTOperationAttribute.AttributeLabel
         
-        XCTAssertEqual(resultAttributeLabel?.id, uiAttributeLabel?.id)
-        XCTAssertEqual(resultAttributeLabel?.value, uiAttributeLabel?.value)
+        #expect(resultAttributeLabel?.id == uiAttributeLabel?.id)
+        #expect(resultAttributeLabel?.value == uiAttributeLabel?.value)
     }
     
+    @Test
     func testPreApprovalScreensResponseWithPreApprovalIgnoredLegacy() {
         guard let result = prepareResult(response: preApprovalScreensResponse) else {
-            XCTFail("Failed to parse JSON data")
+            Issue.record("Failed to parse JSON data")
             return
         }
         
         // New apps: array should be present with 3 screens
         guard let screens = result.ui?.preApprovalScreens, screens.count == 3 else {
-            XCTFail("preApprovalScreens missing or has wrong count")
+            Issue.record("preApprovalScreens missing or has wrong count")
             return
         }
         
         // Screen1 (WARNING)
         let s1 = screens[0]
-        XCTAssertEqual(s1.id, "id1")
-        XCTAssertEqual(s1.type, .warning)
-        XCTAssertEqual(s1.backButton, true)
-        XCTAssertEqual(s1.image, "image-label")
-        XCTAssertEqual(s1.heading, "Watch out!")
-        XCTAssertEqual(s1.message, "You may become a victim of an attack.")
-        XCTAssertEqual(s1.controls?.flip, true)
-        XCTAssertEqual(s1.controls?.decline?.type, .reject)
-        XCTAssertEqual(s1.controls?.decline?.text, "Reject Payment")
-        XCTAssertEqual(s1.controls?.approve?.type, .button)
-        XCTAssertEqual(s1.controls?.approve?.text, "Approve Payment")
-        XCTAssertEqual(s1.controls?.approve?.counter, 10)
-        XCTAssertEqual(s1.elements?.count, 3)
+        #expect(s1.id == "id1")
+        #expect(s1.type == .warning)
+        #expect(s1.backButton == true)
+        #expect(s1.image == "image-label")
+        #expect(s1.heading == "Watch out!")
+        #expect(s1.message == "You may become a victim of an attack.")
+        #expect(s1.controls?.flip == true)
+        #expect(s1.controls?.decline?.type == .reject)
+        #expect(s1.controls?.decline?.text == "Reject Payment")
+        #expect(s1.controls?.approve?.type == .button)
+        #expect(s1.controls?.approve?.text == "Approve Payment")
+        #expect(s1.controls?.approve?.counter == 10)
+        #expect(s1.elements?.count == 3)
         
         // Alert element (first)
         if let e1 = s1.elements?.first as? WMTPreApprovalElementAlert {
-            XCTAssertEqual(e1.type, .alert)
-            XCTAssertEqual(e1.style, .info)
-            XCTAssertEqual(e1.text, "Make sure the activation takes place on your device")
+            #expect(e1.type == .alert)
+            #expect(e1.style == .info)
+            #expect(e1.text == "Make sure the activation takes place on your device")
         }
         
         // Button element (second)
         if let e2 = s1.elements?[1] as? WMTPreApprovalElementButton {
-            XCTAssertEqual(e2.type, .button)
-            XCTAssertEqual(e2.id, "e2")
-            XCTAssertEqual(e2.action, .phone)
-            XCTAssertEqual(e2.actionSettings, "REJECT")
-            XCTAssertEqual(e2.href, "+42012345678")
-            XCTAssertEqual(e2.text, "Call center")
+            #expect(e2.type == .button)
+            #expect(e2.id == "e2")
+            #expect(e2.action == .phone)
+            #expect(e2.actionSettings == "REJECT")
+            #expect(e2.href == "+42012345678")
+            #expect(e2.text == "Call center")
         } else {
-            XCTFail("Second element should be WMTPreApprovalElementButton")
+            Issue.record("Second element should be WMTPreApprovalElementButton")
         }
 
         // List item element (third)
         if let e3 = s1.elements?[2] as? WMTPreApprovalElementListItem {
-            XCTAssertEqual(e3.type, .listItem)
-            XCTAssertEqual(e3.id, "e3")
-            XCTAssertEqual(e3.icon, "icon-label")
-            XCTAssertEqual(e3.text, "You activate a new app and allow access to your accounts")
+            #expect(e3.type == .listItem)
+            #expect(e3.id == "e3")
+            #expect(e3.icon == "icon-label")
+            #expect(e3.text == "You activate a new app and allow access to your accounts")
         } else {
-            XCTFail("Third element should be WMTPreApprovalElementListItem")
+            Issue.record("Third element should be WMTPreApprovalElementListItem")
         }
         
         // Screen2 (QR_SCAN)
         let s2 = screens[1]
-        XCTAssertEqual(s2.id, "id2")
-        XCTAssertEqual(s2.type, .qr)
-        XCTAssertNil(s2.backButton)
-        XCTAssertNil(s2.image)
-        XCTAssertEqual(s2.heading, "Watch out!")
-        XCTAssertEqual(s2.message, "You may become a victim of an attack.")
-        XCTAssertNil(s2.controls)
-        XCTAssertNil(s2.elements)
+        #expect(s2.id == "id2")
+        #expect(s2.type == .qr)
+        #expect(s2.backButton == nil)
+        #expect(s2.image == nil)
+        #expect(s2.heading == "Watch out!")
+        #expect(s2.message == "You may become a victim of an attack.")
+        #expect(s2.controls == nil)
+        #expect(s2.elements == nil)
         
         // Screen3 (Log test of incorrect elements structure)
         let s3 = screens[2]
-        XCTAssertNil(s3.elements)
+        #expect(s3.elements == nil)
 
         // Sanity: top-level flags still parsed
-        XCTAssertEqual(result.ui?.flipButtons, true)
-        XCTAssertEqual(result.ui?.blockApprovalOnCall, false)
+        #expect(result.ui?.flipButtons == true)
+        #expect(result.ui?.blockApprovalOnCall == false)
     }
     
+    @Test
     func testLegacyPreApproval() {
         guard let result = prepareResult(response: legacyPreApproval) else {
-            XCTFail("Failed to parse JSON data")
+            Issue.record("Failed to parse JSON data")
             return
         }
         
         let first = result.ui?.preApprovalScreens?.first
-        XCTAssertEqual(first?.type, .warning)
-        XCTAssertEqual(first?.elements?.map(\.text), ["A","B","C"])
-        XCTAssertEqual(first?.controls?.approve?.type, .slider)
-        XCTAssertEqual(first?.controls?.approve?.counter, nil)
-        XCTAssertEqual(first?.controls?.approve?.text, nil)
+        #expect(first?.type == .warning)
+        #expect(first?.elements?.map(\.text) == ["A","B","C"])
+        #expect(first?.controls?.approve?.type == .slider)
+        #expect(first?.controls?.approve?.counter == nil)
+        #expect(first?.controls?.approve?.text == nil)
     }
     
+    @Test
     func testLegacyEmptyItemsBecomeNil() {
         let legacyEmptyItems = preApprovalFutureResponse
         let result = prepareResult(response: legacyEmptyItems)
         let first = result?.ui?.preApprovalScreens?.first
-        XCTAssertEqual(first?.type, .unknown)
-        XCTAssertNil(first?.elements)
+        #expect(first?.type == .unknown)
+        #expect(first?.elements == nil)
     }
     
+    @Test
     func testSingularIsWrappedIntoPlural() {
         guard let result = prepareResult(response: preApprovalResponse) else {
-            XCTFail("Failed to parse JSON data")
+            Issue.record("Failed to parse JSON data")
             return
         }
         let screens = result.ui?.preApprovalScreens
-        XCTAssertNotNil(screens)
-        XCTAssertEqual(1, screens?.count)
+        #expect(screens != nil)
+        #expect(1 == screens?.count)
     }
 
+    @Test
     func testUnknownScreenTypeForwardCompat() {
         let json = """
         {
@@ -317,16 +328,17 @@ class OperationUIDataTests: XCTestCase {
         }
         """
         guard let r = prepareResult(response: json) else {
-            XCTFail("parse fail"); return
+            Issue.record("parse fail"); return
         }
         guard let s = r.ui?.preApprovalScreens?.first else {
-            XCTFail("no screen"); return
+            Issue.record("no screen"); return
         }
-        XCTAssertEqual(s.type, .unknown)
-        XCTAssertEqual(s.heading, "Future")
-        XCTAssertEqual(s.message, "Future is now, old man.")
+        #expect(s.type == .unknown)
+        #expect(s.heading == "Future")
+        #expect(s.message == "Future is now, old man.")
     }
 
+    @Test
     func testUnknownElementTypeForwardCompat() {
         let json = """
         {
@@ -344,21 +356,22 @@ class OperationUIDataTests: XCTestCase {
         }
         """
         guard let result = prepareResult(response: json) else {
-            XCTFail("Failed to parse JSON data")
+            Issue.record("Failed to parse JSON data")
             return
         }
-        XCTAssertNotNil(result.ui?.preApprovalScreens?.first)
-        XCTAssertNotNil(result.ui?.preApprovalScreens?.first?.elements?.first)
-        XCTAssertEqual(result.ui?.preApprovalScreens?.first?.elements?.first?.text, "new-kind")
+        #expect(result.ui?.preApprovalScreens?.first != nil)
+        #expect(result.ui?.preApprovalScreens?.first?.elements?.first != nil)
+        #expect(result.ui?.preApprovalScreens?.first?.elements?.first?.text == "new-kind")
     }
     
+    @Test
     func testLegacyEmptyItemsBecomeNilElements() {
         guard let result = prepareResult(response: preApprovalFutureResponse) else {
-            XCTFail("parse fail"); return
+            Issue.record("parse fail"); return
         }
         let first = result.ui?.preApprovalScreens?.first
-        XCTAssertEqual(first?.type, .unknown)
-        XCTAssertNil(first?.elements)  // empty items → nil
+        #expect(first?.type == .unknown)
+        #expect(first?.elements == nil) // empty items → nil
     }
     
     // MARK: Helpers

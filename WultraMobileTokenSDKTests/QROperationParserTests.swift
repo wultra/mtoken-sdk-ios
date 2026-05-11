@@ -14,10 +14,11 @@
 // and limitations under the License.
 //
 
-import XCTest
+import Foundation
+import Testing
 import WultraMobileTokenSDK
 
-class QROperationParserTests: XCTestCase {
+struct QROperationParserTests {
 
     func makeCode(
         operationId: String     = "5ff1b1ed-a3cc-45a3-8ab0-ed60950312b6",
@@ -36,6 +37,7 @@ class QROperationParserTests: XCTestCase {
     
     // MARK: - Main tests
     
+    @Test
     func testCurrentFormat() { // Without TOTP
         let parser = WMTQROperationParser()
         let qrcode = makeCode()
@@ -49,59 +51,60 @@ class QROperationParserTests: XCTestCase {
             "0").data(using: .utf8)
         
         guard case .success(let operation) = parser.parse(string: qrcode) else {
-            XCTFail("This should be parsed")
+            Issue.record("This should be parsed")
             return
         }
         
-        XCTAssertTrue(operation.operationId == "5ff1b1ed-a3cc-45a3-8ab0-ed60950312b6")
-        XCTAssertTrue(operation.title == "Payment")
-        XCTAssertTrue(operation.message == "Please confirm this payment")
-        XCTAssertTrue(operation.flags.allowBiometryFactor == true)
-        XCTAssertTrue(operation.flags.flipButtons == true)
-        XCTAssertTrue(operation.flags.fraudWarning == true)
-        XCTAssertTrue(operation.flags.blockWhenOnCall == true)
-        XCTAssertTrue(operation.nonce == "AD8bOO0Df73kNaIGb3Vmpg==")
-        XCTAssertTrue(operation.signature.signature == "MEYCIQDby1Uq+MaxiAAGzKmE/McHzNOUrvAP2qqGBvSgcdtyjgIhAMo1sgqNa1pPZTFBhhKvCKFLGDuHuTTYexdmHFjUUIJW")
-        XCTAssertTrue(operation.signature.signingKey == .master)
-        XCTAssertTrue(operation.signedData == expectedSignedData)
+        #expect(operation.operationId == "5ff1b1ed-a3cc-45a3-8ab0-ed60950312b6")
+        #expect(operation.title == "Payment")
+        #expect(operation.message == "Please confirm this payment")
+        #expect(operation.flags.allowBiometryFactor == true)
+        #expect(operation.flags.flipButtons == true)
+        #expect(operation.flags.fraudWarning == true)
+        #expect(operation.flags.blockWhenOnCall == true)
+        #expect(operation.nonce == "AD8bOO0Df73kNaIGb3Vmpg==")
+        #expect(operation.signature.signature == "MEYCIQDby1Uq+MaxiAAGzKmE/McHzNOUrvAP2qqGBvSgcdtyjgIhAMo1sgqNa1pPZTFBhhKvCKFLGDuHuTTYexdmHFjUUIJW")
+        #expect(operation.signature.signingKey == .master)
+        #expect(operation.signedData == expectedSignedData)
         
         // Operation data
-        XCTAssertTrue(operation.operationData.version == .v1)
-        XCTAssertTrue(operation.operationData.templateId == 1)
-        XCTAssertTrue(operation.operationData.fields.count == 4)
-        XCTAssertTrue(operation.operationData.sourceString == "A1*A100CZK*ICZ2730300000001165254011*D20180425*Thello world")
+        #expect(operation.operationData.version == .v1)
+        #expect(operation.operationData.templateId == 1)
+        #expect(operation.operationData.fields.count == 4)
+        #expect(operation.operationData.sourceString == "A1*A100CZK*ICZ2730300000001165254011*D20180425*Thello world")
         
         let fields = operation.operationData.fields
         switch fields[0] {
         case .amount(let amount, let currency):
-            XCTAssertTrue(amount == Decimal(string: "100"))
-            XCTAssertTrue(currency == "CZK")
+            #expect(amount == Decimal(string: "100"))
+            #expect(currency == "CZK")
         default:
-            XCTFail("Amount was not parsed correctly")
+            Issue.record("Amount was not parsed correctly")
         }
         switch fields[1] {
         case .account(let iban, let bic):
-            XCTAssertTrue(iban == "CZ2730300000001165254011")
-            XCTAssertTrue(bic == nil)
+            #expect(iban == "CZ2730300000001165254011")
+            #expect(bic == nil)
         default:
-            XCTFail("Account was not parsed correctly")
+            Issue.record("Account was not parsed correctly")
         }
         switch fields[2] {
         case .date(let date):
             let formatter = DateFormatter()
             formatter.dateFormat = "yyyyMMdd"
-            XCTAssertTrue(date == formatter.date(from: "20180425"))
+            #expect(date == formatter.date(from: "20180425"))
         default:
-            XCTFail("Date was not parsed correctly")
+            Issue.record("Date was not parsed correctly")
         }
         switch fields[3] {
         case .text(let text):
-            XCTAssertTrue(text == "hello world")
+            #expect(text == "hello world")
         default:
-            XCTFail("Text was not parsed correctly")
+            Issue.record("Text was not parsed correctly")
         }
     }
     
+    @Test
     func testCurrentFormatWithTOTP() {
         let parser = WMTQROperationParser()
         let qrcode = makeCode(otherAttrs: ["12345678"])
@@ -116,30 +119,31 @@ class QROperationParserTests: XCTestCase {
             "0").data(using: .utf8)
         
         guard case .success(let operation) = parser.parse(string: qrcode) else {
-            XCTFail("This should be parsed")
+            Issue.record("This should be parsed")
             return
         }
         
-        XCTAssertTrue(operation.operationId == "5ff1b1ed-a3cc-45a3-8ab0-ed60950312b6")
-        XCTAssertTrue(operation.title == "Payment")
-        XCTAssertTrue(operation.message == "Please confirm this payment")
-        XCTAssertTrue(operation.flags.allowBiometryFactor == true)
-        XCTAssertTrue(operation.flags.flipButtons == true)
-        XCTAssertTrue(operation.flags.fraudWarning == true)
-        XCTAssertTrue(operation.flags.blockWhenOnCall == true)
-        XCTAssertTrue(operation.totp == "12345678")
-        XCTAssertTrue(operation.nonce == "AD8bOO0Df73kNaIGb3Vmpg==")
-        XCTAssertTrue(operation.signature.signature == "MEYCIQDby1Uq+MaxiAAGzKmE/McHzNOUrvAP2qqGBvSgcdtyjgIhAMo1sgqNa1pPZTFBhhKvCKFLGDuHuTTYexdmHFjUUIJW")
-        XCTAssertTrue(operation.signature.signingKey == .master)
-        XCTAssertTrue(operation.signedData == expectedSignedData)
+        #expect(operation.operationId == "5ff1b1ed-a3cc-45a3-8ab0-ed60950312b6")
+        #expect(operation.title == "Payment")
+        #expect(operation.message == "Please confirm this payment")
+        #expect(operation.flags.allowBiometryFactor == true)
+        #expect(operation.flags.flipButtons == true)
+        #expect(operation.flags.fraudWarning == true)
+        #expect(operation.flags.blockWhenOnCall == true)
+        #expect(operation.totp == "12345678")
+        #expect(operation.nonce == "AD8bOO0Df73kNaIGb3Vmpg==")
+        #expect(operation.signature.signature == "MEYCIQDby1Uq+MaxiAAGzKmE/McHzNOUrvAP2qqGBvSgcdtyjgIhAMo1sgqNa1pPZTFBhhKvCKFLGDuHuTTYexdmHFjUUIJW")
+        #expect(operation.signature.signingKey == .master)
+        #expect(operation.signedData == expectedSignedData)
         
         // Operation data
-        XCTAssertTrue(operation.operationData.version == .v1)
-        XCTAssertTrue(operation.operationData.templateId == 1)
-        XCTAssertTrue(operation.operationData.fields.count == 4)
-        XCTAssertTrue(operation.operationData.sourceString == "A1*A100CZK*ICZ2730300000001165254011*D20180425*Thello world")
+        #expect(operation.operationData.version == .v1)
+        #expect(operation.operationData.templateId == 1)
+        #expect(operation.operationData.fields.count == 4)
+        #expect(operation.operationData.sourceString == "A1*A100CZK*ICZ2730300000001165254011*D20180425*Thello world")
     }
     
+    @Test
     func testForwardCompatibility() {
         let parser = WMTQROperationParser()
         let qrcode = makeCode(operationData:"B2*Xtest", otherAttrs:["12345678", "Some Additional Information"])
@@ -155,148 +159,158 @@ class QROperationParserTests: XCTestCase {
             "0").data(using: .utf8)
         
         guard case .success(let operation) = parser.parse(string: qrcode) else {
-            XCTFail("This should be parsed")
+            Issue.record("This should be parsed")
             return
         }
         
-        XCTAssertTrue(operation.isNewerFormat)
-        XCTAssertTrue(operation.signedData == expectedSignedData)
-        XCTAssertTrue(operation.operationData.version == .vX)
-        XCTAssertTrue(operation.operationData.fields.count == 1)
+        #expect(operation.isNewerFormat)
+        #expect(operation.signedData == expectedSignedData)
+        #expect(operation.operationData.version == .vX)
+        #expect(operation.operationData.fields.count == 1)
         switch operation.operationData.fields[0] {
         case .fallback(let text, let fieldType):
-            XCTAssertTrue(text == "test")
-            XCTAssertTrue(fieldType == "X")
+            #expect(text == "test")
+            #expect(fieldType == "X")
         default:
-            XCTFail("OperationData parser is not forward compatible")
+            Issue.record("OperationData parser is not forward compatible")
         }
     }
     
     // MARK: - Missing or Bad attributes
     
+    @Test
     func testMissingOperationId() {
         let parser = WMTQROperationParser()
         let qrcode = makeCode(operationId:"")
         let result = parser.parse(string: qrcode)
-        XCTAssertFalse(result.isSuccess)
+        #expect(!(result.isSuccess))
     }
     
+    @Test
     func testMissingTitleOrMessage() {
         let parser = WMTQROperationParser()
         let qrcode = makeCode(title:"", message: "")
         guard case .success(let operation) = parser.parse(string: qrcode) else {
-            XCTFail("This should be parsed")
+            Issue.record("This should be parsed")
             return
         }
-        XCTAssertTrue(operation.title == "")
-        XCTAssertTrue(operation.message == "")
+        #expect(operation.title == "")
+        #expect(operation.message == "")
     }
     
+    @Test
     func testMissingOrBadOperationDataVersion() {
         let parser = WMTQROperationParser()
         ["", "A", "2", "A100", "A-100"].forEach { operationData in
             let qrcode = makeCode(operationData: operationData)
             let result = parser.parse(string: qrcode)
-            XCTAssertFalse(result.isSuccess, "Operation data '\(operationData)' should not be accepted.")
+            #expect(!(result.isSuccess), "Operation data '\(operationData)' should not be accepted.")
         }
     }
     
+    @Test
     func testMissingFlags() {
         let parser = WMTQROperationParser()
         let qrcode = makeCode(flags: "")
         guard case .success(let operation) = parser.parse(string: qrcode) else {
-            XCTFail("This should be parsed")
+            Issue.record("This should be parsed")
             return
         }
-        XCTAssertFalse(operation.flags.allowBiometryFactor)
-        XCTAssertFalse(operation.flags.blockWhenOnCall)
-        XCTAssertFalse(operation.flags.flipButtons)
-        XCTAssertFalse(operation.flags.fraudWarning)
+        #expect(!(operation.flags.allowBiometryFactor))
+        #expect(!(operation.flags.blockWhenOnCall))
+        #expect(!(operation.flags.flipButtons))
+        #expect(!(operation.flags.fraudWarning))
     }
     
+    @Test
     func testSomeMissingFlags() {
         let parser = WMTQROperationParser()
         let qrcode = makeCode(flags: "FX")
         guard case .success(let operation) = parser.parse(string: qrcode) else {
-            XCTFail("This should be parsed")
+            Issue.record("This should be parsed")
             return
         }
-        XCTAssertFalse(operation.flags.allowBiometryFactor)
-        XCTAssertFalse(operation.flags.blockWhenOnCall)
-        XCTAssertTrue(operation.flags.flipButtons)
-        XCTAssertTrue(operation.flags.fraudWarning)
+        #expect(!(operation.flags.allowBiometryFactor))
+        #expect(!(operation.flags.blockWhenOnCall))
+        #expect(operation.flags.flipButtons)
+        #expect(operation.flags.fraudWarning)
     }
 
+    @Test
     func testMissingOrBadNonce() {
         let parser = WMTQROperationParser()
         ["", "AAAA", "MEYCIQDby1Uq+MaxiAAGzKmE/McHzNOUrvAP2qqGBvSgcdtyjgIhAMo1sgqNa1pPZTFBhhKvCKFLGDuHuTTYexdmHFjUUIJW" ].forEach { nonce in
             let qrcode = makeCode(nonce: nonce)
             let result = parser.parse(string: qrcode)
-            XCTAssertFalse(result.isSuccess, "Nonce '\(nonce)' should not be accepted.")
+            #expect(!(result.isSuccess), "Nonce '\(nonce)' should not be accepted.")
         }
     }
     
+    @Test
     func testMissingOrBadSignature() {
         let parser = WMTQROperationParser()
         let qrcode = makeCode(signingKey:"", signature: "")
-        XCTAssertFalse(parser.parse(string: qrcode).isSuccess)
+        #expect(!(parser.parse(string: qrcode).isSuccess))
         
         ["", "AAAA", "AD8bOO0Df73kNaIGb3Vmpg==" ].forEach { signature in
             let qrcode = makeCode(signature: signature)
             let result = parser.parse(string: qrcode)
-            XCTAssertFalse(result.isSuccess, "Signature '\(signature)' should not be accepted.")
+            #expect(!(result.isSuccess), "Signature '\(signature)' should not be accepted.")
         }
         ["", "2", "X"].forEach { (signingKey) in
             let qrcode = makeCode(signingKey: signingKey)
             let result = parser.parse(string: qrcode)
-            XCTAssertFalse(result.isSuccess, "Signing key '\(signingKey)' should not be accepted.")
+            #expect(!(result.isSuccess), "Signing key '\(signingKey)' should not be accepted.")
         }
     }
     
     // MARK: - String escaping
     
+    @Test
     func testAttributeStringEscaping() {
         let parser = WMTQROperationParser()
         let qrcode = makeCode(title: "Hello\\nWorld\\\\xyz", message: "Hello\\nWorld\\\\xyz\\*")
         guard case .success(let operation) = parser.parse(string: qrcode) else {
-            XCTFail("This should be parsed")
+            Issue.record("This should be parsed")
             return
         }
-        XCTAssertTrue(operation.title == "Hello\nWorld\\xyz")
-        XCTAssertTrue(operation.message == "Hello\nWorld\\xyz\\*")
+        #expect(operation.title == "Hello\nWorld\\xyz")
+        #expect(operation.message == "Hello\nWorld\\xyz\\*")
     }
     
+    @Test
     func testFieldStringEscaping() {
         let parser = WMTQROperationParser()
         let qrcode = makeCode(operationData: "A1*Thello \\* asterisk*Nnew\\nline*Xback\\\\slash")
         guard case .success(let operation) = parser.parse(string: qrcode) else {
-            XCTFail("This should be parsed")
+            Issue.record("This should be parsed")
             return
         }
-        XCTAssertTrue(operation.operationData.fields.count == 3)
+        #expect(operation.operationData.fields.count == 3)
         let fields = operation.operationData.fields
         switch fields[0] {
         case .text(let text):
-            XCTAssertTrue(text == "hello * asterisk")
+            #expect(text == "hello * asterisk")
         default:
-            XCTFail()
+            Issue.record()
         }
         switch fields[1] {
         case .note(let text):
-            XCTAssertTrue(text == "new\nline")
+            #expect(text == "new\nline")
         default:
-            XCTFail()
+            Issue.record()
         }
         switch fields[2] {
         case .fallback(let text, _):
-            XCTAssertTrue(text == "back\\slash")
+            #expect(text == "back\\slash")
         default:
-            XCTFail()
+            Issue.record()
         }
     }
     
     // MARK: - Field types
     
+    @Test
     func testFieldAmount() {
         let parser = WMTQROperationParser()
         // Valid
@@ -313,25 +327,26 @@ class QROperationParserTests: XCTestCase {
         valid.forEach { field, expAmount, expCurrency in
             let qrcode = makeCode(operationData: "A1*" + field)
             guard case .success(let operation) = parser.parse(string: qrcode) else {
-                XCTFail("Amount \(field) should be parsed")
+                Issue.record("Amount \(field) should be parsed")
                 return
             }
             switch operation.operationData.fields[0] {
             case .amount(let amount, let currency):
-                XCTAssertTrue(amount == expAmount)
-                XCTAssertTrue(currency == expCurrency)
+                #expect(amount == expAmount)
+                #expect(currency == expCurrency)
             default:
-                XCTFail()
+                Issue.record()
             }
         }
         // Invalid
         [ "ACZK", "A", "A0", "AxCZK" ].forEach { field in
             let qrcode = makeCode(operationData: "A1*" + field)
             let result = parser.parse(string: qrcode)
-            XCTAssertFalse(result.isSuccess, "Amount \(field) should not be accepted.")
+            #expect(!(result.isSuccess), "Amount \(field) should not be accepted.")
         }
     }
     
+    @Test
     func testFieldAccount() {
         let parser = WMTQROperationParser()
         // Valid
@@ -343,65 +358,67 @@ class QROperationParserTests: XCTestCase {
         valid.forEach { field, expIban, expBic in
             let qrcode = makeCode(operationData: "A1*" + field)
             guard case .success(let operation) = parser.parse(string: qrcode) else {
-                XCTFail("Account \(field) should be parsed")
+                Issue.record("Account \(field) should be parsed")
                 return
             }
             switch operation.operationData.fields[0] {
             case .account(let iban, let bic):
-                XCTAssertTrue(iban == expIban)
-                XCTAssertTrue(bic == expBic)
+                #expect(iban == expIban)
+                #expect(bic == expBic)
             default:
-                XCTFail()
+                Issue.record()
             }
         }
         // Invalid
         [ "I", "Isomeiban,", "IGOODIBAN,badbic" ].forEach { field in
             let qrcode = makeCode(operationData: "A1*" + field)
             let result = parser.parse(string: qrcode)
-            XCTAssertFalse(result.isSuccess, "Account \(field) should not be accepted.")
+            #expect(!(result.isSuccess), "Account \(field) should not be accepted.")
         }
     }
     
+    @Test
     func testFieldDate() {
         let parser = WMTQROperationParser()
         // Invalid dates
         [ "D", "D0", "D2004", "D20189999" ].forEach { field in
             let qrcode = makeCode(operationData: "A1*" + field)
             let result = parser.parse(string: qrcode)
-            XCTAssertFalse(result.isSuccess, "Date \(field) should not be accepted.")
+            #expect(!(result.isSuccess), "Date \(field) should not be accepted.")
         }
     }
     
+    @Test
     func testFieldEmpty() {
         let parser = WMTQROperationParser()
         let qrcode = makeCode(operationData: "A1*A10CZK****Ttest")
         guard case .success(let operation) = parser.parse(string: qrcode) else {
-            XCTFail("This should be parsed")
+            Issue.record("This should be parsed")
             return
         }
         let fields = operation.operationData.fields
         guard fields.count == 5 else {
-            XCTFail("Number of fields doesn't match");
+            Issue.record("Number of fields doesn't match")
             return
         }
         guard case .amount(_, _) = fields[0] else {
-            XCTFail("First item must be Amount")
+            Issue.record("First item must be Amount")
             return
         }
         guard case .empty = fields[1] else {
-            XCTFail("2nd item must be Empty")
+            Issue.record("2nd item must be Empty")
             return
         }
         guard case .empty = fields[2] else {
-            XCTFail("3rd item must be Empty")
+            Issue.record("3rd item must be Empty")
             return
         }
         guard case .empty = fields[3] else {
-            XCTFail("4th item must be Empty")
+            Issue.record("4th item must be Empty")
             return
         }
         guard case .text(_) = fields[4] else {
-            XCTFail("5th item must be Text")
+            Issue.record("5th item must be Text")
             return
         }
     }
