@@ -44,6 +44,8 @@ public class WMTPushParser {
             return parseOperationFinished(userInfo)
         case "mtoken.inboxMessage.new":
             return parseInboxMessage(userInfo)
+        case "mtoken.statusChange":
+            return parseActivationStatusChange(userInfo)
         default:
             return nil
         }
@@ -93,6 +95,11 @@ public class WMTPushParser {
         }
         return .inboxMessageReceived(id: inboxId, originalData: userInfo)
     }
+
+    private static func parseActivationStatusChange(_ userInfo: [AnyHashable: Any]) -> WMTPushMessage? {
+        let activationId = userInfo["activationId"] as? String
+        return .activationStatusChanged(activationId: activationId, originalData: userInfo)
+    }
 }
 
 /// Known push message.
@@ -105,6 +112,10 @@ public enum WMTPushMessage {
     
     /// A new inbox message was triggered.
     case inboxMessageReceived(id: String, originalData: [AnyHashable: Any])
+
+    /// The activation status has changed (for example, the activation was blocked or removed).
+    /// The `activationId` is optional because it may not be included in the push payload.
+    case activationStatusChanged(activationId: String?, originalData: [AnyHashable: Any])
 }
 
 /// Action which finished the operation.

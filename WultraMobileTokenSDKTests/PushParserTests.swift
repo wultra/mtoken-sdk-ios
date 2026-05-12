@@ -133,7 +133,38 @@ struct PushParserTests {
     func testInboxNewMessage() {
         #expect(makePush(type: "mtoken.inboxMessage.new", id: nil, name: nil, title: nil, message: nil, opResult: nil, inboxId: "666") != nil)
     }
-    
+
+    @Test
+    func testStatusChangeWithActivationId() {
+        var userInfo = [AnyHashable: Any]()
+        userInfo["messageType"] = "mtoken.statusChange"
+        userInfo["activationId"] = "act-123"
+        guard let push = WMTPushParser.parseNotification(userInfo) else {
+            Issue.record("Failed to parse valid statusChange push.")
+            return
+        }
+        guard case .activationStatusChanged(let activationId, _) = push else {
+            Issue.record("Expected activationStatusChanged push.")
+            return
+        }
+        #expect(activationId == "act-123")
+    }
+
+    @Test
+    func testStatusChangeWithoutActivationId() {
+        var userInfo = [AnyHashable: Any]()
+        userInfo["messageType"] = "mtoken.statusChange"
+        guard let push = WMTPushParser.parseNotification(userInfo) else {
+            Issue.record("Failed to parse valid statusChange push.")
+            return
+        }
+        guard case .activationStatusChanged(let activationId, _) = push else {
+            Issue.record("Expected activationStatusChanged push.")
+            return
+        }
+        #expect(activationId == nil)
+    }
+
     // helper methods
     
     private func makePush(type: String?, id: String?, name: String?, title: String?, message: String?, opResult: String?, inboxId: String? = nil) -> WMTPushMessage? {

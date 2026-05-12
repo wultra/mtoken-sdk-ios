@@ -126,6 +126,9 @@ The `WMTPushMessage` can be following values
 - `inboxMessageReceived` - a new inbox message was triggered.
   -  `id` of the message
   -  `originalData` - data on which was the push message constructed
+- `activationStatusChanged` - the activation status has changed (for example, the activation was blocked or removed).
+  -  `activationId` _(optional)_ of the activation whose status changed
+  -  `originalData` - data on which was the push message constructed
 
 Example push notification processing:
 
