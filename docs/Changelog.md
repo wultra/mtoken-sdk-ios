@@ -4,6 +4,10 @@
 - Raised minimum deployment target from iOS 12.0 to iOS 13.0.
 - Removed deprecated `registerDeviceTokenForPushNotifications` API from `WMTPush`.
 - Added async/throws counterparts for all public callback-based methods in WMTOperations, WMTInbox, WMTPush, and WMTOIDC services.
+- Bumped dependency `PowerAuth2` to `2.0.x` (PowerAuth Mobile SDK 2.0). The `PowerAuthCore` module is no longer required and is no longer linked.
+- Bumped dependency `WultraPowerAuthNetworking` to `2.0.x`.
+- Migrated QR (offline) operation signing to the new asynchronous `PowerAuthSDK.offlineAuthenticationCode(...)` API. The behavior of `WMTOperations.authorize(qrOperation:...)` is unchanged from a caller's perspective.
+- See [Migration from version `2.4.x` to `3.0.x`](Migration-3.0.md) for details.
 
 ## 2.4.0
 - Added multiple PreApprovalScreens support [(#208)](https://github.com/wultra/mtoken-sdk-ios/issues/208).

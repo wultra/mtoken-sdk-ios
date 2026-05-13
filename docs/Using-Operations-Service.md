@@ -514,12 +514,14 @@ let code = "..." // scanned QR value
 let parser = WMTQROperationParser()
 switch parser.parse(string: code) {
 case .success(let op):
-    let isMasterKey = op.signature.signingKey == .master
-    guard powerAuth.verifyServerSignedData(op.signedData, signature: op.signature.signature, masterKey: isMasterKey) else {
+    let key: PowerAuthSignatureKeyId = op.signature.signingKey == .master ? .master_EC : .server_EC
+    do {
+        try powerAuth.verifyDigitalSignature(signature: op.signature.signature, forData: op.signedData, withKey: key)
+    } catch {
         // failed to verify signature
         return
     }
-    // operation is parsed and verify
+    // operation is parsed and verified
 case .failure(let error):
     // failed to parse. See the error for more info.
 }

@@ -50,7 +50,7 @@ public class WMTInbox: WMTService {
             return nil
         }
         
-        return networking.post(data: .init(), signedWith: .possession(), to: WMTInboxEndpoints.Count.endpoint) { response, error in
+        return networking.post(data: .init(), authenticatedWith: .possession(), to: WMTInboxEndpoints.Count.endpoint) { response, error in
             self.processResult(response: response, error: error, completion: completion)
         }
     }
@@ -69,7 +69,7 @@ public class WMTInbox: WMTService {
             return nil
         }
         let data = WMTInboxGetList(page: pageNumber, size: pageSize, onlyUnread: onlyUnread)
-        return networking.post(data: .init(data), signedWith: .possession(), to: WMTInboxEndpoints.MessageList.endpoint) { response, error in
+        return networking.post(data: .init(data), authenticatedWith: .possession(), to: WMTInboxEndpoints.MessageList.endpoint) { response, error in
             self.processResult(response: response, error: error, completion: completion)
         }
     }
@@ -100,7 +100,7 @@ public class WMTInbox: WMTService {
             return nil
         }
         let data = WMTInboxGetMessageDetail(id: messageId)
-        return networking.post(data: .init(data), signedWith: .possession(), to: WMTInboxEndpoints.MessageDetail.endpoint) { response, error in
+        return networking.post(data: .init(data), authenticatedWith: .possession(), to: WMTInboxEndpoints.MessageDetail.endpoint) { response, error in
             self.processResult(response: response, error: error, completion: completion)
         }
     }
@@ -117,7 +117,7 @@ public class WMTInbox: WMTService {
             return nil
         }
         let data = WMTInboxSetMessageRead(id: messageId)
-        return networking.post(data: .init(data), signedWith: .possession(), to: WMTInboxEndpoints.MessageRead.endpoint) { response, error in
+        return networking.post(data: .init(data), authenticatedWith: .possession(), to: WMTInboxEndpoints.MessageRead.endpoint) { response, error in
             self.processResult(response: response, error: error, completion: completion)
         }
     }
@@ -132,7 +132,7 @@ public class WMTInbox: WMTService {
         guard validateActivation(completion) else {
             return nil
         }
-        return networking.post(data: .init(), signedWith: .possession(), to: WMTInboxEndpoints.MessageReadAll.endpoint) { response, error in
+        return networking.post(data: .init(), authenticatedWith: .possession(), to: WMTInboxEndpoints.MessageReadAll.endpoint) { response, error in
             self.processResult(response: response, error: error, completion: completion)
         }
     }

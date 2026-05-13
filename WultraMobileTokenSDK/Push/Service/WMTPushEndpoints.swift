@@ -20,7 +20,7 @@ import WultraPowerAuthNetworking
 enum WMTPushEndpoints {
     
     enum RegisterDevice {
-        typealias EndpointType = WPNEndpointSignedWithToken<WPNRequest<WMTPushRegistrationData>, WPNResponseBase>
-        static let endpoint: EndpointType = WPNEndpointSignedWithToken(endpointURLPath: "/api/push/device/register/token", tokenName: "possession_universal")
+        typealias EndpointType = WPNEndpointAuthenticatedWithToken<WPNRequest<WMTPushRegistrationData>, WPNResponseBase>
+        static let endpoint = EndpointType(endpointURLPath: "/api/push/device/register/token", tokenName: "possession_universal")
     }
 }

@@ -11,15 +11,16 @@ let package = Package(
         .library(name: "WultraMobileTokenSDK", targets: ["WultraMobileTokenSDK"])
     ],
     dependencies: [
-        .package(url: "https://github.com/wultra/powerauth-mobile-sdk-spm.git", .upToNextMinor(from: "1.9.2")),
-        .package(url: "https://github.com/wultra/networking-apple.git", .upToNextMinor(from: "1.5.2"))
+        // PowerAuth Mobile SDK 2.0+ provides full SPM support directly from its main repository.
+        // The `PowerAuthCore` module is no longer exposed; all functionality is provided by `PowerAuth2`.
+        .package(url: "https://github.com/wultra/powerauth-mobile-sdk.git", branch: "develop"),
+        .package(url: "https://github.com/wultra/networking-apple.git", branch: "issues/79-pa-integration")
     ],
     targets: [
         .target(
             name: "WultraMobileTokenSDK",
             dependencies: [
-                .product(name: "PowerAuth2", package: "powerauth-mobile-sdk-spm"),
-                .product(name: "PowerAuthCore", package: "powerauth-mobile-sdk-spm"), 
+                .product(name: "PowerAuth2", package: "powerauth-mobile-sdk"),
                 .product(name: "WultraPowerAuthNetworking", package: "networking-apple")
             ],
             path: "WultraMobileTokenSDK",
