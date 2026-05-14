@@ -121,7 +121,7 @@ public class WMTQROperationParser {
         }
 
         // Rebuild signed data, without pure signature string
-        // Note that the the signatureString in the QR operation contains type as a a first character which is not part of the signature!
+        // Note that the signatureString in the QR operation contains type as a first character which is not part of the signature!
         guard let signedData = string.prefix(string.count - signature.dataSource.count).data(using: .utf8) else {
             D.error("QROperationParser: Failed to convert signed data to UTF-8")
             return .failure(.signatureFormatError)

@@ -72,7 +72,7 @@ try op.verifySignature(for: powerAuth)
 try powerAuth.verifyDigitalSignature(of: op)
 ```
 
-If you need to verify the signature manually, use `signature.data` together with `signature.keyType.powerAuthKey`, which maps each `KeyType` to the appropriate `PowerAuthSignatureKeyId` (`.master_EC`, `.device_EC`, or `.macPersonalized`).
+If you need to verify the signature manually, use `signature.data` together with `signature.keyType.powerAuthKey`, which maps each `KeyType` to the appropriate `PowerAuthSignatureKeyId` (`.master_EC`, `.server_EC`, or `.macPersonalized`).
 
 ### Removed `Cancellable` Typealias
 
@@ -85,9 +85,3 @@ let task: Cancellable = operations.getOperations { ... }
 let task: WMTCancellable = operations.getOperations { ... }
 ```
 
-
-## Behavioral Changes Inside the SDK
-
-These are internal changes that don't require code modifications on your side, but are worth being aware of:
-
-- The QR (offline) operation signing path inside `WMTOperations.authorize(qrOperation:...)` now uses PowerAuth's new asynchronous `offlineAuthenticationCode(...)` API. The `authorize(qrOperation:...)` method's signature, behavior, and threading guarantees are unchanged for callers.

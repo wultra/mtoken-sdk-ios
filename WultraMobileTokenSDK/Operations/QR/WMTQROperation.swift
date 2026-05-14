@@ -154,7 +154,7 @@ public struct WMTQROperationSignature {
     /// Signature data
     public let data: Data
     
-    /// Original Base64 data source as recieved from the payload
+    /// Original Base64 data source as received from the payload
     internal let dataSource: String
     
     internal init?(keyType: KeyType, dataSource: String) {
