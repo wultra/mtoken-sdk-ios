@@ -4,6 +4,7 @@
 - Raised minimum deployment target from iOS 12.0 to iOS 13.0.
 - Removed deprecated `registerDeviceTokenForPushNotifications` API from `WMTPush`.
 - Added async/throws counterparts for all public callback-based methods in WMTOperations, WMTInbox, WMTPush, and WMTOIDC services.
+- Added handling of `mtoken.statusChange` push notifications in `WMTPushParser` [(#227)](https://github.com/wultra/mtoken-sdk-ios/issues/227).
 
 ## 2.4.0
 - Added multiple PreApprovalScreens support [(#208)](https://github.com/wultra/mtoken-sdk-ios/issues/208).
