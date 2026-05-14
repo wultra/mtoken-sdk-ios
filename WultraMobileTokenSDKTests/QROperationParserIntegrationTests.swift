@@ -23,33 +23,10 @@ import Testing
 /// `PowerAuthSDK` instance. These tests require a valid, activated
 /// PowerAuth activation backed by a running server – see
 /// `WultraMobileTokenSDKTests/Configs/Readme.md` for setup instructions.
-final class QROperationParserIntegrationTests {
-    
-    private let proxy: IntegrationProxy
-    private let wmt: WultraMobileToken
-    private var pa: PowerAuthSDK { proxy.powerAuth! }
-    private var ops: WMTOperations { wmt.operations }
-    
-    private let pin = "1234"
+final class QROperationParserIntegrationTests: BaseIntegrationTests {
     
     init() async throws {
-        WMTLogger.verboseLevel = .debug
-        let loaded = try #require(TestConfiguration.load(), "Missing config.json — see WultraMobileTokenSDKTests/Configs/Readme.md")
-        proxy = IntegrationProxy(config: loaded.config, pin: pin)
-        try await proxy.initializePowerauth()
-        try await proxy.prepareActivation()
-        wmt = try proxy.powerAuth!.createWultraMobileToken()
-    }
-    
-    deinit {
-        let auth = PowerAuthAuthentication.possessionWithPassword(password: pin)
-        let semaphore = DispatchSemaphore(value: 0)
-        if let pa = proxy.powerAuth {
-            pa.removeActivation(with: auth) { _ in
-                semaphore.signal()
-            }
-            semaphore.wait()
-        }
+        try await super.init()
     }
     
     // MARK: - Parser with PowerAuth
@@ -131,5 +108,37 @@ final class QROperationParserIntegrationTests {
         // Parse without automatic verification, then verify manually.
         let qrOp = try WMTQROperationParser().parse(string: qrData.operationQrCodeData).get()
         try pa.verifyDigitalSignature(of: qrOp)
+    }
+}
+
+// MARK: - Legacy P256 algorithm
+
+/// QR operation parser tests with `PowerAuthAlgorithm.LEGACY_P256`.
+/// The legacy algorithm uses ECDSA personalized keys instead of KMAC,
+/// so the parsed signature key type must be `.personalized`.
+final class QROperationParserLegacyP256IntegrationTests: BaseIntegrationTests {
+    
+    init() async throws {
+        try await super.init(algorithm: .LEGACY_P256)
+    }
+    
+    /// With `LEGACY_P256`, the QR operation is signed with a personalized
+    /// ECDSA key. The parser must report `.personalized` key type and the
+    /// full authorize + OTP verification flow must succeed.
+    @Test
+    func testParseWithLegacyP256() async throws {
+        let op = try await proxy.createOperation()
+        let qrData = try await proxy.getQROperation(operationId: op.operationId)
+        
+        let parser = WMTQROperationParser(powerAuth: pa)
+        let qrOp = try parser.parse(string: qrData.operationQrCodeData).get()
+        
+        #expect(qrOp.operationId == op.operationId)
+        #expect(qrOp.signature.keyType == .personalized, "Legacy P256 should use personalized ECDSA key, not MAC")
+        
+        let auth = PowerAuthAuthentication.possessionWithPassword(password: pin)
+        let otp = try await ops.authorize(qrOperation: qrOp, authentication: auth)
+        let verified = try await proxy.verifyQROperation(operationId: op.operationId, operationData: qrData, otp: otp)
+        #expect(verified.otpValid, "OTP should be valid for legacy P256 QR operation")
     }
 }

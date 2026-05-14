@@ -127,12 +127,12 @@ public struct WMTQROperationSignature {
         ///
         /// Mapping:
         /// - ``master`` → ``PowerAuthSignatureKeyId/master_EC``
-        /// - ``personalized`` → ``PowerAuthSignatureKeyId/device_EC``
+        /// - ``personalized`` → ``PowerAuthSignatureKeyId/server_EC``
         /// - ``macPersonalized`` → ``PowerAuthSignatureKeyId/macPersonalized``
         public var powerAuthKey: PowerAuthSignatureKeyId {
             switch self {
             case .master: return .master_EC
-            case .personalized: return .device_EC
+            case .personalized: return .server_EC
             case .macPersonalized: return .macPersonalized
             }
         }

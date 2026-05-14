@@ -24,35 +24,13 @@ import Testing
  configuration json file. To more information, visit `WultraMobileTokenSDKTests/Configs/Readme.md`.
  */
 
-final class IntegrationTests {
+final class IntegrationTests: BaseIntegrationTests {
     
-    private let proxy: IntegrationProxy
-    private let wmt: WultraMobileToken
-    private var pa: PowerAuthSDK { proxy.powerAuth! }
-    private var ops: WMTOperations { wmt.operations }
-    private var inbox: WMTInbox { wmt.inbox }
-    private var push: WMTPush { wmt.push }
-    
-    private let pin = "1234"
+    var inbox: WMTInbox { wmt.inbox }
+    var push: WMTPush { wmt.push }
     
     init() async throws {
-        WMTLogger.verboseLevel = .debug
-        let loaded = try #require(TestConfiguration.load(), "Missing config.json — see WultraMobileTokenSDKTests/Configs/Readme.md")
-        proxy = IntegrationProxy(config: loaded.config, pin: pin)
-        try await proxy.initializePowerauth()
-        try await proxy.prepareActivation()
-        wmt = try proxy.powerAuth!.createWultraMobileToken()
-    }
-    
-    deinit {
-        let auth = PowerAuthAuthentication.possessionWithPassword(password: pin)
-        let semaphore = DispatchSemaphore(value: 0)
-        if let pa = proxy.powerAuth {
-            pa.removeActivation(with: auth) { _ in
-                semaphore.signal()
-            }
-            semaphore.wait()
-        }
+        try await super.init()
     }
     
     /// By default, operation list should be empty
