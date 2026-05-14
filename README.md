@@ -1,39 +1,35 @@
 # Wultra Mobile Token SDK for iOS
 
 <!-- begin remove -->
-<p align="center"><img src="docs/images/intro.png" alt="Wultra Mobile Token SDK for Android" width="60%" /></p>
+<p align="center"><img src="docs/images/intro.jpg" alt="Wultra Mobile Token SDK for iOS" /></p>
 
-![build](https://github.com/wultra/mtoken-sdk-ios/workflows/build/badge.svg) 
+![build](https://github.com/wultra/mtoken-sdk-ios/workflows/build/badge.svg)
 ![tests](https://github.com/wultra/mtoken-sdk-ios/workflows/tests/badge.svg)
 ![GitHub release (latest by date)](https://img.shields.io/github/v/release/wultra/mtoken-sdk-ios)
-![date](https://img.shields.io/github/release-date/wultra/mtoken-sdk-ios) 
-![SPM](https://img.shields.io/badge/Swift_Package_Manager-%F0%9F%91%8D-F4412B) 
-[![pod](https://img.shields.io/badge/CocoaPods-%F0%9F%91%8D-fb0006)](https://cocoapods.org/pods/WultraMobileTokenSDK) 
-![platform](https://img.shields.io/cocoapods/p/WultraMobileTokenSDK) 
-[![license](https://img.shields.io/github/license/wultra/mtoken-sdk-ios)](LICENSE)  
+![date](https://img.shields.io/github/release-date/wultra/mtoken-sdk-ios)
+![SPM](https://img.shields.io/badge/Swift_Package_Manager-%F0%9F%91%8D-F4412B)
+[![pod](https://img.shields.io/badge/CocoaPods-%F0%9F%91%8D-fb0006)](https://cocoapods.org/pods/WultraMobileTokenSDK)
+![platform](https://img.shields.io/cocoapods/p/WultraMobileTokenSDK)
+[![license](https://img.shields.io/github/license/wultra/mtoken-sdk-ios)](LICENSE)
 
 __Wultra Mobile Token SDK__ is a high-level SDK for operation approval.
 
 ## Introduction
- 
-<!-- begin remove -->
-<img align="right" src="docs/images/il-mobile-token.svg" width="40%" />
-<!-- end -->
- 
+
 With Wultra Mobile Token (WMT) SDK, you can integrate an out-of-band operation approval into an existing mobile app, instead of using a standalone mobile token application. WMT is built on top of [PowerAuth Mobile SDK](https://github.com/wultra/powerauth-mobile-sdk). It communicates with the [Mobile Token API](https://developers.wultra.com/components/enrollment-server/develop/documentation/Mobile-Token-API).
 
 To understand the Wultra Mobile Token SDK purpose on a business level better, you can visit our own [Mobile Token application](https://www.wultra.com/mobile-token). We use Wultra Mobile Token SDK in our mobile token application as well.
 
 WMT SDK library does precisely this:
 
-- Retrieves the list of operations that are pending approval for a given user.
-- Approves or rejects operations with PowerAuth transaction signing.
+- Retrieves, approves, or rejects operations pending approval for a given user.
 - Registers an existing PowerAuth activation to receive push notifications.
+- Manages user's inbox messages.
+- Handles OpenID Connect (OIDC) authentication flows.
 
-Remarks:
-
-- This library does not contain any UI.
-- We also provide an [Android version of this library](https://github.com/wultra/mtoken-sdk-android). 
+> [!NOTE]
+> - This library does not contain any UI.
+> - We also provide an [Android version of this library](https://github.com/wultra/mtoken-sdk-android).
 
 ## Documentation
 
