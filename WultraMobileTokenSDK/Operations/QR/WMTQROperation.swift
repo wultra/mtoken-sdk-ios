@@ -15,6 +15,7 @@
 //
 
 import Foundation
+import PowerAuth2
 
 /// The `WMTQROperationData` contains data operation data parsed from QR code.
 public struct WMTQROperation {
@@ -43,7 +44,7 @@ public struct WMTQROperation {
     /// Data for signature validation
     public let signedData: Data
     
-    /// ECDSA signature calculated from `signedData`. String is in Base64 format
+    /// Signature calculated from `signedData`.
     public let signature: WMTQROperationSignature
     
     /// QR code uses a string in newer format that this class implements.
@@ -61,22 +62,70 @@ public struct WMTQROperation {
             return "\(operationId)&\(operationData.sourceString)".data(using: .utf8)!
         }
     }
+    
+    // TODO: docs
+    public func verifySignature(for powerAuth: PowerAuthSDK) throws {
+        try powerAuth.verifyDigitalSignature(signature: signature.data, forData: signedData, withKey: signature.keyType.powerAuthKey)
+    }
 }
 
 public struct WMTQROperationSignature {
-    /// The enumeration defines which key was used for ECDSA signature calculation
-    public enum SigningKey {
-        /// Master server key was used for ECDSA signature calculation
+    /// The enumeration defines which key was used for signature calculation
+    public enum KeyType {
+        /// Master server key was used for signature calculation
         case master
-        /// Personalized server's private key was used for ECDSA signature calculation
+        /// Personalized server's private key was used for calculation
         case personalized
+        /// KMAC-based symmetric key for MAC verification
+        case macPersonalized
+        
+        internal func validate(signature: WMTQROperationSignature) -> Bool {
+            let data = signature.data
+            switch self {
+            case .macPersonalized:
+                return data.count == 32
+            case .master, .personalized:
+                return data.count >= 64 && data.count <= 255
+            }
+        }
+        
+        /// TODO: write docs
+        public var powerAuthKey: PowerAuthSignatureKeyId {
+            switch self {
+            case .master: return .master_EC
+            case .personalized: return .device_EC
+            case .macPersonalized: return .macPersonalized
+            }
+        }
+        
+        // TODO: docs
+        static internal func from(_ substring: Substring) -> KeyType? {
+            switch substring {
+            case "0": return .master
+            case "1": return .personalized
+            case "2": return .macPersonalized
+            default: return nil
+            }
+        }
     }
     
-    /// Defines which key has been used for ECDSA signature calculation.
-    public let signingKey: SigningKey
+    /// Defines which key has been used for signature calculation.
+    public let keyType: KeyType
     
-    /// Signature in Base64 format
-    public let signature: String
+    /// Signature data
+    public let data: Data
+    
+    /// Original Base64 data source as recieved from the payload
+    internal let dataSource: String
+    
+    internal init?(keyType: KeyType, dataSource: String) {
+        guard let data = Data(base64Encoded: dataSource) else {
+            return nil
+        }
+        self.keyType = keyType
+        self.data = data
+        self.dataSource = dataSource
+    }
 }
 
 /// The `WMTQROperationFlags` structure defines flags associated with the operation

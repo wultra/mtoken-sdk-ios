@@ -71,7 +71,8 @@ public class WMTQROperationParser {
         }
 
         // Rebuild signed data, without pure signature string
-        guard let signedData = string.prefix(string.count - signature.signature.count).data(using: .utf8) else { return .failure(.signatureFormatError) }
+        // Note that the the signatureString in the QR operation contains type as a a first character which is not part of the signature!
+        guard let signedData = string.prefix(string.count - signature.dataSource.count).data(using: .utf8) else { return .failure(.signatureFormatError) }
         
         // Parse flags
         let flags = parseOperationFlags(string: flagsString)
@@ -258,20 +259,25 @@ public class WMTQROperationParser {
         if string.isEmpty {
             return nil
         }
-        let signingKey: WMTQROperationSignature.SigningKey
-        switch string.prefix(1) {
-        case "0":
-            signingKey = .master
-        case "1":
-            signingKey = .personalized
-        default:
+        // first character in the string is KEY TYPE
+        guard let signingKey = WMTQROperationSignature.KeyType.from(string.prefix(1)) else {
             return nil
         }
-        let signature = String(string.suffix(string.count - 1))
-        if !validateBase64String(signature, min: 64, max: 255) {
+        
+        // The rest is a base64 encoded key
+        let signatureString = String(string.suffix(string.count - 1))
+        
+        // Encode the key to raw data
+        guard let signature = WMTQROperationSignature(keyType: signingKey, dataSource: signatureString) else {
             return nil
         }
-        return WMTQROperationSignature(signingKey: signingKey, signature: signature)
+        
+        // Validate key format
+        guard signingKey.validate(signature: signature) else {
+            return nil
+        }
+        
+        return signature
     }
     
     /// Parses amount field into field enumeration.

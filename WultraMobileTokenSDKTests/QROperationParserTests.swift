@@ -63,8 +63,8 @@ struct QROperationParserTests {
         #expect(operation.flags.fraudWarning == true)
         #expect(operation.flags.blockWhenOnCall == true)
         #expect(operation.nonce == "AD8bOO0Df73kNaIGb3Vmpg==")
-        #expect(operation.signature.signature == "MEYCIQDby1Uq+MaxiAAGzKmE/McHzNOUrvAP2qqGBvSgcdtyjgIhAMo1sgqNa1pPZTFBhhKvCKFLGDuHuTTYexdmHFjUUIJW")
-        #expect(operation.signature.signingKey == .master)
+        #expect(operation.signature.data == Data(base64Encoded: "MEYCIQDby1Uq+MaxiAAGzKmE/McHzNOUrvAP2qqGBvSgcdtyjgIhAMo1sgqNa1pPZTFBhhKvCKFLGDuHuTTYexdmHFjUUIJW"))
+        #expect(operation.signature.keyType == .master)
         #expect(operation.signedData == expectedSignedData)
         
         // Operation data
@@ -132,8 +132,8 @@ struct QROperationParserTests {
         #expect(operation.flags.blockWhenOnCall == true)
         #expect(operation.totp == "12345678")
         #expect(operation.nonce == "AD8bOO0Df73kNaIGb3Vmpg==")
-        #expect(operation.signature.signature == "MEYCIQDby1Uq+MaxiAAGzKmE/McHzNOUrvAP2qqGBvSgcdtyjgIhAMo1sgqNa1pPZTFBhhKvCKFLGDuHuTTYexdmHFjUUIJW")
-        #expect(operation.signature.signingKey == .master)
+        #expect(operation.signature.data == Data(base64Encoded:"MEYCIQDby1Uq+MaxiAAGzKmE/McHzNOUrvAP2qqGBvSgcdtyjgIhAMo1sgqNa1pPZTFBhhKvCKFLGDuHuTTYexdmHFjUUIJW"))
+        #expect(operation.signature.keyType == .master)
         #expect(operation.signedData == expectedSignedData)
         
         // Operation data
@@ -142,6 +142,8 @@ struct QROperationParserTests {
         #expect(operation.operationData.fields.count == 4)
         #expect(operation.operationData.sourceString == "A1*A100CZK*ICZ2730300000001165254011*D20180425*Thello world")
     }
+    
+    // TODO: write test for keyType .macPersonalized
     
     @Test
     func testForwardCompatibility() {

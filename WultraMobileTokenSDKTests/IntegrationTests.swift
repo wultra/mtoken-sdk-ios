@@ -374,6 +374,7 @@ final class IntegrationTests {
         let qrData = try await proxy.getQROperation(operationId: op.operationId)
         measure.mark("QR data retrieved")
         let qrOp = try WMTQROperationParser().parse(string: qrData.operationQrCodeData).get()
+        try qrOp.verifySignature(for: pa)
         let auth = PowerAuthAuthentication.possessionWithPassword(password: pin)
         let otp = try await ops.authorize(qrOperation: qrOp, authentication: auth)
         measure.mark("Authorized")
