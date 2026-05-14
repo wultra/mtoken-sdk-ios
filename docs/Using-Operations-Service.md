@@ -507,6 +507,23 @@ In case the user is not online, you can use off-line authorizations. In this ope
 
 ### Processing Scanned QR Operation
 
+You can verify the QR operation signature automatically during parsing by passing a `PowerAuthSDK` instance to the parser. If the signature is invalid, parsing fails with `signatureVerificationFailed`:
+
+```swift
+import WultraMobileTokenSDK
+
+let code = "..." // scanned QR value
+let parser = WMTQROperationParser(powerAuth: powerAuth)
+switch parser.parse(string: code) {
+case .success(let op):
+    // operation is parsed and signature is verified
+case .failure(let error):
+    // failed to parse or verify. See the error for more info.
+}
+```
+
+Alternatively, you can create a parser without `PowerAuthSDK` and verify the signature manually:
+
 ```swift
 import WultraMobileTokenSDK
 
@@ -516,6 +533,8 @@ switch parser.parse(string: code) {
 case .success(let op):
     do {
         try op.verifySignature(for: powerAuth)
+        // or equivalently:
+        // try powerAuth.verifyDigitalSignature(of: op)
     } catch {
         // failed to verify signature
         return

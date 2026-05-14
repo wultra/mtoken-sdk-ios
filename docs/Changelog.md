@@ -13,6 +13,8 @@
     - Added new `macPersonalized` key type for KMAC-based MAC signatures (32-byte payload).
     - Replaced the Base64 `signature: String` property with raw `data: Data`.
     - Added `WMTQROperation.verifySignature(for:)` convenience method that verifies the signature using the proper PowerAuth key based on `keyType`.
+    - Added `PowerAuthSDK.verifyDigitalSignature(of:)` extension for verifying a `WMTQROperation` directly from a `PowerAuthSDK` instance.
+    - `WMTQROperationParser` can now accept an optional `PowerAuthSDK` instance via `init(powerAuth:)` to automatically verify the operation signature during parsing. Invalid signatures produce the new `signatureVerificationFailed` error.
 - See [Migration from version `2.4.x` to `3.0.x`](Migration-3.0.md) for details.
 
 ## 2.4.0

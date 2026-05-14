@@ -76,7 +76,26 @@ public struct WMTQROperation {
     /// - Throws: An error if the signature is invalid or cannot be verified
     ///           (for example, when the activation does not contain the required key).
     public func verifySignature(for powerAuth: PowerAuthSDK) throws {
-        try powerAuth.verifyDigitalSignature(signature: signature.data, forData: signedData, withKey: signature.keyType.powerAuthKey)
+        try powerAuth.verifyDigitalSignature(of: self)
+    }
+}
+
+public extension PowerAuthSDK {
+    
+    /// Verifies the digital signature of a parsed QR operation.
+    ///
+    /// This is a convenience wrapper that calls ``WMTQROperation/verifySignature(for:)``
+    /// on the provided operation. It selects the correct verification key automatically
+    /// based on the operation's ``WMTQROperationSignature/keyType``.
+    ///
+    /// - Parameter qrOperation: The parsed QR operation whose signature should be verified.
+    /// - Throws: An error if the signature is invalid or cannot be verified.
+    func verifyDigitalSignature(of qrOperation: WMTQROperation) throws {
+        try verifyDigitalSignature(
+            signature: qrOperation.signature.data,
+            forData: qrOperation.signedData,
+            withKey: qrOperation.signature.keyType.powerAuthKey
+        )
     }
 }
 

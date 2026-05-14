@@ -46,16 +46,30 @@ The `WMTQROperationSignature` type has been reworked to support post-quantum-rea
 | `signature.signature: String` (Base64) | `signature.data: Data` (raw) |
 | _n/a_ | `.macPersonalized` case (32-byte MAC) |
 | _n/a_ | `WMTQROperation.verifySignature(for: PowerAuthSDK)` |
+| _n/a_ | `PowerAuthSDK.verifyDigitalSignature(of: WMTQROperation)` |
+| _n/a_ | `WMTQROperationParser(powerAuth: PowerAuthSDK?)` |
+| _n/a_ | `WMTQROperationParserError.signatureVerificationFailed` |
 
-The recommended way to verify a parsed QR operation is the new convenience method:
+The recommended way to verify a parsed QR operation is to pass a `PowerAuthSDK` instance to the parser during initialization. The parser then verifies the signature automatically and returns `signatureVerificationFailed` if it is invalid:
+
+```swift
+// After (3.0.x) — recommended: automatic verification during parsing
+let parser = WMTQROperationParser(powerAuth: powerAuth)
+let op = try parser.parse(string: code).get()
+// signature is already verified
+```
+
+You can also verify manually using either the operation or the `PowerAuthSDK` extension:
 
 ```swift
 // Before (2.4.x)
 let key: PowerAuthSignatureKeyId = op.signature.signingKey == .master ? .master_EC : .server_EC
 try powerAuth.verifyDigitalSignature(signature: op.signature.signature, forData: op.signedData, withKey: key)
 
-// After (3.0.x)
+// After (3.0.x) — manual verification
 try op.verifySignature(for: powerAuth)
+// or equivalently:
+try powerAuth.verifyDigitalSignature(of: op)
 ```
 
 If you need to verify the signature manually, use `signature.data` together with `signature.keyType.powerAuthKey`, which maps each `KeyType` to the appropriate `PowerAuthSignatureKeyId` (`.master_EC`, `.device_EC`, or `.macPersonalized`).

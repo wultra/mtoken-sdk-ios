@@ -15,15 +15,46 @@
 //
 
 import Foundation
+import PowerAuth2
 
 public typealias WMTQROperationParseResult = Result<WMTQROperation, WMTQROperationParserError>
 
-/// Parser for QR operation
+/// Parser for QR operation data encoded in a scanned QR code.
+///
+/// When created with a `PowerAuthSDK` instance, the parser automatically verifies the
+/// operation's digital signature during ``parse(string:)``. If verification fails, the
+/// parse result contains ``WMTQROperationParserError/signatureVerificationFailed``.
+/// When created without one (using the parameterless ``init()``), signature verification
+/// is left to the caller.
 public class WMTQROperationParser {
     
+    private let powerAuth: PowerAuthSDK?
+    
+    /// A private date formatter used for D{DATE} parsing
+    private let dateFormatter: DateFormatter = {
+        let formatted = DateFormatter()
+        formatted.dateFormat = "yyyyMMdd"
+        return formatted
+    }()
+    
+    /// Creates a parser that automatically verifies the operation's signature during ``parse(string:)``.
+    ///
+    /// Every successfully parsed operation is verified against the server's public keys held
+    /// by the provided `PowerAuthSDK` instance. If the signature cannot
+    /// be verified, ``parse(string:)`` returns ``WMTQROperationParserError/signatureVerificationFailed``.
+    ///
+    /// - Parameter powerAuth: The `PowerAuthSDK` instance to use for verification.
+    public init(powerAuth: PowerAuthSDK) {
+        self.powerAuth = powerAuth
+    }
+    
+    /// Creates a parser without automatic signature verification.
+    ///
+    /// The caller is responsible for verifying the operation's signature after parsing,
+    /// for example by calling ``WMTQROperation/verifySignature(for:)`` or
+    /// ``PowerAuthSDK/verifyDigitalSignature(of:)``.
     public init() {
-        dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "yyyyMMdd"
+        self.powerAuth = nil
     }
 
     /// Minimum lines in input string supported by this parser
@@ -35,7 +66,15 @@ public class WMTQROperationParser {
     /// Maximum number of operation data fields supported in this version.
     private static let maximumDataFields = 6
 
-    /// Parses input string into `WMTQROperationData` structure.
+    /// Parses input string into `WMTQROperation` structure.
+    ///
+    /// If this parser was created with a `PowerAuthSDK` instance, the parsed operation's
+    /// signature is automatically verified before returning. A verification failure produces
+    /// ``WMTQROperationParserError/signatureVerificationFailed``.
+    ///
+    /// - Parameter string: The raw string value scanned from the QR code.
+    /// - Returns: A `Result` containing the parsed ``WMTQROperation`` on success, or a
+    ///   ``WMTQROperationParserError`` on failure.
     public func parse(string: String) -> WMTQROperationParseResult {
         // Split string by newline
         let attributes = string.split(separator: "\n", omittingEmptySubsequences: false)
@@ -79,7 +118,7 @@ public class WMTQROperationParser {
         let isNewerFormat = attributes.count > WMTQROperationParser.currentAttributeFields
 
         // Build final structure
-        return .success(WMTQROperation(
+        let operation = WMTQROperation(
             operationId: operationId,
             title: title,
             message: message,
@@ -90,7 +129,17 @@ public class WMTQROperationParser {
             signedData: signedData,
             signature: signature,
             isNewerFormat: isNewerFormat)
-        )
+        
+        // Verify signature when PowerAuthSDK is available
+        if let powerAuth = self.powerAuth {
+            do {
+                try operation.verifySignature(for: powerAuth)
+            } catch {
+                return .failure(.signatureVerificationFailed)
+            }
+        }
+        
+        return .success(operation)
     }
     
     /// Parses and translates input string into `QROperationFormData` structure. If nil is returned,
@@ -326,9 +375,6 @@ public class WMTQROperationParser {
         return .account(iban: iban, bic: bic)
     }
     
-    /// A private date formatter used for D{DATE} parsing
-    private let dateFormatter: DateFormatter
-    
     /// Parses YYYYMMDD date into field enumeration
     private func parseDate(from string: String) -> WMTQROperationData.Field? {
         let dateString = string.suffix(string.count - 1)
@@ -388,6 +434,10 @@ public enum WMTQROperationParserError: Error {
     
     /// Operation has too many data fields. Maximum is 5
     case tooManyDataFields
+    
+    /// The operation's digital signature could not be verified against the `PowerAuthSDK` instance
+    /// provided to ``WMTQROperationParser/init(powerAuth:)``.
+    case signatureVerificationFailed
 }
 
 public extension WMTQROperationParseResult {
