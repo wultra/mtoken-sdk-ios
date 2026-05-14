@@ -63,7 +63,18 @@ public struct WMTQROperation {
         }
     }
     
-    // TODO: docs
+    /// Verifies the signature of the QR operation against the server's public keys held by the provided `PowerAuthSDK` instance.
+    ///
+    /// The method picks the correct verification key based on `signature.keyType`
+    /// (see ``WMTQROperationSignature/KeyType/powerAuthKey``) and validates `signature.data`
+    /// against `signedData`.
+    ///
+    /// Call this after parsing the QR code and before presenting the operation to the user,
+    /// so the user is never asked to confirm an operation whose signature cannot be verified.
+    ///
+    /// - Parameter powerAuth: The `PowerAuthSDK` instance used to verify the signature.
+    /// - Throws: An error if the signature is invalid or cannot be verified
+    ///           (for example, when the activation does not contain the required key).
     public func verifySignature(for powerAuth: PowerAuthSDK) throws {
         try powerAuth.verifyDigitalSignature(signature: signature.data, forData: signedData, withKey: signature.keyType.powerAuthKey)
     }
@@ -79,6 +90,7 @@ public struct WMTQROperationSignature {
         /// KMAC-based symmetric key for MAC verification
         case macPersonalized
         
+        /// Validates the key length
         internal func validate(signature: WMTQROperationSignature) -> Bool {
             let data = signature.data
             switch self {
@@ -89,7 +101,15 @@ public struct WMTQROperationSignature {
             }
         }
         
-        /// TODO: write docs
+        /// PowerAuth signature key identifier that corresponds to this key type.
+        ///
+        /// Use this value when verifying the QR operation's signature with
+        /// `PowerAuthSDK.verifyDigitalSignature(signature:forData:withKey:)`.
+        ///
+        /// Mapping:
+        /// - ``master`` → ``PowerAuthSignatureKeyId/master_EC``
+        /// - ``personalized`` → ``PowerAuthSignatureKeyId/device_EC``
+        /// - ``macPersonalized`` → ``PowerAuthSignatureKeyId/macPersonalized``
         public var powerAuthKey: PowerAuthSignatureKeyId {
             switch self {
             case .master: return .master_EC
@@ -98,7 +118,7 @@ public struct WMTQROperationSignature {
             }
         }
         
-        // TODO: docs
+        /// Parses the leading key-type character of the QR signature payload.
         static internal func from(_ substring: Substring) -> KeyType? {
             switch substring {
             case "0": return .master

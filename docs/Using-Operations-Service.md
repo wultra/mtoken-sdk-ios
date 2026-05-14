@@ -514,9 +514,8 @@ let code = "..." // scanned QR value
 let parser = WMTQROperationParser()
 switch parser.parse(string: code) {
 case .success(let op):
-    let key: PowerAuthSignatureKeyId = op.signature.signingKey == .master ? .master_EC : .server_EC
     do {
-        try powerAuth.verifyDigitalSignature(signature: op.signature.signature, forData: op.signedData, withKey: key)
+        try op.verifySignature(for: powerAuth)
     } catch {
         // failed to verify signature
         return

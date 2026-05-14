@@ -33,7 +33,43 @@ PowerAuth 2.0 raises the minimum deployment target to **iOS 13.0** (and macCatal
 
 ## Source-Code Migration
 
-The Mobile Token SDK's public Swift API has not changed. You only need to adjust the parts of your application that interact directly with `PowerAuthSDK`. Refer to the upstream [PowerAuth Mobile SDK 2.0 migration guide](https://github.com/wultra/powerauth-mobile-sdk/blob/develop/docs/Migration-from-1.9-to-2.0.md) for the full list. 
+Most of the Mobile Token SDK's public Swift API is unchanged. You need to adjust the parts of your application that interact directly with `PowerAuthSDK` (refer to the upstream [PowerAuth Mobile SDK 2.0 migration guide](https://github.com/wultra/powerauth-mobile-sdk/blob/develop/docs/Migration-from-1.9-to-2.0.md) for the full list), and a few QR-operation symbols described below.
+
+### QR Operation Signature
+
+The `WMTQROperationSignature` type has been reworked to support post-quantum-ready offline signatures (KMAC-based MAC signatures) alongside the existing ECDSA-based master and personalized signatures.
+
+| Old (2.4.x) | New (3.0.x) |
+|---|---|
+| `WMTQROperationSignature.SigningKey` | `WMTQROperationSignature.KeyType` |
+| `signature.signingKey` | `signature.keyType` |
+| `signature.signature: String` (Base64) | `signature.data: Data` (raw) |
+| _n/a_ | `.macPersonalized` case (32-byte MAC) |
+| _n/a_ | `WMTQROperation.verifySignature(for: PowerAuthSDK)` |
+
+The recommended way to verify a parsed QR operation is the new convenience method:
+
+```swift
+// Before (2.4.x)
+let key: PowerAuthSignatureKeyId = op.signature.signingKey == .master ? .master_EC : .server_EC
+try powerAuth.verifyDigitalSignature(signature: op.signature.signature, forData: op.signedData, withKey: key)
+
+// After (3.0.x)
+try op.verifySignature(for: powerAuth)
+```
+
+If you need to verify the signature manually, use `signature.data` together with `signature.keyType.powerAuthKey`, which maps each `KeyType` to the appropriate `PowerAuthSignatureKeyId` (`.master_EC`, `.device_EC`, or `.macPersonalized`).
+
+### Removed `Cancellable` Typealias
+
+The deprecated `Cancellable` typealias has been removed. Use `WMTCancellable` directly.
+
+```swift
+// Before
+let task: Cancellable = operations.getOperations { ... }
+// After
+let task: WMTCancellable = operations.getOperations { ... }
+```
 
 
 ## Behavioral Changes Inside the SDK
