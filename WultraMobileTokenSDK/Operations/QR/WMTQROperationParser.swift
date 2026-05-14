@@ -78,7 +78,10 @@ public class WMTQROperationParser {
     public func parse(string: String) -> WMTQROperationParseResult {
         // Split string by newline
         let attributes = string.split(separator: "\n", omittingEmptySubsequences: false)
-        guard attributes.count >= WMTQROperationParser.minimumAttributeFields else { return .failure(.minimumAttributeFieldsRequired) }
+        guard attributes.count >= WMTQROperationParser.minimumAttributeFields else {
+            D.error("QROperationParser: Not enough attribute fields (\(attributes.count)), minimum is \(WMTQROperationParser.minimumAttributeFields)")
+            return .failure(.minimumAttributeFieldsRequired)
+        }
         
         // Acquire all attributes
         let operationId     = String(attributes[0])
@@ -92,13 +95,21 @@ public class WMTQROperationParser {
         let signatureString = attributes[attributes.count - 1]
 
         // Validate operationId
-        guard !operationId.isEmpty else { return .failure(.noOperationId) }
+        guard !operationId.isEmpty else {
+            D.error("QROperationParser: Operation ID is empty")
+            return .failure(.noOperationId)
+        }
         
         // Validate signature
-        guard let signature = parseSignature(signatureString) else { return .failure(.invalidSignature) }
+        guard let signature = parseSignature(signatureString) else {
+            return .failure(.invalidSignature)
+        }
         
         // Validate Nonce
-        guard validateBase64String(nonce, min: 16, max: 16) else { return .failure(.invalidNonce) }
+        guard validateBase64String(nonce, min: 16, max: 16) else {
+            D.error("QROperationParser: Invalid nonce (not a valid 16-byte Base64 string)")
+            return .failure(.invalidNonce)
+        }
         
         // Parse operation data fields
         let formData: WMTQROperationData
@@ -111,7 +122,10 @@ public class WMTQROperationParser {
 
         // Rebuild signed data, without pure signature string
         // Note that the the signatureString in the QR operation contains type as a a first character which is not part of the signature!
-        guard let signedData = string.prefix(string.count - signature.dataSource.count).data(using: .utf8) else { return .failure(.signatureFormatError) }
+        guard let signedData = string.prefix(string.count - signature.dataSource.count).data(using: .utf8) else {
+            D.error("QROperationParser: Failed to convert signed data to UTF-8")
+            return .failure(.signatureFormatError)
+        }
         
         // Parse flags
         let flags = parseOperationFlags(string: flagsString)
@@ -135,6 +149,7 @@ public class WMTQROperationParser {
             do {
                 try operation.verifySignature(for: powerAuth)
             } catch {
+                D.error("QROperationParser: Signature verification failed: \(error)")
                 return .failure(.signatureVerificationFailed)
             }
         }
@@ -147,28 +162,29 @@ public class WMTQROperationParser {
     private func parseOperationData(string: String) -> Result<WMTQROperationData, WMTQROperationParserError> {
         let stringFields = splitOperationData(string: string)
         if stringFields.isEmpty {
-            // No fields at all
+            D.error("QROperationParser: Operation data string is empty")
             return .failure(.noOperationData)
         }
         
         // Get and check version
         let versionString = stringFields.first!
         guard let versionChar = versionString.first else {
-            // First fields is empty string
+            D.error("QROperationParser: Version string is empty")
             return .failure(.invalidVersionString)
         }
         if versionChar < "A" || versionChar > "Z" {
-            // Version has to be an one capital letter
+            D.error("QROperationParser: Invalid version character '\(versionChar)', expected A-Z")
             return .failure(.invalidVersionString)
         }
         let version = WMTQROperationData.Version(rawValue: versionChar) ?? .vX
         
         // Get a template identifier
         guard let templateId = Int(versionString.suffix(versionString.count - 1)) else {
-            // TemplateID is not an integer
+            D.error("QROperationParser: Template ID is not a valid integer in '\(versionString)'")
             return .failure(.invalidTemplateId)
         }
         if templateId < 0 || templateId > 99 {
+            D.error("QROperationParser: Template ID \(templateId) is out of range 0-99")
             return .failure(.invalidTemplateId)
         }
         
@@ -276,9 +292,11 @@ public class WMTQROperationParser {
                 continue
             }
             // Something went wrong (invalid input)
+            D.error("QROperationParser: Failed to parse data field '\(stringField)' of type '\(typeId)'")
             return nil
         }
         if result.count > WMTQROperationParser.maximumDataFields {
+            D.error("QROperationParser: Too many data fields (\(result.count)), maximum is \(WMTQROperationParser.maximumDataFields)")
             return nil
         }
         return result
@@ -306,10 +324,12 @@ public class WMTQROperationParser {
     /// Returns operation signature object if provided string contains valid key type and signature.
     private func parseSignature(_ string: Substring) -> WMTQROperationSignature? {
         if string.isEmpty {
+            D.error("QROperationParser: Signature string is empty")
             return nil
         }
         // first character in the string is KEY TYPE
         guard let signingKey = WMTQROperationSignature.KeyType.from(string.prefix(1)) else {
+            D.error("QROperationParser: Unknown signing key type '\(string.prefix(1))'")
             return nil
         }
         
@@ -318,11 +338,13 @@ public class WMTQROperationParser {
         
         // Encode the key to raw data
         guard let signature = WMTQROperationSignature(keyType: signingKey, dataSource: signatureString) else {
+            D.error("QROperationParser: Signature is not a valid Base64 string")
             return nil
         }
         
         // Validate key format
         guard signingKey.validate(signature: signature) else {
+            D.error("QROperationParser: Signature data length (\(signature.data.count) bytes) is invalid for key type '\(signingKey)'")
             return nil
         }
         
@@ -333,13 +355,13 @@ public class WMTQROperationParser {
     private func parseAmount(from string: String) -> WMTQROperationData.Field? {
         let value = string.suffix(string.count - 1)
         if value.count < 4 {
-            // Isufficient length for number+currency
+            D.error("QROperationParser: Amount field '\(string)' is too short (need at least number + 3-char currency)")
             return nil
         }
         let currency = value.suffix(3).uppercased()
         let amountString = value.prefix(value.count - 3)
         guard let amount = Decimal(string: String(amountString)) else {
-            // Not a number...
+            D.error("QROperationParser: Amount '\(amountString)' is not a valid decimal number")
             return nil
         }
         return .amount(amount: amount, currency: currency)
@@ -351,7 +373,7 @@ public class WMTQROperationParser {
         let ibanBic = string.suffix(string.count - 1)
         let components = ibanBic.split(separator: ",")
         if components.count > 2 || components.count == 0 {
-            // Unsupported format
+            D.error("QROperationParser: IBAN field '\(string)' has unsupported format (expected IBAN or IBAN,BIC)")
             return nil
         }
         let iban: String
@@ -365,11 +387,11 @@ public class WMTQROperationParser {
         }
         let allowedChars = "01234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ"
         if iban.contains(where: { !allowedChars.contains($0) }) {
-            // Invalid character in IBAN
+            D.error("QROperationParser: IBAN '\(iban)' contains invalid characters")
             return nil
         }
         if bic?.contains(where: { !allowedChars.contains($0) }) == true {
-            // Invalid character in BIC
+            D.error("QROperationParser: BIC '\(bic!)' contains invalid characters")
             return nil
         }
         return .account(iban: iban, bic: bic)
@@ -379,9 +401,11 @@ public class WMTQROperationParser {
     private func parseDate(from string: String) -> WMTQROperationData.Field? {
         let dateString = string.suffix(string.count - 1)
         guard dateString.count == 8 else {
+            D.error("QROperationParser: Date field '\(string)' has invalid length (expected 8 characters in YYYYMMDD format)")
             return nil
         }
         guard let date = dateFormatter.date(from: String(dateString)) else {
+            D.error("QROperationParser: Date '\(dateString)' is not a valid YYYYMMDD date")
             return nil
         }
         return .date(date: date)
