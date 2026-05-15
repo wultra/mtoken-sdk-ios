@@ -999,7 +999,7 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/wultra/networking-apple.git";
 			requirement = {
-				branch = "issues/79-pa-integration";
+				branch = develop;
 				kind = branch;
 			};
 		};

@@ -14,7 +14,7 @@ let package = Package(
         // PowerAuth Mobile SDK 2.0+ provides full SPM support directly from its main repository.
         // The `PowerAuthCore` module is no longer exposed; all functionality is provided by `PowerAuth2`.
         .package(url: "https://github.com/wultra/powerauth-mobile-sdk.git", branch: "develop"),
-        .package(url: "https://github.com/wultra/networking-apple.git", branch: "issues/79-pa-integration")
+        .package(url: "https://github.com/wultra/networking-apple.git", branch: "develop")
     ],
     targets: [
         .target(

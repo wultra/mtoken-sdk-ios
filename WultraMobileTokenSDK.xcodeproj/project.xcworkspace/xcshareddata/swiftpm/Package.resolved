@@ -15,8 +15,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/wultra/networking-apple.git",
       "state" : {
-        "branch" : "issues/79-pa-integration",
-        "revision" : "60b5de2c84f52f877201ed2f41fe809d880ad377"
+        "branch" : "develop",
+        "revision" : "5b146e97198cc128b3abede770a37fcf9f516ff6"
       }
     },
     {
