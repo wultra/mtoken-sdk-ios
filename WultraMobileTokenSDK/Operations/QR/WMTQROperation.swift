@@ -15,6 +15,7 @@
 //
 
 import Foundation
+import PowerAuth2
 
 /// The `WMTQROperationData` contains data operation data parsed from QR code.
 public struct WMTQROperation {
@@ -43,7 +44,7 @@ public struct WMTQROperation {
     /// Data for signature validation
     public let signedData: Data
     
-    /// ECDSA signature calculated from `signedData`. String is in Base64 format
+    /// Signature calculated from `signedData`.
     public let signature: WMTQROperationSignature
     
     /// QR code uses a string in newer format that this class implements.
@@ -61,22 +62,109 @@ public struct WMTQROperation {
             return "\(operationId)&\(operationData.sourceString)".data(using: .utf8)!
         }
     }
+    
+    /// Verifies the signature of the QR operation against the server's public keys held by the provided `PowerAuthSDK` instance.
+    ///
+    /// The method picks the correct verification key based on `signature.keyType`
+    /// (see ``WMTQROperationSignature/KeyType/powerAuthKey``) and validates `signature.data`
+    /// against `signedData`.
+    ///
+    /// Call this after parsing the QR code and before presenting the operation to the user,
+    /// so the user is never asked to confirm an operation whose signature cannot be verified.
+    ///
+    /// - Parameter powerAuth: The `PowerAuthSDK` instance used to verify the signature.
+    /// - Throws: An error if the signature is invalid or cannot be verified
+    ///           (for example, when the activation does not contain the required key).
+    public func verifySignature(for powerAuth: PowerAuthSDK) throws {
+        try powerAuth.verifyDigitalSignature(of: self)
+    }
+}
+
+public extension PowerAuthSDK {
+    
+    /// Verifies the digital signature of a parsed QR operation.
+    ///
+    /// This is a convenience wrapper that calls ``WMTQROperation/verifySignature(for:)``
+    /// on the provided operation. It selects the correct verification key automatically
+    /// based on the operation's ``WMTQROperationSignature/keyType``.
+    ///
+    /// - Parameter qrOperation: The parsed QR operation whose signature should be verified.
+    /// - Throws: An error if the signature is invalid or cannot be verified.
+    func verifyDigitalSignature(of qrOperation: WMTQROperation) throws {
+        try verifyDigitalSignature(
+            signature: qrOperation.signature.data,
+            forData: qrOperation.signedData,
+            withKey: qrOperation.signature.keyType.powerAuthKey
+        )
+    }
 }
 
 public struct WMTQROperationSignature {
-    /// The enumeration defines which key was used for ECDSA signature calculation
-    public enum SigningKey {
-        /// Master server key was used for ECDSA signature calculation
+    /// The enumeration defines which key was used for signature calculation
+    public enum KeyType {
+        /// Master server key was used for signature calculation
         case master
-        /// Personalized server's private key was used for ECDSA signature calculation
+        /// Personalized server's private key was used for calculation
         case personalized
+        /// KMAC-based symmetric key for MAC verification
+        case macPersonalized
+        
+        /// Validates the key length
+        internal func validate(signature: WMTQROperationSignature) -> Bool {
+            let data = signature.data
+            switch self {
+            case .macPersonalized:
+                return data.count == 32
+            case .master, .personalized:
+                return data.count >= 64 && data.count <= 255
+            }
+        }
+        
+        /// PowerAuth signature key identifier that corresponds to this key type.
+        ///
+        /// Use this value when verifying the QR operation's signature with
+        /// `PowerAuthSDK.verifyDigitalSignature(signature:forData:withKey:)`.
+        ///
+        /// Mapping:
+        /// - ``master`` → ``PowerAuthSignatureKeyId/master_EC``
+        /// - ``personalized`` → ``PowerAuthSignatureKeyId/server_EC``
+        /// - ``macPersonalized`` → ``PowerAuthSignatureKeyId/macPersonalized``
+        public var powerAuthKey: PowerAuthSignatureKeyId {
+            switch self {
+            case .master: return .master_EC
+            case .personalized: return .server_EC
+            case .macPersonalized: return .macPersonalized
+            }
+        }
+        
+        /// Parses the leading key-type character of the QR signature payload.
+        static internal func from(_ substring: Substring) -> KeyType? {
+            switch substring {
+            case "0": return .master
+            case "1": return .personalized
+            case "2": return .macPersonalized
+            default: return nil
+            }
+        }
     }
     
-    /// Defines which key has been used for ECDSA signature calculation.
-    public let signingKey: SigningKey
+    /// Defines which key has been used for signature calculation.
+    public let keyType: KeyType
     
-    /// Signature in Base64 format
-    public let signature: String
+    /// Signature data
+    public let data: Data
+    
+    /// Original Base64 data source as received from the payload
+    internal let dataSource: String
+    
+    internal init?(keyType: KeyType, dataSource: String) {
+        guard let data = Data(base64Encoded: dataSource) else {
+            return nil
+        }
+        self.keyType = keyType
+        self.data = data
+        self.dataSource = dataSource
+    }
 }
 
 /// The `WMTQROperationFlags` structure defines flags associated with the operation

@@ -167,7 +167,7 @@ public class WMTOperations: WMTService {
             return nil
         }
         
-        return networking.post(data: .init(), signedWith: authentication, to: WMTOperationEndpoints.History.endpoint) { response, error in
+        return networking.post(data: .init(), authenticatedWith: authentication, to: WMTOperationEndpoints.History.endpoint) { response, error in
             self.processResult(response: response, error: error, completion: completion)
         }
     }
@@ -186,7 +186,7 @@ public class WMTOperations: WMTService {
         
         let detailData = WMTOperationDetailRequest(operationId: operationId)
         
-        return networking.post(data: .init(detailData), signedWith: .possession(), to: WMTOperationEndpoints.OperationDetail.endpoint) { response, error in
+        return networking.post(data: .init(detailData), authenticatedWith: .possession(), to: WMTOperationEndpoints.OperationDetail.endpoint) { response, error in
             self.processResult(response: response, error: error) { result in
                 switch result {
                 case .success(let operation):
@@ -213,7 +213,7 @@ public class WMTOperations: WMTService {
         
         let claimData = WMTOperationDetailRequest(operationId: operationId)
         
-        return networking.post(data: .init(claimData), signedWith: .possession(), to: WMTOperationEndpoints.OperationClaim.endpoint) { response, error in
+        return networking.post(data: .init(claimData), authenticatedWith: .possession(), to: WMTOperationEndpoints.OperationClaim.endpoint) { response, error in
             self.processResult(response: response, error: error) { result in
                 switch result {
                 case .success(let operation):
@@ -245,7 +245,7 @@ public class WMTOperations: WMTService {
         let currentDate = timeService.isTimeSynchronized ? Date(timeIntervalSince1970: timeService.currentTime()) : Date()
         let data = WMTAuthorizationData(operation: operation, timestampSent: currentDate)
         
-        return networking.post(data: .init(data), signedWith: authentication, to: WMTOperationEndpoints.Authorize.endpoint) { response, error in
+        return networking.post(data: .init(data), authenticatedWith: authentication, to: WMTOperationEndpoints.Authorize.endpoint) { response, error in
             self.processResult(response: response, error: error) { result in
                 switch result {
                 case .success:
@@ -275,17 +275,18 @@ public class WMTOperations: WMTService {
     public func authorize(qrOperation: WMTQROperation, uriId: String = "/operation/authorize/offline", authentication: PowerAuthAuthentication, completion: @escaping(Result<String, WMTError>) -> Void) -> Operation {
         
         let op = WPNAsyncBlockOperation { _, markFinished in
-            do {
-                let body   = qrOperation.dataForOfflineSigning
-                let nonce  = qrOperation.nonceForOfflineSigning
-                let signature = try self.networking.powerAuth.offlineSignature(with: authentication, uriId: uriId, body: body, nonce: nonce)
+            let body  = qrOperation.dataForOfflineSigning
+            let nonce = qrOperation.nonceForOfflineSigning
+            // Since PowerAuth Mobile SDK 2.0 the offline signature API is asynchronous
+            // and is named `offlineAuthenticationCode`. The call also handles biometric
+            // authentication properly.
+            self.networking.powerAuth.offlineAuthenticationCode(with: authentication, uriId: uriId, body: body, nonce: nonce) { authenticationCode, error in
                 markFinished {
-                    completion(.success(signature))
-                }
-
-            } catch let error {
-                markFinished {
-                    completion(.failure(WMTError(reason: .operations_QROperationFailed, error: error)))
+                    if let authenticationCode {
+                        completion(.success(authenticationCode))
+                    } else {
+                        completion(.failure(WMTError(reason: .operations_QROperationFailed, error: error)))
+                    }
                 }
             }
         }
@@ -313,7 +314,7 @@ public class WMTOperations: WMTService {
                 
         return networking.post(
             data: .init(data),
-            signedWith: .possession(),
+            authenticatedWith: .possession(),
             to: WMTOperationEndpoints.Reject.endpoint
         ) { response, error in
             self.processResult(response: response, error: error) { result in
@@ -415,7 +416,7 @@ public class WMTOperations: WMTService {
             return
         }
         
-        networking.post(data: .init(), signedWith: .possession(), to: WMTOperationEndpoints.List.endpoint) { response, error in
+        networking.post(data: .init(), authenticatedWith: .possession(), to: WMTOperationEndpoints.List.endpoint) { response, error in
             
             assert(Thread.isMainThread)
 

@@ -15,6 +15,50 @@
 //
 
 import Foundation
+import PowerAuth2
+import Testing
+@testable import WultraMobileTokenSDK
+
+// MARK: - Base integration test class
+
+/// Base class for integration tests that need an activated `PowerAuthSDK`
+/// instance backed by a running server. Subclasses inherit `proxy`, `pa`,
+/// `wmt`, and `ops`; the activation is torn down automatically in `deinit`.
+///
+/// See `WultraMobileTokenSDKTests/Configs/Readme.md` for setup instructions.
+class BaseIntegrationTests {
+    
+    let proxy: IntegrationProxy
+    let wmt: WultraMobileToken
+    var pa: PowerAuthSDK { proxy.powerAuth! }
+    var ops: WMTOperations { wmt.operations }
+    
+    let pin: String
+    
+    /// - Parameters:
+    ///   - pin: PIN used for activation and authentication.
+    ///   - algorithm: PowerAuth algorithm to initialise with.
+    init(pin: String = "1234", algorithm: PowerAuthAlgorithm = .DEFAULT) async throws {
+        self.pin = pin
+        WMTLogger.verboseLevel = .debug
+        let loaded = try #require(TestConfiguration.load(), "Missing config.json — see WultraMobileTokenSDKTests/Configs/Readme.md")
+        proxy = IntegrationProxy(config: loaded.config, pin: pin)
+        try await proxy.initializePowerauth(algorithm: algorithm)
+        try await proxy.prepareActivation()
+        wmt = try proxy.powerAuth!.createWultraMobileToken()
+    }
+    
+    deinit {
+        let auth = PowerAuthAuthentication.possessionWithPassword(password: pin)
+        let semaphore = DispatchSemaphore(value: 0)
+        if let pa = proxy.powerAuth {
+            pa.removeActivation(with: auth) { _ in
+                semaphore.signal()
+            }
+            semaphore.wait()
+        }
+    }
+}
 
 // MARK: - Async test signaling
 

@@ -63,8 +63,8 @@ struct QROperationParserTests {
         #expect(operation.flags.fraudWarning == true)
         #expect(operation.flags.blockWhenOnCall == true)
         #expect(operation.nonce == "AD8bOO0Df73kNaIGb3Vmpg==")
-        #expect(operation.signature.signature == "MEYCIQDby1Uq+MaxiAAGzKmE/McHzNOUrvAP2qqGBvSgcdtyjgIhAMo1sgqNa1pPZTFBhhKvCKFLGDuHuTTYexdmHFjUUIJW")
-        #expect(operation.signature.signingKey == .master)
+        #expect(operation.signature.data == Data(base64Encoded: "MEYCIQDby1Uq+MaxiAAGzKmE/McHzNOUrvAP2qqGBvSgcdtyjgIhAMo1sgqNa1pPZTFBhhKvCKFLGDuHuTTYexdmHFjUUIJW"))
+        #expect(operation.signature.keyType == .master)
         #expect(operation.signedData == expectedSignedData)
         
         // Operation data
@@ -132,8 +132,8 @@ struct QROperationParserTests {
         #expect(operation.flags.blockWhenOnCall == true)
         #expect(operation.totp == "12345678")
         #expect(operation.nonce == "AD8bOO0Df73kNaIGb3Vmpg==")
-        #expect(operation.signature.signature == "MEYCIQDby1Uq+MaxiAAGzKmE/McHzNOUrvAP2qqGBvSgcdtyjgIhAMo1sgqNa1pPZTFBhhKvCKFLGDuHuTTYexdmHFjUUIJW")
-        #expect(operation.signature.signingKey == .master)
+        #expect(operation.signature.data == Data(base64Encoded:"MEYCIQDby1Uq+MaxiAAGzKmE/McHzNOUrvAP2qqGBvSgcdtyjgIhAMo1sgqNa1pPZTFBhhKvCKFLGDuHuTTYexdmHFjUUIJW"))
+        #expect(operation.signature.keyType == .master)
         #expect(operation.signedData == expectedSignedData)
         
         // Operation data
@@ -141,6 +141,45 @@ struct QROperationParserTests {
         #expect(operation.operationData.templateId == 1)
         #expect(operation.operationData.fields.count == 4)
         #expect(operation.operationData.sourceString == "A1*A100CZK*ICZ2730300000001165254011*D20180425*Thello world")
+    }
+    
+    // MARK: - MAC personalized key type
+    
+    @Test
+    func testMacPersonalizedSignature() {
+        let parser = WMTQROperationParser()
+        // 32-byte base64 payload (KMAC output length)
+        let macSignature = "AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8="
+        let qrcode = makeCode(signingKey: "2", signature: macSignature)
+        let expectedSignedData =
+            ("5ff1b1ed-a3cc-45a3-8ab0-ed60950312b6\n" +
+            "Payment\n" +
+            "Please confirm this payment\n" +
+            "A1*A100CZK*ICZ2730300000001165254011*D20180425*Thello world\n" +
+            "BCFX\n" +
+            "AD8bOO0Df73kNaIGb3Vmpg==\n" +
+            "2").data(using: .utf8)
+        
+        guard case .success(let operation) = parser.parse(string: qrcode) else {
+            Issue.record("This should be parsed")
+            return
+        }
+        
+        #expect(operation.signature.keyType == .macPersonalized)
+        #expect(operation.signature.data == Data(base64Encoded: macSignature))
+        #expect(operation.signature.data.count == 32)
+        #expect(operation.signedData == expectedSignedData)
+    }
+    
+    @Test
+    func testMacPersonalizedSignatureBadLength() {
+        let parser = WMTQROperationParser()
+        // ECDSA-sized payload (>= 64 bytes) is invalid for the MAC key type, which requires exactly 32 bytes.
+        let qrcode = makeCode(
+            signingKey: "2",
+            signature: "MEYCIQDby1Uq+MaxiAAGzKmE/McHzNOUrvAP2qqGBvSgcdtyjgIhAMo1sgqNa1pPZTFBhhKvCKFLGDuHuTTYexdmHFjUUIJW"
+        )
+        #expect(!(parser.parse(string: qrcode).isSuccess))
     }
     
     @Test

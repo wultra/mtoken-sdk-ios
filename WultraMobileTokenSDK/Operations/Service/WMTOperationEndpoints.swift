@@ -20,32 +20,32 @@ import WultraPowerAuthNetworking
 enum WMTOperationEndpoints {
     
     enum List {
-        typealias EndpointType = WPNEndpointSignedWithToken<WPNRequestBase, WMTOperationListResponse<WMTUserOperation>>
-        static let endpoint: EndpointType = WPNEndpointSignedWithToken(endpointURLPath: "/api/auth/token/app/operation/list", tokenName: "possession_universal")
+        typealias EndpointType = WPNEndpointAuthenticatedWithToken<WPNRequestBase, WMTOperationListResponse<WMTUserOperation>>
+        static let endpoint = EndpointType(endpointURLPath: "/api/auth/token/app/operation/list", tokenName: "possession_universal")
     }
     
     enum History {
-        typealias EndpointType = WPNEndpointSigned<WPNRequestBase, WPNResponseArray<WMTUserOperation>>
-        static let endpoint: EndpointType = WPNEndpointSigned(endpointURLPath: "/api/auth/token/app/operation/history", uriId: "/operation/history")
+        typealias EndpointType = WPNEndpointAuthenticated<WPNRequestBase, WPNResponseArray<WMTUserOperation>>
+        static let endpoint = EndpointType(endpointURLPath: "/api/auth/token/app/operation/history", uriId: "/operation/history")
     }
     
     enum Authorize {
-        typealias EndpointType = WPNEndpointSigned<WPNRequest<WMTAuthorizationData>, WPNResponseBase>
-        static let endpoint: EndpointType = WPNEndpointSigned(endpointURLPath: "/api/auth/token/app/operation/authorize", uriId: "/operation/authorize")
+        typealias EndpointType = WPNEndpointAuthenticated<WPNRequest<WMTAuthorizationData>, WPNResponseBase>
+        static let endpoint = EndpointType(endpointURLPath: "/api/auth/token/app/operation/authorize", uriId: "/operation/authorize")
     }
     
     enum Reject {
-        typealias EndpointType = WPNEndpointSigned<WPNRequest<WMTRejectionData>, WPNResponseBase>
-        static let endpoint: EndpointType = WPNEndpointSigned(endpointURLPath: "/api/auth/token/app/operation/cancel", uriId: "/operation/cancel")
+        typealias EndpointType = WPNEndpointAuthenticated<WPNRequest<WMTRejectionData>, WPNResponseBase>
+        static let endpoint = EndpointType(endpointURLPath: "/api/auth/token/app/operation/cancel", uriId: "/operation/cancel")
     }
     
     enum OperationDetail {
-        typealias EndpointType = WPNEndpointSignedWithToken<WPNRequest<WMTOperationDetailRequest>, WPNResponse<WMTUserOperation>>
-        static let endpoint: EndpointType = WPNEndpointSignedWithToken(endpointURLPath: "/api/auth/token/app/operation/detail", tokenName: "possession_universal")
+        typealias EndpointType = WPNEndpointAuthenticatedWithToken<WPNRequest<WMTOperationDetailRequest>, WPNResponse<WMTUserOperation>>
+        static let endpoint = EndpointType(endpointURLPath: "/api/auth/token/app/operation/detail", tokenName: "possession_universal")
     }
     
     enum OperationClaim {
-        typealias EndpointType = WPNEndpointSignedWithToken<WPNRequest<WMTOperationDetailRequest>, WPNResponse<WMTUserOperation>>
-        static let endpoint: EndpointType = WPNEndpointSignedWithToken(endpointURLPath: "/api/auth/token/app/operation/detail/claim", tokenName: "possession_universal")
+        typealias EndpointType = WPNEndpointAuthenticatedWithToken<WPNRequest<WMTOperationDetailRequest>, WPNResponse<WMTUserOperation>>
+        static let endpoint = EndpointType(endpointURLPath: "/api/auth/token/app/operation/detail/claim", tokenName: "possession_universal")
     }
 }

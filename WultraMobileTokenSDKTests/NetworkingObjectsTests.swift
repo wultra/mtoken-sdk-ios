@@ -87,7 +87,7 @@ struct NetworkingObjectsTests {
         
         #expect(1676032242 == result.currentTimestamp?.timeIntervalSince1970)
         
-        #expect(result.status == .Ok)
+        #expect(result.status == .ok)
         #expect(result.responseError == nil)
         
         guard let operations = result.responseObject else {
@@ -359,7 +359,7 @@ struct NetworkingObjectsTests {
             return
         }
         
-        #expect(result.status == .Error)
+        #expect(result.status == .error)
         #expect(result.responseObject == nil)
         
         guard let error = result.responseError else {
@@ -382,7 +382,7 @@ struct NetworkingObjectsTests {
             return
         }
         
-        #expect(result.status == .Ok)
+        #expect(result.status == .ok)
         #expect(result.responseError == nil)
         
         guard let operations = result.responseObject else {
@@ -538,7 +538,7 @@ struct NetworkingObjectsTests {
             return
         }
         
-        #expect(result.status == .Ok)
+        #expect(result.status == .ok)
         #expect(result.responseObject != nil)
         
         guard let obj = result.responseObject else {

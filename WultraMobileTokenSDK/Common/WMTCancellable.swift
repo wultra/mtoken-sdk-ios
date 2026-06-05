@@ -21,6 +21,3 @@ public protocol WMTCancellable: AnyObject {
     var isCanceled: Bool { get }
     func cancel()
 }
-
-// TODO: Should be deprecated in future releases.
-public typealias Cancellable = WMTCancellable

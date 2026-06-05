@@ -88,7 +88,7 @@ public class WMTPush: WMTService {
         
         let data = WMTPushRegistrationData(platform: platform, token: token, environment: environment)
         
-        return networking.post(data: .init(data), signedWith: .possession(), to: WMTPushEndpoints.RegisterDevice.endpoint) { _, error in
+        return networking.post(data: .init(data), authenticatedWith: .possession(), to: WMTPushEndpoints.RegisterDevice.endpoint) { _, error in
             self.pendingRegistrationForRemotePushNotifications = false
             if let error = error {
                 self.pushNotificationsRegisteredOnServer = false

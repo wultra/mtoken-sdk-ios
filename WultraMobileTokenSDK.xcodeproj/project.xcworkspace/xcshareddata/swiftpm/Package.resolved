@@ -1,22 +1,31 @@
 {
-  "originHash" : "5bb0defbf468f2f55fcf1762f52b935a4beb3614ff930c0e3cea7881e51fe838",
+  "originHash" : "f93a62c62adc848a70bd365a2285d5cbfefe0e1ab7269813f6fdf97108eaa7b4",
   "pins" : [
+    {
+      "identity" : "cc7",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/wultra/cc7",
+      "state" : {
+        "revision" : "0ea92b389c86eb5fa7201d058b544a835980a405",
+        "version" : "0.7.0-rc2"
+      }
+    },
     {
       "identity" : "networking-apple",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/wultra/networking-apple.git",
       "state" : {
-        "revision" : "b59a97edc7b7accaf03033b75d3816b932ae3e2c",
-        "version" : "1.5.2"
+        "branch" : "develop",
+        "revision" : "5b146e97198cc128b3abede770a37fcf9f516ff6"
       }
     },
     {
-      "identity" : "powerauth-mobile-sdk-spm",
+      "identity" : "powerauth-mobile-sdk",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/wultra/powerauth-mobile-sdk-spm.git",
+      "location" : "https://github.com/wultra/powerauth-mobile-sdk",
       "state" : {
-        "revision" : "e98e570bd527c98ef4ffff950fe2bebf557e4b85",
-        "version" : "1.9.6"
+        "branch" : "develop",
+        "revision" : "de85d2e34498ca7a1009882218017b5bfa1010cf"
       }
     }
   ],

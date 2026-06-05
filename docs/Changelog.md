@@ -3,8 +3,20 @@
 ## X.X.X (TBA)
 - Raised minimum deployment target from iOS 12.0 to iOS 13.0.
 - Removed deprecated `registerDeviceTokenForPushNotifications` API from `WMTPush`.
+- Removed deprecated `Cancellable` typealias. Use `WMTCancellable` directly.
 - Added async/throws counterparts for all public callback-based methods in WMTOperations, WMTInbox, WMTPush, and WMTOIDC services.
 - Added handling of `mtoken.statusChange` push notifications in `WMTPushParser` [(#227)](https://github.com/wultra/mtoken-sdk-ios/issues/227).
+- Bumped dependency `PowerAuth2` to `2.0.x` (PowerAuth Mobile SDK 2.0). The `PowerAuthCore` module is no longer required and is no longer linked.
+- Bumped dependency `WultraPowerAuthNetworking` to `2.0.x`.
+- Migrated QR (offline) operation signing to the new asynchronous `PowerAuthSDK.offlineAuthenticationCode(...)` API. The behavior of `WMTOperations.authorize(qrOperation:...)` is unchanged from a caller's perspective.
+- Reworked QR operation signature representation to support post-quantum-ready offline signatures:
+    - Renamed `WMTQROperationSignature.SigningKey` to `WMTQROperationSignature.KeyType` and `signingKey` property to `keyType`.
+    - Added new `macPersonalized` key type for KMAC-based MAC signatures (32-byte payload).
+    - Replaced the Base64 `signature: String` property with raw `data: Data`.
+    - Added `WMTQROperation.verifySignature(for:)` convenience method that verifies the signature using the proper PowerAuth key based on `keyType`.
+    - Added `PowerAuthSDK.verifyDigitalSignature(of:)` extension for verifying a `WMTQROperation` directly from a `PowerAuthSDK` instance.
+    - `WMTQROperationParser` can now accept an optional `PowerAuthSDK` instance via `init(powerAuth:)` to automatically verify the operation signature during parsing. Invalid signatures produce the new `signatureVerificationFailed` error.
+- See [Migration from version `2.4.x` to `3.0.x`](Migration-3.0.md) for details.
 
 ## 2.4.0
 - Added multiple PreApprovalScreens support [(#208)](https://github.com/wultra/mtoken-sdk-ios/issues/208).
