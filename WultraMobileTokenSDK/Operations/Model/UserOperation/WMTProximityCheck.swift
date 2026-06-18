@@ -17,47 +17,60 @@
 import Foundation
 import PowerAuth2
 
-/// Object which is used to hold data about proximity check
+/// Object which is used to hold data about proximity check.
 ///
-/// Data shall be assigned to the operation when obtained
+/// Assign this object to the operation's `proximityCheck` property before calling `authorize`.
+/// The SDK automatically synchronizes timestamps with the server during authorization,
+/// so you only need to provide the `totp` and `type`.
 public class WMTProximityCheck: Codable {
     
-    /// Tha actual Time-based one time password
+    /// The actual Time-based one-time password.
     public let totp: String
     
-    /// Type of the Proximity check
+    /// Type of the Proximity check.
     public let type: WMTProximityCheckType
     
-    /// Timestamp when the operation was scanned (qrCode) or delivered to the device (deeplink)
+    /// Timestamp when the operation was scanned (QR code) or delivered to the device (deeplink).
     ///
-    /// We **strongly recommend** using `withSynchronizedTime()` to ensure
-    /// the timestamp is aligned with the server time, especially for time-sensitive operations.
-    public let timestampReceived: Date
+    /// Captured as the device's current time at initialization. The SDK adjusts this value
+    /// to server-aligned time internally during `authorize(operation:with:)`.
+    internal var timestampReceived: Date
     
-    /// Initializes a new proximity check object.
+    /// Creates a new proximity check.
     ///
-    /// Prefer `withSynchronizedTime(...)` for accurate server-aligned timestamps.
-    public init(totp: String, type: WMTProximityCheckType, timestampReceived: Date = Date()) {
+    /// - Parameters:
+    ///   - totp: The Time-based one-time password.
+    ///   - type: The proximity check type (`.qrCode` or `.deeplink`).
+    public init(totp: String, type: WMTProximityCheckType) {
         self.totp = totp
         self.type = type
-        self.timestampReceived = timestampReceived
+        self.timestampReceived = Date()
+    }
+    
+    /// Creates a new proximity check with a custom received timestamp.
+    ///
+    /// - Parameters:
+    ///   - totp: The Time-based one-time password.
+    ///   - type: The proximity check type.
+    ///   - timestampReceived: Custom timestamp. No longer needed — the SDK adjusts timestamps internally.
+    @available(*, deprecated, message: "Use init(totp:type:) instead. The SDK now handles time synchronization internally during authorize.")
+    public convenience init(totp: String, type: WMTProximityCheckType, timestampReceived: Date = Date()) {
+        self.init(totp: totp, type: type)
     }
 
-    /// Creates a new instance using time synchronized with PowerAuth server, if available.
-    /// Falls back to the device time when synchronization is not available.
+    /// Creates a new instance using time synchronized with PowerAuth server.
     ///
     /// - Parameters:
     ///   - totp: The TOTP code.
     ///   - type: The proximity check type.
-    ///   - powerAuthSDK: Instance of `PowerAuthSDK`.
+    ///   - powerAuthSDK: Instance of `PowerAuthSDK` (no longer used).
+    @available(*, deprecated, message: "Use init(totp:type:) instead. The SDK now handles time synchronization internally during authorize.")
     public static func withSynchronizedTime(
         totp: String,
         type: WMTProximityCheckType,
         powerAuthSDK: PowerAuthSDK
     ) -> WMTProximityCheck {
-        let timeService = powerAuthSDK.timeSynchronizationService
-        let currentDate = timeService.isTimeSynchronized ? Date(timeIntervalSince1970: timeService.currentTime()) : Date()
-        return WMTProximityCheck(totp: totp, type: type, timestampReceived: currentDate)
+        return WMTProximityCheck(totp: totp, type: type)
     }
 }
 

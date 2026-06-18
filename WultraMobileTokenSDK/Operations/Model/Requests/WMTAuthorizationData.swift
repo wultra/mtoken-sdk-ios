@@ -40,21 +40,11 @@ internal class WMTAuthorizationData: Encodable {
         self.proximityCheck = proximityCheck
     }
     
-    init(operation: WMTOperation, timestampSent: Date = Date()) {
+    init(operation: WMTOperation, adjustedProximityCheck: WMTProximityCheckData? = nil) {
         self.id = operation.id
         self.data = operation.data
         self.mobileTokenData = operation.mobileTokenData?.toAnyEncodable()
-        
-        if let proximityCheck = operation.proximityCheck {
-            self.proximityCheck = WMTProximityCheckData(
-                otp: proximityCheck.totp,
-                type: proximityCheck.type,
-                timestampReceived: proximityCheck.timestampReceived,
-                timestampSent: timestampSent
-            )
-        } else {
-            self.proximityCheck = nil
-        }
+        self.proximityCheck = adjustedProximityCheck
     }
 }
 
