@@ -241,10 +241,33 @@ public class WMTOperations: WMTService {
             return nil
         }
         
-        let timeService = networking.powerAuth.timeSynchronizationService
-        let currentDate = timeService.isTimeSynchronized ? Date(timeIntervalSince1970: timeService.currentTime()) : Date()
-        let data = WMTAuthorizationData(operation: operation, timestampSent: currentDate)
+        guard operation.proximityCheck != nil else {
+            return postAuthorize(operation: operation, authentication: authentication, completion: completion)
+        }
         
+        let timeService = networking.powerAuth.timeSynchronizationService
+        if !timeService.isTimeSynchronized {
+            timeService.synchronizeTime(callback: { [weak self] error in
+                guard let self else {
+                    completion(.failure(WMTError(reason: .operations_failed)))
+                    return
+                }
+                if error != nil {
+                    completion(.failure(WMTError(reason: .operations_failed)))
+                } else {
+                    self.postAuthorize(operation: operation, authentication: authentication, completion: completion)
+                }
+            }, callbackQueue: .main)
+            return nil
+        }
+        
+        return postAuthorize(operation: operation, authentication: authentication, completion: completion)
+    }
+    
+    /// Builds authorization data and posts the authorize operation
+    @discardableResult
+    private func postAuthorize(operation: WMTOperation, authentication: PowerAuthAuthentication, completion: @escaping (Result<Void, WMTError>) -> Void) -> Operation? {
+        let data = WMTAuthorizationData(operation: operation, adjustedProximityCheck: adjustProximityCheckData(from: operation.proximityCheck))
         return networking.post(data: .init(data), authenticatedWith: authentication, to: WMTOperationEndpoints.Authorize.endpoint) { response, error in
             self.processResult(response: response, error: error) { result in
                 switch result {
@@ -256,6 +279,18 @@ public class WMTOperations: WMTService {
                 }
             }
         }
+    }
+    
+    /// Converts proximity check to server-aligned request data, adjusting timestamps using the synchronized time service. Must only be called when time is already synchronized.
+    private func adjustProximityCheckData(from proximityCheck: WMTProximityCheck?) -> WMTProximityCheckData? {
+        guard let proximityCheck else { return nil }
+        let timeService = networking.powerAuth.timeSynchronizationService
+        return WMTProximityCheckData(
+            otp: proximityCheck.totp,
+            type: proximityCheck.type,
+            timestampReceived: proximityCheck.timestampReceived.addingTimeInterval(timeService.localTimeAdjustment),
+            timestampSent: Date(timeIntervalSince1970: timeService.currentTime())
+        )
     }
     
     /// Will sign the given QR operation with URI ID and authentication object.
