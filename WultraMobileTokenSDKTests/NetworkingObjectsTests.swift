@@ -446,7 +446,13 @@ class NetworkingObjectsTests: XCTestCase {
         let op = operations[0]
         op.proximityCheck = WMTProximityCheck(totp: "12345678", type: .qrCode)
         
-        let request = WMTOperationEndpoints.Authorize.EndpointType.RequestData(.init(operation: op))
+        let proximityCheckData = WMTProximityCheckData(
+            otp: op.proximityCheck!.totp,
+            type: op.proximityCheck!.type,
+            timestampReceived: op.proximityCheck!.timestampReceived,
+            timestampSent: Date()
+        )
+        let request = WMTOperationEndpoints.Authorize.EndpointType.RequestData(.init(operation: op, adjustedProximityCheck: proximityCheckData))
         
         let proximityCheck = request.requestObject?.proximityCheck
         
@@ -640,6 +646,53 @@ class NetworkingObjectsTests: XCTestCase {
         
         // when status is missing, defaults to "PENDING"
         XCTAssertEqual(result.status, .pending)
+    }
+    
+    // MARK: - Proximity Check Tests
+    
+    @Test
+    func testProximityCheckInitCapturesCurrentTime() {
+        let before = Date()
+        let check = WMTProximityCheck(totp: "12345678", type: .qrCode)
+        let after = Date()
+        
+        #expect(check.totp == "12345678")
+        #expect(check.type == .qrCode)
+        #expect(check.timestampReceived >= before)
+        #expect(check.timestampReceived <= after)
+    }
+    
+    @Test
+    func testProximityCheckDataTimestampAdjustment() {
+        let systemTime = Date()
+        let check = WMTProximityCheck(totp: "12345678", type: .deeplink)
+        
+        // Simulate a +60s localTimeAdjustment (server is 60s ahead of device)
+        let adjustment: TimeInterval = 60.0
+        let serverTime = Date(timeIntervalSince1970: systemTime.timeIntervalSince1970 + adjustment)
+        
+        let data = WMTProximityCheckData(
+            otp: check.totp,
+            type: check.type,
+            timestampReceived: check.timestampReceived.addingTimeInterval(adjustment),
+            timestampSent: serverTime
+        )
+        
+        // timestampReceived should be shifted by the adjustment
+        #expect(abs(data.timestampReceived.timeIntervalSince(check.timestampReceived) - adjustment) < 0.01)
+        // timestampSent should be at server time
+        #expect(abs(data.timestampSent.timeIntervalSince(serverTime)) < 0.01)
+    }
+    
+    @Test
+    func testAuthorizationDataWithoutProximityCheck() {
+        let request = WMTOperationEndpoints.Authorize.EndpointType.RequestData(
+            .init(operationId: "test-id", operationData: "test-data")
+        )
+        
+        #expect(request.requestObject?.proximityCheck == nil)
+        #expect(request.requestObject?.id == "test-id")
+        #expect(request.requestObject?.data == "test-data")
     }
 }
 
