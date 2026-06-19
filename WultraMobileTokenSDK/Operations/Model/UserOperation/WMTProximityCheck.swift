@@ -34,7 +34,7 @@ public class WMTProximityCheck: Codable {
     ///
     /// Captured as the device's current time at initialization. The SDK adjusts this value
     /// to server-aligned time internally during `authorize(operation:with:)`.
-    internal var timestampReceived: Date
+    public internal(set) var timestampReceived: Date
     
     /// Creates a new proximity check.
     ///
@@ -47,18 +47,25 @@ public class WMTProximityCheck: Codable {
         self.timestampReceived = Date()
     }
     
-    /// Creates a new proximity check with a custom received timestamp.
+    /// Creates a new proximity check.
+    ///
+    /// The `timestampReceived` parameter is ignored — the SDK captures `Date()` at creation
+    /// and adjusts it to server time internally during `authorize`.
     ///
     /// - Parameters:
     ///   - totp: The Time-based one-time password.
     ///   - type: The proximity check type.
-    ///   - timestampReceived: Custom timestamp. No longer needed — the SDK adjusts timestamps internally.
+    ///   - timestampReceived: Ignored. The SDK uses `Date()` and adjusts it during operation authorization.
     @available(*, deprecated, message: "Use init(totp:type:) instead. The SDK now handles time synchronization internally during authorize.")
-    public convenience init(totp: String, type: WMTProximityCheckType, timestampReceived: Date = Date()) {
+    public convenience init(totp: String, type: WMTProximityCheckType, timestampReceived: Date) {
         self.init(totp: totp, type: type)
     }
 
-    /// Creates a new instance using time synchronized with PowerAuth server.
+    /// Deprecated. Previously synchronized `timestampReceived` with the PowerAuth server.
+    ///
+    /// This is no longer needed — the SDK now handles time synchronization internally
+    /// during `authorize(operation:with:)`. This method simply creates a `WMTProximityCheck`
+    /// with `Date()` as the timestamp; the `powerAuthSDK` parameter is ignored.
     ///
     /// - Parameters:
     ///   - totp: The TOTP code.
