@@ -1,5 +1,7 @@
 # Changelog
+- Improved proximity check time synchronization — the SDK now automatically adjusts timestamps during `authorize` [(#238)](https://github.com/wultra/mtoken-sdk-ios/issues/238).
 
+## 2.5.0
 ## 2.4.0
 - Added multiple PreApprovalScreens support [(#208)](https://github.com/wultra/mtoken-sdk-ios/issues/208).
 
