@@ -844,10 +844,12 @@ public class WMTProximityCheck: Codable {
     public let totp: String
     /// Type of the Proximity check
     public let type: WMTProximityCheckType
-    /// Timestamp when the operation was scanned (QR Code) or delivered to the device (Deeplink)
-    public let timestampReceived: Date
+    /// Timestamp when the proximity check was received (captured automatically as `Date()` at creation)
+    public internal(set) var timestampReceived: Date
 }
 ```
+
+When you call `authorize`, the SDK automatically adjusts timestamps to server time using PowerAuth's time synchronization service. The `timestampReceived` is shifted by the server–local clock offset and a `timestampSent` is added at the moment of the request. This ensures correct proximity validation even when the device clock is inaccurate.
 
 WMTProximityCheckType types:
 
@@ -947,10 +949,14 @@ When the app is launched via a deeplink, preserve the data from the deeplink and
 Once the QR code is scanned or a match from the deeplink is found, create a `WMTProximityCheck` with:
     - `totp`: The actual Time-Based One-Time Password.
     - `type`: Set to `WMTProximityCheckType.qrCode` or `WMTProximityCheckType.deeplink`.
-    - `timestampReceived`: The timestamp when the QR code was scanned (by default, it is created as the current timestamp).
 
 - Authorizing the WMTProximityCheck
-When authorized, the SDK will by default add `timestampSent` to the `WMTProximityCheck` object. This timestamp indicates when the operation was signed.
+When `authorize(operation:with:)` is called with a proximity check attached, the SDK automatically:
+    1. Ensures time is synchronized with the PowerAuth server (synchronizes on demand if needed).
+    2. Adjusts the `timestampReceived` to server-aligned time.
+    3. Creates `timestampSent` using the synchronized server time.
+
+This means you no longer need to manually synchronize time or use `WMTProximityCheck.withSynchronizedTime(...)`. Simply create the proximity check with `WMTProximityCheck(totp:type:)` and the SDK handles the rest.
 
 ### WMTPACUtils
 - For convenience, a utility class for parsing and extracting data from QR codes and deeplinks used in the PAC (Proximity Anti-fraud Check), is provided.
