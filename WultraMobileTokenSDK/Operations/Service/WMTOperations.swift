@@ -290,7 +290,7 @@ public class WMTOperations: WMTService {
     @discardableResult
     private func postAuthorize(operation: WMTOperation, authentication: PowerAuthAuthentication, resultHandler: @escaping (Result<Void, WMTError>) -> Void) -> Operation? {
         let data = WMTAuthorizationData(operation: operation, adjustedProximityCheck: adjustProximityCheckData(from: operation.proximityCheck))
-        return networking.post(data: .init(data), authenticatedWith: authentication, to: WMTOperationEndpoints.Authorize.endpoint) { response, error in
+        return networking.post(data: .init(data), signedWith: authentication, to: WMTOperationEndpoints.Authorize.endpoint) { response, error in
             self.processResult(response: response, error: error) { result in
                 switch result {
                 case .success:

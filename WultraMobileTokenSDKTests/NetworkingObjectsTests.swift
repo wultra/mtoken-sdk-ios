@@ -650,19 +650,17 @@ class NetworkingObjectsTests: XCTestCase {
     
     // MARK: - Proximity Check Tests
     
-    @Test
     func testProximityCheckInitCapturesCurrentTime() {
         let before = Date()
         let check = WMTProximityCheck(totp: "12345678", type: .qrCode)
         let after = Date()
         
-        #expect(check.totp == "12345678")
-        #expect(check.type == .qrCode)
-        #expect(check.timestampReceived >= before)
-        #expect(check.timestampReceived <= after)
+        XCTAssertEqual(check.totp, "12345678")
+        XCTAssertEqual(check.type, .qrCode)
+        XCTAssertGreaterThanOrEqual(check.timestampReceived, before)
+        XCTAssertLessThanOrEqual(check.timestampReceived, after)
     }
     
-    @Test
     func testProximityCheckDataTimestampAdjustment() {
         let systemTime = Date()
         let check = WMTProximityCheck(totp: "12345678", type: .deeplink)
@@ -679,20 +677,19 @@ class NetworkingObjectsTests: XCTestCase {
         )
         
         // timestampReceived should be shifted by the adjustment
-        #expect(abs(data.timestampReceived.timeIntervalSince(check.timestampReceived) - adjustment) < 0.01)
+        XCTAssertEqual(data.timestampReceived.timeIntervalSince(check.timestampReceived), adjustment, accuracy: 0.01)
         // timestampSent should be at server time
-        #expect(abs(data.timestampSent.timeIntervalSince(serverTime)) < 0.01)
+        XCTAssertEqual(data.timestampSent.timeIntervalSince(serverTime), 0, accuracy: 0.01)
     }
     
-    @Test
     func testAuthorizationDataWithoutProximityCheck() {
         let request = WMTOperationEndpoints.Authorize.EndpointType.RequestData(
             .init(operationId: "test-id", operationData: "test-data")
         )
         
-        #expect(request.requestObject?.proximityCheck == nil)
-        #expect(request.requestObject?.id == "test-id")
-        #expect(request.requestObject?.data == "test-data")
+        XCTAssertNil(request.requestObject?.proximityCheck)
+        XCTAssertEqual(request.requestObject?.id, "test-id")
+        XCTAssertEqual(request.requestObject?.data, "test-data")
     }
 }
 
