@@ -308,13 +308,13 @@ public class WMTOperations: WMTService {
         guard let proximityCheck else { return nil }
         let timeService = networking.powerAuth.timeSynchronizationService
         let adjustedReceived = proximityCheck.timestampReceived.addingTimeInterval(timeService.localTimeAdjustment)
-        let adjustedSent = Date(timeIntervalSince1970: timeService.currentTime())
-        D.debug("Proximity check timestamps: timestampReceived=\(proximityCheck.timestampReceived), adjustedReceived=\(adjustedReceived), adjustedSent=\(adjustedSent), localTimeAdjustment=\(timeService.localTimeAdjustment)")
+        let timestampSent = Date(timeIntervalSince1970: timeService.currentTime())
+        D.debug("Proximity check timestamps: timestampReceived=\(proximityCheck.timestampReceived), adjustedReceived=\(adjustedReceived), timestampSent(serverTime)=\(timestampSent), localTimeAdjustment=\(timeService.localTimeAdjustment)")
         return WMTProximityCheckData(
             otp: proximityCheck.totp,
             type: proximityCheck.type,
             timestampReceived: adjustedReceived,
-            timestampSent: adjustedSent
+            timestampSent: timestampSent
         )
     }
     
