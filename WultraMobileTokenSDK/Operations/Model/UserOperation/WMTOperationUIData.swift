@@ -56,7 +56,7 @@ open class WMTOperationUIData: Decodable {
                 var container = try c.nestedUnkeyedContainer(forKey: .preApprovalScreens)
                 while !container.isAtEnd {
                     do {
-                        let screen = try container.decode(WMTPreApprovalScreen.self)
+                        let screen = try WMTPreApprovalScreen(from: container.superDecoder())
                         decoded.append(screen)
                     } catch {
                         D.error("Skipping invalid WMTPreApprovalScreen: \(error)")
