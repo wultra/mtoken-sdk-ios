@@ -16,6 +16,7 @@
     - Added `WMTQROperation.verifySignature(for:)` convenience method that verifies the signature using the proper PowerAuth key based on `keyType`.
     - Added `PowerAuthSDK.verifyDigitalSignature(of:)` extension for verifying a `WMTQROperation` directly from a `PowerAuthSDK` instance.
     - `WMTQROperationParser` can now accept an optional `PowerAuthSDK` instance via `init(powerAuth:)` to automatically verify the operation signature during parsing. Invalid signatures produce the new `signatureVerificationFailed` error.
+- Improved `PreApprovalScreen` decoding & logging [(#226)](https://github.com/wultra/mtoken-sdk-ios/issues/226).
 - See [Migration from version `2.4.x` to `3.0.x`](Migration-3.0.md) for details.
 
 ## 2.4.0
