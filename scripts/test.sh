@@ -5,114 +5,63 @@ set -u # stop when undefined variable is used
 #set -x # print all execution (good for debugging)
 
 SCRIPT_FOLDER=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+XCODE_PROJECT="WultraMobileTokenSDK.xcodeproj"
+XCODE_SCHEME="WultraMobileTokenSDKTests"
+BUILD_FOLDER="build"
 
-# find latest iOS SDK available
-IOS_VERSION=$(xcrun simctl list | grep "\-\- iOS" | tail -1 | tr -d - | tr -d " " | tr -d "iOS")
-# find the first simulator for this sdk
-SIMULATOR=$(xcrun simctl list | grep "\-\- iOS ${IOS_VERSION} \-\-" -A 1 | tail -1 | sed -E 's/^[[:space:]]+//; s/\(.*//; s/[[:space:]]+$//')
-DESTINATION="platform=iOS Simulator,OS=${IOS_VERSION},name=${SIMULATOR}"
+# Function that resolved the best available simulator for the test run
+function getSimulatorDestination {
+  local scriptUrl="https://raw.githubusercontent.com/wultra/wultra-infrastructure/refs/heads/mobile/mobile/utils/ios-get-simulator/v1/get-ios-sim.js"
+  curl -fsSL "${scriptUrl}" | node - -p "${SCRIPT_FOLDER}/.." "${XCODE_PROJECT}" "${XCODE_SCHEME}"
+}
 
-echo "Default destination: ${DESTINATION}"
-
-CL_URL=""
-CL_LGN=""
-CL_PWD=""
-CL_AID=""
-ER_URL=""
-PU_URL=""
-OP_URL=""
-IN_URL=""
-SDKCONFIG=""
+CONFIG_JSON=""
 
 # Parse parameters of this script
 while [[ $# -gt 0 ]]
 do
-	case "$1" in
-		-destination)
-			DESTINATION="$2"
-			echo "Destination obtained as parameter: ${DESTINATION}"
-			shift
-			shift
-			;;
-		-cl)
-			CL_URL="$2"
-			shift
-			shift
-			;;
-		-clu)
-			CL_LGN="$2"
-			shift
-			shift
-			;;
-		-clp)
-			CL_PWD="$2"
-			shift
-			shift
-			;;
-		-cla)
-			CL_AID="$2"
-			shift
-			shift
-			;;
-		-er)
-			ER_URL="$2"
-			shift
-			shift
-			;;
-		-op)
-			OP_URL="$2"
-			shift
-			shift
-			;;
-		-pu)
-			PU_URL="$2"
-			shift
-			shift
-			;;
-        -in)
-            IN_URL="$2"
-            shift
-            shift
-            ;;
-		-sdkconfig)
-			SDKCONFIG="$2"
-			shift
-			shift
-			;;
-		*)
-			echo "Unknown parameter ${1}"
-			exit 1
-			;;
-	esac
+  case "$1" in
+    -config)
+      CONFIG_JSON="$2"
+      shift
+      shift
+      ;;
+    *)
+      echo "Unknown parameter ${1}"
+      exit 1
+      ;;
+  esac
 done
 
 pushd "${SCRIPT_FOLDER}"
 sh cart-update.sh
 popd
 
+# Resolve the newest available iOS Simulator destination through the shared Node helper.
+echo "Resolving the best simulator for the ${XCODE_SCHEME}..."
+DESTINATION=$(getSimulatorDestination)
+
+echo "Simulator to use: ${DESTINATION}"
+
 pushd "${SCRIPT_FOLDER}/.."
 
-rm -rf "build" # clear build folder
+rm -rf "${BUILD_FOLDER}" # clear build folder
 
-echo """{
-    \"cloudServerUrl\"        : \"${CL_URL}\",
-    \"cloudServerLogin\"      : \"${CL_LGN}\",
-    \"cloudServerPassword\"   : \"${CL_PWD}\",
-    \"cloudApplicationId\"    : \"${CL_AID}\",
-    \"enrollmentServerUrl\"   : \"${ER_URL}\",
-    \"operationsServerUrl\"   : \"${OP_URL}\",
-    \"pushServerUrl\"         : \"${PU_URL}\",
-    \"inboxServerUrl\"        : \"${IN_URL}\",
-    \"sdkConfig\"             : \"${SDKCONFIG}\"
-}""" > "WultraMobileTokenSDKTests/Configs/config.json"
+# Write integration test config if provided
+if [ -n "${CONFIG_JSON}" ]; then
+  echo "Writing integration test config..."
+  echo "${CONFIG_JSON}" > "WultraMobileTokenSDKTests/Configs/config.json"
+fi
+
+echo "Starting the test"
 
 xcrun xcodebuild \
-	-derivedDataPath "build" \
-    -project "WultraMobileTokenSDK.xcodeproj" \
-    -scheme "WultraMobileTokenSDKTests" \
-    -destination "${DESTINATION}" \
-    -parallel-testing-enabled NO \
-    -configuration "Debug" \
-    test
+  -derivedDataPath "${BUILD_FOLDER}" \
+  -project "${XCODE_PROJECT}" \
+  -scheme "${XCODE_SCHEME}" \
+  -destination "${DESTINATION}" \
+  -parallel-testing-enabled NO \
+  -configuration "Debug" \
+  test
 
 popd
