@@ -845,7 +845,7 @@ public class WMTProximityCheck: Codable {
     /// Type of the Proximity check
     public let type: WMTProximityCheckType
     /// Timestamp when the proximity check was received (captured automatically as `Date()` at creation)
-    public internal(set) var timestampReceived: Date
+    public let timestampReceived: Date
 }
 ```
 

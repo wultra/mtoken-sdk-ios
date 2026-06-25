@@ -30,11 +30,10 @@ public class WMTProximityCheck: Codable {
     /// Type of the Proximity check.
     public let type: WMTProximityCheckType
     
-    /// Timestamp when the operation was scanned (QR code) or delivered to the device (deeplink).
+    /// Timestamp when the operation was scanned (QR code) or delivered to the device (Deeplink).
     ///
-    /// Captured as the device's current time at initialization. The SDK adjusts this value
-    /// to server-aligned time internally during `authorize(operation:with:)`.
-    public internal(set) var timestampReceived: Date
+    /// Captured automatically as the current system time at creation.
+    public let timestampReceived: Date
     
     /// Creates a new proximity check.
     ///
