@@ -43,9 +43,3 @@ operation.proximityCheck = WMTProximityCheck(totp: totp, type: .qrCode)
 The deprecated APIs continue to work but their behavior has changed. The `timestampReceived` parameter in `init(totp:type:timestampReceived:)` is now **ignored** — the SDK always captures `Date()` and adjusts it to server time during `authorize`. Custom timestamps are not supported because the SDK can only correct the system clock offset, not arbitrary values provided by the consumer.
 
 ---
-
-### `timestampReceived` Access Level
-
-The `timestampReceived` property changed from `public let` to `public internal(set) var`. It remains read-only from outside the SDK. The SDK now adjusts this value internally during `authorize` to align with server time.
-
----

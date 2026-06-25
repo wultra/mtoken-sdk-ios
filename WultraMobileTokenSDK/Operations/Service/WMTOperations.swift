@@ -60,6 +60,12 @@ public class WMTOperations: WMTService {
         return q
     }()
     
+    /// Time synchronization service.
+    private let timeService: any PowerAuthTimeSynchronizationService
+    
+    /// API for authorize requests (protocol — mockable in tests).
+    private let operationApi: WMTOperationsApi
+    
     /// If operation loading is currently in progress
     public private(set) var isLoadingOperations = false {
         didSet {
@@ -105,8 +111,15 @@ public class WMTOperations: WMTService {
     public weak var delegate: WMTOperationsDelegate?
     
     /// Initializes the instance with the given networking service.
-    public init(networking: WPNNetworkingService) {
+    public convenience init(networking: WPNNetworkingService) {
+        self.init(networking: networking, operationApi: networking, timeService: networking.powerAuth.timeSynchronizationService)
+    }
+    
+    /// Designated initializer. Internal access allows tests to inject mock `operationApi` and `timeService`.
+    internal init(networking: WPNNetworkingService, operationApi: WMTOperationsApi, timeService: any PowerAuthTimeSynchronizationService) {
         self.networking = networking
+        self.operationApi = operationApi
+        self.timeService = timeService
     }
     
     // MARK: - service API
@@ -254,7 +267,6 @@ public class WMTOperations: WMTService {
         }
         
         // Time already synchronized — authorize directly
-        let timeService = networking.powerAuth.timeSynchronizationService
         if timeService.isTimeSynchronized {
             D.debug("Proximity check: time already synchronized, authorizing directly.")
             return postAuthorize(operation: operation, authentication: authentication) { result in
@@ -264,8 +276,12 @@ public class WMTOperations: WMTService {
         
         // Time not yet synchronized — sync first, then authorize
         D.info("Proximity check: time not synchronized, synchronizing before authorize.")
-        let op = WPNAsyncBlockOperation { _, markFinished in
-            timeService.synchronizeTime(callback: { [weak self] error in
+        let op = WPNAsyncBlockOperation { [weak self] _, markFinished in
+            guard let self else {
+                markFinished { completion(.failure(WMTError(reason: .operations_failed))) }
+                return
+            }
+            self.timeService.synchronizeTime(callback: { [weak self] error in
                 guard let self else {
                     markFinished { completion(.failure(WMTError(reason: .operations_failed))) }
                     return
@@ -290,15 +306,13 @@ public class WMTOperations: WMTService {
     @discardableResult
     private func postAuthorize(operation: WMTOperation, authentication: PowerAuthAuthentication, resultHandler: @escaping (Result<Void, WMTError>) -> Void) -> Operation? {
         let data = WMTAuthorizationData(operation: operation, adjustedProximityCheck: adjustProximityCheckData(from: operation.proximityCheck))
-        return networking.post(data: .init(data), authenticatedWith: authentication, to: WMTOperationEndpoints.Authorize.endpoint) { response, error in
-            self.processResult(response: response, error: error) { result in
-                switch result {
-                case .success:
-                    self.operationsRegister.remove(operation: operation)
-                    resultHandler(.success(()))
-                case .failure(let err):
-                    resultHandler(.failure(self.adjustOperationError(err, auth: true)))
-                }
+        return operationApi.authorize(data: data, authentication: authentication) { result in
+            switch result {
+            case .success:
+                self.operationsRegister.remove(operation: operation)
+                resultHandler(.success(()))
+            case .failure(let err):
+                resultHandler(.failure(self.adjustOperationError(err, auth: true)))
             }
         }
     }
@@ -306,7 +320,6 @@ public class WMTOperations: WMTService {
     /// Converts proximity check to server-aligned request data, adjusting timestamps using the synchronized time service. Must only be called when time is already synchronized.
     private func adjustProximityCheckData(from proximityCheck: WMTProximityCheck?) -> WMTProximityCheckData? {
         guard let proximityCheck else { return nil }
-        let timeService = networking.powerAuth.timeSynchronizationService
         let adjustedReceived = proximityCheck.timestampReceived.addingTimeInterval(timeService.localTimeAdjustment)
         let timestampSent = Date(timeIntervalSince1970: timeService.currentTime())
         D.debug("Proximity check timestamps: timestampReceived=\(proximityCheck.timestampReceived), adjustedReceived=\(adjustedReceived), timestampSent(serverTime)=\(timestampSent), localTimeAdjustment=\(timeService.localTimeAdjustment)")
