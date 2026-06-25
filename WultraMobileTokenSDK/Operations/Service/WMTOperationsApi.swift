@@ -20,7 +20,7 @@ import WultraPowerAuthNetworking
 
 /// Internal protocol abstracting the authorize network call.
 /// `WPNNetworkingService` conforms via extension; tests provide a mock.
-protocol WMTOperationsApi: AnyObject {
+protocol WMTOperationsApi {
     @discardableResult
     func authorize(data: WMTAuthorizationData, authentication: PowerAuthAuthentication, completion: @escaping (Result<Void, WMTError>) -> Void) -> Operation?
 }
