@@ -14,6 +14,8 @@
 		BFEEB20B2937AD700047941D /* WMTCancellable.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFEEB20A2937AD700047941D /* WMTCancellable.swift */; };
 		DC0268DF29965495000BB9FA /* WMTOperationListResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC0268DE29965495000BB9FA /* WMTOperationListResponse.swift */; };
 		DC06D01F25AC74E400F2EA69 /* WMTLock.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC06D01E25AC74E400F2EA69 /* WMTLock.swift */; };
+		DC0780AB2FED6F1E00469E44 /* PowerAuthCore.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = DC848E2326B1782900EBFA6C /* PowerAuthCore.xcframework */; };
+		DC0780AE2FED6F9700469E44 /* WultraPowerAuthNetworking.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = DC9511FA26EA02ED00FF40AD /* WultraPowerAuthNetworking.xcframework */; };
 		DC395C0A24E55B9B0007C36E /* PushParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC395C0924E55B9B0007C36E /* PushParserTests.swift */; };
 		DC3D0B372480F3C7000DC4D9 /* WMTOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC3D0B362480F3C7000DC4D9 /* WMTOperation.swift */; };
 		DC3D0B392480F886000DC4D9 /* WMTLocalOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC3D0B382480F886000DC4D9 /* WMTLocalOperation.swift */; };
@@ -232,6 +234,7 @@
 			files = (
 				DC848E2426B1782900EBFA6C /* PowerAuthCore.xcframework in Frameworks */,
 				DC848E2226B1782900EBFA6C /* PowerAuth2.xcframework in Frameworks */,
+				DC0780AE2FED6F9700469E44 /* WultraPowerAuthNetworking.xcframework in Frameworks */,
 				DC616238248508F8000DED17 /* WultraMobileTokenSDK.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -240,6 +243,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				DC0780AB2FED6F1E00469E44 /* PowerAuthCore.xcframework in Frameworks */,
 				DC9511FB26EA02ED00FF40AD /* WultraPowerAuthNetworking.xcframework in Frameworks */,
 				DC848E2126B16C2400EBFA6C /* PowerAuth2.xcframework in Frameworks */,
 			);
