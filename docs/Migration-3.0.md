@@ -1,4 +1,4 @@
-# Migration from 2.4.x to 3.0.x
+# Migration from 2.5.x to 3.0.x
 
 This guide provides instructions for migrating from **Wultra Mobile Token SDK for iOS** version `2.4.x` to version `3.0.x`.
 
