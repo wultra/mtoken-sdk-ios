@@ -17,16 +17,7 @@ jobs:
         uses: actions/checkout@v4
       - name: Set proper xcode version
         run: sh ./scripts/xcodeselect.sh
-      - name: Runing Tests
+      - name: Running Tests
         env:
-          GITHUB_ACCESS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SDK_CONFIG : ${{ secrets.TESTS_SDK_CONFIG }}
-          CL_URL: ${{ secrets.TESTS_CL_URL }}
-          CL_LGN: ${{ secrets.TESTS_CL_LGN }}
-          CL_PWD: ${{ secrets.TESTS_CL_PWD }}
-          CL_AID: ${{ secrets.TESTS_CL_AID }}
-          OP_URL: ${{ secrets.TESTS_OP_URL }}
-          ER_URL: ${{ secrets.TESTS_ER_URL }}
-          IN_URL: ${{ secrets.TESTS_IN_URL }}
-          PU_URL: ${{ secrets.TESTS_PU_URL }}
-        run: ./scripts/test.sh -sdkconfig "$SDK_CONFIG" -er "$ER_URL" -op "$OP_URL" -in "$IN_URL" -cl "$CL_URL" -clu "$CL_LGN" -clp "$CL_PWD" -cla "$CL_AID" -pu "$PU_URL"
+          TESTS_CONFIG: ${{ secrets.TESTS_CONFIG }}
+        run: ./scripts/test.sh -config "$TESTS_CONFIG"

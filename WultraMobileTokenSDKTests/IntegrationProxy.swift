@@ -59,9 +59,9 @@ class IntegrationProxy {
                 //self.wmt = try! pa.createWultraMobileToken()
                 
                 // use if your operations and inbox urls are diffferent - set in config file `WultraMobileTokenSDKTests/Configs/Readme.md`
-                let wpnOperationsConf = WPNConfig(baseUrl: URL(string: self.config.operationsServerUrl)!, sslValidation: .noValidation)
-                let wpnInboxConf = WPNConfig(baseUrl: URL(string: self.config.inboxServerUrl)!, sslValidation: .noValidation)
-                let wpnPushConf = WPNConfig(baseUrl: URL(string: self.config.pushServerUrl)!, sslValidation: .noValidation)
+                let wpnOperationsConf = WPNConfig(baseUrl: URL(string: self.config.enrollmentServerUrl)!, sslValidation: .noValidation)
+                let wpnInboxConf = WPNConfig(baseUrl: URL(string: self.config.enrollmentServerUrl)!, sslValidation: .noValidation)
+                let wpnPushConf = WPNConfig(baseUrl: URL(string: self.config.enrollmentServerUrl)!, sslValidation: .noValidation)
                 self.ops = WMTOperations(networking: WPNNetworkingService(powerAuth: pa, config: wpnOperationsConf, serviceName: "WMTOperations"))
                 self.inbox = WMTInbox(networking: WPNNetworkingService(powerAuth: pa, config: wpnInboxConf, serviceName: "WMTInbox"))
                 self.push = WMTPush(networking: WPNNetworkingService(powerAuth: pa, config: wpnPushConf, serviceName: "WMTPush"))
@@ -232,10 +232,18 @@ class IntegrationProxy {
     
     private func preparePAInstance() -> PowerAuthSDK {
         
+        guard let appDetail: ApplicationDetail = makeRequest(
+            url: URL(string: "\(config.cloudServerUrl)/admin/applications/\(config.cloudApplicationId)")!,
+            body: "",
+            httpMethod: "GET"
+        ) else {
+            fatalError("Failed to get application details")
+        }
+        
         let cfg = PowerAuthConfiguration(
             instanceId: "tests",
             baseEndpointUrl: config.enrollmentServerUrl,
-            configuration: config.sdkConfig
+            configuration: appDetail.mobileSdkConfig
         )
         cfg.keychainKey_Biometry = "testsBiometry"
         
@@ -359,10 +367,6 @@ private struct IntegrationConfig: Codable {
     let cloudServerPassword: String
     let cloudApplicationId: String
     let enrollmentServerUrl: String
-    let operationsServerUrl: String
-    let inboxServerUrl: String
-    let pushServerUrl: String
-    let sdkConfig: String
     let oidcProviderId: String?
     let oidcProviderIdPkce: String?
 }
@@ -403,4 +407,12 @@ struct InboxMessageDetail: Codable {
 struct OIDCProperties {
     let providerId: String
     let providerIdPkce: String
+}
+
+struct ApplicationDetail: Codable {
+    let id: String
+    let serviceBaseUrl: String
+    let appKey: String
+    let appSecret: String
+    let mobileSdkConfig: String
 }
