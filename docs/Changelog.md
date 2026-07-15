@@ -1,6 +1,6 @@
 # Changelog
 
-## X.X.X (TBA)
+## 3.0.0-RC1
 - Raised minimum deployment target from iOS 12.0 to iOS 13.0.
 - Removed deprecated `registerDeviceTokenForPushNotifications` API from `WMTPush`.
 - Removed deprecated `Cancellable` typealias. Use `WMTCancellable` directly.
