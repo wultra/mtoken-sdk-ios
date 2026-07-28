@@ -374,6 +374,84 @@ struct OperationUIDataTests {
         #expect(first?.elements == nil) // empty items → nil
     }
     
+    @Test
+    func testPreApprovalScreenMissingHeadingAndMessage() {
+        let json = """
+        {
+          "id":"1","name":"n","data":"d","status":"PENDING",
+          "operationCreated":"2023-04-25T13:09:52+0000",
+          "operationExpires":"2023-04-25T13:14:52+0000",
+          "ui":{
+            "preApprovalScreens":[{
+              "type":"WARNING"
+            }]
+          },
+          "allowedSignatureType":{"type":"2FA","variants":[]},
+          "formData":{"title":"t","message":"m","attributes":[]}
+        }
+        """
+        let result = prepareResult(response: json)
+        // Screen decode should fail — heading and message are required
+        #expect(result?.ui?.preApprovalScreens == nil)
+    }
+    
+    @Test
+    func testPreApprovalScreenWithHeadingAndMessage() {
+        let json = """
+        {
+          "id":"1","name":"n","data":"d","status":"PENDING",
+          "operationCreated":"2023-04-25T13:09:52+0000",
+          "operationExpires":"2023-04-25T13:14:52+0000",
+          "ui":{
+            "preApprovalScreens":[{
+              "type":"INFO",
+              "heading":"Test Heading",
+              "message":"Test Message"
+            }]
+          },
+          "allowedSignatureType":{"type":"2FA","variants":[]},
+          "formData":{"title":"t","message":"m","attributes":[]}
+        }
+        """
+        guard let result = prepareResult(response: json) else {
+            Issue.record("Failed to parse JSON data"); return
+        }
+        let screen = result.ui?.preApprovalScreens?.first
+        #expect(screen != nil)
+        #expect(screen?.type == .info)
+        #expect(screen?.heading == "Test Heading")
+        #expect(screen?.message == "Test Message")
+    }
+    
+    @Test
+    func testPreApprovalScreensArraySkipsInvalidKeepsValid() {
+        let json = """
+        {
+          "id":"1","name":"n","data":"d","status":"PENDING",
+          "operationCreated":"2023-04-25T13:09:52+0000",
+          "operationExpires":"2023-04-25T13:14:52+0000",
+          "ui":{
+            "preApprovalScreens":[
+              {"type":"INFO","heading":"First","message":"First message"},
+              {"type":"WARNING"},
+              {"type":"INFO","heading":"Third","message":"Third message"}
+            ]
+          },
+          "allowedSignatureType":{"type":"2FA","variants":[]},
+          "formData":{"title":"t","message":"m","attributes":[]}
+        }
+        """
+        guard let result = prepareResult(response: json) else {
+            Issue.record("Failed to parse JSON data"); return
+        }
+        let screens = result.ui?.preApprovalScreens
+        #expect(screens?.count == 2)
+        #expect(screens?[0].heading == "First")
+        #expect(screens?[0].message == "First message")
+        #expect(screens?[1].heading == "Third")
+        #expect(screens?[1].message == "Third message")
+    }
+    
     // MARK: Helpers
     private func prepareResult(response: String) -> WMTUserOperation? {
         let result = try? jsonDecoder.decode(WMTUserOperation.self, from: response.data(using: .utf8)!)

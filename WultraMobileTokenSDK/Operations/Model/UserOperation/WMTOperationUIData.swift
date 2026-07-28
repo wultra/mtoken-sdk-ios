@@ -47,8 +47,40 @@ open class WMTOperationUIData: Decodable {
         let c = try decoder.container(keyedBy: Keys.self)
         flipButtons = try? c.decode(Bool.self, forKey: .flipButtons)
         blockApprovalOnCall = try? c.decode(Bool.self, forKey: .blockApprovalOnCall)
-        preApprovalScreens = (try? c.decode([WMTPreApprovalScreen].self, forKey: .preApprovalScreens)) // plural
-            ?? WMTPreApprovalScreen.fromLegacy(try? c.superDecoder(forKey: .preApprovalScreenLegacy)) // singular fallback else nil
+        
+        if c.contains(.preApprovalScreens) {
+            // New format: "preApprovalScreens" (plural, array)
+            D.debug("Decoding preApprovalScreens.")
+            var decoded: [WMTPreApprovalScreen] = []
+            do {
+                var container = try c.nestedUnkeyedContainer(forKey: .preApprovalScreens)
+                while !container.isAtEnd {
+                    do {
+                        let screen = try WMTPreApprovalScreen(from: container.superDecoder())
+                        decoded.append(screen)
+                    } catch {
+                        D.error("Skipping invalid WMTPreApprovalScreen: \(error)")
+                    }
+                }
+            } catch {
+                D.error("Failed to decode preApprovalScreens container: \(error)")
+            }
+            if c.contains(.preApprovalScreenLegacy) {
+                D.info("Payload contains both 'preApprovalScreens' and legacy 'preApprovalScreen' — legacy is ignored.")
+            }
+            preApprovalScreens = decoded.isEmpty ? nil : decoded
+        } else if c.contains(.preApprovalScreenLegacy) {
+            // Legacy format: "preApprovalScreen" (singular object)
+            D.debug("Decoding preApprovalScreen (legacy format).")
+            let screens = WMTPreApprovalScreen.fromLegacy(try? c.superDecoder(forKey: .preApprovalScreenLegacy))
+            if screens == nil {
+                D.error("Failed to decode preApprovalScreen (legacy format).")
+            }
+            preApprovalScreens = screens
+        } else {
+            preApprovalScreens = nil
+        }
+        
         postApprovalScreen = try? c.decode(WMTPostApprovalScreenDecodable.self, forKey: .postApprovalScreen).postApprovalObject
     }
     
