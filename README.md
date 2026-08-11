@@ -12,7 +12,7 @@
 ![platform](https://img.shields.io/cocoapods/p/WultraMobileTokenSDK)
 [![license](https://img.shields.io/github/license/wultra/mtoken-sdk-ios)](LICENSE)
 
-__Wultra Mobile Token SDK__ is a high-level SDK for operation approval.
+__Wultra Mobile Token SDK__ provides APIs for secure operation approval, push notifications, inbox messages, and OIDC flows.
 
 ## Introduction
 
@@ -20,16 +20,20 @@ With Wultra Mobile Token (WMT) SDK, you can integrate an out-of-band operation a
 
 To understand the Wultra Mobile Token SDK purpose on a business level better, you can visit our own [Mobile Token application](https://www.wultra.com/mobile-token). We use Wultra Mobile Token SDK in our mobile token application as well.
 
-WMT SDK library does precisely this:
+**With this SDK, you can:**
 
-- Retrieves, approves, or rejects operations pending approval for a given user.
-- Registers an existing PowerAuth activation to receive push notifications.
-- Manages user's inbox messages.
-- Handles OpenID Connect (OIDC) authentication flows.
+- [Retrieve, approve, or reject operations pending approval for a given user.](docs/Using-Operations-Service.md)
+- [Claim anonymous operations.](docs/Using-Operations-Service.md#claim-the-operation)
+- [Retrieve operation history.](docs/Using-Operations-Service.md#operation-history)
+- [Do offline authorization.](docs/Using-Operations-Service.md#off-line-authorization)
+- [Register an existing PowerAuth activation to receive push notifications.](docs/Using-Push-Service.md)
+- [Manage users' inbox messages.](docs/Using-Inbox-Service.md)
+- [Handle OpenID Connect (OIDC) authentication flows.](docs/Using-OIDC-Service.md)
+- [Explore more.](docs)
 
 > [!NOTE]
 > - This library does not contain any UI.
-> - We also provide an [Android version of this library](https://github.com/wultra/mtoken-sdk-android).
+> - We also provide an [Android](https://github.com/wultra/mtoken-sdk-android), [Flutter](https://github.com/wultra/mtoken-sdk-flutter), and [React Native/Cordova](https://github.com/wultra/mtoken-sdk-js) versions of this library.
 
 ## Documentation
 
