@@ -26,7 +26,7 @@ let package = Package(
         ),
     ],
     dependencies: [
-        .package(url: "https://github.com/wultra/mtoken-sdk-ios.git", .from("1.0.0"))
+        .package(url: "https://github.com/wultra/mtoken-sdk-ios.git", .from("3.0.0"))
     ],
     targets: [
         .target(
