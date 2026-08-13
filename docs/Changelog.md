@@ -1,8 +1,5 @@
 # Changelog
 
-## X.X.X (TBA)
-- TBA
-
 ## 3.0.0
 - Bumped dependency `PowerAuth2` to `2.0.x` (PowerAuth Mobile SDK 2.0). The `PowerAuthCore` module is no longer required and is no longer linked.
 - Bumped dependency `WultraPowerAuthNetworking` to `2.0.x`.
