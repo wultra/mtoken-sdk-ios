@@ -20,7 +20,7 @@ import WultraPowerAuthNetworking
 public class WMTPush: WMTService {
     
     // Dependencies
-    let networking: WPNNetworkingService
+    public let networking: WPNNetworkingService
     
     /// If there was already made an successful request.
     public private(set) var pushNotificationsRegisteredOnServer = false // Contains true if push notifications were already registered

@@ -29,10 +29,11 @@ public extension PowerAuthSDK {
     /// - Parameters:
     ///   - acceptLanguage: The language code to set for the `Accept-Language` header.  "en" when nil.
     ///   - userAgent: User agent that will be used in a HTTP header. Default library value when nil.
+    ///   - requestInterceptors: Interceptors applied, in declaration order, to the final request before it is sent. `nil` by default.
     /// - Returns: Mobile Token SDK main wrapper.
     /// - Throws: `InitError` when the object cannot be instantiated (incorrent URL).
-    func createWultraMobileToken(acceptLanguage: String? = nil, userAgent: WPNUserAgent? = nil) throws -> WultraMobileToken {
-       return try WultraMobileToken(powerAuth: self, acceptLanguage: acceptLanguage, userAgent: userAgent)
+    func createWultraMobileToken(acceptLanguage: String? = nil, userAgent: WPNUserAgent? = nil, requestInterceptors: [WPNInterceptor]? = nil) throws -> WultraMobileToken {
+       return try WultraMobileToken(powerAuth: self, acceptLanguage: acceptLanguage, userAgent: userAgent, requestInterceptors: requestInterceptors)
     }
 }
 
@@ -101,18 +102,20 @@ public class WultraMobileToken {
     ///   - powerAuth: `PowerAuthSDK` instance. Needs to be activated when calling any method of this class; otherwise, an error will be thrown.
     ///   - acceptLanguage: The language code to set for the `Accept-Language` header.  "en" when nil.
     ///   - userAgent: User agent that will be used in a HTTP header. Default library value when nil.
+    ///   - requestInterceptors: Interceptors applied, in declaration order, to the final request before it is sent. `nil` by default.
     /// - Throws: `InitError` when the object cannot be instantiated (incorrent URL).
     public init(
         powerAuth: PowerAuthSDK,
         acceptLanguage: String? = nil,
-        userAgent: WPNUserAgent? = nil
+        userAgent: WPNUserAgent? = nil,
+        requestInterceptors: [WPNInterceptor]? = nil
     ) throws {
         self.powerAuth = powerAuth
         self.acceptLanguage = acceptLanguage ?? "en"
         guard let url = URL(string: powerAuth.configuration.baseEndpointUrl) else {
             throw InitError.invalidBaseURL(url: powerAuth.configuration.baseEndpointUrl)
         }
-        self.wpnConfig = WPNConfig(baseUrl: url, userAgent: userAgent ?? .libraryDefault)
+        self.wpnConfig = WPNConfig(baseUrl: url, userAgent: userAgent ?? .libraryDefault, requestInterceptors: requestInterceptors ?? [])
 
         D.debug("Default Wultra Mobile Token object created with:")
         D.debug(" - baseURL: \(powerAuth.configuration.baseEndpointUrl)")

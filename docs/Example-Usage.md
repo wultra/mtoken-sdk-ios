@@ -41,6 +41,24 @@ func exampleUsage(powerAuth: PowerAuthSDK) {
 
 For more examples see [IntegrationTests](https://github.com/wultra/mtoken-sdk-ios/blob/develop/WultraMobileTokenSDKTests/IntegrationTests.swift)
 
+## Request Interceptors
+
+`powerauth.createWultraMobileToken(...)`/`WultraMobileToken.init(...)` also accept an optional `requestInterceptors` parameter - a list of `WPNInterceptor`s applied, in order, to every outgoing request right before it's sent. Use it for cross-cutting concerns such as a correlation ID:
+
+```swift
+class CorrelationIdInterceptor: WPNInterceptor {
+    func processRequest(_ request: NSMutableURLRequest) {
+        request.setValue(UUID().uuidString, forHTTPHeaderField: "X-Correlation-ID")
+    }
+}
+
+let mtoken = try powerAuth.createWultraMobileToken(requestInterceptors: [CorrelationIdInterceptor()])
+```
+
+<!-- begin box warning -->
+Don't modify the `X-PowerAuth-*` headers in an interceptor - doing so could lead to the backend rejecting the request.
+<!-- end -->
+
 ## Read Next
 
 - [Using Operations Service](./Using-Operations-Service.md)
