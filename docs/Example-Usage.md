@@ -56,7 +56,7 @@ let mtoken = try powerAuth.createWultraMobileToken(requestInterceptors: [Correla
 ```
 
 <!-- begin box warning -->
-Don't modify the `X-PowerAuth-*` headers in an interceptor - doing so could lead to the backend rejecting the request.
+Don't modify the `X-PowerAuth-*` headers or the request body in an interceptor - doing so could lead to the backend rejecting the request.
 <!-- end -->
 
 ## Read Next
