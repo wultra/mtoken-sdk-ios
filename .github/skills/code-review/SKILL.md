@@ -1,3 +1,8 @@
+---
+name: code-review
+description: Review pull requests in the Mobile Token SDK for Apple platforms. Use when reviewing Swift APIs, operations, OIDC, push, persistence, security, or release changes.
+---
+
 # Mobile Token SDK iOS code review
 
 Review the PR diff only after verifying the repository, PR target/base branch,
