@@ -6,18 +6,22 @@
     "type": "ios-oss",
     "podspec": "WultraMobileTokenSDK.podspec"
   },
+  "scriptVersion": 2,
+  "devVersion": "0.0.1-dev",
   "files": [
     {
       "description": "Cocoapods definition file.",
       "path": "WultraMobileTokenSDK.podspec",
       "type": "version_replace",
-      "match": "\n  s.version = '%VERSION%'\n"
+      "match": "\n  s.version = '%VERSION%'\n",
+      "devChange": true
     },
     {
       "description": "Info.plist file.",
       "path": "WultraMobileTokenSDK/Info.plist",
       "type": "version_replace",
-      "match": "    <key>CFBundleShortVersionString</key>\n    <string>%VERSION%</string>"
+      "match": "    <key>CFBundleShortVersionString</key>\n    <string>%VERSION%</string>",
+      "devChange": true
     },
     {
       "description": "Example app pubspec file in the documentation.",
@@ -26,10 +30,17 @@
       "match": "\"%VERSION%\""
     },
     {
-      "description": "Changelog for the wultra documentation.",
+      "description": "Changelog for the Wultra documentation.",
       "path": "docs/Changelog.md",
-      "type": "version_verify",
-      "match": "## %VERSION%"
+      "type": "tba_replace",
+      "match": "## TBA",
+      "devChangelog": true
+    },
+    {
+      "description": "Verify that the changelog does not contain a TBA placeholder.",
+      "path": "docs/Changelog.md",
+      "type": "verify_not_containing",
+      "match": "- TBA"
     }
   ],
   "scripts": [

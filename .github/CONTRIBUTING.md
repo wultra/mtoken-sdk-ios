@@ -100,6 +100,8 @@ The version number is composed of three parts: `major.minor.patch`, e.g. `1.0.0`
 > 
 > If you pass a `--verify` flag to the script, it will check if all the files are updated correctly and will not allow you to proceed with the release if any of the files are not updated.
 
+> After the release is published, run `scripts/prepare-release.sh --prepare-dev` to restore development metadata. On development branches, the podspec and `Info.plist` versions must be `0.0.1-dev`.
+
 - updated `WultraMobileTokenSDK.podspec` file with the new version number
 - updated `WultraMobileTokenSDK/Info.plist` file with the new version number
 - updated `docs/Changelog.md` file with the new version number and a summary of the changes for Wultra developers documentation
