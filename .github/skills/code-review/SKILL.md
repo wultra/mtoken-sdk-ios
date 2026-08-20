@@ -5,11 +5,12 @@ description: Review pull requests in the Mobile Token SDK for Apple platforms. U
 
 # Mobile Token SDK iOS code review
 
-Review the PR diff only after verifying the repository, PR target/base branch,
-head branch, and current checkout. This is `WultraMobileTokenSDK`, an iOS 13+
-Swift 5 SDK distributed by SPM and CocoaPods. Its public library target is
-`WultraMobileTokenSDK`; it depends on `PowerAuth2` and
-`WultraPowerAuthNetworking`.
+Review only PR and repository content already available. Do not run or suggest
+commands, scripts, builds, tests, linters, formatters, validation tasks, or Git
+operations. Determine the repository, PR target/base, and head from available
+content only. This is `WultraMobileTokenSDK`, an iOS 13+ Swift 5 SDK distributed
+by SPM and CocoaPods. Its public library target is `WultraMobileTokenSDK`; it
+depends on `PowerAuth2` and `WultraPowerAuthNetworking`.
 
 ## Decision and communication rules
 
@@ -71,6 +72,6 @@ Relevant documentation includes `docs/SDK-Integration.md`, `Example-Usage.md`,
 `Error-Handling.md`, and feature guides such as `Using-OIDC-Service.md`,
 `Using-Operations-Service.md`, `Using-Push-Service.md`, and
 `Using-Inbox-Service.md`. Tests are under `WultraMobileTokenSDKTests`; test
-configuration lives in `WultraMobileTokenSDKTests/Configs`. CI uses
-`scripts/swiftlint.sh`, `scripts/build.sh`, `scripts/test.sh`, and
-`scripts/xcodeselect.sh` with the Xcode project, not `swift test`.
+configuration lives in `WultraMobileTokenSDKTests/Configs`; inspect tests as
+evidence when relevant. Tracked CI and script files may be read to understand
+project behavior, but never executed or suggested as validation.
