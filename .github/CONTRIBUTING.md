@@ -100,7 +100,7 @@ The version number is composed of three parts: `major.minor.patch`, e.g. `1.0.0`
 > 
 > If you pass a `--verify` flag to the script, it will check if all the files are updated correctly and will not allow you to proceed with the release if any of the files are not updated.
 
-> After the release is published, run `scripts/prepare-release.sh --prepare-dev` to restore development metadata. On development branches, the podspec and `Info.plist` versions must be `0.0.1-dev`.
+> After the release is published, run `scripts/prepare-release.sh --prepare-dev` to restore development metadata. On development branches, the podspec version must be `0.0.1-dev`, while the `Info.plist` `CFBundleShortVersionString` remains the numeric `0.0.1`. Release preparation updates both to the numeric release version.
 
 - updated `WultraMobileTokenSDK.podspec` file with the new version number
 - updated `WultraMobileTokenSDK/Info.plist` file with the new version number

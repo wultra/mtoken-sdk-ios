@@ -20,8 +20,7 @@
       "description": "Info.plist file.",
       "path": "WultraMobileTokenSDK/Info.plist",
       "type": "version_replace",
-      "match": "    <key>CFBundleShortVersionString</key>\n    <string>%VERSION%</string>",
-      "devChange": true
+      "match": "    <key>CFBundleShortVersionString</key>\n    <string>%VERSION%</string>"
     },
     {
       "description": "Changelog for the Wultra documentation.",

@@ -64,9 +64,10 @@ async conversion merely for modernity.
 `.prepare-release.json` and `.github/CONTRIBUTING.md` define release metadata:
 `WultraMobileTokenSDK.podspec`, `WultraMobileTokenSDK/Info.plist`,
 `docs/SDK-Integration.md`, and `docs/Changelog.md`. For a release-to-`develop`
-PR, all declared development versions must be `0.0.1-dev`; flag a different
-declared version in those version-bearing files. Otherwise, assess version changes
-only when the PR is release preparation.
+PR, the podspec development version must be `0.0.1-dev`, while the Info.plist
+`CFBundleShortVersionString` must remain the numeric `0.0.1`; flag a different
+declared version in either file. Otherwise, assess version changes only when the
+PR is release preparation.
 
 Relevant documentation includes `docs/SDK-Integration.md`, `Example-Usage.md`,
 `Error-Handling.md`, and feature guides such as `Using-OIDC-Service.md`,
