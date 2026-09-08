@@ -1,6 +1,6 @@
 # Changelog
 
-## X.X.X (TBA)
+## TBA
 - The `networking` property of `WMTOperations`, `WMTPush`, `WMTInbox`, and `WMTOIDC` is now `public`.
 - Added `requestInterceptors` parameter to `WultraMobileToken.init(...)` and `PowerAuthSDK.createWultraMobileToken(...)`, `nil` by default.
 
