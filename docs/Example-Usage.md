@@ -52,7 +52,7 @@ class CorrelationIdInterceptor: WPNInterceptor {
     }
 }
 
-let mtoken = try powerAuth.createWultraMobileToken(requestInterceptors: [CorrelationIdInterceptor()])
+let mtoken = try powerauth.createWultraMobileToken(requestInterceptors: [CorrelationIdInterceptor()])
 ```
 
 <!-- begin box warning -->

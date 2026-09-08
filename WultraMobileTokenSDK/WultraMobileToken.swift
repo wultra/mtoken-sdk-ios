@@ -31,7 +31,7 @@ public extension PowerAuthSDK {
     ///   - userAgent: User agent that will be used in a HTTP header. Default library value when nil.
     ///   - requestInterceptors: Interceptors applied, in declaration order, to the final request before it is sent. `nil` by default.
     /// - Returns: Mobile Token SDK main wrapper.
-    /// - Throws: `InitError` when the object cannot be instantiated (incorrent URL).
+    /// - Throws: `InitError` when the object cannot be instantiated (incorrect URL).
     func createWultraMobileToken(acceptLanguage: String? = nil, userAgent: WPNUserAgent? = nil, requestInterceptors: [WPNInterceptor]? = nil) throws -> WultraMobileToken {
        return try WultraMobileToken(powerAuth: self, acceptLanguage: acceptLanguage, userAgent: userAgent, requestInterceptors: requestInterceptors)
     }
@@ -103,7 +103,7 @@ public class WultraMobileToken {
     ///   - acceptLanguage: The language code to set for the `Accept-Language` header.  "en" when nil.
     ///   - userAgent: User agent that will be used in a HTTP header. Default library value when nil.
     ///   - requestInterceptors: Interceptors applied, in declaration order, to the final request before it is sent. `nil` by default.
-    /// - Throws: `InitError` when the object cannot be instantiated (incorrent URL).
+    /// - Throws: `InitError` when the object cannot be instantiated (incorrect URL).
     public init(
         powerAuth: PowerAuthSDK,
         acceptLanguage: String? = nil,
