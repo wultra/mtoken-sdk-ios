@@ -48,7 +48,7 @@ public protocol WMTOperationsDelegate: AnyObject {
 public class WMTOperations: WMTService {
     
     // Dependencies
-    let networking: WPNNetworkingService
+    public let networking: WPNNetworkingService
     private let qrQueue: OperationQueue = {
         let q = OperationQueue()
         q.name = "WMTOperationsQRQueue"

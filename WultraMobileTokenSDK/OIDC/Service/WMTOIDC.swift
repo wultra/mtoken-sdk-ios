@@ -23,7 +23,7 @@ public class WMTOIDC: WMTService {
     
     // Dependencies
     lazy var powerAuth = networking.powerAuth
-    let networking: WPNNetworkingService
+    public let networking: WPNNetworkingService
     
     /// Accept language for the outgoing requests headers.
     public var acceptLanguage: String {

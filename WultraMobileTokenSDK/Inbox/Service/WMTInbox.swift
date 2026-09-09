@@ -21,7 +21,7 @@ import WultraPowerAuthNetworking
 public class WMTInbox: WMTService {
     
     // Dependencies
-    let networking: WPNNetworkingService
+    public let networking: WPNNetworkingService
     
     /// Accept language for the outgoing requests headers.
     /// Default value is "en".
