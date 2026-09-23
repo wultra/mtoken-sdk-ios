@@ -69,6 +69,11 @@ PR, the podspec development version must be `0.0.1-dev`, while the Info.plist
 declared version in either file. Otherwise, assess version changes only when the
 PR is release preparation.
 
+`docs/SDK-Integration.md` also contains a "Guaranteed PowerAuth Compatibility"
+table. It must never be removed, and should be updated (either by extending the
+current row's SDK range or by adding a new row) whenever a release changes
+which PowerAuth version(s) the SDK supports.
+
 Relevant documentation includes `docs/SDK-Integration.md`, `Example-Usage.md`,
 `Error-Handling.md`, and feature guides such as `Using-OIDC-Service.md`,
 `Using-Operations-Service.md`, `Using-Push-Service.md`, and
