@@ -161,7 +161,7 @@ final class IntegrationTests: BaseIntegrationTests {
         builder
             .put("test2", 0.82)
             .put("test3", "someString")
-        let recorder = WMTPreApprovalScreensRecorder(powerAuthSDK: proxy.powerAuth!)
+        let recorder = WMTPreApprovalScreensRecorder()
             .begin("intro-warning")
             .end("intro-warning", action: .close)
             .begin("intro-warning")

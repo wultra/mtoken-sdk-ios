@@ -365,7 +365,15 @@ Each recorded **visit** contains:
 - `timestampClosed`
 - `action` (`CONTINUE`, `CLOSE`, `REJECT`, `SCAN`, or a custom string)
 
-Timestamps are aligned with server time via `PowerAuthSDK.timeSynchronizationService` (when available).
+Timestamps are captured with the device time. When the recorded data is sent as a top-level `mobileTokenData` entry (via `builder.put(recorder)` or `builder.put(recorder.key, recorder.build())`), `WMTOperations.authorize` and `WMTOperations.reject` align them to server time using `PowerAuthSDK.timeSynchronizationService`. If time is not yet synchronized, the SDK synchronizes it before sending the request. If the synchronization fails, the completion receives `WMTError` with the `.operations_failed` reason (with the original error as its `nestedError`) and the operation is neither approved nor rejected.
+
+The recorder timestamps are sent as ISO-8601 UTC instants with whole-second precision (for example `2026-10-21T11:35:56Z`).
+
+Keep in mind the following limitations of the time alignment:
+
+- Only **top-level** `mobileTokenData` entries are aligned. If you nest the recorder output in another dictionary, array, or custom `Encodable` type, it is sent with the device time.
+- Send the recorder output from the same process in which it was recorded. If you persist and restore `mobileTokenData` (for example as JSON), the restored data is sent with the device time.
+- The alignment uses the difference between the server and device time at the moment the operation is approved or rejected. If the device clock changes between recording and sending (for example, the user changes it manually), the recorded timestamps are shifted by that change.
 
 The recorder exposes few methods:
 
@@ -383,9 +391,9 @@ The recorder exposes few methods:
 // Create the builder used to assemble mobileTokenData
 let builder = WMTMobileTokenData.Builder()
 
-// Recorder for the Pre-Approval flow.
-// PowerAuthSDK provides server-aligned time via timeSynchronizationService.
-let recorder = WMTPreApprovalScreensRecorder(powerAuthSDK: pa)
+// Recorder for the Pre-Approval flow. Timestamps are aligned to server time
+// by WMTOperations when the operation is approved or rejected.
+let recorder = WMTPreApprovalScreensRecorder()
 
 // As the user navigates Pre-Approval screens:
 recorder.begin("intro-warning")
@@ -404,6 +412,10 @@ builder.put(recorder)
 // Assign to the operation right before approve/reject
 operation.mobileTokenData = builder.build()
 ```
+
+<!-- begin box info -->
+The `WMTPreApprovalScreensRecorder(powerAuthSDK:)` initializer is deprecated. The `PowerAuthSDK` instance is no longer needed, so use `WMTPreApprovalScreensRecorder()` instead.
+<!-- end -->
 
 ---
 

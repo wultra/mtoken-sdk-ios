@@ -63,7 +63,7 @@ public class WMTOperations: WMTService {
     /// Time synchronization service.
     private let timeService: any PowerAuthTimeSynchronizationService
     
-    /// API for authorize requests (protocol — mockable in tests).
+    /// API for authorize and reject requests (protocol — mockable in tests).
     private let operationApi: WMTOperationsApi
     
     /// If operation loading is currently in progress
@@ -246,6 +246,12 @@ public class WMTOperations: WMTService {
     
     /// Authorize operation with given PowerAuth authentication object.
     ///
+    /// The SDK automatically aligns timestamps to server-synchronized time for the operation's `proximityCheck`
+    /// and for time-sensitive top-level `mobileTokenData` records (such as `WMTPreApprovalScreensRecorder`).
+    /// If time is not yet synchronized, the SDK synchronizes it before proceeding with authorization.
+    /// If the synchronization fails, the completion receives `WMTError` with the `.operations_failed` reason
+    /// (wrapping the original error) and the operation is not authorized.
+    ///
     /// - Parameters:
     ///   - operation: Operation that should  be authorized.
     ///   - authentication: Multi-factor authentication object for signing, which depends on the operation type but usually 2FA (password or biometrics)
@@ -259,53 +265,100 @@ public class WMTOperations: WMTService {
             return nil
         }
         
-        // No proximity check — authorize directly without time sync
-        guard operation.proximityCheck != nil else {
-            return postAuthorize(operation: operation, authentication: authentication) { result in
-                completion(result)
-            }
+        let proximityCheck = operation.proximityCheck
+        let mobileTokenData = operation.mobileTokenData
+        
+        // No time-sensitive data — authorize directly without time sync
+        guard proximityCheck != nil || requiresTimeAdjustment(mobileTokenData) else {
+            return postAuthorize(operation: operation, data: WMTAuthorizationData(operation: operation), authentication: authentication, resultHandler: completion)
         }
         
-        // Time already synchronized — authorize directly
-        if timeService.isTimeSynchronized {
-            D.debug("Proximity check: time already synchronized, authorizing directly.")
-            return postAuthorize(operation: operation, authentication: authentication) { result in
-                completion(result)
-            }
-        }
-        
-        // Time not yet synchronized — sync first, then authorize
-        D.info("Proximity check: time not synchronized, synchronizing before authorize.")
-        let op = WPNAsyncBlockOperation { [weak self] _, markFinished in
+        return withSynchronizedTime(label: "Authorize", completion: completion) { [weak self] resultHandler in
             guard let self else {
-                markFinished { completion(.failure(WMTError(reason: .operations_failed))) }
-                return
+                resultHandler(.failure(WMTError(reason: .operations_failed)))
+                return nil
             }
-            self.timeService.synchronizeTime(callback: { [weak self] error in
-                guard let self else {
-                    markFinished { completion(.failure(WMTError(reason: .operations_failed))) }
+            let data = WMTAuthorizationData(
+                operationId: operation.id,
+                operationData: operation.data,
+                proximityCheck: self.adjustProximityCheckData(from: proximityCheck),
+                mobileTokenData: self.adjustMobileTokenData(mobileTokenData)
+            )
+            return self.postAuthorize(operation: operation, data: data, authentication: authentication, resultHandler: resultHandler)
+        }
+    }
+    
+    /// Calls `action` once time is synchronized with the server.
+    ///
+    /// If time is already synchronized, `action` is called immediately. Otherwise, time is synchronized first.
+    /// If the synchronization fails, `completion` receives `WMTError` with the `.operations_failed` reason
+    /// (wrapping the original error) and `action` is not called. If the returned operation is canceled,
+    /// the request sent by `action` is canceled too and `completion` receives `WMTError` with the `.canceled` reason.
+    ///
+    /// - Parameters:
+    ///   - label: Label used in log messages.
+    ///   - completion: Result callback. Called on the main thread.
+    ///   - action: Sends the request and reports its result to the provided result handler.
+    /// - Returns: Operation object for its state observation.
+    private func withSynchronizedTime(
+        label: String,
+        completion: @escaping (Result<Void, WMTError>) -> Void,
+        action: @escaping (_ resultHandler: @escaping (Result<Void, WMTError>) -> Void) -> Operation?
+    ) -> Operation? {
+        
+        // Time already synchronized — proceed directly
+        if timeService.isTimeSynchronized {
+            D.debug("\(label): time already synchronized, proceeding directly.")
+            return action(completion)
+        }
+        
+        // Time not yet synchronized — sync first, then proceed
+        D.info("\(label): time not synchronized, synchronizing before proceeding.")
+        let timeService = self.timeService
+        // Request sent by `action` and the cancellation flag, guarded by the lock so that
+        // a cancellation is forwarded to the request exactly once, regardless of timing.
+        let lock = WMTLock()
+        var isCanceled = false
+        var request: Operation?
+        let op = WPNAsyncBlockOperation({
+            D.debug("\(label): canceled.")
+            let sentRequest = lock.synchronized {
+                isCanceled = true
+                return request
+            }
+            sentRequest?.cancel()
+            DispatchQueue.main.async { completion(.failure(WMTError(reason: .canceled))) }
+        }, executionBlock: { this, markFinished in
+            timeService.synchronizeTime(callback: { error in
+                guard this.isCancelled == false else {
                     return
                 }
                 if let error {
-                    D.error("Proximity check: time synchronization failed: \(error.localizedDescription)")
+                    D.error("\(label): time synchronization failed: \(error.localizedDescription)")
                     markFinished { completion(.failure(WMTError(reason: .operations_failed, error: error))) }
                     return
                 }
-                D.debug("Proximity check: time synchronized, proceeding with authorize.")
-                self.postAuthorize(operation: operation, authentication: authentication) { result in
+                D.debug("\(label): time synchronized, proceeding.")
+                let sentRequest = action { result in
                     markFinished { completion(result) }
                 }
+                let shouldCancel = lock.synchronized {
+                    request = sentRequest
+                    return isCanceled
+                }
+                if shouldCancel {
+                    sentRequest?.cancel()
+                }
             }, callbackQueue: .main)
-        }
+        })
         op.completionQueue = .main
         totpQueue.addOperation(op)
         return op
     }
     
-    /// Builds authorization data, posts the approval request, and delivers the processed result via `resultHandler`.
+    /// Posts the approval request and delivers the processed result via `resultHandler`.
     @discardableResult
-    private func postAuthorize(operation: WMTOperation, authentication: PowerAuthAuthentication, resultHandler: @escaping (Result<Void, WMTError>) -> Void) -> Operation? {
-        let data = WMTAuthorizationData(operation: operation, adjustedProximityCheck: adjustProximityCheckData(from: operation.proximityCheck))
+    private func postAuthorize(operation: WMTOperation, data: WMTAuthorizationData, authentication: PowerAuthAuthentication, resultHandler: @escaping (Result<Void, WMTError>) -> Void) -> Operation? {
         return operationApi.authorize(data: data, authentication: authentication) { result in
             switch result {
             case .success:
@@ -329,6 +382,24 @@ public class WMTOperations: WMTService {
             timestampReceived: adjustedReceived,
             timestampSent: timestampSent
         )
+    }
+    
+    /// Returns `true` if the mobile token data contains top-level values with timestamps that must be aligned to server time.
+    private func requiresTimeAdjustment(_ mobileTokenData: [String: Encodable]?) -> Bool {
+        return mobileTokenData?.values.contains { $0 is WMTServerTimeAdjustable } == true
+    }
+    
+    /// Aligns time-sensitive top-level `mobileTokenData` values to server time.
+    /// Must only be called when time is already synchronized. The provided dictionary is not modified, a new one is returned instead.
+    private func adjustMobileTokenData(_ mobileTokenData: [String: Encodable]?) -> [String: Encodable]? {
+        guard let mobileTokenData, requiresTimeAdjustment(mobileTokenData) else {
+            return mobileTokenData
+        }
+        let localTimeAdjustment = timeService.localTimeAdjustment
+        D.debug("Aligning mobileTokenData timestamps to server time, localTimeAdjustment=\(localTimeAdjustment)")
+        return mobileTokenData.mapValues { value in
+            (value as? WMTServerTimeAdjustable)?.adjusted(by: localTimeAdjustment) ?? value
+        }
     }
     
     /// Will sign the given QR operation with URI ID and authentication object.
@@ -370,6 +441,11 @@ public class WMTOperations: WMTService {
     
     /// Reject operation with a reason.
     ///
+    /// If the operation's `mobileTokenData` contains time-sensitive top-level records (such as `WMTPreApprovalScreensRecorder`),
+    /// the SDK aligns their timestamps to server-synchronized time. If time is not yet synchronized, the SDK synchronizes it
+    /// before proceeding with rejection. If the synchronization fails, the completion receives `WMTError` with
+    /// the `.operations_failed` reason (wrapping the original error) and the operation is not rejected.
+    ///
     /// - Parameters:
     ///   - operation: Operation that should be rejected.
     ///   - reason: Reason for the rejection.
@@ -383,21 +459,34 @@ public class WMTOperations: WMTService {
             return nil
         }
         
-        let data = WMTRejectionData(operationId: operation.id, reason: reason, mobileTokenData: operation.mobileTokenData)
-                
-        return networking.post(
-            data: .init(data),
-            authenticatedWith: .possession(),
-            to: WMTOperationEndpoints.Reject.endpoint
-        ) { response, error in
-            self.processResult(response: response, error: error) { result in
-                switch result {
-                case .success:
-                    self.operationsRegister.remove(operation: operation)
-                    completion(.success(()))
-                case .failure(let err):
-                    completion(.failure(self.adjustOperationError(err, auth: false)))
-                }
+        let mobileTokenData = operation.mobileTokenData
+        
+        // No time-sensitive data — reject directly without time sync
+        guard requiresTimeAdjustment(mobileTokenData) else {
+            let data = WMTRejectionData(operationId: operation.id, reason: reason, mobileTokenData: mobileTokenData)
+            return postReject(operation: operation, data: data, resultHandler: completion)
+        }
+        
+        return withSynchronizedTime(label: "Reject", completion: completion) { [weak self] resultHandler in
+            guard let self else {
+                resultHandler(.failure(WMTError(reason: .operations_failed)))
+                return nil
+            }
+            let data = WMTRejectionData(operationId: operation.id, reason: reason, mobileTokenData: self.adjustMobileTokenData(mobileTokenData))
+            return self.postReject(operation: operation, data: data, resultHandler: resultHandler)
+        }
+    }
+    
+    /// Posts the rejection request and delivers the processed result via `resultHandler`.
+    @discardableResult
+    private func postReject(operation: WMTOperation, data: WMTRejectionData, resultHandler: @escaping (Result<Void, WMTError>) -> Void) -> Operation? {
+        return operationApi.reject(data: data) { result in
+            switch result {
+            case .success:
+                self.operationsRegister.remove(operation: operation)
+                resultHandler(.success(()))
+            case .failure(let err):
+                resultHandler(.failure(self.adjustOperationError(err, auth: false)))
             }
         }
     }
@@ -729,10 +818,13 @@ public extension WMTOperations {
 
     /// Authorize operation with given PowerAuth authentication object.
     ///
+    /// Timestamps of the proximity check and of time-sensitive top-level `mobileTokenData` records are aligned
+    /// to server time, see ``authorize(operation:with:completion:)`` for details.
+    ///
     /// - Parameters:
     ///   - operation: Operation that should be authorized.
     ///   - authentication: Multi-factor authentication object for signing.
-    /// - Throws: `WMTError` when the call fails.
+    /// - Throws: `WMTError` when the call fails or when the time synchronization fails.
     func authorize(operation: WMTOperation, with authentication: PowerAuthAuthentication) async throws {
         return try await withCheckedThrowingContinuation { continuation in
             authorize(operation: operation, with: authentication) { result in
@@ -762,10 +854,13 @@ public extension WMTOperations {
 
     /// Reject operation with a reason.
     ///
+    /// Timestamps of time-sensitive top-level `mobileTokenData` records are aligned to server time, see
+    /// ``reject(operation:with:completion:)`` for details.
+    ///
     /// - Parameters:
     ///   - operation: Operation that should be rejected.
     ///   - reason: Reason for the rejection.
-    /// - Throws: `WMTError` when the call fails.
+    /// - Throws: `WMTError` when the call fails or when the time synchronization fails.
     func reject(operation: WMTOperation, with reason: WMTRejectionReason) async throws {
         return try await withCheckedThrowingContinuation { continuation in
             reject(operation: operation, with: reason) { result in

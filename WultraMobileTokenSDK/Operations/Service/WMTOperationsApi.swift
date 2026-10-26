@@ -18,17 +18,30 @@ import Foundation
 import PowerAuth2
 import WultraPowerAuthNetworking
 
-/// Internal protocol abstracting the authorize network call.
+/// Internal protocol abstracting the authorize and reject network calls.
 /// `WPNNetworkingService` conforms via extension; tests provide a mock.
 protocol WMTOperationsApi {
     @discardableResult
     func authorize(data: WMTAuthorizationData, authentication: PowerAuthAuthentication, completion: @escaping (Result<Void, WMTError>) -> Void) -> Operation?
+    
+    @discardableResult
+    func reject(data: WMTRejectionData, completion: @escaping (Result<Void, WMTError>) -> Void) -> Operation?
 }
 
 /// Production conformance — delegates to WPNNetworkingService.post(...)
 extension WPNNetworkingService: WMTOperationsApi {
     func authorize(data: WMTAuthorizationData, authentication: PowerAuthAuthentication, completion: @escaping (Result<Void, WMTError>) -> Void) -> Operation? {
         return post(data: .init(data), authenticatedWith: authentication, to: WMTOperationEndpoints.Authorize.endpoint) { _, error in
+            if let error {
+                completion(.failure(error))
+            } else {
+                completion(.success(()))
+            }
+        }
+    }
+    
+    func reject(data: WMTRejectionData, completion: @escaping (Result<Void, WMTError>) -> Void) -> Operation? {
+        return post(data: .init(data), authenticatedWith: .possession(), to: WMTOperationEndpoints.Reject.endpoint) { _, error in
             if let error {
                 completion(.failure(error))
             } else {
