@@ -259,6 +259,27 @@ final class AuthorizeOperationProximityTests: BaseIntegrationTests {
         #expect(mobileTokenData?["riskScore"]?.original as? Double == Self.riskScore, "Other mobileTokenData entries should be sent unchanged")
     }
 
+    /// Tolerance for floating point rounding when comparing timestamps.
+    private static let timeTolerance: TimeInterval = 0.01
+
+    /// Expects `date` to be a device time captured between `start` and `end`, shifted by `offset`.
+    ///
+    /// The time is bracketed by values captured around the call instead of being compared
+    /// with the current time afterwards, so the check doesn't depend on how fast the test runs.
+    private func expectTime(
+        _ date: Date,
+        between start: Date,
+        and end: Date,
+        shiftedBy offset: TimeInterval,
+        _ comment: Comment,
+        sourceLocation: SourceLocation = #_sourceLocation
+    ) {
+        let deviceTime = date.timeIntervalSince1970 - offset
+        let lowerBound = start.timeIntervalSince1970 - Self.timeTolerance
+        let upperBound = end.timeIntervalSince1970 + Self.timeTolerance
+        #expect(deviceTime >= lowerBound && deviceTime <= upperBound, comment, sourceLocation: sourceLocation)
+    }
+
     private func expectTimeSyncFailure(_ error: Error) {
         #expect((error as? WMTError)?.reason == .operations_failed)
         #expect((error as? WMTError)?.nestedError != nil, "Original sync error should be wrapped")
@@ -334,18 +355,19 @@ final class AuthorizeOperationProximityTests: BaseIntegrationTests {
         let mockApi = MockOperationApi()
         let service = createService(mockApi: mockApi, timeService: SynchronizedTimeService(offsetSeconds: offsetSeconds))
 
+        let start = Date()
         var operation = TestOperation()
         operation.proximityCheck = WMTProximityCheck(totp: "123456", type: .qrCode)
 
         try await service.authorize(operation: operation, with: .possession())
+        let end = Date()
 
         let pcData = try #require(mockApi.lastAuthorizeData?.proximityCheck)
         #expect(pcData.otp == "123456")
         #expect(pcData.type == .qrCode)
 
-        let now = Date().timeIntervalSince1970
-        #expect(abs(pcData.timestampReceived.timeIntervalSince1970 - (now + offsetSeconds)) < 2, "timestampReceived should be ~5min ahead")
-        #expect(abs(pcData.timestampSent.timeIntervalSince1970 - (now + offsetSeconds)) < 2, "timestampSent should be ~5min ahead")
+        expectTime(pcData.timestampReceived, between: start, and: end, shiftedBy: offsetSeconds, "timestampReceived should be ~5min ahead")
+        expectTime(pcData.timestampSent, between: start, and: end, shiftedBy: offsetSeconds, "timestampSent should be ~5min ahead")
     }
 
     @Test
@@ -354,17 +376,18 @@ final class AuthorizeOperationProximityTests: BaseIntegrationTests {
         let mockApi = MockOperationApi()
         let service = createService(mockApi: mockApi, timeService: DelayedSyncTimeService(offsetSeconds: offsetSeconds))
 
+        let start = Date()
         var operation = TestOperation()
         operation.proximityCheck = WMTProximityCheck(totp: "654321", type: .deeplink)
 
         try await service.authorize(operation: operation, with: .possession())
+        let end = Date()
 
         let pcData = try #require(mockApi.lastAuthorizeData?.proximityCheck)
         #expect(pcData.otp == "654321")
         #expect(pcData.type == .deeplink)
 
-        let now = Date().timeIntervalSince1970
-        #expect(abs(pcData.timestampReceived.timeIntervalSince1970 - (now + offsetSeconds)) < 2, "timestampReceived should be ~3min behind")
+        expectTime(pcData.timestampReceived, between: start, and: end, shiftedBy: offsetSeconds, "timestampReceived should be ~3min behind")
     }
 
     @Test
@@ -389,15 +412,16 @@ final class AuthorizeOperationProximityTests: BaseIntegrationTests {
         let mockApi = MockOperationApi()
         let service = createService(mockApi: mockApi, timeService: SynchronizedTimeService(offsetSeconds: 0))
 
+        let start = Date()
         var operation = TestOperation()
         operation.proximityCheck = WMTProximityCheck(totp: "000000", type: .qrCode)
 
         try await service.authorize(operation: operation, with: .possession())
+        let end = Date()
 
         let pcData = try #require(mockApi.lastAuthorizeData?.proximityCheck)
-        let now = Date().timeIntervalSince1970
-        #expect(abs(pcData.timestampReceived.timeIntervalSince1970 - now) < 2, "timestampReceived should be close to device time")
-        #expect(abs(pcData.timestampSent.timeIntervalSince1970 - now) < 2, "timestampSent should be close to device time")
+        expectTime(pcData.timestampReceived, between: start, and: end, shiftedBy: 0, "timestampReceived should be device time")
+        expectTime(pcData.timestampSent, between: start, and: end, shiftedBy: 0, "timestampSent should be device time")
     }
 
     @Test
@@ -406,15 +430,16 @@ final class AuthorizeOperationProximityTests: BaseIntegrationTests {
         let mockApi = MockOperationApi()
         let service = createService(mockApi: mockApi, timeService: SynchronizedTimeService(offsetSeconds: oneHour))
 
+        let start = Date()
         var operation = TestOperation()
         operation.proximityCheck = WMTProximityCheck(totp: "999999", type: .deeplink)
 
         try await service.authorize(operation: operation, with: .possession())
+        let end = Date()
 
         let pcData = try #require(mockApi.lastAuthorizeData?.proximityCheck)
-        let now = Date().timeIntervalSince1970
-        #expect(abs(pcData.timestampReceived.timeIntervalSince1970 - (now + oneHour)) < 2, "timestampReceived should be ~1h ahead")
-        #expect(abs(pcData.timestampSent.timeIntervalSince1970 - (now + oneHour)) < 2, "timestampSent should be ~1h ahead")
+        expectTime(pcData.timestampReceived, between: start, and: end, shiftedBy: oneHour, "timestampReceived should be ~1h ahead")
+        expectTime(pcData.timestampSent, between: start, and: end, shiftedBy: oneHour, "timestampSent should be ~1h ahead")
     }
 
     @Test
@@ -425,23 +450,26 @@ final class AuthorizeOperationProximityTests: BaseIntegrationTests {
 
         var operation = TestOperation()
         // Create proximity check — captures Date() as timestampReceived
+        let createStart = Date()
         let pc = WMTProximityCheck(totp: "abc123", type: .qrCode)
+        let createEnd = Date()
         operation.proximityCheck = pc
 
         // Simulate time passing between QR scan and authorize call
         try await Task.sleep(nanoseconds: 5_000_000_000)
 
+        let authorizeStart = Date()
         try await service.authorize(operation: operation, with: .possession())
+        let authorizeEnd = Date()
 
         let pcData = try #require(mockApi.lastAuthorizeData?.proximityCheck)
 
-        let receivedTs = pcData.timestampReceived.timeIntervalSince1970
-        let sentTs = pcData.timestampSent.timeIntervalSince1970
-
         // Both timestamps should be adjusted by the same offset, so the delta between them
-        // should be ~5 seconds (the sleep duration)
-        let delta = sentTs - receivedTs
-        #expect(delta > 3 && delta < 7, "Delta between sent and received should be ~5s, got \(delta)s")
+        // is the time that passed between the QR scan and the authorize call (at least the sleep duration)
+        expectTime(pcData.timestampReceived, between: createStart, and: createEnd, shiftedBy: offsetSeconds, "timestampReceived should be the scan time adjusted by the offset")
+        expectTime(pcData.timestampSent, between: authorizeStart, and: authorizeEnd, shiftedBy: offsetSeconds, "timestampSent should be the authorize time adjusted by the offset")
+        let delta = pcData.timestampSent.timeIntervalSince(pcData.timestampReceived)
+        #expect(delta >= 5 - Self.timeTolerance, "Delta between sent and received should be at least 5s, got \(delta)s")
     }
 
     // MARK: - Tests: mobileTokenData alignment (authorize)
