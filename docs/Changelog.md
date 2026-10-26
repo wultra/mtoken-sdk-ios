@@ -1,7 +1,12 @@
 # Changelog
 
 ## TBA
-- TBA
+- Improved time handling in `WMTPreApprovalScreensRecorder` [(#244)](https://github.com/wultra/mtoken-sdk-ios/issues/244).
+    - The recorder now captures device time, and `WMTOperations.authorize` and `WMTOperations.reject` align the recorded timestamps to server time, synchronizing the time first if needed ([documentation](Using-Operations-Service.md#predefined-record-helper-wmtpreapprovalscreensrecorder)).
+    - If the time synchronization fails, `authorize` and `reject` report the failure as `WMTError` with the `.operations_failed` reason (with the original error as its `nestedError`) and the operation is not sent.
+    - Only `WMTPreApprovalScreensRecorder` output stored as a top-level `mobileTokenData` entry is aligned. The rest of `mobileTokenData` is sent unchanged.
+    - Canceling the `Operation` returned by `authorize` or `reject` now also works when the SDK synchronizes the time first. The request is not sent (or is canceled if it was already sent) and the completion receives `WMTError` with the `.canceled` reason.
+    - Deprecated the `WMTPreApprovalScreensRecorder(powerAuthSDK:)` initializer, use `WMTPreApprovalScreensRecorder()` instead.
 
 ## 3.1.0
 - The `networking` property of `WMTOperations`, `WMTPush`, `WMTInbox`, and `WMTOIDC` is now `public`.

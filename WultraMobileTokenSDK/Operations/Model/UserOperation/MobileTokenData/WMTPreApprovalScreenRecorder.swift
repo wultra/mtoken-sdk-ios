@@ -19,8 +19,12 @@ import PowerAuth2
 
 /// Records user navigation through Pre-approval screens.
 /// Each “visit” captures an opening timestamp and, when closed, a closing
-/// timestamp and the action that ended the visit. Timestamps use
-/// `PowerAuthSDK.timeSynchronizationService` when available.
+/// timestamp and the action that ended the visit.
+///
+/// Timestamps are captured with the device time. When the recorded data is sent as a top-level
+/// `mobileTokenData` entry with `WMTOperations.authorize(operation:with:completion:)` or
+/// `WMTOperations.reject(operation:with:completion:)`, the SDK aligns them to server time,
+/// synchronizing the time with the server first if needed.
 public final class WMTPreApprovalScreensRecorder: WMTMobileTokenDataRecord {
 
     /// Top-level key under which this record is stored in `mobileTokenData`.
@@ -48,15 +52,31 @@ public final class WMTPreApprovalScreensRecorder: WMTMobileTokenDataRecord {
     }
 
     /// One screen visit within the Pre-approval flow.
-    private struct Visit: Encodable {
+    struct Visit: Encodable, Equatable {
         let screen: String
-        let timestampOpened: Date
+        var timestampOpened: Date
         var timestampClosed: Date?
         var action: String?
     }
 
-    /// Time source (used only for synchronized timestamps).
-    private let powerAuthSDK: PowerAuthSDK
+    /// Snapshot of visits with device-time timestamps, encoded as a plain array of visits.
+    /// Aligned to server time by `WMTOperations` before it's sent.
+    struct Visits: Encodable, WMTServerTimeAdjustable {
+        let visits: [Visit]
+
+        func encode(to encoder: Encoder) throws {
+            try visits.encode(to: encoder)
+        }
+
+        func adjusted(by localTimeAdjustment: TimeInterval) -> Encodable {
+            return visits.map { visit in
+                var adjusted = visit
+                adjusted.timestampOpened = visit.timestampOpened.addingTimeInterval(localTimeAdjustment)
+                adjusted.timestampClosed = visit.timestampClosed?.addingTimeInterval(localTimeAdjustment)
+                return adjusted
+            }
+        }
+    }
 
     /// Currently open visit (if any).
     private var openVisit: Visit?
@@ -67,10 +87,21 @@ public final class WMTPreApprovalScreensRecorder: WMTMobileTokenDataRecord {
     /// Synchronization primitive that protects recorder state.
     private let lock = WMTLock()
 
-    /// Creates a new recorder. The provided `PowerAuthSDK` is used
-    /// to obtain synchronized time for timestamps when available.
-    public init(powerAuthSDK: PowerAuthSDK) {
-        self.powerAuthSDK = powerAuthSDK
+    /// Creates a new recorder.
+    ///
+    /// Timestamps are captured with the device time and aligned to server time
+    /// by `WMTOperations` when the operation is authorized or rejected.
+    public init() {}
+
+    /// Creates a new recorder.
+    ///
+    /// The recorder captures device time and the SDK aligns it to server time during
+    /// operation authorization or rejection, so the `PowerAuthSDK` instance is no longer needed.
+    ///
+    /// - Parameter powerAuthSDK: Instance of `PowerAuthSDK` (no longer used).
+    @available(*, deprecated, renamed: "init()", message: "PowerAuthSDK is no longer needed. The SDK aligns recorded timestamps to server time during authorize and reject.")
+    public convenience init(powerAuthSDK: PowerAuthSDK) {
+        self.init()
     }
 
     /// Opens a new visit for `id`. If a different visit is already open,
@@ -111,7 +142,10 @@ public final class WMTPreApprovalScreensRecorder: WMTMobileTokenDataRecord {
     }
     
     /// Produces the value representation for `mobileTokenData`.
-    /// Returns an array of visit objects with timestamps and actions.
+    /// Returns an array of visit objects with device-time timestamps and actions.
+    ///
+    /// The timestamps are aligned to server time by the SDK when the value is sent
+    /// as a top-level `mobileTokenData` entry during operation authorization or rejection.
     public func build() -> Encodable {
         lock.synchronized {
             // If a visit is still open, close it now (no action)
@@ -122,7 +156,7 @@ public final class WMTPreApprovalScreensRecorder: WMTMobileTokenDataRecord {
                 openVisit = nil
             }
             
-            return visits
+            return Visits(visits: visits)
         }
     }
 
@@ -136,9 +170,8 @@ public final class WMTPreApprovalScreensRecorder: WMTMobileTokenDataRecord {
     
     // MARK: Time helper
 
-    /// Current time using `PowerAuthSDK` time synchronization when available.
+    /// Current device time. Aligned to server time by the SDK before it's sent.
     private func now() -> Date {
-        let timeService = powerAuthSDK.timeSynchronizationService
-        return timeService.isTimeSynchronized ? Date(timeIntervalSince1970: timeService.currentTime()) : Date()
+        return Date()
     }
 }
