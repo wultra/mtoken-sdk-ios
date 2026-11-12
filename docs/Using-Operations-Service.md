@@ -197,6 +197,10 @@ func approveWithBiometry(operation: WMTOperation) {
 }
 ```
 
+<!-- begin box info -->
+If the approval fails, call `fetchActivationStatus` to detect whether the activation is blocked and how many attempts are left.
+<!-- end -->
+
 ## Reject an Operation
 
 To reject an operation use `WMTOperations.reject`. Operation rejection is confirmed by a possession factor, so there is no need for creating a `PowerAuthAuthentication` object. You can simply use it with the following example.
