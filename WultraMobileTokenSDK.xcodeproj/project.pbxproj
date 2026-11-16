@@ -901,7 +901,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = KTT9G859MR;
 				INFOPLIST_FILE = WultraMobileTokenSDKTests/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -921,7 +921,7 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = KTT9G859MR;
 				INFOPLIST_FILE = WultraMobileTokenSDKTests/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -1000,7 +1000,7 @@
 			repositoryURL = "https://github.com/wultra/powerauth-mobile-sdk";
 			requirement = {
 				kind = upToNextMinorVersion;
-				minimumVersion = 2.0.0;
+				minimumVersion = 2.1.0;
 			};
 		};
 		E1A7C0012E0B000100000008 /* XCRemoteSwiftPackageReference "networking-apple" */ = {

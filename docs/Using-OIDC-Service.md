@@ -189,7 +189,7 @@ func application(_ app: UIApplication, open url: URL, options: [UIApplication.Op
     return true
 }
 
-// In SceneDelegate.swift (iOS 13+)
+// In SceneDelegate.swift (iOS 15+)
 func scene(_ scene: UIScene, openURLContexts URLContexts: Set<UIOpenURLContext>) {
     if let url = URLContexts.first?.url {
         // Handle the OIDC callback URL here

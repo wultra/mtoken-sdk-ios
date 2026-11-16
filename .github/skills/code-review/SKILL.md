@@ -8,7 +8,7 @@ description: Review pull requests in the Mobile Token SDK for Apple platforms. U
 Review only PR and repository content already available. Do not run or suggest
 commands, scripts, builds, tests, linters, formatters, validation tasks, or Git
 operations. Determine the repository, PR target/base, and head from available
-content only. This is `WultraMobileTokenSDK`, an iOS 13+ Swift 5 SDK distributed
+content only. This is `WultraMobileTokenSDK`, an iOS 15+ Swift 5 SDK distributed
 by SPM and CocoaPods. Its public library target is `WultraMobileTokenSDK`; it
 depends on `PowerAuth2` and `WultraPowerAuthNetworking`.
 
