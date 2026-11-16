@@ -3,7 +3,6 @@
 ## TBA
 - Bumped dependency `PowerAuth2` to `2.1.x` (accepts 2.1 patch releases, excludes 2.2).
 - Raised minimum deployment target from iOS 13.0 to iOS 15.0 (required by PowerAuth Mobile SDK 2.1.x). **Breaking change.**
-- Suggested next SDK version: `4.0.0`.
 
 ## 3.1.0
 - The `networking` property of `WMTOperations`, `WMTPush`, `WMTInbox`, and `WMTOIDC` is now `public`.
