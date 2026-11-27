@@ -5,14 +5,14 @@ import PackageDescription
 let package = Package(
     name: "WultraMobileTokenSDK",
     platforms: [
-        .iOS(.v13)
+        .iOS(.v15)
     ],
     products: [
         .library(name: "WultraMobileTokenSDK", targets: ["WultraMobileTokenSDK"])
     ],
     dependencies: [
-        .package(url: "https://github.com/wultra/powerauth-mobile-sdk.git", .upToNextMinor(from: "2.0.0")),
-        .package(url: "https://github.com/wultra/networking-apple.git", .upToNextMajor(from: "2.1.0"))
+        .package(url: "https://github.com/wultra/powerauth-mobile-sdk.git", .upToNextMinor(from: "2.1.0")),
+        .package(url: "https://github.com/wultra/networking-apple.git", .upToNextMajor(from: "3.0.0"))
     ],
     targets: [
         .target(

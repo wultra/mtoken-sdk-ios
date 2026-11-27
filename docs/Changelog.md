@@ -1,7 +1,10 @@
 # Changelog
 
 ## TBA
-- TBA
+- Bumped dependency `PowerAuth2` to `2.1.x`.
+- Bumped dependency `WultraPowerAuthNetworking` to `3.0.x`.
+- Raised minimum deployment target from iOS 13.0 to iOS 15.0.
+- See [Migration from version `3.1.x` to `3.2.x`](Migration-3.2.md) for details.
 
 ## 3.1.0
 - The `networking` property of `WMTOperations`, `WMTPush`, `WMTInbox`, and `WMTOIDC` is now `public`.
